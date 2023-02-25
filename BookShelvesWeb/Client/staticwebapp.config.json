@@ -1,4 +1,38 @@
 {
+  "routes": [
+    {
+      "route": "/login",
+      "redirect": "/.auth/login"
+    },
+    {
+      "route": "/logout",
+      "redirect": "/.auth/logout"
+    },
+    {
+      "route": "/.auth/login/github",
+      "statusCode": "401"
+    },
+    {
+      "route": "/.auth/login/twitter",
+      "statusCode": "401"
+    },
+    {
+      "route": "/.auth/login/facebook",
+      "statusCode": "401"
+    },
+    {
+      "route": "/.auth/login/google",
+      "statusCode": "401"
+    },
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "allowedRoles": [
+        "reader",
+        "contributor"
+      ]
+    }
+  ],
   "navigationFallback": {
     "rewrite": "/index.html"
   }
