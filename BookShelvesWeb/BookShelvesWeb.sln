@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiIsolated", "ApiIsolated\ApiIsolated.csproj", "{162B3342-33B4-49D4-BFD9-F10C053B2025}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoRazorClassLib", "DemoRazorClassLib\DemoRazorClassLib.csproj", "{013624EB-FED7-46F8-8C07-E6F5DFDCB006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoRazorClassLib", "DemoRazorClassLib\DemoRazorClassLib.csproj", "{013624EB-FED7-46F8-8C07-E6F5DFDCB006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
