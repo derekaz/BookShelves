@@ -2,11 +2,15 @@
   "routes": [
     {
       "route": "/login",
-      "redirect": "/.auth/login"
+      "rewrite": "/.auth/login/aad"
     },
     {
       "route": "/logout",
       "redirect": "/.auth/logout"
+    },
+    {
+      "route": "/me",
+      "redirect": "/.auth/me"
     },
     {
       "route": "/.auth/login/github",
@@ -23,9 +27,19 @@
     {
       "route": "/.auth/login/google",
       "statusCode": 401
+    },
+    {
+      "route": "/*",
+      "allowedRoles": ["authenticated"]
     }
   ],
   "navigationFallback": {
     "rewrite": "/index.html"
+  },
+  "responseOverrides": {
+    "401": {
+      "redirect": "/login",
+      "statusCode": 302
+    }
   }
 }
