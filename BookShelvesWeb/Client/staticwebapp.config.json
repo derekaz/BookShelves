@@ -1,9 +1,5 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html"
-  },
-  {
-    "route": "/login",
-    "redirect": "/.auth/login/aad"
   }
 }
