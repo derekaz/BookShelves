@@ -10,27 +10,19 @@
     },
     {
       "route": "/.auth/login/github",
-      "statusCode": "401"
+      "statusCode": 401
     },
     {
       "route": "/.auth/login/twitter",
-      "statusCode": "401"
+      "statusCode": 401
     },
     {
       "route": "/.auth/login/facebook",
-      "statusCode": "401"
+      "statusCode": 401
     },
     {
       "route": "/.auth/login/google",
-      "statusCode": "401"
-    },
-    {
-      "route": "/*",
-      "serve": "/index.html",
-      "allowedRoles": [
-        "reader",
-        "contributor"
-      ]
+      "statusCode": 401
     }
   ],
   "navigationFallback": {
