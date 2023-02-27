@@ -7,14 +7,7 @@
 
     <main>
         <div class="top-row px-4">
-@*            @if(!User.Identity.IsAuthenticated)
-            {*@
-                <a href="/.auth/login/aad">Login</a>
-@*          }
-            else
-            {*@
-                <a href="/.auth/logout">Logout</a>
-@*          }*@
+            <AccessControl />
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
@@ -23,13 +16,3 @@
         </article>
     </main>
 </div>
-
-@code {
-    protected string DisplayName;
-
-    protected override async Task OnInitializedAsync()
-    {
-        //var loggedInUser = await GetLoggedInUserDetailsAsync().ConfigureAwait(false);
-        //DisplayName = loggedInUser?.DisplayName ?? "Not a registered user";
-    }
-}

@@ -27,12 +27,14 @@
 
     private async Task GetClaimsPrincipalData()
     {
-        var authState = await AuthenticationStateProvider
+        AuthenticationState? authState = null;
+
+        authState = await AuthenticationStateProvider
                 .GetAuthenticationStateAsync();
 
-        var user = authState.User;
+        var user = authState?.User;
 
-        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        if (user?.Identity is not null && user.Identity.IsAuthenticated)
         {
             authMessage = $"{user.Identity.Name} is authenticated.";
             claims = user.Claims;
