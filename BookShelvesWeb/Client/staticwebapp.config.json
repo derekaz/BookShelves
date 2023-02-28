@@ -30,8 +30,7 @@
     },
     {
       "route": "/api/*",
-      "allowedRoles": [ "authenticated" ],
-      "statusCode": 403
+      "allowedRoles": [ "authenticated" ]
     },
     {
       "route": "/*",
