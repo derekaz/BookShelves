@@ -33,10 +33,6 @@
       "allowedRoles": [ "authenticated" ]
     },
     {
-      "route": "/",
-      "allowedRoles": [ "anonymous" ]
-    },
-    {
       "route": "/*",
       "allowedRoles": [ "authenticated" ]
     }
