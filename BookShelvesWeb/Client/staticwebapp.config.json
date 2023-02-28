@@ -35,7 +35,8 @@
     },
     {
       "route": "/*",
-      "allowedRoles": [ "authenticated" ]
+      "rewrite": "/index.html",
+      "statusCode": 200
     }
   ],
   "navigationFallback": {
