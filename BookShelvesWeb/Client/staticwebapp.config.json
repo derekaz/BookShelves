@@ -29,8 +29,16 @@
       "statusCode": 401
     },
     {
+      "route": "/api",
+      "allowedRoles": [ "authenticated" ]
+    },
+    {
+      "route": "/",
+      "allowedRoles": [ "anonymous" ]
+    },
+    {
       "route": "/*",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": [ "authenticated" ]
     }
   ],
   "navigationFallback": {
