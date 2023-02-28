@@ -14,23 +14,24 @@
     },
     {
       "route": "/.auth/login/github",
-      "statusCode": 401
+      "statusCode": 404
     },
     {
       "route": "/.auth/login/twitter",
-      "statusCode": 401
+      "statusCode": 404
     },
     {
       "route": "/.auth/login/facebook",
-      "statusCode": 401
+      "statusCode": 404
     },
     {
       "route": "/.auth/login/google",
-      "statusCode": 401
+      "statusCode": 404
     },
     {
       "route": "/api",
-      "allowedRoles": [ "authenticated" ]
+      "allowedRoles": [ "authenticated" ],
+      "statusCode": 403
     },
     {
       "route": "/*",
@@ -39,5 +40,11 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html"
+  },
+  "responseOverrides": {
+    "401": {
+      "redirect": "/login",
+      "statusCode": 302
+    }
   }
 }
