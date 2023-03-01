@@ -4,7 +4,7 @@
 <AuthorizeView>
     <Authorized>
         Hello, @context!.User!.Identity!.Name!
-        <a href="/.auth/logout?post_login_redirect_uri=/">Logout</a>
+        <a href="/.auth/logout?post_logout_redirect_uri=/">Logout</a>
     </Authorized>
     <NotAuthorized>
         <a href="/.auth/login/aad?post_login_redirect_uri=.referrer">Login</a>
