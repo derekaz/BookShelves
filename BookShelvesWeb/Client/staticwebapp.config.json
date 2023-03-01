@@ -45,7 +45,7 @@
       "allowedRoles": [ "anonymous" ]
     },
     {
-      "route": "/counter",
+      "route": "/counter*",
       "allowedRoles": [ "authenticated" ]
     }
   ],
