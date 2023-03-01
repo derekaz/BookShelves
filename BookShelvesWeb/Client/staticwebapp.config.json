@@ -42,10 +42,6 @@
     {
       "route": "/",
       "allowedRoles": [ "anonymous" ]
-    },
-    {
-      "route": "/*",
-      "allowedRoles": [ "authenticated" ]
     }
   ],
   "navigationFallback": {
