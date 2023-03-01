@@ -1,4 +1,5 @@
 {
+  "trailingSlash": "auto",
   "routes": [
     {
       "route": "/login",
@@ -42,6 +43,10 @@
     {
       "route": "/",
       "allowedRoles": [ "anonymous" ]
+    },
+    {
+      "route": "/counter/*",
+      "allowedRoles": [ "authenticated" ]
     }
   ],
   "navigationFallback": {
@@ -50,7 +55,7 @@
   },
   "responseOverrides": {
     "401": {
-      "redirect": "/login?post_login_redirect_uri=.referrer",
+      "redirect": "/login",
       "statusCode": 302
     }
   }
