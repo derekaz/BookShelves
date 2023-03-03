@@ -13,22 +13,24 @@ using BlazorApp.Shared;
 using Microsoft.Azure.Cosmos;
 using System.Linq;
 using BlazorApp.Api.DataAccess;
+using Microsoft.AspNetCore.Mvc.Formatters.Internal;
 
 namespace BlazorApp.Api.BookFunction
 {
     public class ReadBooks
     {
         private readonly ILogger<CreateBook> logger;
+        private readonly Books booksData;
 
-        public ReadBooks(ILogger<CreateBook> logger)
+        public ReadBooks(ILogger<CreateBook> logger, Books booksData)
         {
             this.logger = logger;
+            this.booksData = booksData;
         }
 
         [FunctionName("ReadBooks1")]
         public async Task<IActionResult> ReadAllBooks(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req, 
-            Books booksData
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req
             //[CosmosDB(
             //    databaseName: "azmoore-westus2-db1",
             //    containerName: "azmoore-books-westus2-dbc1",
@@ -74,8 +76,8 @@ namespace BlazorApp.Api.BookFunction
 
         [FunctionName("ReadBooks2")]
         public async Task<IActionResult> ReadAllBooksWithTitleTerm(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req,
-            Books booksData //,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req
+            //,
             //[CosmosDB(
             //    databaseName: "azmoore-westus2-db1",
             //    containerName: "azmoore-books-westus2-dbc1",
