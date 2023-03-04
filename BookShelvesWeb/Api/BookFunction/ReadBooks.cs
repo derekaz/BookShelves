@@ -20,9 +20,9 @@ namespace BlazorApp.Api.BookFunction
     public class ReadBooks
     {
         private readonly ILogger<CreateBook> logger;
-        private readonly Books booksData;
+        private readonly BookRepository booksData;
 
-        public ReadBooks(ILogger<CreateBook> logger, Books booksData)
+        public ReadBooks(ILogger<CreateBook> logger, BookRepository booksData)
         {
             this.logger = logger;
             this.booksData = booksData;
@@ -31,11 +31,6 @@ namespace BlazorApp.Api.BookFunction
         [FunctionName("ReadBooks1")]
         public async Task<IActionResult> ReadAllBooks(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req
-            //[CosmosDB(
-            //    databaseName: "azmoore-westus2-db1",
-            //    containerName: "azmoore-books-westus2-dbc1",
-            //    Connection = "CosmosDbConnectionString",
-            //    SqlQuery = "SELECT * FROM c")] IEnumerable<Book> books
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
@@ -60,28 +55,11 @@ namespace BlazorApp.Api.BookFunction
             }
 
             return new OkObjectResult(books);
-
-            //if (booksData.GetBooks() is null)
-            //{
-            //    return new BadRequestResult();
-            //}
-
-            //foreach (var book in booksData.GetBooks())
-            //{
-            //    logger.LogInformation(book.Title);
-            //}
-
-            //return new OkObjectResult(books);
         }
 
         [FunctionName("ReadBooks2")]
         public async Task<IActionResult> ReadAllBooksWithTitleTerm(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req
-            //,
-            //[CosmosDB(
-            //    databaseName: "azmoore-westus2-db1",
-            //    containerName: "azmoore-books-westus2-dbc1",
-            //    Connection = "CosmosDbConnectionString")] CosmosClient client
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadAllBooksWithTitleTerm)}");
@@ -107,37 +85,6 @@ namespace BlazorApp.Api.BookFunction
             }
 
             return new OkObjectResult(books);
-
-            //if (string.IsNullOrWhiteSpace(searchterm))
-            //{
-            //    return (ActionResult)new NotFoundResult();
-            //}
-
-            //Container container = client.GetDatabase("azmoore-westus2-db1").GetContainer("azmoore-books-westus2-dbc1");
-
-            //logger.LogInformation($"Searching for: {searchterm}");
-
-            //QueryDefinition queryDefinition = new QueryDefinition(
-            //    "SELECT * FROM items i WHERE CONTAINS(i.title, @searchterm)")
-            //    .WithParameter("@searchterm", searchterm);
-
-            //List<Book> books = new();
-
-            //using (FeedIterator<Book> resultSet = container.GetItemQueryIterator<Book>(queryDefinition))
-            //{
-            //    while (resultSet.HasMoreResults)
-            //    {
-            //        FeedResponse<Book> response = await resultSet.ReadNextAsync();
-            //        foreach(Book item in response)
-            //        {
-            //            logger.LogInformation(item.Title);
-            //            books.Add(item);
-            //        }
-            //        //Book item = response.First();
-            //    }
-            //}
-
-            //return new OkObjectResult(books);
         }
     }
 }

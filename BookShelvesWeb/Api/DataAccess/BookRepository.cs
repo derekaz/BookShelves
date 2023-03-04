@@ -15,45 +15,30 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace BlazorApp.Api.DataAccess
 {
-    public class Books
+    public class BookRepository
     {
-        private readonly ILogger<CreateBook> logger;
-        private readonly CosmosClient cosmosClient;
+        private readonly ILogger<BookRepository> logger;
+        private readonly Container bookContainer;
 
-        public Books(
-            ILogger<CreateBook> logger, 
-            [CosmosDB(
-                databaseName: "azmoore-westus2-db1",
-                containerName: "azmoore-books-westus2-dbc1",
-                Connection = "CosmosDbConnectionString")] 
-            CosmosClient client
+        public BookRepository(
+            ILogger<BookRepository> logger,
+            CosmosClient client, 
+            string databaseName, 
+            string containerName
             )
         {
             this.logger = logger;
-            cosmosClient = client;
+            bookContainer = client.GetContainer(databaseName, containerName);
         }
 
-        //public IEnumerable<Book> GetBooks([CosmosDB(
-        //        databaseName: "azmoore-westus2-db1",
-        //        containerName: "azmoore-books-westus2-dbc1",
-        //        Connection = "CosmosDbConnectionString",
-        //        SqlQuery = "SELECT * FROM c")] IEnumerable<Book> books
-        //    )
-        //{
-        //    logger.LogInformation($"Getting all books from DB");
-
-        //    return books;
-        //}
         public FeedIterator<Book> ReadAllBooks()
         {
             logger.LogInformation("Getting all books from DB");
 
-            Container container = cosmosClient.GetDatabase("azmoore-westus2-db1").GetContainer("azmoore-books-westus2-dbc1");
-
             QueryDefinition queryDefinition = new QueryDefinition(
                 "SELECT * FROM c");
 
-            return container.GetItemQueryIterator<Book>(queryDefinition);
+            return bookContainer.GetItemQueryIterator<Book>(queryDefinition);
         }
 
         public FeedIterator<Book> ReadAllBooksWithTitleTerm(string title)
@@ -65,15 +50,13 @@ namespace BlazorApp.Api.DataAccess
                 return null;
             }
 
-            Container container = cosmosClient.GetDatabase("azmoore-westus2-db1").GetContainer("azmoore-books-westus2-dbc1");
-
             logger.LogInformation($"Searching for: {title}");
 
             QueryDefinition queryDefinition = new QueryDefinition(
                 "SELECT * FROM items i WHERE CONTAINS(i.title, @searchterm)")
                 .WithParameter("@searchterm", title);
 
-            return container.GetItemQueryIterator<Book>(queryDefinition);
+            return bookContainer.GetItemQueryIterator<Book>(queryDefinition);
         }
     }
 }

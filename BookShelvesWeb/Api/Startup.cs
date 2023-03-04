@@ -3,8 +3,11 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,19 +20,16 @@ namespace BlazorApp.Api
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddSingleton<Books>();
-            builder.Services.AddCosmosRepository()
-            //throw new NotImplementedException();
-        }
+            string config = builder.GetContext().Configuration["CosmosDBConnectionString"];
 
-        private static async Task<Books> InitializeBooksClientAsync()
-        {
-            var client = new CosmosClient("CosmosDbConnectionString", clientOptions)
-
-                CosmosDB(
-                databaseName: "azmoore-westus2-db1",
-                containerName: "azmoore-books-westus2-dbc1",
-                Connection = "CosmosDbConnectionString")
+            builder.Services.AddSingleton<BookRepository>(x =>
+                new BookRepository(
+                    x.GetRequiredService<ILogger<BookRepository>>(),
+                    new CosmosClient(config),
+                    "azmoore-westus2-db1",
+                    "azmoore-books-westus2-dbc1"
+                    )
+                );
         }
     }
 }
