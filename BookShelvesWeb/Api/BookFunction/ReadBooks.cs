@@ -12,38 +12,46 @@ using System.Collections.Generic;
 using BlazorApp.Shared;
 using Microsoft.Azure.Cosmos;
 using System.Linq;
+using BlazorApp.Api.DataAccess;
+using Microsoft.AspNetCore.Mvc.Formatters.Internal;
 
 namespace BlazorApp.Api.BookFunction
 {
     public class ReadBooks
     {
         private readonly ILogger<CreateBook> logger;
+        private readonly BookRepository booksData;
 
-        public ReadBooks(ILogger<CreateBook> logger)
+        public ReadBooks(ILogger<CreateBook> logger, BookRepository booksData)
         {
             this.logger = logger;
+            this.booksData = booksData;
         }
 
         [FunctionName("ReadBooks1")]
-        public IActionResult ReadAllBooks(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req,
-            [CosmosDB(
-                databaseName: "azmoore-westus2-db1",
-                containerName: "azmoore-books-westus2-dbc1",
-                Connection = "CosmosDbConnectionString",
-                SqlQuery = "SELECT * FROM c")] IEnumerable<Book> books
+        public async Task<IActionResult> ReadAllBooks(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
 
-            if (books is null)
+            List<Book> books = new();
+            using (FeedIterator<Book> resultSet = booksData.ReadAllBooks())
             {
-                return new NotFoundResult();
-            }
+                if (resultSet == null)
+                {
+                    return new BadRequestResult();
+                }
 
-            foreach (var book in books)
-            {
-                logger.LogInformation(book.Title);
+                while (resultSet.HasMoreResults)
+                {
+                    FeedResponse<Book> response = await resultSet.ReadNextAsync();
+                    foreach (Book item in response)
+                    {
+                        logger.LogInformation(item.Title);
+                        books.Add(item);
+                    }
+                }
             }
 
             return new OkObjectResult(books);
@@ -51,11 +59,7 @@ namespace BlazorApp.Api.BookFunction
 
         [FunctionName("ReadBooks2")]
         public async Task<IActionResult> ReadAllBooksWithTitleTerm(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req,
-            [CosmosDB(
-                databaseName: "azmoore-westus2-db1",
-                containerName: "azmoore-books-westus2-dbc1",
-                Connection = "CosmosDbConnectionString")] CosmosClient client
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadAllBooksWithTitleTerm)}");
@@ -63,30 +67,20 @@ namespace BlazorApp.Api.BookFunction
             var searchterm = req.Query["title"].ToString();
             if (string.IsNullOrWhiteSpace(searchterm))
             {
-                return (ActionResult)new NotFoundResult();
+                return new NotFoundResult();
             }
 
-            Container container = client.GetDatabase("azmoore-westus2-db1").GetContainer("azmoore-books-westus2-dbc1");
-
-            logger.LogInformation($"Searching for: {searchterm}");
-
-            QueryDefinition queryDefinition = new QueryDefinition(
-                "SELECT * FROM items i WHERE CONTAINS(i.title, @searchterm)")
-                .WithParameter("@searchterm", searchterm);
-
-            List<Book> books = new();
-
-            using (FeedIterator<Book> resultSet = container.GetItemQueryIterator<Book>(queryDefinition))
+            List<Book> books = new(); 
+            using (FeedIterator<Book> resultSet = booksData.ReadAllBooksWithTitleTerm(searchterm))
             {
                 while (resultSet.HasMoreResults)
                 {
                     FeedResponse<Book> response = await resultSet.ReadNextAsync();
-                    foreach(Book item in response)
+                    foreach (Book item in response)
                     {
                         logger.LogInformation(item.Title);
                         books.Add(item);
                     }
-                    //Book item = response.First();
                 }
             }
 
