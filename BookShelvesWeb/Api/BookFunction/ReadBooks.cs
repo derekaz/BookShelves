@@ -35,26 +35,7 @@ namespace BlazorApp.Api.BookFunction
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
 
-            List<Book> books = new();
-            using (FeedIterator<Book> resultSet = booksData.ReadAllBooks())
-            {
-                if (resultSet == null)
-                {
-                    return new BadRequestResult();
-                }
-
-                while (resultSet.HasMoreResults)
-                {
-                    FeedResponse<Book> response = await resultSet.ReadNextAsync();
-                    foreach (Book item in response)
-                    {
-                        logger.LogInformation(item.Title);
-                        books.Add(item);
-                    }
-                }
-            }
-
-            return new OkObjectResult(books);
+            return new OkObjectResult(await booksData.GetMultipleAsync("SELECT * FROM c"));
         }
 
         [FunctionName("ReadBooks2")]
@@ -70,21 +51,7 @@ namespace BlazorApp.Api.BookFunction
                 return new NotFoundResult();
             }
 
-            List<Book> books = new(); 
-            using (FeedIterator<Book> resultSet = booksData.ReadAllBooksWithTitleTerm(searchterm))
-            {
-                while (resultSet.HasMoreResults)
-                {
-                    FeedResponse<Book> response = await resultSet.ReadNextAsync();
-                    foreach (Book item in response)
-                    {
-                        logger.LogInformation(item.Title);
-                        books.Add(item);
-                    }
-                }
-            }
-
-            return new OkObjectResult(books);
+            return new OkObjectResult(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE CONTAINS '{searchterm}'"));
         }
     }
 }
