@@ -3,22 +3,26 @@
 @*@inject HttpClient Http*@
 @*@inject Microsoft.AspNetCore.Components.NavigationManager navigation*@
 
-<div class="modal fade" tabindex="-1" role="dialog" id="bookDetail">
-    <div class="modal-dialog" role="document">
+<div class="modal fade show d-block" tabindex="-1" role="dialog" id="bookDetail">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog" role="document" style="z-index: 1050">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Book</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
                     <span aria-hidden="true">x</span>
                 </button>
             </div>
             <div class="modal-body">
-                <EditForm Model="@BookObject" Context="formContext">
+                <EditForm Model="@BookObject">
                     <div class="form-group">
                         <InputText id="title" class="form-control" @bind-Value="@BookObject.Title" />
                     </div>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 </EditForm>
+            </div>
+            <div class="modal-footer">
+                <button type="button" @onclick="SubmitForm">Submit</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
             </div>
         </div>
     </div>
@@ -50,9 +54,20 @@
     </div>
 </div>
 *@
-@code {
+
+@code 
+{
+    [CascadingParameter] 
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
     [Parameter]
-    public Book BookObject { get; set; }
+    public Book BookObject { get; set; } = new Book();
+
+    string message = "Okey Dokey";
+
+    private async Task SubmitForm() => await BlazoredModal.CloseAsync(ModalResult.Ok(message));
+    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
 
     //List<string> BookStatusList = new List<string>() { "New", "In Progress", "Completed" };
 
