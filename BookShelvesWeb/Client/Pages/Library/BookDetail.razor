@@ -1,0 +1,69 @@
+﻿@*@page "/library/addbook"*@
+@using BlazorApp.Shared
+@*@inject HttpClient Http*@
+@*@inject Microsoft.AspNetCore.Components.NavigationManager navigation*@
+
+<div class="modal fade" tabindex="-1" role="dialog" id="bookDetail">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Book</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@BookObject" Context="formContext">
+                    <div class="form-group">
+                        <InputText id="title" class="form-control" @bind-Value="@BookObject.Title" />
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@*<h1>Library - Add a book</h1>
+
+<hr/>
+
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div class="form-group">
+                <label for="Title" class="control-label">Title</label>
+                <input for="Title" class="form-control" @bind="@BookObject.Title" />
+            </div>
+            <div class="form-group">
+                <label for="Author" class="control-label">Author</label>
+                <input for="Author" class="form-control" @bind="@BookObject.Author" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-default" @onclick="@(async () => await CreateBook())">Save</button>
+                <button class="btn" @onclick="@cancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+*@
+@code {
+    [Parameter]
+    public Book BookObject { get; set; }
+
+    //List<string> BookStatusList = new List<string>() { "New", "In Progress", "Completed" };
+
+    //protected async Task CreateBook()
+    //{
+    //    await Http.PostAsJsonAsync("api/books/new", book);
+    //    navigation.NavigateTo("/library/library");
+    //}
+
+    //void cancel()
+    //{
+    //    navigation.NavigateTo("/library");
+    //}
+}

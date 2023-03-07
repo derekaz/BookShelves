@@ -4,6 +4,11 @@
 
 <h1>Library</h1>
 
+<div>
+    @*<a href="/library/addbook">Create</a>*@
+    <input type="button" data-toggle="modal" data-target="#bookDetail" class="btn btn-primary" value="Add Book" @onclick="(() => InitializeBookObject())" />
+</div>
+
 @if (books == null)
 {
     <p><em>Loading...</em></p>
@@ -33,8 +38,11 @@ else
     </table>
 }
 
+<BookDetail BookObject=@bookObject></BookDetail>
+
 @code {
     private Book[] books = new Book[]{};
+    Book bookObject = new Book();
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,5 +54,10 @@ else
         {
             Console.WriteLine(ex.ToString());
         }
+    }
+
+    private void InitializeBookObject()
+    {
+        bookObject = new Book();
     }
 }
