@@ -19,10 +19,10 @@ namespace BlazorApp.Api.BookFunction
 {
     public class ReadBooks
     {
-        private readonly ILogger<CreateBook> logger;
+        private readonly ILogger<ReadBooks> logger;
         private readonly BookRepository booksData;
 
-        public ReadBooks(ILogger<CreateBook> logger, BookRepository booksData)
+        public ReadBooks(ILogger<ReadBooks> logger, BookRepository booksData)
         {
             this.logger = logger;
             this.booksData = booksData;

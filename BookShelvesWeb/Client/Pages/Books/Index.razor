@@ -1,0 +1,91 @@
+﻿@page "/books"
+@using BlazorApp.Shared 
+@inject HttpClient Http
+@inject IModalService modal
+
+<h1>Library</h1>
+
+<div>
+    @*<a href="/library/addbook">Create</a>*@
+    @*<input type="button" data-toggle="modal" data-target="#bookDetail" class="btn btn-primary" value="Add Book" @onclick="(() => Show())" />*@
+    @*<button @onclick="@(()=>modal.Show<BookDetail>("Book Modal"))" class="btn btn-primary">Add Book</button>*@
+    <button @onclick="(() => Show())" class="btn btn-primary">Add Book</button>
+</div>
+
+@*<BookDetail></BookDetail>*@
+@*<BookDetail BookObject=@bookObject></BookDetail>*@
+@*@if (ShowPopup)
+{
+    <BookDetail BookObject=@bookObject></BookDetail>
+}*@
+<p>@message</p>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+@*                <th>Temp. (F)</th>
+                <th>Summary</th>
+*@            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+@*                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+*@                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Book[] books = new Book[]{};
+    Book bookObject = new Book();
+    bool ShowPopup { get; set; }
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    private async void Show()
+    {
+        InitializeBookObject();
+        //ShowPopup = true;
+        //StateHasChanged();
+        var parameters = new ModalParameters()
+            .Add(nameof(BookDetail.BookObject), bookObject);
+        var options = new ModalOptions() { UseCustomLayout = true };
+        var form = modal.Show<BookDetail>("Book Modal", parameters, options);
+        var result = await form.Result;
+        if (result.Confirmed)
+        {
+            message = result?.Data?.ToString() ?? "";
+        }
+        StateHasChanged();
+    }
+
+    private void InitializeBookObject()
+    {
+        bookObject = new Book() { Title = "Replace Me" };
+    }
+}
