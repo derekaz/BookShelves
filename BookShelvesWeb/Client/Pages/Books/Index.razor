@@ -1,7 +1,7 @@
 ﻿@page "/books"
 @using BlazorApp.Shared 
 @inject HttpClient Http
-@inject IModalService modal
+@*@inject IModalService modal*@
 
 <h1>Library</h1>
 
@@ -55,6 +55,9 @@ else
     bool ShowPopup { get; set; }
     private string message = string.Empty;
 
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -75,7 +78,7 @@ else
         var parameters = new ModalParameters()
             .Add(nameof(BookDetail.BookObject), bookObject);
         var options = new ModalOptions() { UseCustomLayout = true };
-        var form = modal.Show<BookDetail>("Book Modal", parameters, options);
+        var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
         var result = await form.Result;
         if (result.Confirmed)
         {
