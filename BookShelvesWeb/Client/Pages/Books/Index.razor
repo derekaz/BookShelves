@@ -1,7 +1,7 @@
 ﻿@page "/books"
 @using BlazorApp.Shared 
 @inject HttpClient Http
-@attribute [Authorize(Roles = "administrator")]
+@*@attribute [Authorize(Roles = "administrator")]*@
 
 <h1>Books</h1>
 
@@ -50,8 +50,6 @@ else
 
 @code {
     private Book[] books = new Book[]{};
-    Book bookObject = new Book();
-    bool ShowPopup { get; set; }
     private string message = string.Empty;
 
     [CascadingParameter]
@@ -69,10 +67,10 @@ else
         }
     }
 
-    private async void ShowAsync()
+    private async void ShowDetailAsync(Book book)
     {
         var parameters = new ModalParameters()
-            .Add(nameof(BookDetail.BookObject), bookObject);
+            .Add(nameof(BookDetail.BookObject), book);
         var options = new ModalOptions() { UseCustomLayout = true };
         var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
         var result = await form.Result;
@@ -87,31 +85,44 @@ else
 
     private async void AddAsync()
     {
-        InitializeBookObject();
-        ShowAsync();
+        var book = InitializeBookObject();
+        ShowDetailAsync(book);
     }
 
     private async void EditAsync(Book book)
     {
-        bookObject = book;
-        ShowAsync();
+        ShowDetailAsync(book);
     }
 
     private async void DeleteAsync(Book book)
     {
-        var result = await Http.DeleteAsync($"/api/book/{book.Id}");
-
-        if (result.IsSuccessStatusCode)
+        var parameters = new ModalParameters()
+            .Add(nameof(BookDelete.BookObject), book);
+        var options = new ModalOptions() { UseCustomLayout = true };
+        var form = Modal.Show<BookDelete>("Book Modal", parameters, options);
+        var result = await form.Result;
+        if (result.Confirmed)
         {
-            message = "Book deleted";
+            //result?.
+            //message = result?.Data?.ToString() ?? "";
+            var deleteResult = await Http.DeleteAsync($"/api/book/{book.Id}");
 
-            books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            if (deleteResult.IsSuccessStatusCode)
+            {
+                message = "Book deleted";
+
+                books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
+        else
+        {
+            message = "Delete canceled";
+        }
     }
 
-    private void InitializeBookObject()
+    private Book InitializeBookObject()
     {
-        bookObject = new Book() { Title = "Replace Me" };
+        return new Book() { Title = "Replace Me" };
     }
 }
