@@ -1,23 +1,17 @@
 ﻿@page "/books"
 @using BlazorApp.Shared 
 @inject HttpClient Http
-@*@inject IModalService modal*@
+@attribute [Authorize(Roles = "administrator")]
 
-<h1>Library</h1>
+<h1>Books</h1>
 
 <div>
     @*<a href="/library/addbook">Create</a>*@
     @*<input type="button" data-toggle="modal" data-target="#bookDetail" class="btn btn-primary" value="Add Book" @onclick="(() => Show())" />*@
     @*<button @onclick="@(()=>modal.Show<BookDetail>("Book Modal"))" class="btn btn-primary">Add Book</button>*@
-    <button @onclick="(() => Show())" class="btn btn-primary">Add Book</button>
+    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Book</button>
 </div>
 
-@*<BookDetail></BookDetail>*@
-@*<BookDetail BookObject=@bookObject></BookDetail>*@
-@*@if (ShowPopup)
-{
-    <BookDetail BookObject=@bookObject></BookDetail>
-}*@
 <p>@message</p>
 
 @if (books == null)
@@ -31,6 +25,7 @@ else
             <tr>
                 <th>Title</th>
                 <th>Author</th>
+                <th></th>
 @*                <th>Temp. (F)</th>
                 <th>Summary</th>
 *@            </tr>
@@ -41,7 +36,11 @@ else
                 <tr>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
-@*                    <td>@forecast.TemperatureF</td>
+                    <td>
+                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
+                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(book))" value="Delete" />
+                    </td>
+@*                  <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
 *@                </tr>
             }
@@ -70,11 +69,8 @@ else
         }
     }
 
-    private async void Show()
+    private async void ShowAsync()
     {
-        InitializeBookObject();
-        //ShowPopup = true;
-        //StateHasChanged();
         var parameters = new ModalParameters()
             .Add(nameof(BookDetail.BookObject), bookObject);
         var options = new ModalOptions() { UseCustomLayout = true };
@@ -83,6 +79,33 @@ else
         if (result.Confirmed)
         {
             message = result?.Data?.ToString() ?? "";
+
+            books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+        }
+        StateHasChanged();
+    }
+
+    private async void AddAsync()
+    {
+        InitializeBookObject();
+        ShowAsync();
+    }
+
+    private async void EditAsync(Book book)
+    {
+        bookObject = book;
+        ShowAsync();
+    }
+
+    private async void DeleteAsync(Book book)
+    {
+        var result = await Http.DeleteAsync($"/api/books/{book.Id}");
+
+        if (result.IsSuccessStatusCode)
+        {
+            message = "Book deleted";
+
+            books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
         }
         StateHasChanged();
     }

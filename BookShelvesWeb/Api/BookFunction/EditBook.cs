@@ -11,55 +11,58 @@ using System.Threading.Tasks;
 
 namespace BlazorApp.Api.BookFunction
 {
-    public class CreateBook
+    public class EditBook
     {
-        private readonly ILogger<CreateBook> logger;
+        private readonly ILogger<EditBook> logger;
         private readonly BookRepository bookRepository;
 
-        public CreateBook(ILogger<CreateBook> logger, BookRepository bookRepository)
+        public EditBook(ILogger<EditBook> logger, BookRepository bookRepository)
         {
             this.logger = logger;
             this.bookRepository = bookRepository;
         }
 
-        [FunctionName("CreateBook")]
+        [FunctionName("EditBook")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = $"books/new")] HttpRequest req) //,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = $"books/edit")] HttpRequest req) //,
         {
-            logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(Run)}");
+            logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(EditBook)}");
 
+            string id = req.Query["id"];
             string title = req.Query["title"];
             string author = req.Query["author"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
+            id ??= data?.id;
             title ??= data?.title;
             author ??= data?.author;
 
-            if (string.IsNullOrEmpty(title))
+            if (string.IsNullOrEmpty(id))
             {
-                logger.LogInformation($"Unable to create book with no title.");
+                logger.LogInformation($"Unable to update a book with no id.");
                 return new UnprocessableEntityResult();
             }
 
             Book book = new()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = id,
                 Title = title,
                 Author = author
             };
 
             try
             {
-                await bookRepository.AddAsync(book);
+                await bookRepository.UpdateAsync(id, book);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Unable to add book: {book}");
+                Console.WriteLine(ex.ToString());
+                logger.LogError(ex, $"Unable to edit book: {book}");
                 return new UnprocessableEntityResult();
             }
 
-            string responseMessage = $"Function triggered successfully and book created. {book}";
+            string responseMessage = $"Function triggered successfully and book edited. {book}";
             return new OkObjectResult(responseMessage);
         }
     }

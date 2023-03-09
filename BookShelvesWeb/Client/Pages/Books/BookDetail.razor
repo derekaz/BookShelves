@@ -1,7 +1,5 @@
-﻿@*@page "/library/addbook"*@
-@using BlazorApp.Shared
-@*@inject HttpClient Http*@
-@*@inject Microsoft.AspNetCore.Components.NavigationManager navigation*@
+﻿@using BlazorApp.Shared
+@inject HttpClient Http
 
 <div class="modal fade show d-block" tabindex="-1" role="dialog" id="bookDetail">
     <div class="modal-backdrop fade show" @onclick="Cancel"></div>
@@ -16,8 +14,14 @@
             <div class="modal-body">
                 <EditForm Model="@BookObject">
                     <div class="form-group">
-                        <InputText id="title" class="form-control" @bind-Value="@BookObject.Title" />
+                        <label for="Title" class="control-label">Title</label>
+                        <InputText id="title" for="Title" class="form-control" @bind-Value="@BookObject.Title" />
                     </div>
+                    <div class="form-group">
+                        <label for="Author" class="control-label">Author</label>
+                        <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
+                    </div>
+
                 </EditForm>
             </div>
             <div class="modal-footer">
@@ -65,8 +69,29 @@
 
     string message = "Okey Dokey";
 
-    private async Task SubmitForm() => await BlazoredModal.CloseAsync(ModalResult.Ok(message));
-    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+    private async Task SubmitForm()
+    {
+        if (String.IsNullOrEmpty(BookObject.Id))
+        {
+            var result = await Http.PostAsJsonAsync("api/books/new", BookObject);
+            if (result.IsSuccessStatusCode)
+            {
+                message = $"'{BookObject.Title}' has been added.";
+                await BlazoredModal.CloseAsync(ModalResult.Ok(message));
+            }
+        }
+        else
+        {
+            var result = await Http.PostAsJsonAsync("api/books/edit", BookObject);
+            if (result.IsSuccessStatusCode)
+            {
+                message = $"'{BookObject.Title}' has been updated.";
+                await BlazoredModal.CloseAsync(ModalResult.Ok(message));
+            }
+        }
+    }
+
+    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());
     private async Task Cancel() => await BlazoredModal.CancelAsync();
 
     //List<string> BookStatusList = new List<string>() { "New", "In Progress", "Completed" };
