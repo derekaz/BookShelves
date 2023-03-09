@@ -99,7 +99,7 @@ else
 
     private async void DeleteAsync(Book book)
     {
-        var result = await Http.DeleteAsync($"/api/books/{book.Id}");
+        var result = await Http.DeleteAsync($"/api/book/{book.Id}");
 
         if (result.IsSuccessStatusCode)
         {
