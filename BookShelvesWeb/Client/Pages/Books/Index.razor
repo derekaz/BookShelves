@@ -1,7 +1,7 @@
 ﻿@page "/books"
 @using BlazorApp.Shared 
 @inject HttpClient Http
-@*@attribute [Authorize(Roles = "administrator")]*@
+@attribute [Authorize(Roles = "administrator")]
 
 <h1>Books</h1>
 
@@ -67,10 +67,11 @@ else
         }
     }
 
-    private async void ShowDetailAsync(Book book)
+    private async void ShowDetailAsync(Book book, string titleText)
     {
         var parameters = new ModalParameters()
-            .Add(nameof(BookDetail.BookObject), book);
+            .Add(nameof(BookDetail.BookObject), book)
+            .Add(nameof(BookDetail.TitleText), titleText);
         var options = new ModalOptions() { UseCustomLayout = true };
         var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
         var result = await form.Result;
@@ -86,12 +87,12 @@ else
     private async void AddAsync()
     {
         var book = InitializeBookObject();
-        ShowDetailAsync(book);
+        ShowDetailAsync(book, "New Book");
     }
 
     private async void EditAsync(Book book)
     {
-        ShowDetailAsync(book);
+        ShowDetailAsync(book, "Edit Book");
     }
 
     private async void DeleteAsync(Book book)
@@ -103,13 +104,11 @@ else
         var result = await form.Result;
         if (result.Confirmed)
         {
-            //result?.
-            //message = result?.Data?.ToString() ?? "";
             var deleteResult = await Http.DeleteAsync($"/api/book/{book.Id}");
 
             if (deleteResult.IsSuccessStatusCode)
             {
-                message = "Book deleted";
+                message = $"'{book.Title}' deleted";
 
                 books = await Http.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
             }
@@ -118,11 +117,12 @@ else
         else
         {
             message = "Delete canceled";
+            StateHasChanged();
         }
     }
 
     private Book InitializeBookObject()
     {
-        return new Book() { Title = "Replace Me" };
+        return new Book();
     }
 }
