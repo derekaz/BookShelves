@@ -1,16 +1,8 @@
 ﻿using BlazorApp.Api.DataAccess;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 [assembly: FunctionsStartup(typeof(BlazorApp.Api.Startup))]
 
 namespace BlazorApp.Api

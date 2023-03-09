@@ -6,7 +6,7 @@
     <div class="modal-dialog" role="document" style="z-index: 1050">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Book</h5>
+                <h5 class="modal-title">@TitleText</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
                     <span aria-hidden="true">x</span>
                 </button>
@@ -32,33 +32,6 @@
     </div>
 </div>
 
-
-
-
-@*<h1>Library - Add a book</h1>
-
-<hr/>
-
-<div class="row">
-    <div class="col-md-4">
-        <form>
-            <div class="form-group">
-                <label for="Title" class="control-label">Title</label>
-                <input for="Title" class="form-control" @bind="@BookObject.Title" />
-            </div>
-            <div class="form-group">
-                <label for="Author" class="control-label">Author</label>
-                <input for="Author" class="form-control" @bind="@BookObject.Author" />
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-default" @onclick="@(async () => await CreateBook())">Save</button>
-                <button class="btn" @onclick="@cancel">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-*@
-
 @code 
 {
     [CascadingParameter] 
@@ -67,7 +40,10 @@
     [Parameter]
     public Book BookObject { get; set; } = new Book();
 
-    string message = "Okey Dokey";
+    [Parameter]
+    public string TitleText { get; set; } = "Books";
+
+    string message = string.Empty;
 
     private async Task SubmitForm()
     {
@@ -76,7 +52,7 @@
             var result = await Http.PostAsJsonAsync("api/books/new", BookObject);
             if (result.IsSuccessStatusCode)
             {
-                message = $"'{BookObject.Title}' has been added.";
+                string message = $"'{BookObject.Title}' has been added.";
                 await BlazoredModal.CloseAsync(ModalResult.Ok(message));
             }
         }
@@ -85,7 +61,7 @@
             var result = await Http.PostAsJsonAsync("api/books/edit", BookObject);
             if (result.IsSuccessStatusCode)
             {
-                message = $"'{BookObject.Title}' has been updated.";
+                string message = $"'{BookObject.Title}' has been updated.";
                 await BlazoredModal.CloseAsync(ModalResult.Ok(message));
             }
         }
@@ -93,17 +69,4 @@
 
     private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());
     private async Task Cancel() => await BlazoredModal.CancelAsync();
-
-    //List<string> BookStatusList = new List<string>() { "New", "In Progress", "Completed" };
-
-    //protected async Task CreateBook()
-    //{
-    //    await Http.PostAsJsonAsync("api/books/new", book);
-    //    navigation.NavigateTo("/library/library");
-    //}
-
-    //void cancel()
-    //{
-    //    navigation.NavigateTo("/library");
-    //}
 }
