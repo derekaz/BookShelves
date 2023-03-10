@@ -1,12 +1,11 @@
 using BlazorApp.Api.DataAccess;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace BlazorApp.Api.BookFunction
@@ -22,14 +21,15 @@ namespace BlazorApp.Api.BookFunction
             this.bookRepository = bookRepository;
         }
 
-        [FunctionName("CreateBook")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = $"books/new")] HttpRequest req) //,
+        [Function("CreateBook")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = $"books/new")] HttpRequestData req)
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(Run)}");
-
-            string title = req.Query["title"];
-            string author = req.Query["author"];
+            string title = req.FunctionContext.BindingContext.BindingData["title"].ToString();
+            string author = req.FunctionContext.BindingContext.BindingData["author"].ToString();
+            //string title = req.Query["title"];
+            //string author = req.Query["author"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
@@ -39,7 +39,7 @@ namespace BlazorApp.Api.BookFunction
             if (string.IsNullOrEmpty(title))
             {
                 logger.LogInformation($"Unable to create book with no title.");
-                return new UnprocessableEntityResult();
+                return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
             }
 
             Book book = new()
@@ -56,11 +56,14 @@ namespace BlazorApp.Api.BookFunction
             catch (Exception ex)
             {
                 logger.LogError(ex, $"Unable to add book: {book}");
-                return new UnprocessableEntityResult();
+                return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
             }
 
             string responseMessage = $"Function triggered successfully and book created. {book}";
-            return new OkObjectResult(responseMessage);
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteStringAsync(responseMessage);
+
+            return response;
         }
     }
 }
