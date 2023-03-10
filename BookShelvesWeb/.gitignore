@@ -341,13 +341,10 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
-/pw-report/
-/test-results/
-/playwright-report/
-/playwright/.cache/
-/test-results/
-/playwright-report/
-/playwright/.cache/
-/test-results/
-/playwright-report/
-/playwright/.cache/
+pw-report/
+test-results/
+playwright-report/
+playwright/.cache/
+test-results/
+playwright-report/
+playwright/.cache/
