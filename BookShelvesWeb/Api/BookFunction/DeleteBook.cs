@@ -1,11 +1,11 @@
 using BlazorApp.Api.DataAccess;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs;
 using System;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace BlazorApp.Api.BookFunction
 {
@@ -20,9 +20,9 @@ namespace BlazorApp.Api.BookFunction
             this.booksData = booksData;
         }
 
-        [FunctionName("DeleteBook1")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "book/{id}")] HttpRequest req, string id
+        [Function("DeleteBook1")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "book/{id}")] HttpRequestData req, string id
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(Run)} with id:{id}");
@@ -34,10 +34,10 @@ namespace BlazorApp.Api.BookFunction
             catch (Exception ex) 
             {
                 logger.LogError(ex, $"Unable to delete book: {id}");
-                return new UnprocessableEntityResult();
+                return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
             }
 
-            return new OkResult();
+            return req.CreateResponse(HttpStatusCode.OK);
         }
     }
 }

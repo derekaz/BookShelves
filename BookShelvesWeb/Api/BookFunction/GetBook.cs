@@ -1,19 +1,10 @@
-using System;
-using System.IO;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
-using BlazorApp.Shared;
-using Microsoft.Azure.Cosmos;
-using System.Linq;
 using BlazorApp.Api.DataAccess;
-using Microsoft.AspNetCore.Mvc.Formatters.Internal;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker;
 
 namespace BlazorApp.Api.BookFunction
 {
@@ -28,14 +19,17 @@ namespace BlazorApp.Api.BookFunction
             this.booksData = booksData;
         }
 
-        [FunctionName("GetBook1")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "book/{id}")] HttpRequest req, string id
-            )
+        [Function("GetBook1")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "book/{id}")] HttpRequestData req, 
+            string id
+        )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(Run)} with id:{id}");
 
-            return new OkObjectResult(await booksData.GetAsync(id));
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteAsJsonAsync(await booksData.GetAsync(id));
+            return response;
         }
     }
 }

@@ -1,19 +1,10 @@
-using System;
-using System.IO;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
-using BlazorApp.Shared;
-using Microsoft.Azure.Cosmos;
-using System.Linq;
 using BlazorApp.Api.DataAccess;
-using Microsoft.AspNetCore.Mvc.Formatters.Internal;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker;
 
 namespace BlazorApp.Api.BookFunction
 {
@@ -28,30 +19,34 @@ namespace BlazorApp.Api.BookFunction
             this.booksData = booksData;
         }
 
-        [FunctionName("ReadBooks1")]
-        public async Task<IActionResult> ReadAllBooks(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequest req
+        [Function("ReadBooks1")]
+        public async Task<HttpResponseData> ReadAllBooks(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books")] HttpRequestData req
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
 
-            return new OkObjectResult(await booksData.GetMultipleAsync("SELECT * FROM c"));
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteAsJsonAsync(await booksData.GetMultipleAsync("SELECT * FROM c"));
+            return response;
         }
 
-        [FunctionName("ReadBooks2")]
-        public async Task<IActionResult> ReadAllBooksWithTitleTerm(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequest req
+        [Function("ReadBooks2")]
+        public async Task<HttpResponseData> ReadAllBooksWithTitleTerm(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = $"books/title")] HttpRequestData req
             )
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadAllBooksWithTitleTerm)}");
 
-            var searchterm = req.Query["title"].ToString();
+            var searchterm = req.FunctionContext.BindingContext.BindingData["title"].ToString();
             if (string.IsNullOrWhiteSpace(searchterm))
             {
-                return new NotFoundResult();
+                return req.CreateResponse(HttpStatusCode.NotFound);
             }
 
-            return new OkObjectResult(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE CONTAINS '{searchterm}'"));
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE CONTAINS '{searchterm}'"));
+            return response;
         }
     }
 }

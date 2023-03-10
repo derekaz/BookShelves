@@ -84,13 +84,13 @@ else
         StateHasChanged();
     }
 
-    private async void AddAsync()
+    private void AddAsync()
     {
         var book = InitializeBookObject();
         ShowDetailAsync(book, "New Book");
     }
 
-    private async void EditAsync(Book book)
+    private void EditAsync(Book book)
     {
         ShowDetailAsync(book, "Edit Book");
     }

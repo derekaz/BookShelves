@@ -1,18 +1,25 @@
 using System;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
 using BlazorApp.Shared;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker;
+using System.Net;
 
 namespace BlazorApp.Api
 {
-    public static class WeatherForecastFunction
+    public class WeatherForecastFunction
     {
-        private static string GetSummary(int temp)
+        private readonly ILogger _logger;
+
+        public WeatherForecastFunction(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<WeatherForecastFunction>();
+        }
+
+        private string GetSummary(int temp)
         {
             var summary = "Mild";
 
@@ -32,10 +39,9 @@ namespace BlazorApp.Api
             return summary;
         }
 
-        [FunctionName("WeatherForecast")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
-            ILogger log)
+        [Function("WeatherForecast")]
+        public HttpResponseData Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
         {
             var randomNumber = new Random();
             var temp = 0;
@@ -47,7 +53,10 @@ namespace BlazorApp.Api
                 Summary = GetSummary(temp)
             }).ToArray();
 
-            return new OkObjectResult(result);
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.WriteAsJsonAsync(result);
+
+            return response;
         }
     }
 }
