@@ -3,11 +3,16 @@
 
 <AuthorizeView>
     <Authorized>
-        Hello, @context!.User!.Identity!.Name!
-        <a href="/.auth/logout">Logout</a>
+        <div class="row">
+            <div class="col"> Hello, @context!.User!.Identity!.Name!</div>
+            <div class="col"> <a href="/.auth/logout">Logout</a></div>
+        </div>
     </Authorized>
     <NotAuthorized>
-        <a href="/.auth/login/aad">Login</a>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col"> <a href="/.auth/login/aad">Login</a></div>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
