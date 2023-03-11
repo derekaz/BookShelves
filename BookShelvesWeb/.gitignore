@@ -348,3 +348,5 @@ playwright/.cache/
 test-results/
 playwright-report/
 playwright/.cache/
+report.json
+salt

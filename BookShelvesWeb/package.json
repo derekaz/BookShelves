@@ -1,6 +1,9 @@
 {
   "name": "blazor-starter",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=16.0.0 <17.0.0"
+  },
   "scripts": {
     "start": "swa start http://localhost:5000 --run \"dotnet run --project Client/Client.csproj\" --api-location Api",
     "playwright_test": "playwright test"
