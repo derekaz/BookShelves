@@ -4,6 +4,8 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>BlazorApp.Api</RootNamespace>
 	<OutputType>Exe</OutputType>
+	<RuntimeIdentifier>win-x86</RuntimeIdentifier>
+	<PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.ResourceManager.CosmosDB" Version="1.2.1" />
