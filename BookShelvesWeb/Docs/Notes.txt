@@ -1,2 +1,18 @@
 Paged-Based Pagination with Azure CosmosDB
 https://itnext.io/paged-based-pagination-with-azure-cosmosdb-319a23f2a2c7
+
+Best practices for Azure Cosmos DB .NET SDK
+https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/best-practice-dotnet
+
+Query performance tips for Azure Cosmos DB SDKs
+https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/performance-tips-query-sdk?tabs=v3&pivots=programming-language-csharp
+
+Performance tips for Azure Cosmos DB and .NET (.NET SDK v3)
+https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/performance-tips-dotnet-sdk-v3?tabs=trace-net-core
+
+QuickGrid for Blazor
+https://aspnet.github.io/quickgridsamples/
+https://aspnet.github.io/quickgridsamples/datasources
+
+IEnumerable VS IQueryable in C#
+https://yohan.hashnode.dev/ienumerable-vs-iqueryable-in-c
