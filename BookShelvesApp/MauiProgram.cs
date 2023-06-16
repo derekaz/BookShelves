@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using BookShelves.Data;
 using BookShelves.Helpers;
+using Blazored.Modal;
 
 namespace BookShelves;
 
@@ -31,6 +32,8 @@ public static class MauiProgram
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
 
         builder.Services.AddTransient<BookDataService>();
+
+        builder.Services.AddBlazoredModal();
 
         return builder.Build();
 	}

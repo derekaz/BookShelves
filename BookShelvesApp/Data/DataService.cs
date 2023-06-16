@@ -76,7 +76,7 @@ namespace BookShelves.Data
         {
             var commands = new List<string>()
             {
-                $"INSERT INTO {Constants.BookTable} VALUES (1, 'Kitchen'), (2, 'Sales'), (3, 'Accounting');",
+                $"INSERT INTO {Constants.BookTable} VALUES (1, 'Kitchen', 'Smith'), (2, 'Sales', 'Jones'), (3, 'Accounting', 'James');",
                 //"INSERT INTO employees VALUES (1, 'SpongeBob SquarePants', 1), (2, 'Squidward Tentacles', 2), (3, 'Mr. Krabs', 3), (4, 'Pearl Krabs', 3);",
             };
 

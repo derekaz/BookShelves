@@ -1,0 +1,70 @@
+﻿@using BookShelves.Data;
+@inject BookDataService booksService
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" id="bookDetail">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog" role="document" style="z-index: 1050">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@TitleText</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="@BookObject">
+                    <div class="form-group">
+                        <label for="Title" class="control-label">Title</label>
+                        <InputText id="title" for="Title" class="form-control" @bind-Value="@BookObject.Title" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Author" class="control-label">Author</label>
+                        <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
+                    </div>
+
+                </EditForm>
+            </div>
+            <div class="modal-footer">
+                <button type="button" @onclick="SubmitForm">Submit</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public Book BookObject { get; set; } = new Book();
+
+    [Parameter]
+    public string TitleText { get; set; } = "Books";
+
+    string message = string.Empty;
+
+    private async Task SubmitForm()
+    {
+        if (BookObject.Id == 0)
+        {
+            if (await booksService.AddBook(BookObject))
+            {
+                string message = $"'{BookObject.Title}' has been added.";
+                await BlazoredModal.CloseAsync(ModalResult.Ok(message));
+            }
+        }
+        else
+        {
+            if (await booksService.UpdateBook(BookObject))
+            {
+                string message = $"'{BookObject.Title}' has been updated.";
+                await BlazoredModal.CloseAsync(ModalResult.Ok(message));
+            }
+        }
+    }
+
+    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+}
