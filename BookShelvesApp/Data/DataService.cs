@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BookShelves.Data
 {
-    internal class DataService
+    internal class DataService : IDataService
     {
         private readonly string dbPath;
         private SQLiteAsyncConnection connection;
@@ -49,7 +49,7 @@ namespace BookShelves.Data
         {
             var createTableStatements = new List<string>()
             {
-                "Books"
+                Constants.CreateBookTableStatement
             };
 
             foreach (var statement in createTableStatements)
@@ -58,7 +58,7 @@ namespace BookShelves.Data
 
         private async Task<int> CountItems()
         {
-            var tables = new string[] { "Books" };
+            var tables = new string[] { Constants.BookTable };
             var count = 0;
 
             foreach (var table in tables)
@@ -76,7 +76,7 @@ namespace BookShelves.Data
         {
             var commands = new List<string>()
             {
-                "INSERT INTO books VALUES (1, 'Kitchen'), (2, 'Sales'), (3, 'Accounting');",
+                $"INSERT INTO {Constants.BookTable} VALUES (1, 'Kitchen'), (2, 'Sales'), (3, 'Accounting');",
                 //"INSERT INTO employees VALUES (1, 'SpongeBob SquarePants', 1), (2, 'Squidward Tentacles', 2), (3, 'Mr. Krabs', 3), (4, 'Pearl Krabs', 3);",
             };
 

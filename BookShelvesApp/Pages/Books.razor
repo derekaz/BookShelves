@@ -1,0 +1,40 @@
+﻿@page "/books"
+
+@using BookShelves.Data
+@inject BookDataService booksService
+
+<h1>Books</h1>
+
+<p>All books.</p>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Book> books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await booksService.GetBooksAsync();
+    }
+}

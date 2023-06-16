@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BookShelves.Data
 {
-    internal class BaseTable
+    public class BaseTable
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }

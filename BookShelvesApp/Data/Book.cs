@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BookShelves.Data
 {
-    [Table("Books")]
-    internal class Book : BaseTable
+    [Table(Constants.BookTable)]
+    public class Book : BaseTable
     {
         public string Title { get; set; }
 
