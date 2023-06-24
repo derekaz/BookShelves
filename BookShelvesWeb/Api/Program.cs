@@ -19,6 +19,7 @@ namespace BlazorApp.Api
                 builder
                 .AddApplicationInsights()
                 .AddApplicationInsightsLogger();
+
             }*/)
             .ConfigureServices(s =>
             {
