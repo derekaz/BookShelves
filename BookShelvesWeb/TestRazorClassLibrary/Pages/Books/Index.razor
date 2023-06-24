@@ -79,6 +79,13 @@ else
 
             books = await DataService.GetBooksAsync() ?? new List<Book>() { };
         }
+        else
+        {
+            if (String.IsNullOrEmpty(book.Id))
+                message = "Add canceled";
+            else
+                message = "Edit canceled";
+        }
         StateHasChanged();
     }
 
