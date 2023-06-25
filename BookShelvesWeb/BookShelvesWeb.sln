@@ -14,7 +14,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{A1272ABB-D
 		Docs\Notes.txt = Docs\Notes.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRazorClassLibrary", "TestRazorClassLibrary\TestRazorClassLibrary.csproj", "{33E9A390-46A9-4440-A005-F82AA0978ADD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRazorClassLibrary", "TestRazorClassLibrary\TestRazorClassLibrary.csproj", "{33E9A390-46A9-4440-A005-F82AA0978ADD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{318E62C1-2625-463B-8EB9-336BA4FD395A}"
+	ProjectSection(SolutionItems) = preProject
+		tests\playwright.spec.ts = tests\playwright.spec.ts
+		tests\Test.README.md = tests\Test.README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
