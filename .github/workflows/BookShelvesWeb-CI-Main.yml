@@ -14,6 +14,10 @@ on:
     paths:
       - 'BookShelvesWeb/**'
 
+env:
+  LOCATION: westus2
+  STATICWEBAPPNAME: green-ground-05694281e
+
 defaults:
   run:
     working-directory: ./BookShelvesWeb
@@ -27,16 +31,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Get preview URL
-        id: static_web_app_preview_url
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            DEFAULTHOSTNAME=$(az staticwebapp show -n '${{ env.STATICWEBAPPNAME }}' | jq -r '.defaultHostname')
+      #- name: Get preview URL
+      #  id: static_web_app_preview_url
+      #  uses: azure/CLI@v1
+      #  with:
+      #    inlineScript: |
+      #      DEFAULTHOSTNAME=$(az staticwebapp show -n '${{ env.STATICWEBAPPNAME }}' | jq -r '.defaultHostname')
 
-            PREVIEW_URL="https://${DEFAULTHOSTNAME/.[1-9]./-${{github.event.pull_request.number }}.${{ env.LOCATION }}.1.}"
+      #      PREVIEW_URL="https://${DEFAULTHOSTNAME/.[1-9]./-${{github.event.pull_request.number }}.${{ env.LOCATION }}.1.}"
 
-            echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+      #      echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -52,7 +56,8 @@ jobs:
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
     outputs:
-      preview-url: ${{steps.static_web_app_preview_url.outputs.PREVIEW_URL}}
+      preview-url: ${{steps.builddeploy.outputs.static_web_app_url}}
+      #preview-url: ${{steps.static_web_app_preview_url.outputs.PREVIEW_URL}}
 
 
   integration_tests_job:
