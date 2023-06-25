@@ -87,19 +87,19 @@ jobs:
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-        working-directory: ./bookshelves-website-tests
+        working-directory: ./bookshelvesweb
 
       - name: Run Playwright tests
         env:
           PLAYWRIGHT_TEST_BASE_URL: '${{ needs.build_and_deploy_job.outputs.preview-url }}'
         run: npx playwright test
-        working-directory: ./bookshelves-website-tests
+        working-directory: ./bookshelvesweb
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
-          path: bookshelves-website-tests/playwright-report/
+          path: bookshelvesweb/playwright-report/
           retention-days: 30
 
 
