@@ -1,9 +1,18 @@
-name: Playwright Tests
+name: BookShelvesWeb Playwright Tests CI/CD
 on:
   push:
-    branches: [ main, master ]
+    paths:
+      - 'BookShelvesWeb/**'
+    branches: [ main, dev ]
   pull_request:
+    paths:
+      - 'BookShelvesWeb/**'
     branches: [ main, master ]
+
+defaults:
+  run:
+    working-directory: ./BookShelvesWeb
+
 jobs:
   test:
     timeout-minutes: 60
