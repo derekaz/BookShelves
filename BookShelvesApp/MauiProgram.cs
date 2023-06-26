@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using BookShelves.Data;
+using BookShelves.Helpers;
+using Blazored.Modal;
 
 namespace BookShelves;
 
@@ -7,7 +9,9 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-		var builder = MauiApp.CreateBuilder();
+        var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
+
+        var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
@@ -24,6 +28,13 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<WeatherForecastService>();
 
-		return builder.Build();
+        builder.Services.AddSingleton<IDataService>(
+            s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
+
+        builder.Services.AddTransient<BookDataService>();
+
+        builder.Services.AddBlazoredModal();
+
+        return builder.Build();
 	}
 }

@@ -1,0 +1,34 @@
+﻿@using BookShelves.Data;
+<div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
+    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
+    <div class="modal-dialog" role="document" style="z-index: 1050">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Book</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete '@BookObject.Title'?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public Book BookObject { get; set; } = new Book();
+
+    private async Task Ok() => await BlazoredModal.CloseAsync(ModalResult.Ok());
+    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());
+    private async Task Cancel() => await BlazoredModal.CancelAsync();
+}

@@ -38,7 +38,7 @@ export default defineConfig({
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:4280',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:4280',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',
@@ -86,8 +86,8 @@ export default defineConfig({
   outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run start',
-    port: 4280,
-  },
+  // webServer: {
+  //   command: 'npm run start',
+  //   port: 4280,
+  // },
 });

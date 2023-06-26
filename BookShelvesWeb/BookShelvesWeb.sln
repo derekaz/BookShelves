@@ -7,9 +7,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{491BFBAF-7032-4ED7-BF3A-33595531E18A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{DA2371A3-4788-4B2A-A0F0-0FF8EBB4C948}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "..\Shared\Shared.csproj", "{DA2371A3-4788-4B2A-A0F0-0FF8EBB4C948}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoRazorClassLib", "DemoRazorClassLib\DemoRazorClassLib.csproj", "{013624EB-FED7-46F8-8C07-E6F5DFDCB006}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{A1272ABB-DB63-4A3F-854E-5C924796C1DB}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\Notes.txt = Docs\Notes.txt
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRazorClassLibrary", "..\TestRazorClassLibrary\TestRazorClassLibrary.csproj", "{33E9A390-46A9-4440-A005-F82AA0978ADD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{318E62C1-2625-463B-8EB9-336BA4FD395A}"
+	ProjectSection(SolutionItems) = preProject
+		tests\playwright.spec.ts = tests\playwright.spec.ts
+		tests\Test.README.md = tests\Test.README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +40,10 @@ Global
 		{DA2371A3-4788-4B2A-A0F0-0FF8EBB4C948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA2371A3-4788-4B2A-A0F0-0FF8EBB4C948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA2371A3-4788-4B2A-A0F0-0FF8EBB4C948}.Release|Any CPU.Build.0 = Release|Any CPU
-		{013624EB-FED7-46F8-8C07-E6F5DFDCB006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{013624EB-FED7-46F8-8C07-E6F5DFDCB006}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{013624EB-FED7-46F8-8C07-E6F5DFDCB006}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{013624EB-FED7-46F8-8C07-E6F5DFDCB006}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33E9A390-46A9-4440-A005-F82AA0978ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E9A390-46A9-4440-A005-F82AA0978ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E9A390-46A9-4440-A005-F82AA0978ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E9A390-46A9-4440-A005-F82AA0978ADD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

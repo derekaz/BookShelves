@@ -1,5 +1,5 @@
 ﻿@using BlazorApp.Shared
-@inject HttpClient Http
+@inject IBooksDataService DataService
 
 <div class="modal fade show d-block" tabindex="-1" role="dialog" id="bookDetail">
     <div class="modal-backdrop fade show" @onclick="Cancel"></div>
@@ -49,7 +49,7 @@
     {
         if (String.IsNullOrEmpty(BookObject.Id))
         {
-            var result = await Http.PostAsJsonAsync("api/books/new", BookObject);
+            var result = await DataService.CreateBookAsync(BookObject);
             if (result.IsSuccessStatusCode)
             {
                 string message = $"'{BookObject.Title}' has been added.";
@@ -58,7 +58,7 @@
         }
         else
         {
-            var result = await Http.PostAsJsonAsync("api/books/edit", BookObject);
+            var result = await DataService.UpdateBookAsync(BookObject);
             if (result.IsSuccessStatusCode)
             {
                 string message = $"'{BookObject.Title}' has been updated.";
