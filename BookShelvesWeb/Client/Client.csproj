@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\..\TestRazorClassLibrary\TestRazorClassLibrary.csproj" />
+    <ProjectReference Include="..\..\SharedModels\SharedModels.csproj" />
+    <ProjectReference Include="..\..\SharedRazorClassLibrary\SharedRazorClassLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>
