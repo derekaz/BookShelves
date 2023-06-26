@@ -1,3 +1,5 @@
+test 7
+
 Paged-Based Pagination with Azure CosmosDB
 https://itnext.io/paged-based-pagination-with-azure-cosmosdb-319a23f2a2c7
 
@@ -20,4 +22,9 @@ https://yohan.hashnode.dev/ienumerable-vs-iqueryable-in-c
 NVM for Windows
 https://github.com/coreybutler/nvm-windows
 
-test 7
+Create a single solution/Blazor files with WASM & MAUI integrated with that common library of UI
+https://github.com/mattruma/blazor-demos/tree/main
+
+For tests and GHA integration example
+https://blog.johnnyreilly.com/playwright-github-actions-and-azure-static-web-apps-staging-environments
+https://github.com/johnnyreilly/blog.johnnyreilly.com/blob
