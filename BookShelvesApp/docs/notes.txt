@@ -1,0 +1,27 @@
+﻿
+Get Started With Entity Framework Core Using SQLite
+https://www.c-sharpcorner.com/article/get-started-with-entity-framework-core-using-sqlite/
+
+How to update a database’s schema without using EF Core’s migrate feature
+https://www.thereformedprogrammer.net/how-to-update-a-databases-schema-without-using-ef-cores-migrate-feature/
+
+Foreign keys in local databases with SQLite-net and .NET MAUI
+https://dev.to/icebeam7/foreign-keys-in-local-databases-with-sqlite-net-and-net-maui-22a1
+https://github.com/icebeam7/DemoFK/blob/master/DemoFK/ViewModels/DepartmentDetailsViewModel.cs
+
+Simple declarative schema migration for SQLite
+https://david.rothlis.net/declarative-schema-migration-for-sqlite/
+
+Simplify your local data storage with SQLite-net
+https://jonathancrozier.com/blog/simplify-your-local-data-storage-with-sqlite-net
+
+Best way to synchronize offline data to master when deleting items
+https://dba.stackexchange.com/questions/310476/best-way-to-synchronize-offline-data-to-master-when-deleting-items
+
+MSDEVBUILD Blog by Suthahar
+https://xamarininterviewquestion.blogspot.com/2016/12/mobile-local-databases-in-xamarin-forms.html
+
+Mobile Database Bi-Directional Synchronization with a REST API
+https://www.xamarinhelp.com/mobile-database-bi-directional-synchronization-rest-api/
+
+https://github.com/adamped/BiDirectionalSync/blob/master/BiDirectionalSync/Client.cs

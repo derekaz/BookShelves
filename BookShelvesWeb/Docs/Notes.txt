@@ -1,5 +1,8 @@
 test 9
 
+Build an Azure Static Web Apps website with Blazor and serverless API
+https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-blazor
+
 Paged-Based Pagination with Azure CosmosDB
 https://itnext.io/paged-based-pagination-with-azure-cosmosdb-319a23f2a2c7
 
