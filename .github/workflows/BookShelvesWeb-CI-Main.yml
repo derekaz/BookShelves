@@ -4,15 +4,25 @@ on:
   push:
     paths:
       - 'BookShelvesWeb/**'
+      - 'SharedModels/**'
+      - 'SharedRazorClassFiles/**'
+      - '**/*build.props'  
+      - '.github/workflows/BookShelvesWeb-CI-Main.yml'
     branches:
       - main
       - dev*
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
     paths:
       - 'BookShelvesWeb/**'
+      - 'SharedModels/**'
+      - 'SharedRazorClassFiles/**'
+      - '**/*build.props'  
+      - '.github/workflows/BookShelvesWeb-CI-Main.yml'
+    branches:
+      - main
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 env:
   LOCATION: westus2
