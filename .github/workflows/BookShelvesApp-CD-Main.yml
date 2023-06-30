@@ -1,4 +1,4 @@
-name: BookShelvesApp .NET MAUI Blazor CI/CD
+name: BookShelvesApp .NET MAUI Blazor CD
 
 on:
   push:
