@@ -57,34 +57,3 @@ jobs:
         with:
           name: logs
           path: '*.binlog'
-      
-      # # BUILD
-      # - name: Restore dependencies
-      #   shell: pwsh
-      #   run: |
-      #     dotnet restore ${{ env.csproj }}
-
-      # - name: Build Maui WinUI project
-      #   shell: pwsh
-      #   run: |
-      #     dotnet publish ${{ env.csproj }} -c Release -f net7.0-windows10.0.19041.0
-
-      # - name: Create artifacts folder
-      #   shell: pwsh
-      #   run: |
-      #      cd ${{ github.workspace }}
-      #      mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      # - name: Copy WinUI msix package
-      #   shell: pwsh
-      #   run: |
-      #      Get-Childitem �Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      # #POST-BUILD
-      # - name: Publish build artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:     
-      #     name: "WinUI .NET MAUI artifacts" 
-      #     path: "${{ env.WINDOWS_ARTIFACTS_PATH }}/*"
-      #     if-no-files-found: error
-      #     retention-days: 90
