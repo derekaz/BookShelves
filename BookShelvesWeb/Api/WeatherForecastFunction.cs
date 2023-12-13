@@ -15,7 +15,6 @@ namespace BlazorApp.Api
 
         public WeatherForecastFunction(ILoggerFactory loggerFactory)
         {
-
             _logger = loggerFactory.CreateLogger<WeatherForecastFunction>();
         }
 
