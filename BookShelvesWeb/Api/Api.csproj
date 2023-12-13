@@ -4,7 +4,6 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>BlazorApp.Api</RootNamespace>
     <OutputType>Exe</OutputType>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
     <ImplicitUsings>enabled</ImplicitUsings>
   </PropertyGroup>
