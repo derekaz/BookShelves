@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 using BlazorApp.Shared;

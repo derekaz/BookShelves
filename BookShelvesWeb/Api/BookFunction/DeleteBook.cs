@@ -2,7 +2,6 @@ using BlazorApp.Api.DataAccess;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs;
 using System;
 using System.Threading.Tasks;
 using System.Net;

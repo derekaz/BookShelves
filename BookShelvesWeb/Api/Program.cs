@@ -14,7 +14,7 @@ namespace BlazorApp.Api
         {
 
             var host = new HostBuilder()
-            .ConfigureFunctionsWorkerDefaults(/*builder =>
+            .ConfigureFunctionsWebApplication(/*builder =>
             {
                 builder
                 .AddApplicationInsights()
