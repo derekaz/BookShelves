@@ -6,7 +6,7 @@ on:
       - 'BookShelvesWeb/**'
     branches:
       - main
-      - dev
+      - dev*
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
