@@ -10,6 +10,17 @@ on:
       - '.github/workflows/BookShelvesApp-CD-Main.yml'
     branches:
       - main
+  #     - dev*  
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   paths:
+  #     - 'BookShelvesApp/**'
+  #     - 'SharedModels/**'
+  #     - 'SharedRazorClassFiles/**'
+  #     - '**/*build.props'      
+  #     - '.github/workflows/BookShelvesApp-CD-Main.yml'
+  #   branches: 
+  #     - '**'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
