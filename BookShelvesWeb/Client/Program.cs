@@ -5,6 +5,7 @@ using AzureStaticWebApps.Blazor.Authentication;
 using Blazored.Modal;
 using BlazorApp.Client.Data;
 
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
