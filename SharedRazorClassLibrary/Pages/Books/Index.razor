@@ -1,0 +1,133 @@
+﻿@page "/books"
+@using BlazorApp.Shared 
+@inject IBooksDataService DataService
+@attribute [Authorize(Roles = "administrator")]
+
+<h1>Books</h1>
+
+<div>
+    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Book</button>
+</div>
+
+<p>@message</p>
+
+@if (books == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th></th>
+@*                <th>Temp. (F)</th>
+                <th>Summary</th>
+*@            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>
+                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
+                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(book))" value="Delete" />
+                    </td>
+@*                  <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+*@                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Book> books = new List<Book>();
+    //private Book[] books = new Book[]{};
+    private string message = string.Empty;
+
+    [CascadingParameter]
+    public IModalService Modal { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            books = await DataService.GetBooksAsync() ?? new List<Book>() { };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    private async void ShowDetailAsync(Book book, string titleText)
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(BookDetail.BookObject), book)
+            .Add(nameof(BookDetail.TitleText), titleText);
+        var options = new ModalOptions() { UseCustomLayout = true };
+        var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
+        var result = await form.Result;
+        if (result.Confirmed)
+        {
+            message = result?.Data?.ToString() ?? "";
+
+            books = await DataService.GetBooksAsync() ?? new List<Book>() { };
+        }
+        else
+        {
+            if (String.IsNullOrEmpty(book.Id))
+                message = "Add canceled";
+            else
+                message = "Edit canceled";
+        }
+        StateHasChanged();
+    }
+
+    private void AddAsync()
+    {
+        var book = InitializeBookObject();
+        ShowDetailAsync(book, "New Book");
+    }
+
+    private void EditAsync(Book book)
+    {
+        ShowDetailAsync(book, "Edit Book");
+    }
+
+    private async void DeleteAsync(Book book)
+    {
+        var parameters = new ModalParameters()
+            .Add(nameof(BookDelete.BookObject), book);
+        var options = new ModalOptions() { UseCustomLayout = true };
+        var form = Modal.Show<BookDelete>("Book Modal", parameters, options);
+        var result = await form.Result;
+        if (result.Confirmed)
+        {
+            var deleteResult = await DataService.DeleteBookAsync(book);
+
+            if (deleteResult.IsSuccessStatusCode)
+            {
+                message = $"'{book.Title}' deleted";
+
+                books = await DataService.GetBooksAsync() ?? new List<Book>() { };
+            }
+            StateHasChanged();
+        }
+        else
+        {
+            message = "Delete canceled";
+            StateHasChanged();
+        }
+    }
+
+    private Book InitializeBookObject()
+    {
+        return new Book();
+    }
+}
