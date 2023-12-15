@@ -10,6 +10,7 @@
     <SingleProject>true</SingleProject>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableDefaultCssItems>false</EnableDefaultCssItems>
+	<SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
     <!-- Display name -->
     <ApplicationTitle>BookShelves</ApplicationTitle>
     <!-- App Identifier -->
