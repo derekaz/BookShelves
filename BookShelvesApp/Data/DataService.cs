@@ -89,7 +89,7 @@ namespace BookShelves.Data
 
         private async Task CheckData()
         {
-            var item = await connection.Table<Book>().Where(v => v.Id == 1).FirstOrDefaultAsync();
+            var item = await connection.Table<Book>().Where(v => int.Parse(v.Id) == 1).FirstOrDefaultAsync();
             Debug.WriteLine(item?.Title);
         }
 

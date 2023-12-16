@@ -37,7 +37,7 @@ namespace BlazorApp.Api.BookFunction
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadAllBooksWithTitleTerm)}");
 
-            var searchterm = req.FunctionContext.BindingContext.BindingData["title"].ToString();
+            var searchterm = req.FunctionContext.BindingContext.BindingData["title"]!.ToString();
             if (string.IsNullOrWhiteSpace(searchterm))
             {
                 return req.CreateResponse(HttpStatusCode.NotFound);

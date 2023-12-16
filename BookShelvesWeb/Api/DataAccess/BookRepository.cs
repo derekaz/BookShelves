@@ -1,5 +1,4 @@
-﻿using BlazorApp.Shared;
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorApp.Api.DataAccess

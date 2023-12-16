@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 namespace BookShelves.Data
 {
     [Table(Constants.BookTable)]
-    public class Book : BaseTable
+    public class Book : BaseTable, IBook
     {
+        public new string Id { get; set; }
+
         public string Title { get; set; }
 
         public string Author { get; set; }

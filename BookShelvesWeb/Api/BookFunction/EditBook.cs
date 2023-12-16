@@ -27,12 +27,12 @@ namespace BlazorApp.Api.BookFunction
         {
             logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(EditBook)}");
 
-            string id = req.FunctionContext.BindingContext.BindingData["id"].ToString();
-            string title = req.FunctionContext.BindingContext.BindingData["title"].ToString();
-            string author = req.FunctionContext.BindingContext.BindingData["author"].ToString();
+            string? id = req.FunctionContext.BindingContext.BindingData["id"]!.ToString();
+            string? title = req.FunctionContext.BindingContext.BindingData["title"]!.ToString();
+            string? author = req.FunctionContext.BindingContext.BindingData["author"]!.ToString();
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic? data = JsonConvert.DeserializeObject(requestBody);
             id ??= data?.id;
             title ??= data?.title;
             author ??= data?.author;
@@ -46,8 +46,8 @@ namespace BlazorApp.Api.BookFunction
             Book book = new()
             {
                 Id = id,
-                Title = title,
-                Author = author
+                Title = title ?? string.Empty,
+                Author = author ?? string.Empty
             };
 
             try

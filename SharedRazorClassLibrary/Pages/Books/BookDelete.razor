@@ -1,5 +1,5 @@
 ﻿@using BlazorApp.Shared
-@inject HttpClient Http
+@*@inject HttpClient Http*@
 
 <div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
     <div class="modal-backdrop fade show" @onclick="Cancel"></div>
@@ -12,7 +12,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete '@BookObject.Title'?
+                Are you sure you want to delete '@BookObject!.Title'?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
@@ -28,7 +28,7 @@
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter]
-    public Book BookObject { get; set; } = new Book();
+    public IBook? BookObject { get; set; }
 
     private async Task Ok() => await BlazoredModal.CloseAsync(ModalResult.Ok());
     private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());

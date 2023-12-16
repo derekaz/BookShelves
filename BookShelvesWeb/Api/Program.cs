@@ -25,11 +25,11 @@ namespace BlazorApp.Api
             {
                 s.AddSingleton(x =>
                 {
-                    IConfiguration configuration = x.GetService<IConfiguration>();
+                    IConfiguration? configuration = x.GetService<IConfiguration>();
 
                     return new BookRepository(
                         x.GetRequiredService<ILogger<BookRepository>>(),
-                        new CosmosClient(configuration["CosmosDBConnectionString"]),
+                        new CosmosClient(configuration!["CosmosDBConnectionString"]),
                         "azmoore-westus2-db1",
                         "azmoore-books-westus2-dbc1"
                     );

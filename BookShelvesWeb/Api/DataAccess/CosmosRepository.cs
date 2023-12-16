@@ -26,7 +26,7 @@ public class CosmosRepository<T> where T : IItem, new()
     {
         await container.DeleteItemAsync<T>(id, new PartitionKey(id));
     }
-    public async Task<T> GetAsync(string id)
+    public async Task<T?> GetAsync(string id)
     {
         try
         { 

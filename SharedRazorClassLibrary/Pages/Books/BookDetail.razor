@@ -15,13 +15,12 @@
                 <EditForm Model="@BookObject">
                     <div class="form-group">
                         <label for="Title" class="control-label">Title</label>
-                        <InputText id="title" for="Title" class="form-control" @bind-Value="@BookObject.Title" />
+                        <InputText id="title" for="Title" class="form-control" @bind-Value="@BookObject!.Title" />
                     </div>
                     <div class="form-group">
                         <label for="Author" class="control-label">Author</label>
                         <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
                     </div>
-
                 </EditForm>
             </div>
             <div class="modal-footer">
@@ -38,7 +37,7 @@
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
     [Parameter]
-    public Book BookObject { get; set; } = new Book();
+    public IBook? BookObject { get; set; }
 
     [Parameter]
     public string TitleText { get; set; } = "Books";
@@ -47,10 +46,10 @@
 
     private async Task SubmitForm()
     {
-        if (String.IsNullOrEmpty(BookObject.Id))
+        if (String.IsNullOrEmpty(BookObject!.Id))
         {
             var result = await DataService.CreateBookAsync(BookObject);
-            if (result.IsSuccessStatusCode)
+            if (result)
             {
                 string message = $"'{BookObject.Title}' has been added.";
                 await BlazoredModal.CloseAsync(ModalResult.Ok(message));
@@ -59,7 +58,7 @@
         else
         {
             var result = await DataService.UpdateBookAsync(BookObject);
-            if (result.IsSuccessStatusCode)
+            if (result)
             {
                 string message = $"'{BookObject.Title}' has been updated.";
                 await BlazoredModal.CloseAsync(ModalResult.Ok(message));

@@ -1,5 +1,4 @@
 ﻿using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
 
 namespace BlazorApp.Client.Data
 {
@@ -12,24 +11,29 @@ namespace BlazorApp.Client.Data
             _httpClient = http;
         }
 
-        public async Task<IEnumerable<Book>> GetBooksAsync()
+        public IBook InitializeBookInstance()
+        {
+            return new Book();
+        }
+
+        public async Task<IEnumerable<IBook>> GetBooksAsync()
         {
             return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
         }
 
-        public async Task<HttpResponseMessage> CreateBookAsync(Book book)
+        public async Task<bool> CreateBookAsync(IBook book)
         {
-            return await _httpClient.PostAsJsonAsync("api/books/new", book);
+            return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/new", book).Result.IsSuccessStatusCode);
         }
 
-        public async Task<HttpResponseMessage> UpdateBookAsync(Book book)
+        public async Task<bool> UpdateBookAsync(IBook book)
         {
-            return await _httpClient.PostAsJsonAsync("api/books/edit", book);
+            return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/edit", book).Result.IsSuccessStatusCode);
         }
 
-        public async Task<HttpResponseMessage> DeleteBookAsync(Book book)
+        public async Task<bool> DeleteBookAsync(IBook book)
         {
-            return await _httpClient.DeleteAsync($"/api/book/{book.Id}");
+            return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.Id}").Result.IsSuccessStatusCode);
         }
     }
 }

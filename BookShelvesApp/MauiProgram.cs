@@ -23,7 +23,7 @@ public static class MauiProgram
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
 		builder.Services.AddSingleton<WeatherForecastService>();
@@ -31,7 +31,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IDataService>(
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
 
-        builder.Services.AddTransient<BookDataService>();
+        builder.Services.AddScoped<IBooksDataService, BooksDataService>();
+        //builder.Services.AddTransient<BookDataService>();
 
         builder.Services.AddBlazoredModal();
 

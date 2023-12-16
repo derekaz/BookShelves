@@ -9,31 +9,36 @@ using System.Threading.Tasks;
 
 namespace BookShelves.Data
 {
-    internal class BookDataService
+    internal class BooksDataService : IBooksDataService
     {
         IDataService dataService;
 
-        public BookDataService(IDataService dataService) 
+        public BooksDataService(IDataService dataService) 
         {
             this.dataService = dataService;                
         }
 
-        public async Task<IEnumerable<Book>> GetBooksAsync()
+        public IBook InitializeBookInstance()
+        {
+            return new Book();
+        }
+
+        public async Task<IEnumerable<IBook>> GetBooksAsync()
         {
             return await dataService.GetItemsWithQuery<Book>(Constants.AllBooksQuery);
         }
 
-        public async Task<Boolean> DeleteBook(int id)
+        public async Task<bool> DeleteBookAsync(IBook book)
         {
-            return await dataService.ExecuteQuery($"delete from {Constants.BookTable} where Id = {id};");
+            return await dataService.ExecuteQuery($"delete from {Constants.BookTable} where Id = {book.Id};");
         }
 
-        public async Task<bool> AddBook(Book book)
+        public async Task<bool> CreateBookAsync(IBook book)
         {
             return await dataService.ExecuteQuery($"insert into {Constants.BookTable}(Title, Author) VALUES ('{book.Title}', '{book.Author}');");
         }
 
-        public async Task<bool> UpdateBook(Book book)
+        public async Task<bool> UpdateBookAsync(IBook book)
         {
             return await dataService.ExecuteQuery($"update {Constants.BookTable} SET Title='{book.Title}', Author='{book.Author}' WHERE Id='{book.Id}';");
         }

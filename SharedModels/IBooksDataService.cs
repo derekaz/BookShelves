@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 
 public interface IBooksDataService
 {
-    Task<HttpResponseMessage> CreateBookAsync(Book book);
-    Task<HttpResponseMessage> DeleteBookAsync(Book book);
-    Task<IEnumerable<Book>> GetBooksAsync();
-    Task<HttpResponseMessage> UpdateBookAsync(Book book);
+    IBook InitializeBookInstance();
+    Task<bool> CreateBookAsync(IBook book);
+    Task<bool> DeleteBookAsync(IBook book);
+    Task<IEnumerable<IBook>> GetBooksAsync();
+    Task<bool> UpdateBookAsync(IBook book);
 }

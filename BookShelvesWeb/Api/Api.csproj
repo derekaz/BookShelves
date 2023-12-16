@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\SharedModels\SharedModels.csproj" />
+    <ProjectReference Include="..\SharedWebModels\SharedWebModels.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

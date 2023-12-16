@@ -16,7 +16,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SharedModels\SharedModels.csproj" />
     <ProjectReference Include="..\..\SharedRazorClassLibrary\SharedRazorClassLibrary.csproj" />
+    <ProjectReference Include="..\SharedWebModels\SharedWebModels.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="wwwroot\css\bootstrap\bootstrap.min.css">
