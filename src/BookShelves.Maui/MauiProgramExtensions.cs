@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-namespace BookShelves;
+namespace BookShelves.Maui;
 
 public static class MauiProgramExtensions
 {

@@ -1,4 +1,4 @@
-﻿namespace BookShelves;
+﻿namespace BookShelves.Maui;
 
 public partial class AppShell : Shell
 {

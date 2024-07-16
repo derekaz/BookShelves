@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:shared="clr-namespace:BookShelves.Shared;assembly=BookShelves.Shared"
-             x:Class="BookShelves.MainPage">
+             x:Class="BookShelves.Maui.MainPage">
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type shared:Components.Routes}" />

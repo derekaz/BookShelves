@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using BookShelves.Maui;
+using System.Diagnostics;
 
 namespace BookShelves.WinUI
 {
