@@ -1,6 +1,7 @@
 using BookShelves.Shared;
 using BookShelves.Web.Components;
 using BookShelves.Web.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddRazorClassLibraryServices();
 builder.Services.AddScoped(sp =>
         new HttpClient
-        { BaseAddress = new Uri(builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
+        { BaseAddress = new Uri(builder.Configuration["API_Uri"] ?? builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
     );
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 

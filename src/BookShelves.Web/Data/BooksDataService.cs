@@ -16,7 +16,15 @@
 
         public async Task<IEnumerable<IBook>> GetBooksAsync()
         {
-            return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new Book[] { };
+            }
         }
 
         public async Task<bool> CreateBookAsync(IBook book)
