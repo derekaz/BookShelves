@@ -11,9 +11,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WinUI", "BookSh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShelves.Maui\BookShelves.Maui.csproj", "{9C155B94-5A6D-42C6-8259-EF3EAE89DE2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Web", "BookShelves.Web\BookShelves.Web.csproj", "{C9DB1DB3-94C2-4205-A3A4-43BF8B5E2DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web", "BookShelves.Web\BookShelves.Web.csproj", "{C9DB1DB3-94C2-4205-A3A4-43BF8B5E2DB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Shared", "BookShelves.Shared\BookShelves.Shared.csproj", "{B1DC0135-C075-43AC-B129-AF433A8220BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared", "BookShelves.Shared\BookShelves.Shared.csproj", "{B1DC0135-C075-43AC-B129-AF433A8220BA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{1744CBD0-9C19-454C-B0DE-72EA0AF8AB00}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D3BEF4E4-662C-494F-8728-C9C9862B9C53}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\BookShelvesApp-CD-Main.yml = ..\.github\workflows\BookShelvesApp-CD-Main.yml
+		..\.github\workflows\BookShelvesApp-CI-Main.yml = ..\.github\workflows\BookShelvesApp-CI-Main.yml
+		..\.github\workflows\BookShelvesWeb-CI-Main.yml = ..\.github\workflows\BookShelvesWeb-CI-Main.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,6 +159,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D3BEF4E4-662C-494F-8728-C9C9862B9C53} = {1744CBD0-9C19-454C-B0DE-72EA0AF8AB00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4E06989F-7FA4-4C9F-9C2A-4B45FDCEE7E5}
