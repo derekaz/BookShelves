@@ -38,6 +38,7 @@ else
         try
         {
             user = await GraphServiceClient.Me.GetAsync();
+            Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)
         {
