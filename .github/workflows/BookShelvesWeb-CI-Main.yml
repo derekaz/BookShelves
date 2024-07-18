@@ -3,7 +3,7 @@ name: BookShelvesWeb Azure Static Web Apps CI/CD
 on:
   push:
     paths:
-      - 'BookShelvesWeb/**'
+      - 'BookShelves.WasmSWA/**'
     branches:
       - main
       - dev*
