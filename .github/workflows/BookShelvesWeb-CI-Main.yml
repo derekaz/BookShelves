@@ -12,7 +12,7 @@ on:
     branches:
       - main
     paths:
-      - 'BookShelvesWeb/**'
+      - 'BookShelves.WasmSWA/**'
 
 env:
   LOCATION: westus2
@@ -20,7 +20,7 @@ env:
 
 defaults:
   run:
-    working-directory: ./BookShelvesWeb
+    working-directory: ./BookShelves.WasmSWA
 
 jobs:
   build_and_deploy_job:
@@ -51,8 +51,8 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           production_branch: "main"
-          app_location: "BookShelvesWeb/Client" # App source code path
-          api_location: "BookShelvesWeb/Api" # Api source code path - optional
+          app_location: "BookShelves.WasmSWA" # App source code path
+          #api_location: "BookShelves.WasmAPI" # Api source code path - optional
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
     outputs:
