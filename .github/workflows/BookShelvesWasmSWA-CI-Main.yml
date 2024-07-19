@@ -3,7 +3,8 @@ name: BookShelves.WasmSWA Azure Static Web Apps CI/CD
 on:
   push:
     paths:
-      - 'BookShelves.WasmSWA/**'
+      - 'BookShelves.WasmSwa/**'
+      - 'BookShelves.WasmApi/**'
     branches:
       - main
       - dev*
@@ -12,7 +13,8 @@ on:
     branches:
       - main
     paths:
-      - 'BookShelves.WasmSWA/**'
+      - 'BookShelves.WasmSwa/**'
+      - 'BookShelves.WasmApi/**'
 
 env:
   LOCATION: westus2
@@ -20,7 +22,7 @@ env:
 
 defaults:
   run:
-    working-directory: ./BookShelves.WasmSWA
+    working-directory: ./BookShelves.WasmSwa
 
 jobs:
   build_and_deploy_job:
@@ -83,23 +85,23 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./BookShelvesWeb
+        working-directory: ./BookShelves.WasmSwa
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-        working-directory: ./BookShelvesWeb
+        working-directory: ./BookShelves.WasmSwa
 
       - name: Run Playwright tests
         env:
           PLAYWRIGHT_TEST_BASE_URL: '${{ needs.build_and_deploy_job.outputs.preview-url }}'
         run: npx playwright test
-        working-directory: ./BookShelvesWeb
+        working-directory: ./BookShelves.WasmSwa
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
-          path: ./BookShelvesWeb/pw-report/
+          path: ./BookShelves.WasmSwa/pw-report/
           retention-days: 30
 
 
@@ -113,6 +115,6 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_GROUND_05694281E }}
-          app_location: "BookShelvesWeb/Client" # App source code path
-          api_location: "BookShelvesWeb/Api" # Api source code path - optional
+          app_location: "BookShelves.WasmSwa" # App source code path
+          api_location: "BookShelves.WasmApi" # Api source code path - optional
           action: "close"
