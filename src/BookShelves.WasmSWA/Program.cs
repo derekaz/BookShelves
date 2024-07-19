@@ -1,5 +1,5 @@
-using BookShelves.WasmSWA;
-using BookShelves.WasmSWA.Data;
+using BookShelves.WasmSwa;
+using BookShelves.WasmSwa.Data;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

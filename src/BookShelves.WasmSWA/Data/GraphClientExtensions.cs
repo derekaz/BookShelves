@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace BookShelves.WasmSWA.Data
+namespace BookShelves.WasmSwa.Data
 {
     internal static class GraphClientExtensions
     {
