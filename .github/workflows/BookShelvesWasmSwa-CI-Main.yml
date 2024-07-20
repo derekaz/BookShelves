@@ -1,4 +1,4 @@
-name: BookShelves.WasmSWA Azure Static Web Apps CI/CD
+name: BookShelves.WasmSwa Azure Static Web Apps CI/CD
 
 on:
   push:
