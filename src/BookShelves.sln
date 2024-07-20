@@ -20,15 +20,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D3BEF4E4-662C-494F-8728-C9C9862B9C53}"
 	ProjectSection(SolutionItems) = preProject
 		..\.github\workflows\BookShelvesApp-CD-Main.yml = ..\.github\workflows\BookShelvesApp-CD-Main.yml
-		..\.github\workflows\BookShelvesApp-CI-Main.yml = ..\.github\workflows\BookShelvesApp-CI-Main.yml
 		..\.github\workflows\BookShelvesWasmSWA-CI-Main.yml = ..\.github\workflows\BookShelvesWasmSWA-CI-Main.yml
+		..\.github\workflows\BookShelvesWinUI-CI-Main.yml = ..\.github\workflows\BookShelvesWinUI-CI-Main.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmSwa", "BookShelves.WasmSWA\BookShelves.WasmSwa.csproj", "{44A23565-6CD5-4B28-9B50-DE5200DEA0B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmApi", "BookShelves.WasmApi\BookShelves.WasmApi.csproj", "{F5A1E18F-EF6D-4AEF-A096-C1B994531543}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.WebShared", "BookShelves.WebShared\BookShelves.WebShared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WebShared", "BookShelves.WebShared\BookShelves.WebShared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
