@@ -5,6 +5,8 @@ on:
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
+      - 'BookShelves.Shared/**'
+      - 'BookShelves.WebShared/**'
     branches:
       - main
       - dev*
@@ -15,6 +17,8 @@ on:
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
+      - 'BookShelves.Shared/**'
+      - 'BookShelves.WebShared/**'
   workflow_dispatch:
 
 env:
