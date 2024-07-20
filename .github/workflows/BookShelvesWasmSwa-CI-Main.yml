@@ -2,14 +2,14 @@ name: BookShelves.WasmSwa Azure Static Web Apps CI/CD
 
 on:
   push:
+    branches:
+      - 'main'
+      - 'dev*'
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
-    branches:
-      - 'main'
-      - 'dev*'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
