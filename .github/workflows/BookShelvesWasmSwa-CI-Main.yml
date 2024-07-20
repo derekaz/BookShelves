@@ -1,25 +1,26 @@
 name: BookShelves.WasmSwa Azure Static Web Apps CI/CD
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - 'main'
+      - 'dev*'
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
-    branches:
-      - main
-      - dev*
+      - '.github/workflows/BookShelvesWasmSwa-CI-Main.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
+      - 'main'
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
-  workflow_dispatch:
 
 env:
   LOCATION: westus2
