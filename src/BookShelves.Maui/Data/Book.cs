@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+namespace BookShelves.Maui.Data;
+
 [Table(Constants.BookTable)]
 public class Book : BaseTable, IBook
 {
