@@ -15,6 +15,7 @@ on:
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
+  workflow_dispatch:
 
 env:
   LOCATION: westus2
