@@ -25,7 +25,6 @@ env:
   LOCATION: westus2
   STATICWEBAPPNAME: green-ground-05694281e
 
-
 defaults:
   run:
     working-directory: ./BookShelves.WasmSwa
