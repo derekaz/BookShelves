@@ -1,6 +1,7 @@
 name: BookShelves.WasmSwa Azure Static Web Apps CI/CD
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'main'
@@ -19,7 +20,6 @@ on:
       - 'BookShelves.WasmApi/**'
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
-  workflow_dispatch:
 
 env:
   LOCATION: westus2
