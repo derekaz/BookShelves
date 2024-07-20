@@ -11,6 +11,7 @@ on:
       - 'BookShelves.WasmApi/**'
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
+      - '.github/workflows/BookShelvesWasmSwa-CI-Main.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
