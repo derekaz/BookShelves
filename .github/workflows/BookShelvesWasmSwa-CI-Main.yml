@@ -8,12 +8,12 @@ on:
       - 'BookShelves.Shared/**'
       - 'BookShelves.WebShared/**'
     branches:
-      - main
-      - dev*
+      - 'main'
+      - 'dev*'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - main
+      - 'main'
     paths:
       - 'BookShelves.WasmSwa/**'
       - 'BookShelves.WasmApi/**'
