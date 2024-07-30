@@ -61,12 +61,23 @@ jobs:
         with:
           name: logs
           path: '*.binlog'
+
+      # - name: Create artifacts folder
+      #   shell: pwsh
+      #   run: |
+      #       cd ${{ github.workspace }}
+      #       mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
+
+      # - name: Copy WinUI msix package
+      #   shell: pwsh
+      #   run: |
+      #       Get-Childitem �Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
           name: win-x64
-          path: 'src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/publish/*'
+          path: '${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/publish/*'
 
       # # BUILD
       # - name: Restore dependencies
