@@ -20,8 +20,8 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userIdentity = (System.Security.Claims.ClaimsIdentity)authState.User.Identity;
-        Console.WriteLine(userIdentity);
-        Console.WriteLine(authState.User.IsInRole("Administrator"));
+        System.Diagnostics.Debug.WriteLine(userIdentity);
+        System.Diagnostics.Debug.WriteLine(authState.User.IsInRole("Administrator"));
         var claims = userIdentity.Claims;
         var roleClaimType = userIdentity.RoleClaimType;
         var roles1 = claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
