@@ -1,36 +1,36 @@
 name: BookShelves.WinUI .NET MAUI Blazor CI
 
 on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
   push:
+    branches:
+      - 'main'
+      - 'dev*'  
     paths:
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
-      - 'BookShelves.WinUI/**'
-      - 'BookShelves.Maui/**'
-      - 'BookShelves.Shared/**'
+      - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
       - '.github/workflows/BookShelves.WinUI-CI-Main.yml'
-    branches:
-      - main
-      - dev*  
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
-      - 'BookShelves.WinUI/**'
-      - 'BookShelves.Maui/**'
-      - 'BookShelves.Shared/**'
+      - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
       - '.github/workflows/BookShelves.WinUI-CI-Main.yml'
     branches: 
       - '**'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 env:
-  CSPROJ: BookShelves.WinUI/BookShelves.WinUI.csproj
-  WINDOWS_ARTIFACTS_PATH: "artifacts_windows"
+  CSPROJ: 'src/BookShelves.WinUI/BookShelves.WinUI.csproj'
+  WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
 
 jobs:
   windows-build-windows:
@@ -54,7 +54,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet build ${{env.csproj}} -bl:mobile.binlog
+          dotnet build ${{env.CSPROJ}} -bl:mobile.binlog
 
       - name: Archive build log
         uses: actions/upload-artifact@v2
