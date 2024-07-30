@@ -20,8 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{D3BEF4E4-662C-494F-8728-C9C9862B9C53}"
 	ProjectSection(SolutionItems) = preProject
 		..\.github\workflows\BookShelvesApp-CD-Main.yml = ..\.github\workflows\BookShelvesApp-CD-Main.yml
-		..\.github\workflows\BookShelvesWinUI-CI-Main.yml = ..\.github\workflows\BookShelvesWinUI-CI-Main.yml
 		..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml = ..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml
+		..\.github\workflows\BookShelvesWinUI-CI-Main.yml = ..\.github\workflows\BookShelvesWinUI-CI-Main.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmSwa", "BookShelves.WasmSWA\BookShelves.WasmSwa.csproj", "{44A23565-6CD5-4B28-9B50-DE5200DEA0B0}"

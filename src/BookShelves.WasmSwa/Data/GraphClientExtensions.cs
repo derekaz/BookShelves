@@ -38,8 +38,10 @@ namespace BookShelves.WasmSwa.Data
         {
             private readonly IConfiguration config;
 
-            public GraphAuthenticationProvider(Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider tokenProvider,
-                IConfiguration config)
+            public GraphAuthenticationProvider(
+                Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider tokenProvider,
+                IConfiguration config
+                )
             {
                 TokenProvider = tokenProvider;
                 this.config = config;
@@ -47,7 +49,11 @@ namespace BookShelves.WasmSwa.Data
 
             public Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider TokenProvider { get; }
 
-            public async Task AuthenticateRequestAsync(RequestInformation request, Dictionary<string, object>? additionalAuthenticationContext = null, CancellationToken cancellationToken = default)
+            public async Task AuthenticateRequestAsync(
+                RequestInformation request, 
+                Dictionary<string, object>? additionalAuthenticationContext = null, 
+                CancellationToken cancellationToken = default
+                )
             {
                 var result = await TokenProvider.RequestAccessToken(
                     new AccessTokenRequestOptions()

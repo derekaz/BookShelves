@@ -3,10 +3,11 @@
 
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity?.Name!
+        Hello, @GetName().Result! @*@context.User.Identity?.Name!*@
         <button class="nav-link btn btn-link" @onclick="BeginLogout">Log out</button>
     </Authorized>
     <NotAuthorized>
@@ -15,6 +16,18 @@
 </AuthorizeView>
 
 @code{
+    private async Task<string?> GetName()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = (System.Security.Claims.ClaimsIdentity)authState.User.Identity;
+        var claims = userIdentity.Claims;
+        var roleClaimType = userIdentity.RoleClaimType;
+        var roles1 = claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
+        var roles2 = claims.Where(c => c.Type == roleClaimType).ToList();
+
+        return authState?.User?.Identity?.Name;
+    }
+
     private async Task BeginLogout(MouseEventArgs args)
     {
         await SignOutManager.SetSignOutState();

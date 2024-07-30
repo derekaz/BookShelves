@@ -1,0 +1,102 @@
+@page "/profile"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Graph
+@using Microsoft.Graph.Models
+@using System.Security.Claims
+@inject IGraphService GraphService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize]
+
+<h3>User Profile</h3>
+@if (user == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tr>
+            <td> DisplayName </td>
+            <td> @user.DisplayName </td>
+        </tr>
+        <tr>
+            <td> UserPrincipalName </td>
+            <td> @user.UserPrincipalName </td>
+        </tr>
+    </table>
+
+    <h3>Claims from ClaimsIdentity</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>
+                Claim Type
+            </th>
+            <th>
+                Claim Value
+            </th>
+            @*<th>
+                Value Type
+            </th>
+            <th>
+                Subject Name
+            </th>
+            <th>
+                Issuer Name
+            </th>*@
+        </tr>
+        @foreach (System.Security.Claims.Claim claim in claims)
+        {
+            <tr>
+                <td>
+                    @claim.Type
+                </td>
+                <td>
+                    @claim.Value
+                </td>
+                @*<td>
+                    @claim.ValueType
+                </td>
+                <td>
+                    @claim.Subject.Name
+                </td>
+                <td>
+                    @claim.Issuer
+                </td>*@
+            </tr>
+        }
+    </table>
+}
+
+@code {
+    User? user;
+    IEnumerable<Claim> claims = new List<Claim>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // HelloLabel.Text = $"Hello, {user.DisplayName}!";
+
+        try
+        {
+            // if (graphService == null)
+            // {
+            //     graphService = new GraphService();
+            // }
+            user = await GraphService.GetUserInfoAsync();
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            claims = authState.User.Claims;
+
+            // user = await GraphServiceClient.Me.GetAsync();
+            Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

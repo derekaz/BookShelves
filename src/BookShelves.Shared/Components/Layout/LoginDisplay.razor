@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@*inject NavigationManager Navigation
+@*inject IExternalAuthStateProvider AuthenticationStateProvider *@
+@inject AuthenticationStateProvider AuthenticationStateProvider 
+@inject IAuthService AuthService
+
+<AuthorizeView>
+    <Authorized>
+        Hello, @GetName().Result! @* @context.User.Identity?.Name!*@
+        <button class="nav-link btn btn-link" @onclick="Logout">Log out</button>
+    </Authorized>
+    <NotAuthorized>
+        <button class="nav-link btn btn-link" @onclick="Login">Log in</button>
+        <!--<a href="authentication/login">Log in</a>-->
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    private async Task<string?> GetName() 
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = (System.Security.Claims.ClaimsIdentity)authState.User.Identity;
+        Console.WriteLine(userIdentity);
+        Console.WriteLine(authState.User.IsInRole("Administrator"));
+        var claims = userIdentity.Claims;
+        var roleClaimType = userIdentity.RoleClaimType;
+        var roles1 = claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
+        var roles2 = claims.Where(c => c.Type == roleClaimType).ToList();
+
+        return authState?.User?.Identity?.Name;
+    }
+    
+    async Task Login()
+    {
+        await AuthService.LoginAsync();
+
+        // if web or wasm
+        //BeginLoginWeb();
+
+        // if maui
+        //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogInAsync();
+    }
+
+    async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+
+        // if web or wasm
+        //BeginLogoutWeb();
+
+        // if maui
+        //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogoutAsync();
+    }
+
+    void BeginLoginWeb()
+    {
+        // if wasm
+        //Navigation.NavigateTo("RedirectToLogin1");
+
+        //if web
+        //Navigation.NavigateTo("authentication/login");
+    }
+
+    void BeginLogoutWeb()
+    {
+        // if wasm
+        //Navigation.NavigateTo("RedirectToLogout1");
+
+        // if web
+        //Navigation.NavigateTo("authentication/logout");
+    }
+}

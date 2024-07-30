@@ -1,5 +1,12 @@
-﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly">
+﻿@using BookShelves.Shared.Components.Layout
+@using BookShelves.WasmSwa.Layout
+@using BookShelves.WasmSwa.Pages
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+
+<!--<CascadingAuthenticationState>-->
+    <Router AppAssembly="@typeof(WasmApp).Assembly" AdditionalAssemblies="new[] { typeof(BookShelves.Shared.Components.Routes).Assembly }">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
@@ -22,4 +29,4 @@
             </LayoutView>
         </NotFound>
     </Router>
-</CascadingAuthenticationState>
+<!--</CascadingAuthenticationState>-->

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using BookShelves.Shared.DataInterfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookShelves.Maui.Data;
 

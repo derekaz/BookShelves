@@ -1,4 +1,6 @@
-﻿public interface IBooksDataService
+﻿namespace BookShelves.Shared.DataInterfaces;
+
+public interface IBooksDataService
 {
     IBook InitializeBookInstance();
     Task<bool> CreateBookAsync(IBook book);
