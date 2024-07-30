@@ -54,7 +54,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet build ${{env.csproj}} -bl:mobile.binlog
+          dotnet build ${{env.CSPROJ}} -bl:mobile.binlog
 
       - name: Archive build log
         uses: actions/upload-artifact@v2
