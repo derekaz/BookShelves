@@ -29,8 +29,8 @@ on:
       - '**'
 
 env:
-  CSPROJ: src/BookShelves.WinUI/BookShelves.WinUI.csproj
-  WINDOWS_ARTIFACTS_PATH: "artifacts_windows"
+  CSPROJ: 'src/BookShelves.WinUI/BookShelves.WinUI.csproj'
+  WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
 
 jobs:
   windows-build-windows:
