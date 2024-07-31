@@ -18,23 +18,25 @@
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
     <PublishReadyToRun>false</PublishReadyToRun>
     <StartupObject>BookShelves.WinUI.Program</StartupObject>
-    <ApplicationIcon>appicon.ico</ApplicationIcon>
+    <ApplicationIcon>appicon2.ico</ApplicationIcon>
     <PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="Assets\BadgeLogo.scale-100.png" />
-	  <Content Remove="Assets\BadgeLogo.scale-125.png" />
-	  <Content Remove="Assets\BadgeLogo.scale-150.png" />
-	  <Content Remove="Assets\BadgeLogo.scale-200.png" />
-	  <Content Remove="Assets\BadgeLogo.scale-400.png" />
-	  <Content Remove="Assets\Images\Books.svg" />
+	  <None Remove="Assets\SplashScreen.scale-200.png" />
+	  <None Remove="Assets\Square150x150Logo.scale-200.png" />
+	  <None Remove="Assets\Square44x44Logo.scale-200.png" />
+	  <None Remove="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="appicon.ico" />
+	  <Content Include="appicon2.ico" />
 	</ItemGroup>
+
+  <ItemGroup>
+    <MauiIcon Include="Assets\Images\books1.svg" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Graph" Version="5.56.0" />
@@ -45,11 +47,6 @@
 	
 	<ItemGroup>
 		<ProjectReference Include="..\BookShelves.Maui\BookShelves.Maui.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<!-- Make sure all image assets to be in the root of the package to match the other platforms -->
-		<Content Update="Assets\Images\*" TargetPath="%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
