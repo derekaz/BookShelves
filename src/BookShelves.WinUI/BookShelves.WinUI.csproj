@@ -29,7 +29,7 @@
 	  <Content Remove="Assets\BadgeLogo.scale-150.png" />
 	  <Content Remove="Assets\BadgeLogo.scale-200.png" />
 	  <Content Remove="Assets\BadgeLogo.scale-400.png" />
-	  <Content Remove="Assets\Images\Bookb.svg" />
+	  <Content Remove="Assets\Images\Books.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
