@@ -62,7 +62,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -f net8.0-windows10.0.19041.0 -c Release -p:RuntimeIdentifierOverride=win10-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -f net8.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 
       - name: Archive build log
