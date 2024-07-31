@@ -5,7 +5,6 @@ using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
@@ -85,7 +84,7 @@ public static class MauiProgramExtensions
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
-        builder.Services.AddScoped<IAuthService, Services.AuthService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();

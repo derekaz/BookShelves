@@ -35,7 +35,7 @@ namespace BookShelves.WasmSwa.Services
             //var signOutManager = _serviceProvider.GetRequiredService<SignOutSessionStateManager>();
             //await SignOutManager.SetSignOutState();
             var navigationManager = _serviceProvider.GetRequiredService<NavigationManager>();
-            navigationManager.NavigateToLogout("authentication/logout");
+            navigationManager.NavigateToLogout("authentication/logout", "/");
         }
     }
 }

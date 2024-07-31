@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
 using Microsoft.Graph;
 
 namespace BookShelves.WasmSwa.Services;
-
+// Learned about this here...
+// https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/microsoft-entra-id-groups-and-roles?view=aspnetcore-8.0&pivots=graph-sdk-4
 public class CustomAccountFactory(IAccessTokenProviderAccessor accessor,
         IServiceProvider serviceProvider,
         ILogger<CustomAccountFactory> logger)
