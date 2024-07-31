@@ -17,7 +17,24 @@
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML, but rather WinUI XAML. -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
     <PublishReadyToRun>false</PublishReadyToRun>
+    <StartupObject>BookShelves.WinUI.Program</StartupObject>
+    <ApplicationIcon>appicon.ico</ApplicationIcon>
+    <PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="Assets\BadgeLogo.scale-100.png" />
+	  <Content Remove="Assets\BadgeLogo.scale-125.png" />
+	  <Content Remove="Assets\BadgeLogo.scale-150.png" />
+	  <Content Remove="Assets\BadgeLogo.scale-200.png" />
+	  <Content Remove="Assets\BadgeLogo.scale-400.png" />
+	  <Content Remove="Assets\Images\Bookb.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="appicon.ico" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Graph" Version="5.56.0" />
@@ -63,6 +80,24 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">
 		<RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+	  <ApplicationTitle>BookShelves</ApplicationTitle>
 	</PropertyGroup>
 
 </Project>
