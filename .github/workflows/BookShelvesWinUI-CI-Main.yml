@@ -80,7 +80,7 @@ jobs:
       - name: Copy WinUI msix package
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
+          Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
