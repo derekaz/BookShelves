@@ -87,6 +87,7 @@ jobs:
         with:
           name: 'win-x64 msix'
           path: ${{ env.WINDOWS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          compression-level: 0
 
       # # BUILD
       # - name: Restore dependencies
