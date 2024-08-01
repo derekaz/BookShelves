@@ -16,14 +16,29 @@
 		<UseMaui>true</UseMaui>
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML, but rather WinUI XAML. -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
-    <PublishReadyToRun>false</PublishReadyToRun>
-    <StartupObject>BookShelves.WinUI.Program</StartupObject>
-    <ApplicationIcon>appicon2.ico</ApplicationIcon>
-    <PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<StartupObject>BookShelves.WinUI.Program</StartupObject>
+		<ApplicationIcon>appicon3.ico</ApplicationIcon>
+		<PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
+	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-256.png" />
+	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
+	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-16.png" />
+	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-256.png" />
+	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-48.png" />
+	  <Content Remove="Assets\Square44x44Logo.scale-100.png" />
+	  <Content Remove="Assets\Square44x44Logo.scale-400.png" />
+	  <Content Remove="Assets\Square44x44Logo.targetsize-16.png" />
+	  <Content Remove="Assets\Square44x44Logo.targetsize-256.png" />
+	  <Content Remove="Assets\Square44x44Logo.targetsize-48.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="appicon3.ico" />
 	  <None Remove="Assets\SplashScreen.scale-200.png" />
 	  <None Remove="Assets\Square150x150Logo.scale-200.png" />
 	  <None Remove="Assets\Square44x44Logo.scale-200.png" />
@@ -32,6 +47,7 @@
 
 	<ItemGroup>
 	  <Content Include="appicon2.ico" />
+	  <Content Include="appicon3.ico" />
 	</ItemGroup>
 
   <ItemGroup>
