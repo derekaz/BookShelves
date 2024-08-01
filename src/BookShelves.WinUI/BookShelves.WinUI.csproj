@@ -21,6 +21,7 @@
 		<ApplicationIcon>appicon3.ico</ApplicationIcon>
 		<PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageIcon>books2.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -46,12 +47,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="appicon2.ico" />
 	  <Content Include="appicon3.ico" />
 	</ItemGroup>
 
   <ItemGroup>
-    <MauiIcon Include="Assets\Images\books1.svg" />
+    <MauiIcon Include="Assets\Images\books2.png" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -76,6 +76,12 @@
 	-->
 	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Assets\Images\books2.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<!--
