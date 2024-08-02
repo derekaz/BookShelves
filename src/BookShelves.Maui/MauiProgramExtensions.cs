@@ -15,6 +15,8 @@ public static class MauiProgramExtensions
 
 	public static MauiAppBuilder UseSharedMauiApp(this MauiAppBuilder builder)
 	{
+        InteractiveRenderSettingsExtension.ConfigureBlazorHybridRenderModes();
+
         //IConfiguration configuration;
 
         builder
