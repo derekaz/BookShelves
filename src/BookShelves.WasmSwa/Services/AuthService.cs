@@ -14,14 +14,20 @@ namespace BookShelves.WasmSwa.Services
             _serviceProvider = serviceProvider;
         }
 
+        public Task InitializeAsync()
+        {
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
+        }
+
         public async Task LoginAsync()
         {
-            BeginLogin();
+            await Task.Run(BeginLogin);
         }
 
         public async Task LogoutAsync()
         {
-            BeginLogout();
+            await Task.Run(BeginLogout);
         }
 
         private void BeginLogin()

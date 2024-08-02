@@ -1,37 +1,16 @@
-﻿//using BookShelves.Maui.Services;
-//using Microsoft.Graph;
-//using Microsoft.Identity.Client;
-//using Microsoft.Kiota.Abstractions.Authentication;
-//using Microsoft.Kiota.Abstractions;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-
-//namespace BookShelves.Maui.Services
-//{
-//    internal class AuthenticationService
-//    {
-//    }
-//}
-
-
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Graph;
-using Microsoft.Graph.Models;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using static SQLite.SQLite3;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BookShelves.Maui.Services
 {
@@ -40,6 +19,7 @@ namespace BookShelves.Maui.Services
         private Lazy<Task<IPublicClientApplication>> _pca;
         private string _userIdentifier = string.Empty;
         private ISettingsService _settingsService;
+        private IWindowService _windowService;
         private ClaimsPrincipal _currentPrincipal;
 
         public GraphServiceClient GraphClient => new GraphServiceClient(this);
@@ -56,10 +36,12 @@ namespace BookShelves.Maui.Services
             }
         }
 
-        public AuthenticationService(ISettingsService settingsService)
+        public AuthenticationService(ISettingsService settingsService, IWindowService windowService)
         {
             _pca = new Lazy<Task<IPublicClientApplication>>(InitializeMsalWithCache);
             _settingsService = settingsService;
+            _windowService = windowService;
+            _currentPrincipal = new ClaimsPrincipal();
         }
 
         /// <inheritdoc/>
@@ -68,7 +50,8 @@ namespace BookShelves.Maui.Services
         /// </remarks>
         public async Task<bool> IsAuthenticatedAsync()
         {
-            var silentResult = await GetTokenSilentlyAsync();
+            var account = await GetUserAccountAsync();
+            var silentResult = await GetTokenSilentlyAsync(account);
 
             SetCurrentPrincipal(silentResult);
 
@@ -78,14 +61,14 @@ namespace BookShelves.Maui.Services
 
         public async Task<bool> SignInAsync()
         {
+            var account = await GetUserAccountAsync();
+            
             // First attempt to get a IIdToken silently
-            var result = await GetTokenSilentlyAsync();
-            if (result == null)
-            {
-                // If silent attempt didn't work, try an
-                // interactive sign in
-                result = await GetTokenInteractivelyAsync();
-            }
+            var result = await GetTokenSilentlyAsync(account);
+            
+            // If silent attempt didn't work, try an
+            // interactive sign in
+            result ??= await GetTokenInteractivelyAsync(account);
 
             SetCurrentPrincipal(result);
 
@@ -96,12 +79,11 @@ namespace BookShelves.Maui.Services
         private void SetCurrentPrincipal(AuthenticationResult? result)
         {
             var idToken = result?.IdToken;
-            var accessToken = result?.AccessToken;
+            //var accessToken = result?.AccessToken;
             if (idToken != null)
             {
                 var handler = new JwtSecurityTokenHandler();
                 var idData = handler.ReadJwtToken(idToken);
-                //var accessdata = handler.ReadJwtToken(accessToken);
                 _currentPrincipal = new ClaimsPrincipal(new ClaimsIdentity(idData.Claims, "TEST", "name", "roles"));
             }
             else
@@ -133,11 +115,20 @@ namespace BookShelves.Maui.Services
         /// </summary>
         private async Task<IPublicClientApplication> InitializeMsalWithCache()
         {
+            var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+            {
+                Title = "BookShelves"
+            };
+
             // Initialize the PublicClientApplication
             var builder = PublicClientApplicationBuilder
                 .Create(_settingsService.ClientId)
                 .WithAuthority(_settingsService.AzureAdAuthority)
-                .WithRedirectUri(_settingsService.RedirectUri);
+                .WithBroker(brokerOptions)
+                .WithParentActivityOrWindow(_windowService.GetMainWindowHandle)
+                .WithDefaultRedirectUri();
+                //.WithRedirectUri(_settingsService.RedirectUri);
+                
 
             builder = AddPlatformConfiguration(builder);
 
@@ -148,7 +139,7 @@ namespace BookShelves.Maui.Services
             return pca;
         }
 
-        private PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
+        private static PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
         {
             if (OperatingSystem.IsWindows())
             {
@@ -231,7 +222,7 @@ namespace BookShelves.Maui.Services
         /// <summary>
         /// Get the user account from the MSAL cache.
         /// </summary>
-        private async Task<IAccount> GetUserAccountAsync()
+        private async Task<IAccount?> GetUserAccountAsync()
         {
             try
             {
@@ -243,6 +234,8 @@ namespace BookShelves.Maui.Services
                     // There should only be one account in the cache anyway.
                     var accounts = await pca.GetAccountsAsync();
                     var account = accounts.FirstOrDefault();
+
+                    account ??= PublicClientApplication.OperatingSystemAccount;
 
                     // Save the user ID so this is easier next time
                     _userIdentifier = account?.HomeAccountId.Identifier ?? string.Empty;
@@ -261,16 +254,15 @@ namespace BookShelves.Maui.Services
         /// <summary>
         /// Attempt to acquire a IIdToken silently (no prompts).
         /// </summary>
-        private async Task<AuthenticationResult> GetTokenSilentlyAsync()
+        private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount)
         {
             try
             {
                 var pca = await _pca.Value;
 
-                var account = await GetUserAccountAsync();
-                if (account == null) return null;
+                if (userAccount == null) return null;
 
-                return await pca.AcquireTokenSilent(_settingsService.GraphScopes, account)
+                return await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
                     .ExecuteAsync();
             }
             catch (MsalUiRequiredException)
@@ -282,11 +274,14 @@ namespace BookShelves.Maui.Services
         /// <summary>
         /// Attempts to get a IIdToken interactively using the device's browser.
         /// </summary>
-        private async Task<AuthenticationResult> GetTokenInteractivelyAsync()
+        private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
         {
             var pca = await _pca.Value;
 
             var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
+                //.WithAccount(userAccount)
+                //.WithLoginHint("derek_m@outlook.com")
+                .WithPrompt(Microsoft.Identity.Client.Prompt.NoPrompt)
                 //.WithUseEmbeddedWebView(true)
                 .ExecuteAsync();
 
@@ -297,18 +292,18 @@ namespace BookShelves.Maui.Services
 
         public async Task AuthenticateRequestAsync(
             RequestInformation request,
-            Dictionary<string, object> additionalAuthenticationContext = null,
+            Dictionary<string, object>? additionalAuthenticationContext = null,
             CancellationToken cancellationToken = default)
         {
             if (request.URI.Host == "graph.microsoft.com")
             {
+                var account = await GetUserAccountAsync();
+
                 // First try to get the IIdToken silently
-                var result = await GetTokenSilentlyAsync();
-                if (result == null)
-                {
-                    // If silent acquisition fails, try interactive
-                    result = await GetTokenInteractivelyAsync();
-                }
+                var result = await GetTokenSilentlyAsync(account);
+                
+                // If silent acquisition fails, try interactive
+                result ??= await GetTokenInteractivelyAsync(account);
 
                 request.Headers.Add("Authorization", $"Bearer {result.AccessToken}");
             }

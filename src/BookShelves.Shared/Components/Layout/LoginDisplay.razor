@@ -16,6 +16,12 @@
 </AuthorizeView>
 
 @code{
+    protected async override Task OnInitializedAsync()
+    {
+        await AuthService.InitializeAsync();
+        // return base.OnInitializedAsync();
+    }
+
     private async Task<string?> GetName() 
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();

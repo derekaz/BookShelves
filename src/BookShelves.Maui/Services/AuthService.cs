@@ -11,6 +11,11 @@ internal class AuthService : IAuthService
         _serviceProvider = serviceProvider;
     }
 
+    public async Task InitializeAsync()
+    {
+        var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
+        await ((IExternalAuthenticationStateProvider)authenticationStateProvider).InitializeAsync();
+    }
 
     public async Task LoginAsync()
     {

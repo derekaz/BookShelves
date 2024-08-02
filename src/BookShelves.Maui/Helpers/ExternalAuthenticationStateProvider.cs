@@ -11,21 +11,30 @@ namespace BookShelves.Maui.Helpers;
 
 public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, IExternalAuthenticationStateProvider
 {
-    //public IPublicClientApplication IdentityClient { get; set; }
     private ClaimsPrincipal currentUser = new ClaimsPrincipal(new ClaimsIdentity());
-    //private string? accessToken = null;
     private IAuthenticationService _authenticationService;
-    //private AuthService? authService = null;
 
-    public override Task<AuthenticationState> GetAuthenticationStateAsync()
+    public async override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        return Task.FromResult(new AuthenticationState(currentUser));
+        return await Task.FromResult(new AuthenticationState(currentUser));
     }
 
     public ExternalAuthenticationStateProvider(IAuthenticationService authenticationService)
     {
         _authenticationService = authenticationService;
-        //authService = new AuthService();
+    }
+
+    public async Task InitializeAsync()
+    {
+        var loginTask = await _authenticationService.IsAuthenticatedAsync();
+        if (loginTask)
+        {
+            currentUser = _authenticationService.CurrentPrincipal;
+            var state = Task.FromResult(new AuthenticationState(currentUser));
+            NotifyAuthenticationStateChanged(state);
+            await state;
+        }
+        return;
     }
 
     public Task LogInAsync()
@@ -48,24 +57,9 @@ public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, 
         try
         {
             if (_authenticationService == null) { throw new InvalidOperationException("AuthenticationService not defined"); }
-            //if (authService == null) { throw new InvalidOperationException("AuthenticationService not defined"); }
 
             var result = await _authenticationService.SignInAsync();
             if (result) return _authenticationService.CurrentPrincipal;
-
-            //_authenticationService.GetUserAccount
-            
-            //var result = await authService.LoginAsync(CancellationToken.None);
-            //var token = result?.IdToken;
-            //accessToken = result?.AccessToken;
-            ////JwtSecurityToken data = null;
-            //if (token != null)
-            //{
-            //    var handler = new JwtSecurityTokenHandler();
-            //    var data = handler.ReadJwtToken(token);
-                
-            //    return new ClaimsPrincipal(new ClaimsIdentity(data.Claims, "TEST"));
-            //}
         }
         catch (MsalClientException ex)
         {
@@ -78,7 +72,6 @@ public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, 
     public async Task LogoutAsync()
     {
         await _authenticationService.SignOutAsync();
-        //await authService.LogoutAsync();
         currentUser = new ClaimsPrincipal(new ClaimsIdentity());
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentUser)));
     }

@@ -6,6 +6,7 @@ using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
 
 namespace BookShelves.Maui;
@@ -26,6 +27,17 @@ public static class MauiProgramExtensions
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
+//            .ConfigureLifecycleEvents(events =>
+//            {
+//                if (OperatingSystem.IsWindows())
+//                {
+//                    events.AddWindows(windows => windows
+//                        .OnLaunched((window, args) => AppLaunched(window, args)
+
+//                }
+//#if WINDOWS
+//#endif
+//            })
             .UseMauiCommunityToolkit();
 
         builder.Services.AddOptions();
@@ -102,4 +114,9 @@ public static class MauiProgramExtensions
 
         return builder;
 	}
+
+    private static void AppLaunched()
+    {
+
+    }
 }
