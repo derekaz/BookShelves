@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmApi", "Book
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WebShared", "BookShelves.WebShared\BookShelves.WebShared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Droid", "BookShelves.Droid\BookShelves.Droid.csproj", "{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -210,6 +212,30 @@ Global
 		{9091B714-E5B0-47EC-87B4-3E009CE11861}.Release|x64.Build.0 = Release|Any CPU
 		{9091B714-E5B0-47EC-87B4-3E009CE11861}.Release|x86.ActiveCfg = Release|Any CPU
 		{9091B714-E5B0-47EC-87B4-3E009CE11861}.Release|x86.Build.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|ARM64.Deploy.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x64.Build.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x86.Build.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|ARM64.Build.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|ARM64.Deploy.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x64.Build.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x64.Deploy.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.ActiveCfg = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.Build.0 = Release|Any CPU
+		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
