@@ -25,8 +25,8 @@
 			<rect x="304.471" y="246.654" width="24.663" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(99,40,0)"/>
 			<rect x="304.471" y="337.087" width="24.663" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(99,40,0)"/>
 			<rect x="359.279" y="249.394" width="68.51" height="183.606" transform="matrix(1,0,0,1,0,0)" fill="rgb(149,59,0)"/>
-			<rect x="359.279" y="285.019" width="68.51" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(255,255,255)"/>
-			<rect x="359.279" y="337.087" width="68.51" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(255,255,255)"/>
+			<rect x="359.279" y="285.019" width="68.51" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(153,153,153)"/>
+			<rect x="359.279" y="337.087" width="68.51" height="24.663" transform="matrix(1,0,0,1,0,0)" fill="rgb(153,153,153)"/>
 		</g>
 	</g>
 </svg>
