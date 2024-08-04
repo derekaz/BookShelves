@@ -3,13 +3,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BookShelves.Maui.Services;
 
-internal class AuthService : IAuthService
+internal class AuthService(IServiceProvider serviceProvider) : IAuthService
 {
-    private IServiceProvider _serviceProvider;
-    public AuthService(IServiceProvider serviceProvider) 
-    { 
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public async Task InitializeAsync()
     {
@@ -19,17 +15,12 @@ internal class AuthService : IAuthService
 
     public async Task LoginAsync()
     {
-        //var test = _serviceProvider.GetRequiredService<IAuthenticationService>();
-        //await test.SignInAsync();
         var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
         await ((IExternalAuthenticationStateProvider)authenticationStateProvider).LogInAsync();
     }
 
     public async Task LogoutAsync()
     {
-        //var test = _serviceProvider.GetRequiredService<IAuthenticationService>();
-        //await test.SignOutAsync();
-
         var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
         await ((IExternalAuthenticationStateProvider)authenticationStateProvider).LogoutAsync();
     }

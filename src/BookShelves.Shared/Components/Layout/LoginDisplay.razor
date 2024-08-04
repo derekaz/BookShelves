@@ -25,13 +25,14 @@
     private async Task<string?> GetName() 
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userIdentity = (System.Security.Claims.ClaimsIdentity)authState.User.Identity;
-        System.Diagnostics.Debug.WriteLine(userIdentity);
-        System.Diagnostics.Debug.WriteLine(authState.User.IsInRole("Administrator"));
-        var claims = userIdentity.Claims;
-        var roleClaimType = userIdentity.RoleClaimType;
-        var roles1 = claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
-        var roles2 = claims.Where(c => c.Type == roleClaimType).ToList();
+        // var user = authState.User;
+        // var userIdentity = (System.Security.Claims.ClaimsIdentity)user.Identity;
+        // System.Diagnostics.Debug.WriteLine(userIdentity);
+        // System.Diagnostics.Debug.WriteLine(authState.User.IsInRole("Administrator"));
+        // var claims = userIdentity?.Claims;
+        // var roleClaimType = userIdentity?.RoleClaimType;
+        // var roles1 = claims?.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
+        // var roles2 = claims?.Where(c => c.Type == roleClaimType).ToList();
 
         return authState?.User?.Identity?.Name;
     }

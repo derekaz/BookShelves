@@ -94,21 +94,13 @@ public static class MauiProgramExtensions
         builder.Services.AddSingleton<IDataService>(
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
 
-        builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
-
-        //var provider = new ExternalAuthenticationStateProvider();
-        //builder.Services.AddSingleton(s => provider);
-        //builder.Services.AddSingleton<AuthenticationStateProvider>(s => provider);
-        //DependencyService.RegisterSingleton<AuthenticationStateProvider>(provider);
-
-        //builder.Services.AddSingleton<IExternalAuthenticationStateProvider>(provider);
+        builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 
