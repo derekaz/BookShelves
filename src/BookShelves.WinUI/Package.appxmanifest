@@ -28,8 +28,8 @@
   <Applications>
     <Application Id="BookShelves.WinUI" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="$placeholder$"
-        Description="$placeholder$"
+        DisplayName="BookShelves"
+        Description="BookShelves for Windows"
         Square150x150Logo="$placeholder$.png"
         Square44x44Logo="$placeholder$.png" 
 		BackgroundColor="transparent">
@@ -40,7 +40,7 @@
         <uap:SplashScreen 
 			Image="$placeholder$.png" />
         <uap:LockScreen 
-			BadgeLogo="Assets\BadgeLogo.png" 
+			BadgeLogo="$placeholder$.png" 
 			Notification="badgeAndTileText"/>
       </uap:VisualElements>
     </Application>
