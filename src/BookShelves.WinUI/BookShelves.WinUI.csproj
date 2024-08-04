@@ -18,44 +18,31 @@
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
 		<PublishReadyToRun>false</PublishReadyToRun>
 		<StartupObject>BookShelves.WinUI.Program</StartupObject>
-		<ApplicationIcon>appicon3.ico</ApplicationIcon>
 		<PackageCertificateThumbprint>C0AAF91996F9BA5A6DB9FA822BE636EFB69ED667</PackageCertificateThumbprint>
 		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-		<PackageIcon>books2.png</PackageIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-16.png" />
-	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-256.png" />
-	  <Content Remove="Assets\Square44x44Logo.altform-lightunplated_targetsize-48.png" />
-	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-16.png" />
-	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-256.png" />
-	  <Content Remove="Assets\Square44x44Logo.altform-unplated_targetsize-48.png" />
-	  <Content Remove="Assets\Square44x44Logo.scale-100.png" />
-	  <Content Remove="Assets\Square44x44Logo.scale-400.png" />
-	  <Content Remove="Assets\Square44x44Logo.targetsize-16.png" />
-	  <Content Remove="Assets\Square44x44Logo.targetsize-256.png" />
-	  <Content Remove="Assets\Square44x44Logo.targetsize-48.png" />
-	  <Content Remove="Assets\StoreLogo.scale-100.png" />
-	  <Content Remove="Assets\StoreLogo.scale-200.png" />
-	  <Content Remove="Assets\StoreLogo.scale-400.png" />
+		<!-- App Icon -->
+		<MauiIcon Include="Assets\AppIcon\appicon.svg" ForegroundFile="Assets\AppIcon\appiconfg.svg" Color="transparent" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Assets\Splash\splash.svg" Color="transparent" BaseSize="128,128" />
+
+		<!-- Images -->
+		<MauiImage Include="Assets\Images\*" />
+		<MauiImage Update="Assets\Images\dotnet_bot.svg" BaseSize="168,208" />
+
+		<!-- Custom Fonts -->
+		<MauiFont Include="Assets\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Assets\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="appicon3.ico" />
-	  <None Remove="Assets\SplashScreen.scale-200.png" />
-	  <None Remove="Assets\Square150x150Logo.scale-200.png" />
-	  <None Remove="Assets\Square44x44Logo.scale-200.png" />
-	  <None Remove="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+	  <MauiImage Remove="Assets\Images\AboutWinUIImages.txt" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="appicon3.ico" />
-	</ItemGroup>
-
-  <ItemGroup>
-    <MauiIcon Include="Assets\Images\books2.png" />
-  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Graph" Version="5.56.0" />
@@ -79,12 +66,6 @@
 	-->
 	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
 		<ProjectCapability Include="Msix" />
-	</ItemGroup>
-	<ItemGroup>
-	  <None Update="Assets\Images\books2.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
 	</ItemGroup>
 
 	<!--
