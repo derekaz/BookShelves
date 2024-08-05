@@ -31,7 +31,7 @@ on:
       - '**'
 
 env:
-  CSPROJ: 'src/BookShelves.WinUI/BookShelves.Droid.csproj'
+  CSPROJ: 'src/BookShelves.Droid/BookShelves.Droid.csproj'
   ANDROID_ARTIFACTS_PATH: 'artifacts_android'
 
 jobs:
