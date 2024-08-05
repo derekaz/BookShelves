@@ -36,7 +36,7 @@ env:
   BUILD_LOG_FILE: 'windows.binlog'
 
 jobs:
-  windows-build-windows:
+  windows-build-android:
     runs-on: windows-latest
 
     steps:
@@ -81,10 +81,10 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p ${{ env.ANDROID_ARTIFACTS_PATH }}
 
-      - name: Copy WinUI msix package
+      - name: Copy Android apk package
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.apk -File -Recurse | Copy-Item -Destination ${{ env.ANDROID_ARTIFACTS_PATH }}
+          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.apk -File -Recurse | Copy-Item -Destination ${{ env.ANDROID_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
