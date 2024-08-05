@@ -1,4 +1,4 @@
-name: BookShelves.Droid .NET MAUI Blazor CI
+name: BookShelves.Maui Android CI
 
 on:
   # Allows you to run this workflow manually from the Actions tab
