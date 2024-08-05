@@ -11,6 +11,7 @@ using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.Maui.ApplicationModel;
 
 namespace BookShelves.Maui.Services;
 
@@ -18,7 +19,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 {
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
-    private readonly IWindowService _windowService;
+    private readonly IWindowService? _windowService;
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
@@ -37,7 +38,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService settingsService, IWindowService windowService)
+    public AuthenticationService(ISettingsService settingsService, IWindowService? windowService)
     {
         _pca = new Lazy<Task<IPublicClientApplication>>(InitializeMsalWithCache);
         _settingsService = settingsService;
@@ -126,10 +127,8 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             .Create(_settingsService.ClientId)
             .WithAuthority(_settingsService.AzureAdAuthority)
             .WithBroker(brokerOptions)
-            .WithParentActivityOrWindow(_windowService.GetMainWindowHandle)
-            .WithDefaultRedirectUri();
-            //.WithRedirectUri(_settingsService.RedirectUri);
-            
+            .WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
+            .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
         builder = AddPlatformConfiguration(builder);
 
@@ -193,6 +192,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             //ios: return Task.CompletedTask;
             //android: return Task.CompletedTask;
             //windows: above code
+            //Task.CompletedTask;
             return; // Task.CompletedTask;
         }
     }
@@ -278,11 +278,13 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
     {
         var pca = await _pca.Value;
+        //var window = _windowService.GetMainWindowHandle();
 
         var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
-            .WithPrompt(Microsoft.Identity.Client.Prompt.NoPrompt)
+            .WithPrompt(Prompt.NoPrompt)
+            .WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
             //.WithUseEmbeddedWebView(true)
             .ExecuteAsync();
 

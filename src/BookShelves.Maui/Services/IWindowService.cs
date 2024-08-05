@@ -2,5 +2,5 @@
 
 public interface IWindowService
 {
-    public IntPtr GetMainWindowHandle();
+    public Func<object> GetMainWindowHandle();
 }

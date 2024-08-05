@@ -40,15 +40,12 @@ else
             <th>
                 Claim Value
             </th>
-            @*<th>
-                Value Type
-            </th>
             <th>
                 Subject Name
             </th>
             <th>
                 Issuer Name
-            </th>*@
+            </th>
         </tr>
         @foreach (System.Security.Claims.Claim claim in claims)
         {
@@ -59,15 +56,12 @@ else
                 <td>
                     @claim.Value
                 </td>
-                @*<td>
-                    @claim.ValueType
+                <td>
+                    @(claim?.Subject?.Name ?? "UNK")
                 </td>
                 <td>
-                    @claim.Subject.Name
+                    @(claim?.Issuer ?? "UNK")
                 </td>
-                <td>
-                    @claim.Issuer
-                </td>*@
             </tr>
         }
     </table>
@@ -83,15 +77,10 @@ else
 
         try
         {
-            // if (graphService == null)
-            // {
-            //     graphService = new GraphService();
-            // }
             user = await GraphService.GetUserInfoAsync();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             claims = authState.User.Claims;
 
-            // user = await GraphServiceClient.Me.GetAsync();
             Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)

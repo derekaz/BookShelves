@@ -28,8 +28,8 @@ internal class WindowService : IWindowService
         return handle;
     }
 
-    public IntPtr GetMainWindowHandle()
+    public Func<object> GetMainWindowHandle()
     {
-        return GetConsoleOrTerminalWindow();
+        return () => GetConsoleOrTerminalWindow();
     }
 }
