@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace BookShelves.Maui.Services;
+namespace BookShelves.Maui2.Services;
 
 enum GetAncestorFlags
 {

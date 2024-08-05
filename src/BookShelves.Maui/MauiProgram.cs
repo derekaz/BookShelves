@@ -1,4 +1,5 @@
-﻿using BookShelves.Maui.Helpers;
+﻿using BookShelves.Maui.Data;
+using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
 using BookShelves.Shared.DataInterfaces;
@@ -6,39 +7,55 @@ using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
 
 namespace BookShelves.Maui;
 
-public static class MauiProgramExtensions
+public static class MauiProgram
 {
-
-	public static MauiAppBuilder UseSharedMauiApp(this MauiAppBuilder builder)
-	{
-        InteractiveRenderSettingsExtension.ConfigureBlazorHybridRenderModes();
-
-        //IConfiguration configuration;
-
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            })
-//            .ConfigureLifecycleEvents(events =>
-//            {
-//                if (OperatingSystem.IsWindows())
-//                {
-//                    events.AddWindows(windows => windows
-//                        .OnLaunched((window, args) => AppLaunched(window, args)
+            });
 
-//                }
-//#if WINDOWS
-//#endif
-//            })
-            .UseMauiCommunityToolkit();
+        builder.Services.AddMauiBlazorWebView();
+
+#if DEBUG
+		builder.Services.AddBlazorWebViewDeveloperTools();
+		builder.Logging.AddDebug();
+#endif
+
+
+        builder.ConfigureLifecycleEvents(events =>
+        {
+#if ANDROID
+                events.AddAndroid(platform =>
+                {
+                    platform.OnActivityResult((activity, rc, result, data) =>
+                    {
+                        AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
+                    });
+                });
+#endif
+        });
+
+#if ANDROID
+        builder.Services.AddSingleton<IWindowService, BookShelves.Maui.Platforms.Android.WindowService>();
+#elif IOS
+
+#elif MACCATALYST
+
+#else
+        builder.Services.AddSingleton<IWindowService, BookShelves.Maui.Platforms.Windows.WindowService>();
+#endif
 
         builder.Services.AddOptions();
         builder.Services.AddAuthorizationCore();
@@ -79,14 +96,14 @@ public static class MauiProgramExtensions
         //      {
         builder.Configuration.AddConfiguration(config);
         builder.Services.AddMauiBlazorWebView();
-  //      }
-  //      catch (Exception ex) 
-		//{
-		//	Debug.WriteLine(ex);
-		//}
+        //      }
+        //      catch (Exception ex) 
+        //{
+        //	Debug.WriteLine(ex);
+        //}
 #if DEBUG
-		builder.Logging.AddDebug();
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Logging.AddDebug();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
         var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
@@ -104,11 +121,6 @@ public static class MauiProgramExtensions
 
         builder.Services.AddRazorClassLibraryServices(config);
 
-        return builder;
-	}
-
-    private static void AppLaunched()
-    {
-
+        return builder.Build();
     }
 }

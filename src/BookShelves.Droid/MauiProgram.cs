@@ -1,5 +1,5 @@
-﻿using BookShelves.Maui;
-using BookShelves.Maui.Services;
+﻿using BookShelves.Maui2;
+using BookShelves.Maui2.Services;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 

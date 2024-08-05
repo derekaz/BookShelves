@@ -10,7 +10,7 @@ on:
     paths:
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
-      - 'src/BookShelves.WinUI/**'
+      # - 'src/BookShelves.WinUI/**'
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
@@ -20,7 +20,7 @@ on:
     paths:
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
-      - 'src/BookShelves.WinUI/**'
+      # - 'src/BookShelves.WinUI/**'
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
@@ -29,8 +29,9 @@ on:
       - '**'
 
 env:
-  CSPROJ: 'src/BookShelves.WinUI/BookShelves.WinUI.csproj'
+  CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
   WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
+  BUILD_LOG_FILE: 'windows.binlog'
 
 jobs:
   windows-build-windows:
@@ -62,14 +63,14 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -f net8.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 
       - name: Archive build log
         uses: actions/upload-artifact@v4
         with:
           name: logs
-          path: '*.binlog'
+          path: '${{env.BUILD_LOG_FILE}}'
 
       - name: Create artifacts folder
         shell: pwsh

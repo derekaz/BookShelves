@@ -40,7 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\BookShelves.Maui\BookShelves.Maui.csproj" />
+		<ProjectReference Include="..\BookShelves.Maui\BookShelves.Maui2.csproj" />
 	</ItemGroup>
 
 </Project>

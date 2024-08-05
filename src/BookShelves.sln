@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Mac", "BookShel
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WinUI", "BookShelves.WinUI\BookShelves.WinUI.csproj", "{9AEBD8B4-5326-42F4-A5B7-FE65C890DE2E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShelves.Maui\BookShelves.Maui.csproj", "{9C155B94-5A6D-42C6-8259-EF3EAE89DE2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui2", "BookShelves.Maui2\BookShelves.Maui2.csproj", "{9C155B94-5A6D-42C6-8259-EF3EAE89DE2E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web", "BookShelves.Web\BookShelves.Web.csproj", "{C9DB1DB3-94C2-4205-A3A4-43BF8B5E2DB1}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WebShared", "BookShelves.WebShared\BookShelves.WebShared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Droid", "BookShelves.Droid\BookShelves.Droid.csproj", "{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShelves.Maui\BookShelves.Maui.csproj", "{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -237,6 +239,30 @@ Global
 		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.Build.0 = Release|Any CPU
 		{D1F7F2EC-A94E-4A9D-B408-3BC54E10B8FE}.Release|x86.Deploy.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|ARM64.Deploy.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x64.Build.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x86.Build.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|ARM64.Build.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|ARM64.Deploy.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x64.ActiveCfg = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x64.Build.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x64.Deploy.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x86.ActiveCfg = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x86.Build.0 = Release|Any CPU
+		{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}.Release|x86.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

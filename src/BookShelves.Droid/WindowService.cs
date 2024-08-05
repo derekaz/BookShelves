@@ -1,4 +1,4 @@
-﻿using BookShelves.Maui.Services;
+﻿using BookShelves.Maui2.Services;
 
 namespace BookShelves.Droid
 {

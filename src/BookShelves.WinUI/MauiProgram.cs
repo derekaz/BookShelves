@@ -1,6 +1,6 @@
-﻿using BookShelves.Maui;
-using BookShelves.Maui.Helpers;
-using BookShelves.Maui.Services;
+﻿using BookShelves.Maui2;
+using BookShelves.Maui2.Helpers;
+using BookShelves.Maui2.Services;
 using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
 
