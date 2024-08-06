@@ -127,7 +127,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             .Create(_settingsService.ClientId)
             .WithAuthority(_settingsService.AzureAdAuthority)
             .WithBroker(brokerOptions)
-            .WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
             .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
         builder = AddPlatformConfiguration(builder);
@@ -139,63 +138,26 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         return pca;
     }
 
-    private static PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            //builder.WithWindowsEmbeddedBrowserSupport();
-            //builder.WithDesktopFeatures();
-            return builder;
-        }
-        else // handle mac, ios, android
-        {
-            // from example code: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/Windows/AuthenticationService.cs
-            // ios:  return builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
-            // android: return builder.WithParentActivityOrWindow(() => Platform.CurrentActivity);
-            // windows: return builder;
-            return builder;
-        }
-    }
+    private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder);
+    // {
+    // #if ANDROID
+    //        return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
+    // android: return builder.WithParentActivityOrWindow(() => Platform.CurrentActivity);
+    // #elif IOS
+    // ios:  return builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
+    // #elif MACCATALYST
+    // #elif WINDOWS
+    //    //builder.WithWindowsEmbeddedBrowserSupport();
+    //    //builder.WithDesktopFeatures();
+    // return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
+    // #endif
+    //    // from example code: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/Windows/AuthenticationService.cs
+    //    return builder;
+    // }
 
+    private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache);
 
-    //        private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
-
-    private async Task RegisterMsalCacheAsync(ITokenCache tokenCache)
-    {
-        if (OperatingSystem.IsWindows())
-        {
-            // Configure storage properties for cross-platform
-            // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-            var storageProperties =
-                new StorageCreationPropertiesBuilder(_settingsService.CacheFileName, _settingsService.CacheDirectory)
-                .WithLinuxKeyring(
-                    _settingsService.LinuxKeyRingSchema,
-                    _settingsService.LinuxKeyRingCollection,
-                    _settingsService.LinuxKeyRingLabel,
-                    _settingsService.LinuxKeyRingAttr1,
-                    _settingsService.LinuxKeyRingAttr2)
-                .WithMacKeyChain(
-                    _settingsService.KeyChainServiceName,
-                    _settingsService.KeyChainAccountName)
-                .Build();
-
-            // Create a cache helper
-            var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-
-            // Connect the PublicClientApplication's cache with the cacheHelper.
-            // This will cause the cache to persist into secure storage on the device.
-            cacheHelper.RegisterCache(tokenCache);
-        }
-        else // handle android, mac, ios
-        {
-            // from example code here: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/iOS/AuthenticationService.cs
-            //ios: return Task.CompletedTask;
-            //android: return Task.CompletedTask;
-            //windows: above code
-            //Task.CompletedTask;
-            return; // Task.CompletedTask;
-        }
-    }
+    // from example code here: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/iOS/AuthenticationService.cs
     //{
     //    // Configure storage properties for cross-platform
     //    // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache

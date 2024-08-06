@@ -22,7 +22,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>BookShelves.Maui</ApplicationTitle>
+        <ApplicationTitle>BookShelves</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.azmoore.bookshelves.maui</ApplicationId>
@@ -92,6 +92,18 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Platforms\iOS\AuthenticationService.cs">
+        <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+      </Compile>
+      <Compile Update="Platforms\MacCatalyst\AuthenticationService.cs">
+        <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+      </Compile>
+      <Compile Update="Platforms\Windows\AuthenticationService.cs">
+        <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+      </Compile>
     </ItemGroup>
 
 </Project>
