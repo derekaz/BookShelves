@@ -1,5 +1,6 @@
-﻿using Microsoft.Identity.Client.Extensions.Msal;
-using Microsoft.Identity.Client;
+﻿using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Broker;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace BookShelves.Maui.Services;
 
@@ -7,9 +8,18 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
+        var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+        {
+            Title = "BookShelves"
+        };
+
         //builder.WithWindowsEmbeddedBrowserSupport();
-        //builder.WithDesktopFeatures();
-        return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
+        //builder.WithWindowsDesktopFeatures();
+        builder.WithDefaultRedirectUri();
+        builder.WithBroker(brokerOptions);
+        builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
+
+        return builder;
     }
 
 

@@ -126,7 +126,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var builder = PublicClientApplicationBuilder
             .Create(_settingsService.ClientId)
             .WithAuthority(_settingsService.AzureAdAuthority)
-            .WithBroker(brokerOptions)
+            //.WithBroker(brokerOptions)
             .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
         builder = AddPlatformConfiguration(builder);
@@ -245,9 +245,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
-            .WithPrompt(Prompt.NoPrompt)
-            .WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
-            //.WithUseEmbeddedWebView(true)
+            //.WithPrompt(Prompt.NoPrompt)
+            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
+            .WithUseEmbeddedWebView(true)
             .ExecuteAsync();
 
         // Store the user ID to make account retrieval easier

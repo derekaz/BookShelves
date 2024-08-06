@@ -48,13 +48,13 @@ public static class MauiProgram
         });
 
 #if ANDROID
-        builder.Services.AddSingleton<IWindowService, BookShelves.Maui.Platforms.Android.WindowService>();
+        builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
 #elif IOS
 
 #elif MACCATALYST
 
-#else
-        builder.Services.AddSingleton<IWindowService, BookShelves.Maui.Platforms.Windows.WindowService>();
+#elif WINDOWS
+        builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
 #endif
 
         builder.Services.AddOptions();
