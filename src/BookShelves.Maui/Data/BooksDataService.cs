@@ -1,4 +1,8 @@
-﻿internal class BooksDataService(IDataService dataService) : IBooksDataService
+﻿using BookShelves.Shared.DataInterfaces;
+
+namespace BookShelves.Maui.Data;
+
+internal class BooksDataService(IDataService dataService) : IBooksDataService
 {
     readonly IDataService dataService = dataService;
 

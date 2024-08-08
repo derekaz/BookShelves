@@ -1,6 +1,7 @@
 using BookShelves.Shared;
 using BookShelves.Web.Components;
-using BookShelves.Web.Data;
+using BookShelves.WebShared.Data;
+using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddAuthentication();
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddRazorClassLibraryServices();
 builder.Services.AddScoped(sp =>
         new HttpClient
@@ -31,7 +34,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>()
+app.MapRazorComponents<WebApp>()
     .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly);
 

@@ -1,4 +1,6 @@
-﻿public interface IBook
+﻿namespace BookShelves.Shared.DataInterfaces;
+
+public interface IBook
 {
     string Id { get; set; }
 

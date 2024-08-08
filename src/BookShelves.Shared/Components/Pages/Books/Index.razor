@@ -1,7 +1,10 @@
 ﻿@page "/books"
+@using Blazored.Modal
+@using Blazored.Modal.Services
 @using BookShelves.Shared
+@using BookShelves.Shared.DataInterfaces
 @inject IBooksDataService DataService
-@attribute [Authorize(Roles = "administrator")]
+@attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
 

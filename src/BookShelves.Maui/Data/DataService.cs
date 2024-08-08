@@ -1,6 +1,8 @@
 ﻿using SQLite;
 using System.Diagnostics;
 
+namespace BookShelves.Maui.Data;
+
 internal class DataService(string dbPath) : IDataService
 {
     private readonly string dbPath = dbPath;
