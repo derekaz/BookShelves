@@ -5,13 +5,10 @@ using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Broker;
-using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.Maui.ApplicationModel;
 
 namespace BookShelves.Maui.Services;
 
@@ -38,18 +35,24 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService settingsService, IWindowService? windowService)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService)
     {
+        _currentPrincipal = new ClaimsPrincipal();
+
+        if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
+        if (windowService == null) throw new NullReferenceException(nameof(windowService));
+
+        _settingsService = settingsService;
+        _windowService = windowService;
+
         try
         {
             _pca = new Lazy<Task<IPublicClientApplication>>(InitializeMsalWithCache);
-            _settingsService = settingsService;
-            _windowService = windowService;
-            _currentPrincipal = new ClaimsPrincipal();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
+            throw new InvalidOperationException("Unable to lazy initialize the MSAL PublicClientApplication", ex);
         }
     }
 
@@ -124,25 +127,28 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
-        //var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-        //{
-        //    Title = "BookShelves"
-        //};
+        try
+        {
+            // Initialize the PublicClientApplication
+            var builder = PublicClientApplicationBuilder
+                .Create(_settingsService?.ClientId)
+                .WithAuthority(_settingsService?.AzureAdAuthority)
+                //.WithBroker(brokerOptions)
+                .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
-        // Initialize the PublicClientApplication
-        var builder = PublicClientApplicationBuilder
-            .Create(_settingsService.ClientId)
-            .WithAuthority(_settingsService.AzureAdAuthority)
-            //.WithBroker(brokerOptions)
-            .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
+            builder = AddPlatformConfiguration(builder);
 
-        builder = AddPlatformConfiguration(builder);
+            var pca = builder.Build();
 
-        var pca = builder.Build();
+            await RegisterMsalCacheAsync(pca.UserTokenCache);
 
-        await RegisterMsalCacheAsync(pca.UserTokenCache);
-
-        return pca;
+            return pca;
+        } 
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw new InvalidOperationException("Unable to initialize the MSAL PublicClientApplication instance", ex);
+        }
     }
 
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder);
@@ -253,7 +259,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
             //.WithPrompt(Prompt.NoPrompt)
-            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle())
+            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()) // trying this to maybe fix the IOS launch issue
             .WithUseEmbeddedWebView(true)
             .ExecuteAsync();
 
