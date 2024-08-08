@@ -40,10 +40,17 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
     public AuthenticationService(ISettingsService settingsService, IWindowService? windowService)
     {
-        _pca = new Lazy<Task<IPublicClientApplication>>(InitializeMsalWithCache);
-        _settingsService = settingsService;
-        _windowService = windowService;
-        _currentPrincipal = new ClaimsPrincipal();
+        try
+        {
+            _pca = new Lazy<Task<IPublicClientApplication>>(InitializeMsalWithCache);
+            _settingsService = settingsService;
+            _windowService = windowService;
+            _currentPrincipal = new ClaimsPrincipal();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
     }
 
     /// <inheritdoc/>
@@ -117,10 +124,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
-        var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-        {
-            Title = "BookShelves"
-        };
+        //var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+        //{
+        //    Title = "BookShelves"
+        //};
 
         // Initialize the PublicClientApplication
         var builder = PublicClientApplicationBuilder

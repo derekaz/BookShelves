@@ -6,6 +6,7 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
+        builder.WithRedirectUri("msauth.com.azmoore.bookshelves.maui://auth");
         return builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
     }
 

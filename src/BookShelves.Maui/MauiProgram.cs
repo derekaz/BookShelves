@@ -50,7 +50,7 @@ public static class MauiProgram
 #if ANDROID
         builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
 #elif IOS
-
+        builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
 #elif MACCATALYST
 
 #elif WINDOWS

@@ -39,9 +39,18 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
-      <MtouchLink>SdkOnly</MtouchLink>
+    <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+      <MtouchLink>Full</MtouchLink>
+    </PropertyGroup>-->
+
+    <PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
+      <CodesignKey>Apple Development: Created via API (Q7H3YR8SMU)</CodesignKey>
+      <CodesignProvision>VS: WildCard Development</CodesignProvision>
     </PropertyGroup>
+
+    <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+      <MtouchLink>None</MtouchLink>
+    </PropertyGroup>-->
 
     <ItemGroup>
         <!-- App Icon -->
@@ -100,6 +109,9 @@
 
     <ItemGroup>
       <Compile Update="Platforms\iOS\AuthenticationService.cs">
+        <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+      </Compile>
+      <Compile Update="Platforms\iOS\WindowService.cs">
         <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
       </Compile>
       <Compile Update="Platforms\MacCatalyst\AuthenticationService.cs">
