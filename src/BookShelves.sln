@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		..\.github\workflows\BookShelvesAndroid-CI-Main.yml = ..\.github\workflows\BookShelvesAndroid-CI-Main.yml
 		..\.github\workflows\BookShelvesApp-CD-Main.yml = ..\.github\workflows\BookShelvesApp-CD-Main.yml
+		..\.github\workflows\BookShelvesIOS-CI-Main.yml = ..\.github\workflows\BookShelvesIOS-CI-Main.yml
 		..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml = ..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml
 		..\.github\workflows\BookShelvesWinUI-CI-Main.yml = ..\.github\workflows\BookShelvesWinUI-CI-Main.yml
 	EndProjectSection
