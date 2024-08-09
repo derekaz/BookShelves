@@ -37,7 +37,7 @@ env:
 
 jobs:
   mac-build-ios:
-    runs-on: mac-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
