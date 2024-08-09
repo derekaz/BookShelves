@@ -36,7 +36,7 @@ env:
   BUILD_LOG_FILE: 'ios.binlog'
 
 jobs:
-  windows-build-android:
+  mac-build-ios:
     runs-on: mac-latest
 
     steps:
