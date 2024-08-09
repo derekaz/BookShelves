@@ -60,6 +60,10 @@ jobs:
           p12-file-base64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
       
+      - name: Issuer ID
+        run: |
+          echo ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
