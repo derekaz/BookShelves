@@ -9,6 +9,12 @@ public partial class AuthenticationService
         return builder; // .WithIosKeychainSecurityGroup("com.microsoft.adalcache");
     }
 
+    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
+    {
+        return builder;
+    }
+
+
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
         return Task.CompletedTask;

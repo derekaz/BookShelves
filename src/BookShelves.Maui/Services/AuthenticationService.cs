@@ -255,18 +255,34 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var pca = await _pca.Value;
         //var window = _windowService.GetMainWindowHandle();
 
-        var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
+        var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
+            builder.WithUseEmbeddedWebView(true);
+        
+        builder = AddAquireTokenPlatformConfiguration(builder);
+
+        try
+        {
+            var result = await builder.ExecuteAsync();
+
+            //var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
             //.WithPrompt(Prompt.NoPrompt)
             //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()) // trying this to maybe fix the IOS launch issue
-            .WithUseEmbeddedWebView(true)
-            .ExecuteAsync();
+            //.WithUseEmbeddedWebView(true)
+            //.ExecuteAsync();
 
-        // Store the user ID to make account retrieval easier
-        _userIdentifier = result.Account.HomeAccountId.Identifier;
-        return result;
+            // Store the user ID to make account retrieval easier
+            _userIdentifier = result.Account.HomeAccountId.Identifier;
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
+
+    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder);
 
     public async Task AuthenticateRequestAsync(
         RequestInformation request,

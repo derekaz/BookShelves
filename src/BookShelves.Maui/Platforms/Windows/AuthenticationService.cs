@@ -23,6 +23,12 @@ public partial class AuthenticationService
     }
 
 
+    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
+    {
+        builder.WithUseEmbeddedWebView(true);
+        return builder;
+    }
+
     private partial async Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
         // Configure storage properties for cross-platform
