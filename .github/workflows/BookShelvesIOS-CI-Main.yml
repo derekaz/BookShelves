@@ -1,4 +1,4 @@
-name: BookShelves.Maui Android CI
+name: BookShelves.Maui IOS CI
 
 on:
   # Allows you to run this workflow manually from the Actions tab
