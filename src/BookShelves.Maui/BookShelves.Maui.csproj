@@ -79,11 +79,11 @@
       <Content Remove="appSettings.json" />
     </ItemGroup>
 
-    <ItemGroup>
+    <!--<ItemGroup>
       <None Remove="Resources\AppIcon\appicon.svg" />
       <None Remove="Resources\AppIcon\appiconfg.svg" />
       <None Remove="Resources\Splash\splash.svg" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <ItemGroup>
       <EmbeddedResource Include="appSettings.json" />
