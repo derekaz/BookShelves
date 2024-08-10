@@ -68,7 +68,7 @@ jobs:
           echo ${{ secrets.APPLE_APPSTORE_KEY_ID }} | sed 's/./& /g'
       - name: Priv K
         run: |
-          echo ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }} | sed 's/./& /g'
+          echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
