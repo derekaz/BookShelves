@@ -63,6 +63,7 @@ jobs:
       - name: Issuer ID
         run: |
           echo ${{ secrets.APPLE_APPSTORE_ISSUER_ID }} | sed 's/./& /g'
+          echo ${{ secrets.APPLE_APPSTORE_KEY_ID }} | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
@@ -70,7 +71,7 @@ jobs:
           bundle-id: 'com.azmoore.bookshelves.maui'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       # - name: Decrypt PFX File
       #   run: |
