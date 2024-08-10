@@ -60,8 +60,9 @@
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+		<MauiAsset Include="Resources\AppIcon\appiconfg.svg" />
 
-        <!-- Splash Screen -->
+		<!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
         <!-- Images -->
@@ -89,9 +90,9 @@
       <EmbeddedResource Include="appSettings.json" />
     </ItemGroup>
 
-    <ItemGroup>
+    <!--<ItemGroup>
       <MauiAsset Include="Resources\AppIcon\appiconfg.svg" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <ItemGroup>
         <PackageReference Include="Azure.Identity" Version="1.12.0" />

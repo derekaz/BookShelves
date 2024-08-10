@@ -105,7 +105,7 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p ${{ env.IOS_ARTIFACTS_PATH }}
 
-      - name: Copy Android apk package
+      - name: Copy IOS IPA package
         shell: pwsh
         run: |
           Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
