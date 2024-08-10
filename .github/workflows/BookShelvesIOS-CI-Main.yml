@@ -62,7 +62,7 @@ jobs:
       
       - name: Issuer ID
         run: |
-          echo ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          echo ${{ secrets.APPLE_APPSTORE_ISSUER_ID }} | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
