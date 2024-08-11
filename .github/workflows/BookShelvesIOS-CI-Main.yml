@@ -42,6 +42,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set current date as env variable
+        run: |
+            echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+            echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
+            echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
@@ -96,7 +103,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}}  -bl:${{env.BUILD_LOG_FILE}} -f net8.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true 
+          dotnet publish ${{env.CSPROJ}}  -bl:${{env.BUILD_LOG_FILE}} -f net8.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }}
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
@@ -107,18 +114,18 @@ jobs:
           Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
           Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
 
-      - name: version
-        run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
-        id: version
+      # - name: version
+      #   run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
+      #   id: version
  
       - name: release
         uses: actions/create-release@v1
         id: create_release
         with:
-          draft: false
-          prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ github.ref }}
+          draft: true
+          prerelease: true
+          release_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
+          tag_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
           # body_path: 'TEST TAG' #CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ github.token }}
