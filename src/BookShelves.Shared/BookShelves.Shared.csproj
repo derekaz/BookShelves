@@ -33,6 +33,8 @@
     <Content Update="Components\Layout\RedirectToHomePage.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+	<Content Update="Components\Layout\LayoutFooter.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	</Content>
   </ItemGroup>
-
 </Project>

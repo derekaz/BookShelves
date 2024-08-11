@@ -24,7 +24,12 @@ public static class MauiProgram
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            })
+            .ConfigureEssentials(essentials =>
+            {
+                essentials.UseVersionTracking();
             });
+
 
         builder.Services.AddMauiBlazorWebView();
 
@@ -105,6 +110,8 @@ public static class MauiProgram
         builder.Logging.AddDebug();
         builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
+
+        builder.Services.AddSingleton<IVersionService, VersionService>();
 
         var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
 
