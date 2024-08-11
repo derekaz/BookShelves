@@ -114,21 +114,26 @@ jobs:
           Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
           Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
 
+      - name: Show publish folder content
+        shell: pwsh
+        run: |
+          Get-Childitem -Path ${{ env.PUBLISH_PATH }} -Include *.* -File -Recurse
+
       # - name: version
       #   run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
       #   id: version
  
-      - name: release
-        uses: actions/create-release@v1
-        id: create_release
-        with:
-          draft: true
-          prerelease: true
-          release_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
-          tag_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
-          # body_path: 'TEST TAG' #CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      #- name: release
+      #  uses: actions/create-release@v1
+      #  id: create_release
+      #  with:
+      #    draft: true
+      #    prerelease: true
+      #    release_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
+      #    tag_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
+      #    # body_path: 'TEST TAG' #CHANGELOG.md
+      #  env:
+      #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: Archive build log
         uses: actions/upload-artifact@v4
