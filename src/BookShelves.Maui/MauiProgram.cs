@@ -57,7 +57,7 @@ public static class MauiProgram
 #elif IOS
         builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
 #elif MACCATALYST
-
+        builder.Services.AddSingleton<IWindowService, Platforms.Mac.WindowService>();
 #elif WINDOWS
         builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
 #endif

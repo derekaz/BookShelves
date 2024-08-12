@@ -1,4 +1,4 @@
-name: BookShelves.Maui IOS CI
+name: BookShelves.Maui Mac CI
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -15,7 +15,7 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
-      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
@@ -26,18 +26,18 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
-      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
     branches: 
       - '**'
 
 env:
   CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
   PUBLISH_PATH: '${{ github.workspace }}/publish-output'
-  IOS_ARTIFACTS_PATH: 'artifacts_ios'
-  BUILD_LOG_FILE: 'ios.binlog'
+  MAC_ARTIFACTS_PATH: 'artifacts_mac'
+  BUILD_LOG_FILE: 'mac.binlog'
 
 jobs:
-  mac-build-ios:
+  mac-build-mac:
     runs-on: macos-latest
 
     steps:
@@ -103,7 +103,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}}  -bl:${{env.BUILD_LOG_FILE}} -f net8.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }}
+          dotnet publish ${{env.CSPROJ}}  -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }}
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
@@ -135,14 +135,14 @@ jobs:
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
 
-      - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
-        with: 
-          app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
-          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
-        if: github.event_name == 'pull_request'
+      # - name: 'Upload app to TestFlight'
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with: 
+      #     app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
+      #     issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+      #   if: github.event_name == 'pull_request'
 
       - name: Archive build log
         uses: actions/upload-artifact@v4
@@ -154,18 +154,18 @@ jobs:
         shell: pwsh
         run: |
           cd ${{ github.workspace }}
-          mkdir -p ${{ env.IOS_ARTIFACTS_PATH }}
+          mkdir -p ${{ env.MAC_ARTIFACTS_PATH }}
 
-      - name: Copy IOS IPA package
+      - name: Copy Mac IPA package
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
+          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.MAC_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'ios ipa'
-          path: ${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          name: 'mac ipa'
+          path: ${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
       # # BUILD
