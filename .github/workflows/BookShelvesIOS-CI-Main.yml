@@ -107,12 +107,12 @@ jobs:
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
-      - name: Show publish folder content
-        shell: pwsh
-        run: |
-          cd '${{ github.workspace }}'
-          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
-          Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
+      # - name: Show publish folder content
+      #   shell: pwsh
+      #   run: |
+      #     cd '${{ github.workspace }}'
+      #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
+      #     Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
 
       - name: Show publish folder content
         shell: pwsh
@@ -134,6 +134,14 @@ jobs:
       #    # body_path: 'TEST TAG' #CHANGELOG.md
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 'Upload app to TestFlight'
+        uses: apple-actions/upload-testflight-build@v1
+        with: 
+          app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Archive build log
         uses: actions/upload-artifact@v4
