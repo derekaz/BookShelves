@@ -44,14 +44,14 @@
     </PropertyGroup>-->
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
-      <CodesignKey>iPhone Distribution</CodesignKey>
+      <CodesignKey>Distribution</CodesignKey>
       <CodesignProvision>BookShelves Test Profile</CodesignProvision>
       <ProvisioningType>manual</ProvisioningType>
     </PropertyGroup>
 
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
-		<CodesignKey>iPhone Distribution</CodesignKey>
+		<CodesignKey>Distribution</CodesignKey>
 		<CodesignProvision>BookShelves Test Profile</CodesignProvision>
 		<ProvisioningType>manual</ProvisioningType>
 	</PropertyGroup>
