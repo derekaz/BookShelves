@@ -49,7 +49,14 @@
       <ProvisioningType>manual</ProvisioningType>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
+		<CodesignKey>iPhone Distribution</CodesignKey>
+		<CodesignProvision>BookShelves Test Profile</CodesignProvision>
+		<ProvisioningType>manual</ProvisioningType>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
       <MtouchLink>SdkOnly</MtouchLink>
     </PropertyGroup>
 
