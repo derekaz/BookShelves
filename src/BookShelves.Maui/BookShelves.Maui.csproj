@@ -44,7 +44,7 @@
     </PropertyGroup>-->
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
-      <CodesignKey>Apple Distribution</CodesignKey>
+      <CodesignKey>iOS Distribution</CodesignKey>
       <CodesignProvision>BookShelves Test Profile</CodesignProvision>
       <ProvisioningType>manual</ProvisioningType>
     </PropertyGroup>

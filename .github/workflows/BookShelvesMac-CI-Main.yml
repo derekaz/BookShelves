@@ -145,6 +145,7 @@ jobs:
       #   if: github.event_name == 'pull_request'
 
       - name: Archive build log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: logs
