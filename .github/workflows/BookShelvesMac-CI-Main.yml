@@ -109,7 +109,8 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="Apple Distribution" /p:CodesignProvision="BookShelves Mac" /p:EnablePackageSigning=false
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:CreatePackage=false -o ${{ env.PUBLISH_PATH }}
+          #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="Apple Distribution" /p:CodesignProvision="BookShelves Mac" /p:EnablePackageSigning=false
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
