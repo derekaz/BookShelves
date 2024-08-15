@@ -127,7 +127,7 @@ jobs:
       - name: Rename file 
         run: |
           cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
-          $ for f in *; do mv '$f' '${f/mobileprovision/provisionprofile}'; done
+          for f in *.mobileprovision; do mv '$f' '${f/mobileprovision/provisionprofile}'; done
           #mv '*.mobileprovision' '*.provisionprofile'
 
       - name: Delete file 
