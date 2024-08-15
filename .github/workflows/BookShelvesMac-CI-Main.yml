@@ -92,6 +92,15 @@ jobs:
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
+          # profile-type: 'MAC_APP_DEVELOPMENT' (get all profiles)
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_DEVELOPMENT'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
