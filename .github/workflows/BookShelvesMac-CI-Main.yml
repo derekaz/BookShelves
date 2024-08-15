@@ -126,7 +126,7 @@ jobs:
 
       - name: Rename file 
         run: |
-          cd '~/runner/Library/MobileDevice/Provisioning Profile'
+          cd '~/runner/Library/MobileDevice/Provisioning Profiles'
           mv '*.mobileprovision' '*.provisionprofile'
 
       - name: Delete file 
