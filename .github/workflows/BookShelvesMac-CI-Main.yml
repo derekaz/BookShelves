@@ -127,11 +127,11 @@ jobs:
       - name: Rename file 
         run: |
           cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
-          for f in *.mobileprovision; do mv '$f' '${f/mobileprovision/provisionprofile}'; done
+          for f in *mobileprovision; do mv '$f' '${f/mobileprovision/provisionprofile}'; done
           #mv '*.mobileprovision' '*.provisionprofile'
 
       - name: Delete file 
-        run: rm -f '/Users/runner/Library/MobileDevice/Provisioning Profiles/*.mobileprovision'
+        run: rm -f '/Users/runner/Library/MobileDevice/Provisioning Profiles/*mobileprovision'
 
       # don't have one of these types yet
       # - name: Download Apple Provisioning Profiles
