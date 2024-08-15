@@ -87,11 +87,30 @@ jobs:
       #   run: |
       #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
+      # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_DEVELOPMENT'
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          profile-type: 'MAC_APP_STORE'
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          profile-type: 'MAC_APP_DIRECT'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
