@@ -166,12 +166,12 @@ jobs:
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
-      # - name: Show publish folder content
-      #   shell: pwsh
-      #   run: |
-      #     cd '${{ github.workspace }}'
-      #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
-      #     Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
+      - name: Show publish folder content
+        shell: pwsh
+        run: |
+          cd '${{ github.workspace }}'
+          Get-Childitem -Path ${{ github.workspace }} -Include *.* -File -Recurse
+          # Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
 
       - name: Show publish folder content
         shell: pwsh
@@ -216,15 +216,15 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p ${{ env.MAC_ARTIFACTS_PATH }}
 
-      - name: Copy Mac IPA package
+      - name: Copy Mac PKG package
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.MAC_ARTIFACTS_PATH }}
+          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.pkg -File -Recurse | Copy-Item -Destination ${{ env.MAC_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'mac ipa'
+          name: 'mac pkg'
           path: ${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
