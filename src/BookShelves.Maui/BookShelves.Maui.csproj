@@ -55,6 +55,7 @@
 		<!--<CodesignProvision>BookShelves Mac</CodesignProvision>-->
 		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
 		<ProvisioningType>manual</ProvisioningType>
+    <CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
