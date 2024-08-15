@@ -125,7 +125,9 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Rename file 
-        run: mv '~/runner/Library/MobileDevice/Provisioning Profile/*.mobileprovision' '~/runner/Library/MobileDevice/Provisioning Profile/*.provisionprofile'
+        run: |
+          cd '~/runner/Library/MobileDevice/Provisioning Profile'
+          mv '*.mobileprovision' '*.provisionprofile'
 
       - name: Delete file 
         run: rm -f '~/runner/Library/MobileDevice/Provisioning Profile/*.mobileprovision'
