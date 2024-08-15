@@ -52,7 +52,8 @@
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
 		<CodesignKey>Apple Distribution</CodesignKey>
-		<CodesignProvision>BookShelves Mac</CodesignProvision>
+		<!--<CodesignProvision>BookShelves Mac</CodesignProvision>-->
+		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
 		<ProvisioningType>manual</ProvisioningType>
 	</PropertyGroup>
 	
