@@ -3,32 +3,32 @@ name: BookShelves.Maui IOS CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - 'main'
-  #     - 'dev*'  
-  #   paths:
-      # # - 'src/BookShelves.Droid/**'
-      # # - 'BookShelves.iOS/**'
-      # # - 'BookShelves.Mac/**'
-      # # - 'src/BookShelves.WinUI/**'
-      #- 'src/BookShelves.Maui/**'
-      #- 'src/BookShelves.Shared/**'
-      #- '**/*build.props'  
-      #- '.github/workflows/BookShelvesIOS-CI-Main.yml'
-  # pull_request:
-  #   types: [opened, synchronize, reopened, closed]
-  #   paths:
-    # # - 'src/BookShelves.Droid/**'
-    # # - 'BookShelves.iOS/**'
-    # # - 'BookShelves.Mac/**'
-    # # - 'src/BookShelves.WinUI/**'
-    #   - 'src/BookShelves.Maui/**'
-    #   - 'src/BookShelves.Shared/**'
-    #   - '**/*build.props'      
-    #   - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-    # branches: 
-    #   - '**'
+  push:
+    branches:
+      - 'main'
+      - 'dev*'  
+    paths:
+      # - 'src/BookShelves.Droid/**'
+      # - 'BookShelves.iOS/**'
+      # - 'BookShelves.Mac/**'
+      # - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'  
+      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+    # - 'src/BookShelves.Droid/**'
+    # - 'BookShelves.iOS/**'
+    # - 'BookShelves.Mac/**'
+    # - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'      
+      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+    branches: 
+      - '**'
 
 env:
   CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
