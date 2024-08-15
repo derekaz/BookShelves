@@ -110,7 +110,7 @@ jobs:
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
-          profile-type: 'MAC_APP_STORE'
+          profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
@@ -119,10 +119,26 @@ jobs:
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
-          profile-type: 'MAC_APP_DIRECT'
+          profile-type: 'MAC_APP_STORE'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Rename file 
+        run: mv '~/runner/Library/MobileDevice/Provisioning Profile/*.mobileprovision' '~/runner/Library/MobileDevice/Provisioning Profile/*.provisionprofile'
+
+      - name: Delete file 
+        run: rm -f '~/runner/Library/MobileDevice/Provisioning Profile/*.mobileprovision'
+
+      # don't have one of these types yet
+      # - name: Download Apple Provisioning Profiles
+      #   uses: Apple-Actions/download-provisioning-profiles@v1
+      #   with:
+      #     bundle-id: 'com.azmoore.bookshelves.maui'
+      #     profile-type: 'MAC_APP_DIRECT'
+      #     issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       # - name: Decrypt PFX File
       #   run: |
