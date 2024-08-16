@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		..\.github\workflows\BookShelvesAndroid-CI-Main.yml = ..\.github\workflows\BookShelvesAndroid-CI-Main.yml
 		..\.github\workflows\BookShelvesApp-CD-Main.yml = ..\.github\workflows\BookShelvesApp-CD-Main.yml
 		..\.github\workflows\BookShelvesIOS-CI-Main.yml = ..\.github\workflows\BookShelvesIOS-CI-Main.yml
+		..\.github\workflows\BookShelvesMac-CI-Dev-AdHoc.yml = ..\.github\workflows\BookShelvesMac-CI-Dev-AdHoc.yml
 		..\.github\workflows\BookShelvesMac-CI-Main.yml = ..\.github\workflows\BookShelvesMac-CI-Main.yml
 		..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml = ..\.github\workflows\BookShelvesWasmSwa-CI-Main.yml
 		..\.github\workflows\BookShelvesWinUI-CI-Main.yml = ..\.github\workflows\BookShelvesWinUI-CI-Main.yml
@@ -27,9 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WebShared", "Bo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShelves.Maui\BookShelves.Maui.csproj", "{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Maui.Data", "BookShelves.Maui.Data\BookShelves.Maui.Data.csproj", "{258E40D8-EB33-4113-9652-1E6A68628EA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui.Data", "BookShelves.Maui.Data\BookShelves.Maui.Data.csproj", "{258E40D8-EB33-4113-9652-1E6A68628EA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Shared.DataInterfaces", "BookShelves.Shared.DataInterfaces\BookShelves.Shared.DataInterfaces.csproj", "{90A28B0E-D6D3-494A-80AF-DD1D2F82040F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared.DataInterfaces", "BookShelves.Shared.DataInterfaces\BookShelves.Shared.DataInterfaces.csproj", "{90A28B0E-D6D3-494A-80AF-DD1D2F82040F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
