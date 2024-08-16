@@ -118,7 +118,13 @@
         <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
         <PackageReference Include="System.Text.Json" Version="8.0.4" />
     </ItemGroup>
-
+	<ItemGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.2" PrivateAssets="None" GeneratePathProperty="true" />
+		<NativeReference Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)/runtimes/osx-x64/native/libe_sqlite3.dylib">
+			<Kind>Dynamic</Kind>
+			<SmartLink>False</SmartLink>
+		</NativeReference>
+	</ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
     </ItemGroup>
