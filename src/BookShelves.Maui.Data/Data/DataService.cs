@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace BookShelves.Maui.Data;
 
-internal class DataService(string dbPath) : IDataService
+public class DataService(string dbPath) : IDataService
 {
     private readonly string dbPath = dbPath;
     private SQLiteAsyncConnection? connection;

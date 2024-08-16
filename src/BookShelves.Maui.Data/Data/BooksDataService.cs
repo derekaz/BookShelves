@@ -2,7 +2,7 @@
 
 namespace BookShelves.Maui.Data;
 
-internal class BooksDataService(IDataService dataService) : IBooksDataService
+public class BooksDataService(IDataService dataService) : IBooksDataService
 {
     readonly IDataService dataService = dataService;
 

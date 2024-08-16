@@ -115,7 +115,6 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
         <PackageReference Include="System.Text.Json" Version="8.0.4" />
     </ItemGroup>
 	<!--<ItemGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
@@ -126,6 +125,7 @@
 		</NativeReference>
 	</ItemGroup>-->
     <ItemGroup>
+      <ProjectReference Include="..\BookShelves.Maui.Data\BookShelves.Maui.Data.csproj" />
       <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
     </ItemGroup>
 

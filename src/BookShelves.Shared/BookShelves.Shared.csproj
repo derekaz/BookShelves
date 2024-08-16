@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BookShelves.Shared.DataInterfaces\BookShelves.Shared.DataInterfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Components\Layout\LoginDisplay.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
