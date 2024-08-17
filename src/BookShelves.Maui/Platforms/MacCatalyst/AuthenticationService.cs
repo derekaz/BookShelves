@@ -12,7 +12,7 @@ public partial class AuthenticationService
 
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
-        builder.WithUseEmbeddedWebView(false);
+        builder.WithUseEmbeddedWebView(true);
         return builder;
     }
 
