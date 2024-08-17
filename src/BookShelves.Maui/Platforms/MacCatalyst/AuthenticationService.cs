@@ -6,6 +6,7 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
+        builder.WithDefaultRedirectUri();
         return builder; // .WithIosKeychainSecurityGroup("com.microsoft.adalcache");
     }
 
