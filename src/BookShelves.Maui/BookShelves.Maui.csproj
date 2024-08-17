@@ -53,6 +53,8 @@
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
 		<_LibMonoLinkMode>Static</_LibMonoLinkMode>
 		<_LibXamarinLinkMode>Static</_LibXamarinLinkMode>
+		<UseInterpreter>true</UseInterpreter>
+		<EnableAssemblyILStripping>false</EnableAssemblyILStripping>
 		<CodesignKey>Apple Distribution</CodesignKey>
 		<!--<CodesignProvision>BookShelves Mac</CodesignProvision>-->
 		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
