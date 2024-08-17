@@ -257,7 +257,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         //var window = _windowService.GetMainWindowHandle();
 
         var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
-            builder.WithUseEmbeddedWebView(true);
+            //builder.WithUseEmbeddedWebView(true);
         
         builder = AddAquireTokenPlatformConfiguration(builder);
 
