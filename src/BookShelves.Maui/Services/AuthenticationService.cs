@@ -132,9 +132,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             // Initialize the PublicClientApplication
             var builder = PublicClientApplicationBuilder
                 .Create(_settingsService?.ClientId)
-                .WithAuthority(_settingsService?.AzureAdAuthority)
+                .WithAuthority(_settingsService?.AzureAdAuthority);
                 //.WithBroker(brokerOptions)
-                .WithRedirectUri($"msal{Constants.ApplicationId}://auth");
+                //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
             builder = AddPlatformConfiguration(builder);
 
