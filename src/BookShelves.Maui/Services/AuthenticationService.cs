@@ -221,8 +221,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             // If there's a saved user ID use it to get the account
             return await pca.GetAccountAsync(_userIdentifier);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.ToString());
             return null;
         }
     }
@@ -278,6 +279,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             throw;
         }
     }
