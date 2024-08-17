@@ -146,7 +146,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         } 
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-{0}", ex.Message);
             throw new InvalidOperationException("Unable to initialize the MSAL PublicClientApplication instance", ex);
         }
     }
@@ -223,7 +223,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine("AuthenticationService:GetUserAccountAsync-{0}", ex.Message);
             return null;
         }
     }
@@ -279,7 +279,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex.Message);
             throw;
         }
     }
