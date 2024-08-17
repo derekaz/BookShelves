@@ -93,7 +93,7 @@ jobs:
       #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
       # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
-      - name: Download Apple Provisioning Profiles
+      - name: Download All Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v1
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
@@ -133,7 +133,6 @@ jobs:
         run: |
           cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
           for file in *mobileprovision; do mv "$file" "${file/mobileprovision/provisionprofile}"; done
-          #mv '*.mobileprovision' '*.provisionprofile'
 
       # - name: Delete file 
       #   run: rm -f '/Users/runner/Library/MobileDevice/Provisioning Profiles/*mobileprovision'
@@ -148,14 +147,6 @@ jobs:
       #     api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
       #     api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
-      # - name: Decrypt PFX File
-      #   run: |
-      #     echo "${{ secrets.WINDOWS_PFX_FILE }}" > cert.pfx.asc
-      #     certutil -decode cert.pfx.asc cert.pfx
-
-      # - name: Add Cert to Store
-      #   run: certutil -user -q -p ${{ secrets.WINDOWS_PFX_PASSWORD }} -importpfx cert.pfx NoRoot
-
       - name: Create publish folder
         shell: pwsh
         run: |
@@ -168,8 +159,8 @@ jobs:
           #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:CreatePackage=false -o ${{ env.PUBLISH_PATH }}
 
           #ad-hoc deployment
-          # dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
-          dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
+          dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
+          #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
 
           #app store deployment
           #dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)"
@@ -205,15 +196,15 @@ jobs:
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
 
-      - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
-        with:
-          app-type: osx
-          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.0.pkg' 
-          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
-        if: github.event_name == 'pull_request'
+      # - name: 'Upload app to TestFlight'
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-type: osx
+      #     app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.0.pkg' 
+      #     issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+      #   if: github.event_name == 'pull_request'
 
       - name: Archive build log
         if: always()
