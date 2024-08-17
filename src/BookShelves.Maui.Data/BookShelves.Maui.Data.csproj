@@ -8,18 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.9" />
-	<!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="[2.0.4]" />
-	<PackageReference Include="SQLitePCLRaw.core" Version="[2.0.4]" />
-	<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="[2.0.4]" />
-	<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="[2.0.4]" />
-	<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="[2.0.4]" />
-	<PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="[2.0.4]" />-->
+<!--    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.9" />
 	<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.2" PrivateAssets="None" GeneratePathProperty="true" Condition="'$(TargetFramework)'=='net8.0-maccatalyst'" />
 	<NativeReference Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)/runtimes/osx-x64/native/libe_sqlite3.dylib" Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
 	  <Kind>Dynamic</Kind>
 	  <SmartLink>False</SmartLink>
-	</NativeReference>
+	</NativeReference>-->
   </ItemGroup>
 
   <ItemGroup>
