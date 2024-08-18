@@ -1,0 +1,271 @@
+name: BookShelves.Maui Mac CI
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+      - 'dev*'  
+    paths:
+      # - 'src/BookShelves.Droid/**'
+      # - 'BookShelves.iOS/**'
+      # - 'BookShelves.Mac/**'
+      # - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'  
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    paths:
+      # - 'src/BookShelves.Droid/**'
+      # - 'BookShelves.iOS/**'
+      # - 'BookShelves.Mac/**'
+      # - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'      
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
+    branches: 
+      - '**'
+
+env:
+  CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+  PUBLISH_PATH: '${{ github.workspace }}/publish-output'
+  MAC_ARTIFACTS_PATH: 'artifacts_mac'
+  BUILD_LOG_FILE: 'mac.binlog'
+
+jobs:
+  mac-build-mac:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set current date as env variable
+        run: |
+            echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+            echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
+            echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 8.0.x
+          include-prerelease: true
+
+      # - name: Add msbuild to PATH
+      #   uses: microsoft/setup-msbuild@v1.1
+
+      - name: Install MAUI Workloads
+        run: |
+          dotnet workload install maui --source https://api.nuget.org/v3/index.json
+
+      - name: Import Code-Signing Certificates
+        uses: Apple-Actions/import-codesign-certs@v1
+        with:
+          # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
+
+          # use this one for Mac app store/test flight
+          p12-file-base64: ${{ secrets.MAC_COMBINED_DIST_INST_CERT_P12 }}
+          
+          # use this one for ad-hoc
+          #p12-file-base64: ${{ secrets.APPLE_DEVELOPMENT_CERT_P12 }}
+          
+          p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
+      
+      # - name: Import Installer-Signing Certificates
+      #   uses: Apple-Actions/import-codesign-certs@v1
+      #   with:
+      #     keychain: app_signing
+      #     p12-file-base64: ${{ secrets.MAC_INSTALL_CERTIFICATES_P12 }}
+      #     p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
+
+      # - name: Issuer ID
+      #   run: |
+      #     echo ${{ secrets.APPLE_APPSTORE_ISSUER_ID }} | sed 's/./& /g'
+      # - name: Key ID
+      #   run: |
+      #     echo ${{ secrets.APPLE_APPSTORE_KEY_ID }} | sed 's/./& /g'
+      # - name: Priv K
+      #   run: |
+      #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
+
+      # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          # profile-type: 'MAC_APP_DEVELOPMENT' (get all profiles)
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          profile-type: 'MAC_APP_DEVELOPMENT'
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Download Apple Provisioning Profiles
+        uses: Apple-Actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: 'com.azmoore.bookshelves.maui'
+          profile-type: 'MAC_APP_STORE'
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      - name: Rename file 
+        run: |
+          cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
+          for file in *mobileprovision; do mv "$file" "${file/mobileprovision/provisionprofile}"; done
+          #mv '*.mobileprovision' '*.provisionprofile'
+
+      # - name: Delete file 
+      #   run: rm -f '/Users/runner/Library/MobileDevice/Provisioning Profiles/*mobileprovision'
+
+      # don't have one of these types yet
+      # - name: Download Apple Provisioning Profiles
+      #   uses: Apple-Actions/download-provisioning-profiles@v1
+      #   with:
+      #     bundle-id: 'com.azmoore.bookshelves.maui'
+      #     profile-type: 'MAC_APP_DIRECT'
+      #     issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+
+      # - name: Decrypt PFX File
+      #   run: |
+      #     echo "${{ secrets.WINDOWS_PFX_FILE }}" > cert.pfx.asc
+      #     certutil -decode cert.pfx.asc cert.pfx
+
+      # - name: Add Cert to Store
+      #   run: certutil -user -q -p ${{ secrets.WINDOWS_PFX_PASSWORD }} -importpfx cert.pfx NoRoot
+
+      - name: Create publish folder
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p ${{ env.PUBLISH_PATH }}
+
+      - name: Build MAUI Mobile app
+        shell: pwsh
+        run: |
+          #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:CreatePackage=false -o ${{ env.PUBLISH_PATH }}
+
+          #ad-hoc deployment
+          #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
+
+          #app store deployment   -p:RuntimeIdentifier=maccatalyst-x64
+          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)" -p:UseHardenedRuntime=true
+
+          #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
+      
+      - name: Show publish folder content
+        shell: pwsh
+        run: |
+          cd '${{ github.workspace }}'
+          Get-Childitem -Path ${{ github.workspace }} -Include *.* -File -Recurse
+          # Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
+
+      - name: Show publish folder content
+        shell: pwsh
+        run: |
+          Get-Childitem -Path ${{ env.PUBLISH_PATH }} -Include *.* -File -Recurse
+
+      # - name: version
+      #   run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
+      #   id: version
+ 
+      #- name: release
+      #  uses: actions/create-release@v1
+      #  id: create_release
+      #  with:
+      #    draft: true
+      #    prerelease: true
+      #    release_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
+      #    tag_name: ${{ env.ASSEMBLY_BUILD_NUMBER }}
+      #    # body_path: 'TEST TAG' #CHANGELOG.md
+      #  env:
+      #    GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 'Upload app to TestFlight'
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-type: osx
+          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.0.pkg' 
+          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
+          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+        if: github.event_name == 'pull_request'
+
+      - name: Archive build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: '${{env.BUILD_LOG_FILE}}'
+
+      - name: Create artifacts folder
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p ${{ env.MAC_ARTIFACTS_PATH }}
+
+      - name: Copy Mac PKG package
+        shell: pwsh
+        run: |
+          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.pkg -File -Recurse | Copy-Item -Destination ${{ env.MAC_ARTIFACTS_PATH }}
+      
+      - name: Archive build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'mac pkg'
+          path: ${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          compression-level: 0
+
+      # # BUILD
+      # - name: Restore dependencies
+      #   shell: pwsh
+      #   run: |
+      #     dotnet restore ${{ env.csproj }}
+
+      # - name: Build Maui WinUI project
+      #   shell: pwsh
+      #   run: |
+      #     dotnet publish ${{ env.csproj }} -c Release -f net7.0-windows10.0.19041.0
+
+      # - name: Create artifacts folder
+      #   shell: pwsh
+      #   run: |
+      #      cd ${{ github.workspace }}
+      #      mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
+
+      # - name: Copy WinUI msix package
+      #   shell: pwsh
+      #   run: |
+      #      Get-Childitem �Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
+
+      # #POST-BUILD
+      # - name: Publish build artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:     
+      #     name: "WinUI .NET MAUI artifacts" 
+      #     path: "${{ env.WINDOWS_ARTIFACTS_PATH }}/*"
+      #     if-no-files-found: error
+      #     retention-days: 90

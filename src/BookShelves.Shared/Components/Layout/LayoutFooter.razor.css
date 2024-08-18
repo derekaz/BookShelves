@@ -1,0 +1,18 @@
+﻿.footer {
+    color: #d7d7d7;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+
+    position: fixed;
+    /*height: auto;*/
+    /*    height: 100px;*/
+    bottom: 0;
+    left: 0;
+    /*right: 0;*/
+    /*    width: 100%;*/
+    /*color: white;*/
+    /*z-index: -9999*/
+}

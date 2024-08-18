@@ -1,0 +1,45 @@
+﻿@inject IVersionService VersionService
+
+<div class="footer nav-item px-3"> <!--navbar navbar-expand-lg">-->
+    <div class="container-fluid">
+        <div class="navbar-text">Version: @versionInfo?.CurrentVersion  Build: @versionInfo?.CurrentBuild</div>
+    </div>
+<!--    <table>
+        <thead>
+            <tr>
+                <th class="nav-item">Version</th>
+                <th class="nav-item">Build</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="nav-item">@versionInfo?.CurrentVersion</td>
+                <td class="nav-item">@versionInfo?.CurrentBuild</td>
+            </tr>
+        </tbody>
+    </table>-->
+</div>
+
+
+
+@code {
+    private VersionInfo? versionInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        versionInfo = await Task.Run(() => VersionService.GetVersion());
+    }
+    // labelIsFirst.Text = VersionTracking.Default.IsFirstLaunchEver.ToString();
+    // labelCurrentVersionIsFirst.Text = VersionTracking.Default.IsFirstLaunchForCurrentVersion.ToString();
+    // labelCurrentBuildIsFirst.Text = VersionTracking.Default.IsFirstLaunchForCurrentBuild.ToString();
+    // labelCurrentVersion.Text = VersionTracking.Default.CurrentVersion.ToString();
+    // labelCurrentBuild.Text = VersionTracking.Default.CurrentBuild.ToString();
+    // labelFirstInstalledVer.Text = VersionTracking.Default.FirstInstalledVersion.ToString();
+    // labelFirstInstalledBuild.Text = VersionTracking.Default.FirstInstalledBuild.ToString();
+    // labelVersionHistory.Text = String.Join(',', VersionTracking.Default.VersionHistory);
+    // labelBuildHistory.Text = String.Join(',', VersionTracking.Default.BuildHistory);
+
+    // These two properties may be null if this is the first version
+    // labelPreviousVersion.Text = VersionTracking.Default.PreviousVersion?.ToString() ?? "none";
+    // labelPreviousBuild.Text = VersionTracking.Default.PreviousBuild?.ToString() ?? "none";
+}

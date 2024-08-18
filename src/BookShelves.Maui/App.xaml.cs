@@ -1,11 +1,12 @@
-﻿namespace BookShelves.Maui;
-
-public partial class App : Application
+﻿namespace BookShelves.Maui
 {
-	public App()
-	{
-		InitializeComponent();
+    public partial class App : Application
+    {
+        public App()
+        {
+            InitializeComponent();
 
-		MainPage = new AppShell();
-	}
+            MainPage = new MainPage();
+        }
+    }
 }

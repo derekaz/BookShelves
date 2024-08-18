@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BookShelves.Shared.DataInterfaces;
 
 public class CosmosRepository<T> where T : IItem, new()
 {
