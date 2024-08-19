@@ -200,10 +200,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IAccount?> GetUserAccountAsync()
     {
+        var pca = await _pca.Value;
         try
         {
-            var pca = await _pca.Value;
-
             if (string.IsNullOrEmpty(_userIdentifier))
             {
                 // If no saved user ID, then get the first account.
@@ -233,10 +232,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount)
     {
+        var pca = await _pca.Value;
+
         try
         {
-            var pca = await _pca.Value;
-
             if (userAccount == null) return null;
 
             return await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
@@ -254,7 +253,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
     {
         var pca = await _pca.Value;
-        //var window = _windowService.GetMainWindowHandle();
 
         var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
             //builder.WithUseEmbeddedWebView(true);

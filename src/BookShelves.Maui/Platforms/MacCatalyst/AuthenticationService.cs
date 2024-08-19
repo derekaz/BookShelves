@@ -7,15 +7,15 @@ public partial class AuthenticationService
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
         builder.WithDefaultRedirectUri();
-        return builder; // .WithIosKeychainSecurityGroup("com.microsoft.adalcache");
+        builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
+        return builder;
     }
 
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
-        builder.WithUseEmbeddedWebView(true);
+        builder.WithUseEmbeddedWebView(false);
         return builder;
     }
-
 
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
