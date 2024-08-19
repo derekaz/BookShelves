@@ -277,7 +277,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex.Message);
+            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex);
             throw;
         }
     }
