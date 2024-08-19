@@ -58,9 +58,17 @@
 		<CodesignKey>Apple Distribution</CodesignKey>
 		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
 		<ProvisioningType>manual</ProvisioningType>
-    <CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
+        <CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
-	
+
+	<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Debug'">
+		<CustomEntitlements Include="aps-environment" Type="string" Value="development" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
+		<CustomEntitlements Include="aps-environment" Type="string" Value="production" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
       <MtouchLink>SdkOnly</MtouchLink>
     </PropertyGroup>
