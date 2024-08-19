@@ -159,7 +159,7 @@ jobs:
           #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:CreatePackage=false -o ${{ env.PUBLISH_PATH }}
 
           #ad-hoc deployment
-          dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
+          dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.adhoc.plist" -p:UseHardenedRuntime=true
           #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
 
           #app store deployment
