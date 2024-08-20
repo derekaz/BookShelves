@@ -6,7 +6,8 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
-        builder.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient");
+        builder.WithRedirectUri("http://localhost");
+        //builder.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient");
         //builder.WithDefaultRedirectUri();
         builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
         return builder;
