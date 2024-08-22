@@ -1,16 +1,9 @@
 ﻿using BookShelves.Maui.Models;
 using BookShelves.Shared.DataInterfaces;
-using Microsoft.Maui.Controls.PlatformConfiguration;
 using Polly;
 using Polly.Retry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace BookShelves.Maui.Services;
 
@@ -96,6 +89,7 @@ public class MacAuthenticationService : IMacAuthenticationService
 
     private async Task GetTokenFromStorageAsync()
     {
+        Console.WriteLine("GetTokenFromStorageAsync-Start");
         if (_token == null)
         {
             string refreshToken = string.Empty;
@@ -104,6 +98,7 @@ public class MacAuthenticationService : IMacAuthenticationService
 #else
             refreshToken = await SecureStorage.GetAsync(nameof(refreshToken));
 #endif
+            Console.WriteLine("GetTokenFromStorageAsync-Storage lookup result: " + refreshToken);
             if (!string.IsNullOrEmpty(refreshToken))
             {
                 _token = new()
@@ -125,6 +120,7 @@ public class MacAuthenticationService : IMacAuthenticationService
 
     private async Task<string> GetRefreshTokenAsync(string[] scopes, bool silentOnly)
     {
+        Console.WriteLine("GetRefreshTokenAsync-Start");
         //https://login.microsoftonline.com/common/oauth2/v2.0/token
         //-ContentType application/x-www-form-urlencoded -Method POST
         //&code=$code&grant_type=refresh_token
@@ -138,6 +134,7 @@ public class MacAuthenticationService : IMacAuthenticationService
         _token = await GetTokenFromAzAsync(scopes, loginPayload);
         if (_token != null)
         {
+            Console.WriteLine("GetRefreshTokenAsync-Result: " + _token.access_token);
             return _token.access_token;
         }
         return await GetWebTokenAsync(scopes, silentOnly);
@@ -145,6 +142,7 @@ public class MacAuthenticationService : IMacAuthenticationService
 
     private async Task<string> GetWebTokenAsync(string[] scopes, bool silentOnly)
     {
+        Console.WriteLine("GetWebTokenAsync-Start");
         if (!silentOnly)
         {
 #if WINDOWS
@@ -156,6 +154,7 @@ public class MacAuthenticationService : IMacAuthenticationService
                 new System.Uri(GenerateCodeUri(scopes)),
                 new System.Uri(MacAuthCacheConfig.RedirectURI));
 #endif
+            Console.WriteLine("GetWebTokenAsync-WebAuthenticator result: " + result);
             var code = result.Properties["code"];
             List<KeyValuePair<string, string>> loginPayload = new();
             loginPayload.Add(new("client_id", _settingsService.ClientId));
@@ -165,6 +164,7 @@ public class MacAuthenticationService : IMacAuthenticationService
             loginPayload.Add(new("code", code));
             loginPayload.Add(new("redirect_uri", MacAuthCacheConfig.RedirectURI));
             _token = await GetTokenFromAzAsync(scopes, loginPayload);
+            Console.WriteLine("GetWebTokenAsync-Result: " + _token.access_token);
             return _token.access_token;
         }
         else
@@ -176,11 +176,13 @@ public class MacAuthenticationService : IMacAuthenticationService
     private async Task<TokenResponseModel> GetTokenFromAzAsync(
         string[] scopes, List<KeyValuePair<string, string>> loginPayload)
     {
+        Console.WriteLine("GetTokenFromAzAsync-Start");
         HttpResponseMessage responseMessage = await
             _retryPolicy.ExecuteAsync(async () =>
                          await CreateMessageAndSendAsync(
                              _settingsService.AzureAdAuthority.TrimEnd('/') +
                                  "/oauth2/v2.0/token", loginPayload));
+        Console.WriteLine("GetTokenFromAzAsync-Message Send result status: " + responseMessage.StatusCode);
         if (responseMessage.IsSuccessStatusCode)
         {
             string responseText = await responseMessage.Content.ReadAsStringAsync();
@@ -191,6 +193,7 @@ public class MacAuthenticationService : IMacAuthenticationService
                 tokenResponse.expires_at = DateTime.UtcNow.AddSeconds(
                     tokenResponse.expires_in);
                 await SetTokenInStorageAsync(tokenResponse.refresh_token);
+                Console.WriteLine("GetTokenFromAzAsync-result: " + tokenResponse);
                 return tokenResponse;
             }
             throw new Exception("Error getting token");

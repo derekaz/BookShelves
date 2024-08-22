@@ -30,7 +30,7 @@
       <Extensions>
 		<uap:Extension Category="windows.protocol">
 		  <uap:Protocol Name="bookshelves">
-			<uap:DisplayName>Auth</uap:DisplayName>
+			  <uap:DisplayName>BookShelves</uap:DisplayName>
 		  </uap:Protocol>
 	    </uap:Extension>
 	  </Extensions>
