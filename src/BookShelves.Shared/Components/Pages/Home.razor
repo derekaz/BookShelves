@@ -1,5 +1,18 @@
 ﻿@page "/"
+@using BookShelves.Shared.DataInterfaces;
 
 <h1>BookShelves</h1>
 
 Welcome to your book library!
+
+<button class="btn btn-primary" @onclick="LoginAsync">Login</button>
+
+@code
+{
+    [Inject] IMacAuthenticationService _authService { get; set; }
+    [Inject] ISettingsService _settingsService { get; set; }
+    private async Task LoginAsync()
+    {
+        var result = await _authService.GetTokenAsync( _settingsService.GraphScopes, false);
+    }
+}

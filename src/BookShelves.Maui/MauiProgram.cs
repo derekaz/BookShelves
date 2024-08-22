@@ -34,7 +34,7 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
 
@@ -125,8 +125,15 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
+        builder.Services.AddTransient<HttpClient>();
+        builder.Services.AddSingleton<IMacAuthenticationService, MacAuthenticationService>();
 
         builder.Services.AddRazorClassLibraryServices(config);
+#if WINDOWS
+        WinUIEx.WebAuthenticator.CheckOAuthRedirectionActivation();
+#else
+        //WebAuthenticator.CheckOAuthRedirectionActivation();
+#endif
 
         return builder.Build();
     }
