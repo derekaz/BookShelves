@@ -7,21 +7,26 @@ Welcome to your book library!
 
 <button class="btn btn-primary" @onclick="LoginAsync">Login</button>
 <button class="btn" @onclick="Logout">Logout</button>
-
+<p role="status">Current token: @currentToken</p>
 
 @code
 {
     [Inject] IMacAuthenticationService _authService { get; set; }
     [Inject] ISettingsService _settingsService { get; set; }
+
+    private string currentToken = "NA";
+
     private async Task LoginAsync()
     {
         var result = await _authService.GetTokenAsync( _settingsService.GraphScopes, false);
+        currentToken = result ?? "NULL";
         Console.WriteLine("Login Auth Result: '" + result + "'");
     }
 
     private void Logout()
     {
         _authService.LogOut();
-        //Console.WriteLine("Auth Result: '" + result + "'");
+        currentToken = "NA";
+        Console.WriteLine("Logged out");
     }
 }
