@@ -37,6 +37,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
     public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService)
     {
+        Console.WriteLine("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
 
         if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
@@ -54,6 +55,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             Console.WriteLine(ex.ToString());
             throw new InvalidOperationException("Unable to lazy initialize the MSAL PublicClientApplication", ex);
         }
+        Console.WriteLine("AuthenticationService:Constructor-End");
     }
 
     /// <inheritdoc/>
@@ -127,6 +129,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
+        Console.WriteLine("AuthenticationService:InitializeMsalWithCache-Start");
         try
         {
             // Initialize the PublicClientApplication
@@ -139,8 +142,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             builder = AddPlatformConfiguration(builder);
 
             var pca = builder.Build();
+            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-PCA Builder complete");
 
             await RegisterMsalCacheAsync(pca.UserTokenCache);
+            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
 
             return pca;
         } 
