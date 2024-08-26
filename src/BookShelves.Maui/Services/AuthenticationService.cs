@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace BookShelves.Maui.Services;
 
-public partial class AuthenticationService : ObservableObject, IAuthenticationService, IAuthenticationProvider, IIdToken
+public partial class AuthenticationService : ObservableObject, IAuthenticationService, IAuthenticationProvider //, IIdToken
 {
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
@@ -295,7 +295,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
             // First try to get the IIdToken silently
             var result = await GetTokenSilentlyAsync(account);
-            
+
             // If silent acquisition fails, try interactive
             result ??= await GetTokenInteractivelyAsync(account);
 
