@@ -16,11 +16,11 @@ public partial class AuthenticationService
 
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
-        builder.WithUseEmbeddedWebView(false);
+        builder.WithUseEmbeddedWebView(true);
         return builder;
     }
 
-    private async partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
+    private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
         MacTokenCacheHelper.EnableSerialization(tokenCache);
 
@@ -47,6 +47,6 @@ public partial class AuthenticationService
         //// This will cause the cache to persist into secure storage on the device.
         //cacheHelper.RegisterCache(tokenCache);
         Console.WriteLine("AuthenticationService:InitializeMsalWithCache (Mac)-RegisterCache complete");
-        //return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 }
