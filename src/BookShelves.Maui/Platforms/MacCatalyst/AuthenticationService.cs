@@ -1,4 +1,5 @@
-﻿using Microsoft.Identity.Client;
+﻿using CoreFoundation;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace BookShelves.Maui.Services;
@@ -23,7 +24,8 @@ public partial class AuthenticationService
         string url = uri.AbsoluteUri;
         Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open");
         url = url.Replace("&", "^&");
-        await Browser.OpenAsync(url);
+        DispatchQueue.MainQueue.DispatchAsync(async () => { await Browser.Default.OpenAsync(url); });
+        //await Browser.Default.OpenAsync(url);
         Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - After Url Open");
         //Process.Start(new ProcessStartInfo("cmd", $"/c start microsoft-edge:{url}") { CreateNoWindow = true });
         //await Task.FromResult(0).ConfigureAwait(false);
