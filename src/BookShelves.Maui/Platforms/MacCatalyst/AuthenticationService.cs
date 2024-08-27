@@ -14,9 +14,30 @@ public partial class AuthenticationService
         return builder;
     }
 
+    private async Task TryThisAsync(Uri uri)
+    {
+        if (uri == null)
+        {
+            throw new ArgumentNullException(nameof(uri));
+        }
+        string url = uri.AbsoluteUri;
+        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open");
+        url = url.Replace("&", "^&");
+        await Browser.OpenAsync(url);
+        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - After Url Open");
+        //Process.Start(new ProcessStartInfo("cmd", $"/c start microsoft-edge:{url}") { CreateNoWindow = true });
+        //await Task.FromResult(0).ConfigureAwait(false);
+    }
+
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
-        builder.WithUseEmbeddedWebView(false);
+        var options = new SystemWebViewOptions()
+        {
+            OpenBrowserAsync = TryThisAsync
+        };
+        //builder.With
+        builder.WithSystemWebViewOptions(options);
+        //builder.WithUseEmbeddedWebView(false);
         return builder;
     }
 
