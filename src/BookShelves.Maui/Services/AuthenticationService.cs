@@ -7,6 +7,7 @@ using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -76,10 +77,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     public async Task<bool> SignInAsync()
     {
         var account = await GetUserAccountAsync();
-        
+
         // First attempt to get a IIdToken silently
         var result = await GetTokenSilentlyAsync(account);
-        
+
         // If silent attempt didn't work, try an
         // interactive sign in
         result ??= await GetTokenInteractivelyAsync(account);
@@ -124,11 +125,31 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         IsSignedIn = false;
     }
 
+    private async Task TryThisAsync(Uri uri)
+    {
+        if (uri == null)
+        {
+            throw new ArgumentNullException(nameof(uri));
+        }
+        string url = uri.AbsoluteUri;
+        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open");
+        url = url.Replace("&", "^&");
+        await Browser.OpenAsync(url);
+        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - After Url Open");
+        //Process.Start(new ProcessStartInfo("cmd", $"/c start microsoft-edge:{url}") { CreateNoWindow = true });
+        //await Task.FromResult(0).ConfigureAwait(false);
+    }
+
     /// <summary>
     /// Initializes a PublicClientApplication with a secure serialized cache.
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
+        var options = new SystemWebViewOptions()
+        {
+            OpenBrowserAsync = TryThisAsync
+        };
+
         Console.WriteLine("AuthenticationService:InitializeMsalWithCache-Start");
         try
         {
