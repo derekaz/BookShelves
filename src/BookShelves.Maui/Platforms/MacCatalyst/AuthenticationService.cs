@@ -23,8 +23,8 @@ public partial class AuthenticationService
             throw new ArgumentNullException(nameof(uri));
         }
         string url = uri.AbsoluteUri;
-        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open");
-        url = url.Replace("&", "^&");
+        Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={0})", url);
+        //url = url.Replace("&", "^&");
         DispatchQueue.MainQueue.DispatchAsync(async () => 
         { 
             await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
