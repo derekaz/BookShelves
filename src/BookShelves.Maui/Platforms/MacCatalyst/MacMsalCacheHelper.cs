@@ -23,11 +23,19 @@ static class MacTokenCacheHelper
     {
         lock (FileLock)
         {
-            args.TokenCache.DeserializeMsalV3(File.Exists(CacheFilePath)
-                    ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath),
-                                              null,
-                                              DataProtectionScope.CurrentUser)
-                    : null);
+            try
+            {
+                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file");
+                args.TokenCache.DeserializeMsalV3(File.Exists(CacheFilePath)
+                        ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath),
+                                                  null,
+                                                  DataProtectionScope.CurrentUser)
+                        : null);
+            } 
+            catch (Exception ex) 
+            {
+                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception reading token cache - {0}", ex);
+            }
         }
     }
 
@@ -39,11 +47,22 @@ static class MacTokenCacheHelper
             lock (FileLock)
             {
                 // reflect changes in the persistent store
-                File.WriteAllBytes(CacheFilePath,
-                                    ProtectedData.Protect(args.TokenCache.SerializeMsalV3(),
-                                                            null,
-                                                            DataProtectionScope.CurrentUser)
-                                    );
+                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file");
+                try
+                {
+                    File.WriteAllBytes(
+                        CacheFilePath,
+                        ProtectedData.Protect(
+                            args.TokenCache.SerializeMsalV3(),
+                            null,
+                            DataProtectionScope.CurrentUser
+                        )
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception writing token cache - {0}", ex);
+                }
             }
         }
     }
