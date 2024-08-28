@@ -139,14 +139,22 @@ public static class MauiProgram
 #endif
 
 #if MACCATALYST
-        string dataProtectionKeysDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "MacOsEncryption-Keys");
-        X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
+        try
+        {
+            string dataProtectionKeysDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "MacOsEncryption-Keys");
+            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
 
-        builder.Services.AddDataProtection()
-            .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-            .ProtectKeysWithCertificate(dataProtectionCertificate);
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
+                .ProtectKeysWithCertificate(dataProtectionCertificate);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Exception - {0}", ex);
+        }
+
 #endif
 
         return builder.Build();
