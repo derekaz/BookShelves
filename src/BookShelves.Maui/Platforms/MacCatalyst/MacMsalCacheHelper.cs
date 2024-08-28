@@ -1,10 +1,14 @@
-﻿using Microsoft.Identity.Client;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Identity.Client;
 using System.Security.Cryptography;
 
 static class MacTokenCacheHelper
 {
-    public static void EnableSerialization(ITokenCache tokenCache)
+    static IDataProtector? _dataProtector;
+
+    public static void EnableSerialization(ITokenCache tokenCache, IDataProtector dataProtector)
     {
+        _dataProtector = dataProtector;
         tokenCache.SetBeforeAccess(BeforeAccessNotification);
         tokenCache.SetAfterAccess(AfterAccessNotification);
     }
@@ -18,20 +22,30 @@ static class MacTokenCacheHelper
 
     private static readonly object FileLock = new object();
 
-
     private static void BeforeAccessNotification(TokenCacheNotificationArgs args)
     {
+        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+
         lock (FileLock)
         {
             try
             {
                 Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file");
-                args.TokenCache.DeserializeMsalV3(File.Exists(CacheFilePath)
-                        ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath),
-                                                  null,
-                                                  DataProtectionScope.CurrentUser)
-                        : null);
-            } 
+                args.TokenCache.DeserializeMsalV3(
+                    File.Exists(CacheFilePath)
+                        ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
+                        : null
+                );
+                //args.TokenCache.DeserializeMsalV3(
+                //    File.Exists(CacheFilePath)
+                //        ? ProtectedData.Unprotect(
+                //            File.ReadAllBytes(CacheFilePath),
+                //            null,
+                //            DataProtectionScope.CurrentUser
+                //          )
+                //        : null
+                //);
+            }
             catch (Exception ex) 
             {
                 Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception reading token cache - {0}", ex);
@@ -41,6 +55,8 @@ static class MacTokenCacheHelper
 
     private static void AfterAccessNotification(TokenCacheNotificationArgs args)
     {
+        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+
         // if the access operation resulted in a cache update
         if (args.HasStateChanged)
         {
@@ -52,11 +68,12 @@ static class MacTokenCacheHelper
                 {
                     File.WriteAllBytes(
                         CacheFilePath,
-                        ProtectedData.Protect(
-                            args.TokenCache.SerializeMsalV3(),
-                            null,
-                            DataProtectionScope.CurrentUser
-                        )
+                        _dataProtector.Protect(args.TokenCache.SerializeMsalV3())
+                        //ProtectedData.Protect(
+                        //    args.TokenCache.SerializeMsalV3(),
+                        //    null,
+                        //    DataProtectionScope.CurrentUser
+                        //)
                     );
                 }
                 catch (Exception ex)

@@ -5,11 +5,14 @@ using BookShelves.Shared;
 using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 
 namespace BookShelves.Maui;
 
@@ -135,6 +138,58 @@ public static class MauiProgram
         //WebAuthenticator.CheckOAuthRedirectionActivation();
 #endif
 
+#if MACCATALYST
+        string dataProtectionKeysDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "MacOsEncryption-Keys");
+        X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
+
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
+            .ProtectKeysWithCertificate(dataProtectionCertificate);
+#endif
+
         return builder.Build();
+    }
+
+    static X509Certificate2 CreateSelfSignedDataProtectionCertificate(string subjectName)
+    {
+        using (RSA rsa = RSA.Create(2048))
+        {
+            CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256,
+                RSASignaturePadding.Pkcs1);
+            X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
+            return certificate;
+        }
+    }
+
+    static void InstallCertificateAsNonExportable(X509Certificate2 certificate)
+    {
+        byte[] rawData = certificate.Export(X509ContentType.Pkcs12, password: "");
+
+        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadWrite))
+        {
+            store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
+        }
+    }
+
+    static X509Certificate2 SetupDataProtectionCertificate()
+    {
+        string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
+        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadOnly))
+        {
+            X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
+                subjectName,
+                // self-signed certificate won't pass X509 chain validation
+                validOnly: false);
+            if (certificateCollection.Count > 0)
+            {
+                return certificateCollection[0];
+            }
+
+            X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
+            InstallCertificateAsNonExportable(certificate);
+            return certificate;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CoreFoundation;
 using Foundation;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 
@@ -50,7 +51,8 @@ public partial class AuthenticationService
 
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
-        MacTokenCacheHelper.EnableSerialization(tokenCache);
+        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+        MacTokenCacheHelper.EnableSerialization(tokenCache, _dataProtector);
 
         // Configure storage properties for cross-platform
         // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache

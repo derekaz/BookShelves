@@ -3,6 +3,7 @@
 
 using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
@@ -18,6 +19,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
+    private readonly IDataProtector? _dataProtector;
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
@@ -36,7 +38,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IDataProtector dataProtector)
     {
         Console.WriteLine("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
@@ -46,6 +48,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
         _settingsService = settingsService;
         _windowService = windowService;
+        _dataProtector = dataProtector;
 
         try
         {
