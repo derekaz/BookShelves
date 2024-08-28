@@ -1,4 +1,5 @@
 ﻿using CoreFoundation;
+using Foundation;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 
@@ -8,8 +9,8 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
-        builder.WithRedirectUri("http://localhost");
-        //builder.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient");
+        //builder.WithRedirectUri("http://localhost");
+        builder.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient");
         //builder.WithDefaultRedirectUri();
         builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
         return builder;
@@ -24,7 +25,11 @@ public partial class AuthenticationService
         string url = uri.AbsoluteUri;
         Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open");
         url = url.Replace("&", "^&");
-        DispatchQueue.MainQueue.DispatchAsync(async () => { await Browser.Default.OpenAsync(url); });
+        DispatchQueue.MainQueue.DispatchAsync(async () => 
+        { 
+            await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
+        });
+        
         //await Browser.Default.OpenAsync(url);
         Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - After Url Open");
         //Process.Start(new ProcessStartInfo("cmd", $"/c start microsoft-edge:{url}") { CreateNoWindow = true });
