@@ -38,7 +38,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IDataProtector dataProtector)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider) // IServiceCollection serviceCollection)
     {
         Console.WriteLine("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
@@ -46,9 +46,17 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
         if (windowService == null) throw new NullReferenceException(nameof(windowService));
 
-        _settingsService = settingsService;
-        _windowService = windowService;
-        _dataProtector = dataProtector;
+        try
+        {
+            _settingsService = settingsService;
+            _windowService = windowService;
+            _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw new InvalidOperationException("Unable initialize AuthenticationService", ex);
+        }
 
         try
         {
