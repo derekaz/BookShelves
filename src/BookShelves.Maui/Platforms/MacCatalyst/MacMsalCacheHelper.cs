@@ -31,7 +31,7 @@ static class MacTokenCacheHelper
         {
             try
             {
-                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file");
+                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
                 args.TokenCache.DeserializeMsalV3(
                     File.Exists(CacheFilePath)
                         ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
@@ -52,19 +52,20 @@ static class MacTokenCacheHelper
                 Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception reading token cache - {0}", ex);
             }
         }
+        Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file complete");
     }
 
     private static void AfterAccessNotification(TokenCacheNotificationArgs args)
     {
-        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
-
         // if the access operation resulted in a cache update
         if (args.HasStateChanged)
         {
+            if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+
             lock (FileLock)
             {
                 // reflect changes in the persistent store
-                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file");
+                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file started");
                 try
                 {
                     File.WriteAllBytes(
@@ -82,6 +83,11 @@ static class MacTokenCacheHelper
                     Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception writing token cache - {0}", ex);
                 }
             }
+            Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file complete");
+        }
+        else
+        {
+            Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Write token cache not required");
         }
     }
 }
