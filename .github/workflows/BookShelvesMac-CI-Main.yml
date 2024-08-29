@@ -205,7 +205,7 @@ jobs:
       #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v1
         with:
           app-type: osx
           app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.0.pkg' 
