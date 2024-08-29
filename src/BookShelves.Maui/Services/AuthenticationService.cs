@@ -50,7 +50,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             _settingsService = settingsService;
             _windowService = windowService;
+#if MACCATALYST
             _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
+            Console.WriteLine("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
+#endif
         }
         catch (Exception ex)
         {

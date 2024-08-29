@@ -145,6 +145,7 @@ public static class MauiProgram
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "MacOsEncryption-Keys");
             X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
+            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
@@ -162,27 +163,33 @@ public static class MauiProgram
 
     static X509Certificate2 CreateSelfSignedDataProtectionCertificate(string subjectName)
     {
+        Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Started - SubjectName:{0}", subjectName);
+
         using (RSA rsa = RSA.Create(2048))
         {
             CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256,
                 RSASignaturePadding.Pkcs1);
             X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
+            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
             return certificate;
         }
     }
 
     static void InstallCertificateAsNonExportable(X509Certificate2 certificate)
     {
+        Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Started - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
         byte[] rawData = certificate.Export(X509ContentType.Pkcs12, password: "");
 
         using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadWrite))
         {
             store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
+            Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
         }
     }
 
     static X509Certificate2 SetupDataProtectionCertificate()
     {
+        Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Started");
         string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
         using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadOnly))
         {
@@ -192,11 +199,13 @@ public static class MauiProgram
                 validOnly: false);
             if (certificateCollection.Count > 0)
             {
+                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
                 return certificateCollection[0];
             }
 
             X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
             InstallCertificateAsNonExportable(certificate);
+            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Created new certificate");
             return certificate;
         }
     }
