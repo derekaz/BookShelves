@@ -56,7 +56,7 @@
 
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net8.0-maccatalyst'">
-    <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>
+    <!--<RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>-->
 		<CodesignKey>Apple Distribution</CodesignKey>
 		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
 		<ProvisioningType>manual</ProvisioningType>
