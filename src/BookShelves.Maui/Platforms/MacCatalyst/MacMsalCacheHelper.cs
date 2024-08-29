@@ -31,7 +31,7 @@ static class MacTokenCacheHelper
         {
             try
             {
-                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
+                Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
                 args.TokenCache.DeserializeMsalV3(
                     File.Exists(CacheFilePath)
                         ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
@@ -49,10 +49,10 @@ static class MacTokenCacheHelper
             }
             catch (Exception ex) 
             {
-                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception reading token cache - {0}", ex);
+                Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Exception reading token cache - {0}", ex);
             }
         }
-        Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to read token cache file complete");
+        Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file complete");
     }
 
     private static void AfterAccessNotification(TokenCacheNotificationArgs args)
