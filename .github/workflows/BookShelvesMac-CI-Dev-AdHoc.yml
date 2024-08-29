@@ -52,7 +52,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          include-prerelease: true
+          # include-prerelease: true
 
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v1.1
