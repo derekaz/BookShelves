@@ -41,8 +41,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
       - name: Set current date as env variable
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
@@ -50,7 +49,7 @@ jobs:
             echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
           include-prerelease: true

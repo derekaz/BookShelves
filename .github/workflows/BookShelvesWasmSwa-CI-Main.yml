@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
       #- name: Get preview URL
@@ -49,6 +49,7 @@ jobs:
       #      PREVIEW_URL="https://${DEFAULTHOSTNAME/.[1-9]./-${{github.event.pull_request.number }}.${{ env.LOCATION }}.1.}"
 
       #      echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
+      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
