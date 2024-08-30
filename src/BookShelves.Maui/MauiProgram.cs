@@ -167,8 +167,7 @@ public static class MauiProgram
 
         using (RSA rsa = RSA.Create(2048))
         {
-            CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256,
-                RSASignaturePadding.Pkcs1);
+            CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
             Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
             return certificate;
@@ -177,13 +176,21 @@ public static class MauiProgram
 
     static void InstallCertificateAsNonExportable(X509Certificate2 certificate)
     {
-        Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Started - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
+        Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Started - Cert:'{0}'/'{1}' ({2})", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
         byte[] rawData = certificate.Export(X509ContentType.Pkcs12, password: "");
 
         using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadWrite))
         {
-            store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
-            Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
+            try
+            {
+                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Attempting to install - {0}", rawData.ToString());
+                store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
+                store.Close();
+                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
+            } catch(Exception ex) 
+            {
+                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Store Certificate Exception - {0}", ex);
+            }
         }
     }
 
@@ -193,6 +200,11 @@ public static class MauiProgram
         string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
         using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadOnly))
         {
+            foreach(var cert in store.Certificates)
+            {
+                Console.WriteLine("  Cert from store - '{0}' ({1})", cert.SubjectName, cert.SerialNumber);
+            }
+
             X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
                 subjectName,
                 // self-signed certificate won't pass X509 chain validation
@@ -201,6 +213,10 @@ public static class MauiProgram
             {
                 Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
                 return certificateCollection[0];
+            }
+            else
+            {
+                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - None found in store");
             }
 
             X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
