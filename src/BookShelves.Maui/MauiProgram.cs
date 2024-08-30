@@ -179,17 +179,23 @@ public static class MauiProgram
         Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Started - Cert:'{0}'/'{1}' ({2})", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
         byte[] rawData = certificate.Export(X509ContentType.Pkcs12, password: "");
 
-        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadWrite))
+        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser)) //, OpenFlags.ReadWrite))
         {
             try
             {
+                store.Open(OpenFlags.ReadWrite | OpenFlags.OpenExistingOnly);
                 Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Attempting to install - {0}", rawData.ToString());
                 store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
-                store.Close();
-                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
-            } catch(Exception ex) 
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Store Certificate Exception - {0}", ex);
+                throw;
+            }
+            finally
+            {
+                store.Close();
+                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
             }
         }
     }
@@ -198,31 +204,45 @@ public static class MauiProgram
     {
         Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Started");
         string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
-        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser, OpenFlags.ReadOnly))
+        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser)) //, OpenFlags.ReadOnly))
         {
-            foreach(var cert in store.Certificates)
+            try
             {
-                Console.WriteLine("  Cert from store - '{0}' ({1})", cert.SubjectName, cert.SerialNumber);
-            }
+                store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+                foreach (var cert in store.Certificates)
+                {
+                    Console.WriteLine("  Cert from store - '{0}' ({1})", cert.SubjectName, cert.SerialNumber);
+                }
 
-            X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
-                subjectName,
-                // self-signed certificate won't pass X509 chain validation
-                validOnly: false);
-            if (certificateCollection.Count > 0)
-            {
-                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
-                return certificateCollection[0];
-            }
-            else
-            {
-                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - None found in store");
-            }
+                X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
+                    subjectName,
+                    // self-signed certificate won't pass X509 chain validation
+                    validOnly: false);
+                if (certificateCollection.Count > 0)
+                {
+                    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
+                    return certificateCollection[0];
+                }
+                else
+                {
+                    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - None found in store");
+                }
 
-            X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
-            InstallCertificateAsNonExportable(certificate);
-            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Created new certificate");
-            return certificate;
+                X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
+                InstallCertificateAsNonExportable(certificate);
+                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Created new certificate");
+                return certificate;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Exception - {0}", ex);
+                throw;
+            }
+            finally
+            { 
+                store.Close();
+            }
         }
     }
 }
