@@ -146,10 +146,12 @@ public static class MauiProgram
                 "MacOsEncryption-Keys");
             X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
+            X509Certificate2 dataProtectionCertificate2 = SetupDataProtectionCertificate2();
+            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate 2 Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate2.FriendlyName, dataProtectionCertificate2.SubjectName, dataProtectionCertificate2.SerialNumber);
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-                .ProtectKeysWithCertificate(dataProtectionCertificate);
+                .ProtectKeysWithCertificate(dataProtectionCertificate2);
 
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
         }
