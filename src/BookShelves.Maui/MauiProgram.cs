@@ -144,7 +144,7 @@ public static class MauiProgram
             string dataProtectionKeysDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "MacOsEncryption-Keys");
-            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate2();
+            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
 
             builder.Services.AddDataProtection()
@@ -179,9 +179,17 @@ public static class MauiProgram
         using (RSA rsa = RSA.Create(2048))
         {
             CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
-            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
-            return certificate;
+            X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
+            using (ephemeral)
+            {
+                X509Certificate2 certificate = new X509Certificate2(
+                    ephemeral.Export(X509ContentType.Pkcs12),
+                    string.Empty,
+                    X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+                
+                Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
+                return certificate;
+            }
         }
     }
 
