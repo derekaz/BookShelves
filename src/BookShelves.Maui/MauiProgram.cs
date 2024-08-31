@@ -148,8 +148,8 @@ public static class MauiProgram
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
 
             builder.Services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory));
-                //.ProtectKeysWithCertificate(dataProtectionCertificate);
+                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
+                .ProtectKeysWithCertificate(dataProtectionCertificate);
 
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
         }
