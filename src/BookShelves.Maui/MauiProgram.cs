@@ -184,18 +184,19 @@ public static class MauiProgram
                 CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
                 X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
                 Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
-                using (ephemeral)
-                {
-                    X509Certificate2 certificate = new X509Certificate2(
-                        ephemeral.Export(X509ContentType.Pkcs12),
-                        string.Empty,
-                        //X509KeyStorageFlags.PersistKeySet
-                        X509KeyStorageFlags.Exportable
-                    );
+                //using (ephemeral)
+                //{
+                //    X509Certificate2 certificate = new X509Certificate2(
+                //        ephemeral.Export(X509ContentType.Pkcs12),
+                //        string.Empty,
+                //        //X509KeyStorageFlags.PersistKeySet
+                //        X509KeyStorageFlags.Exportable
+                //    );
 
-                    Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
-                    return certificate;
-                }
+                //    Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
+                //    return certificate;
+                //}
+                return ephemeral;
             }
         }
         catch (Exception ex)
