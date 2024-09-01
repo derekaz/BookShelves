@@ -6,7 +6,9 @@ using System.Net;
 using System.Text.Json;
 
 namespace BookShelves.Maui.Services;
-
+/// <summary>
+/// This is from the example code here: https://github.com/coding-flamingo/MAUI-MAC-Auth
+/// </summary>
 
 public static class MacAuthCacheConfig
 {
