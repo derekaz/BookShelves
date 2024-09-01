@@ -189,8 +189,8 @@ public static class MauiProgram
                     X509Certificate2 certificate = new X509Certificate2(
                         ephemeral.Export(X509ContentType.Pkcs12),
                         string.Empty,
-                        X509KeyStorageFlags.PersistKeySet
-                            //| X509KeyStorageFlags.Exportable
+                        //X509KeyStorageFlags.PersistKeySet
+                        X509KeyStorageFlags.Exportable
                     );
 
                     Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
