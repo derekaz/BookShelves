@@ -18,7 +18,7 @@ namespace BookShelves.Maui;
 
 public static class MauiProgram
 {
-    public static MauiApp CreateMauiApp()
+    public static async MauiApp CreateMauiApp()
     {
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
@@ -141,6 +141,12 @@ public static class MauiProgram
 #if MACCATALYST
         try
         {
+            string temp = "Test to see if this stores...";
+            await SecureStorage.SetAsync("TestKey", temp);
+            var storedValue = await SecureStorage.GetAsync("TestKey");
+            if (storedValue != temp) throw new ApplicationException("Unable to store and retrieve an item from SecureStorage");
+
+
             string dataProtectionKeysDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "MacOsEncryption-Keys");
