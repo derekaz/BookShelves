@@ -1,8 +1,5 @@
 ﻿using CoreFoundation;
-using Foundation;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace BookShelves.Maui.Services;
 
@@ -25,7 +22,6 @@ public partial class AuthenticationService
         }
         string url = uri.AbsoluteUri;
         Console.WriteLine("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={0})", url);
-        //url = url.Replace("&", "^&");
         DispatchQueue.MainQueue.DispatchAsync(async () => 
         { 
             await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
@@ -43,7 +39,6 @@ public partial class AuthenticationService
         {
             OpenBrowserAsync = TryThisAsync
         };
-        //builder.With
         builder.WithSystemWebViewOptions(options);
         //builder.WithUseEmbeddedWebView(false);
         return builder;
@@ -54,28 +49,6 @@ public partial class AuthenticationService
         if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
         MacTokenCacheHelper.EnableSerialization(tokenCache, _dataProtector);
 
-        // Configure storage properties for cross-platform
-        // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-        //var storageProperties =
-        //    new StorageCreationPropertiesBuilder(_settingsService.CacheFileName, _settingsService.CacheDirectory)
-        //    .WithLinuxKeyring(
-        //        _settingsService.LinuxKeyRingSchema,
-        //        _settingsService.LinuxKeyRingCollection,
-        //        _settingsService.LinuxKeyRingLabel,
-        //        _settingsService.LinuxKeyRingAttr1,
-        //        _settingsService.LinuxKeyRingAttr2)
-        //    .WithMacKeyChain(
-        //        _settingsService.KeyChainServiceName,
-        //        _settingsService.KeyChainAccountName)
-        //    .Build();
-
-        //// Create a cache helper
-        //var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-        //Console.WriteLine("AuthenticationService:InitializeMsalWithCache (Mac)-MsalCacheHelper CreateAsync complete");
-
-        //// Connect the PublicClientApplication's cache with the cacheHelper.
-        //// This will cause the cache to persist into secure storage on the device.
-        //cacheHelper.RegisterCache(tokenCache);
         Console.WriteLine("AuthenticationService:InitializeMsalWithCache (Mac)-RegisterCache complete");
         return Task.CompletedTask;
     }

@@ -1,7 +1,6 @@
 ﻿using BookShelves.Maui.Helpers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
-using System.Security.Cryptography;
 
 static class MacTokenCacheHelper
 {
@@ -39,15 +38,6 @@ static class MacTokenCacheHelper
                         ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
                         : null
                 );
-                //args.TokenCache.DeserializeMsalV3(
-                //    File.Exists(CacheFilePath)
-                //        ? ProtectedData.Unprotect(
-                //            File.ReadAllBytes(CacheFilePath),
-                //            null,
-                //            DataProtectionScope.CurrentUser
-                //          )
-                //        : null
-                //);
             }
             catch (Exception ex) 
             {
@@ -73,11 +63,6 @@ static class MacTokenCacheHelper
                     File.WriteAllBytes(
                         CacheFilePath,
                         _dataProtector.Protect(args.TokenCache.SerializeMsalV3())
-                        //ProtectedData.Protect(
-                        //    args.TokenCache.SerializeMsalV3(),
-                        //    null,
-                        //    DataProtectionScope.CurrentUser
-                        //)
                     );
                 }
                 catch (Exception ex)
