@@ -116,6 +116,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, Constants.LocalDbFile);
+        Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 
         builder.Services.AddSingleton<IDataService>(
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
