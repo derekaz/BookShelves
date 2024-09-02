@@ -18,7 +18,7 @@ namespace BookShelves.Maui;
 
 public static class MauiProgram
 {
-    public static async MauiApp CreateMauiApp()
+    public static MauiApp CreateMauiApp()
     {
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
@@ -142,8 +142,9 @@ public static class MauiProgram
         try
         {
             string temp = "Test to see if this stores...";
-            await SecureStorage.SetAsync("TestKey", temp);
-            var storedValue = await SecureStorage.GetAsync("TestKey");
+            SecureStorage.SetAsync("TestKey", temp);
+            var storedValue = SecureStorage.GetAsync("TestKey").Result;
+
             if (storedValue != temp) throw new ApplicationException("Unable to store and retrieve an item from SecureStorage");
 
 
