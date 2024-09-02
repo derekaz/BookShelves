@@ -141,13 +141,6 @@ public static class MauiProgram
 #if MACCATALYST
         try
         {
-            string temp = "Test to see if this stores...";
-            SecureStorage.SetAsync("TestKey", temp);
-            var storedValue = SecureStorage.GetAsync("TestKey").Result;
-
-            if (storedValue != temp) throw new ApplicationException("Unable to store and retrieve an item from SecureStorage");
-
-
             string dataProtectionKeysDirectory = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "MacOsEncryption-Keys");
@@ -189,7 +182,7 @@ public static class MauiProgram
             using (RSA rsa = RSA.Create(2048))
             {
                 CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(1));
+                X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
                 Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
                 //using (ephemeral)
                 //{
@@ -252,6 +245,22 @@ public static class MauiProgram
         Console.WriteLine("MauiProgram:SaveCertificateToFile - Written - File:{0}", filePath);
     }
 
+    static string GetPasswordFromStore()
+    {
+        string storageKey = "BookShelvesEncryptionCertificateKey";
+        var storedValue = SecureStorage.GetAsync(storageKey).Result;
+
+        if (storedValue == null)
+        {
+            var rng = new Random();
+            var randomString = rng.NextStrings(RandomExtensions.AllowableRandomStringCharacters, (15, 64), 1).First();
+            SecureStorage.SetAsync(storageKey, randomString);
+            return randomString;
+        }
+
+        return storedValue;
+    }
+
     static X509Certificate2 SetupDataProtectionCertificate2()
     {
         Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Started");
@@ -261,18 +270,13 @@ public static class MauiProgram
             string dataProtectionCertDirectory = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "DataProtectionCert.pfx");
-            var charString = "This is a very simple string used to create an array and it includes some numbers too 1230987546.!@#$%";
 
-            //var rng = new Random();
-            //rng.Shuffle(array);
-            //rng.Shuffle(array);
-
-            //ReadOnlySpan<char> charArray = new ReadOnlySpan<char>(charString.ToCharArray());
+            var certPassword = GetPasswordFromStore();
 
             if (File.Exists(dataProtectionCertDirectory))
             {
-                X509Certificate2 cert = new X509Certificate2(dataProtectionCertDirectory, charString);
-                if (cert != null && cert.Subject == subjectName)
+                X509Certificate2 cert = new X509Certificate2(dataProtectionCertDirectory, certPassword);
+                if (cert != null && cert.Subject == subjectName && DateTime.Now <= cert.NotAfter)
                 {
                     Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Found existing file");
                     return cert;
@@ -281,7 +285,7 @@ public static class MauiProgram
             }
 
             X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
-            SaveCertificateToFile(certificate, dataProtectionCertDirectory, charString);
+            SaveCertificateToFile(certificate, dataProtectionCertDirectory, certPassword);
             Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Created new certificate");
 
             return certificate;
