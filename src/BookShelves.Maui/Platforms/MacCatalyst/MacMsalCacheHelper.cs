@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+﻿using BookShelves.Maui.Helpers;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Identity.Client;
 using System.Security.Cryptography;
 
@@ -19,7 +20,8 @@ static class MacTokenCacheHelper
     /// $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{AppName}\msalcache.bin";
     /// </summary>
     // public static readonly string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalcache.bin3";
-    private static readonly string CacheFilePath = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
+    private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, "msalcache.bin"); 
+    // $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
 
     private static readonly object FileLock = new object();
 

@@ -115,7 +115,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
-        var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
+        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, Constants.LocalDbFile);
 
         builder.Services.AddSingleton<IDataService>(
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
@@ -128,7 +128,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
-        builder.Services.AddSingleton<IMacAuthenticationService, MacAuthenticationService>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 
@@ -146,12 +145,10 @@ public static class MauiProgram
                 "MacOsEncryption-Keys");
             X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
-            X509Certificate2 dataProtectionCertificate2 = SetupDataProtectionCertificate2();
-            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate 2 Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate2.FriendlyName, dataProtectionCertificate2.SubjectName, dataProtectionCertificate2.SerialNumber);
 
             builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-                .ProtectKeysWithCertificate(dataProtectionCertificate2);
+                .ProtectKeysWithCertificate(dataProtectionCertificate);
 
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
         }
@@ -184,18 +181,7 @@ public static class MauiProgram
                 CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
                 X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
                 Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
-                //using (ephemeral)
-                //{
-                //    X509Certificate2 certificate = new X509Certificate2(
-                //        ephemeral.Export(X509ContentType.Pkcs12),
-                //        string.Empty,
-                //        //X509KeyStorageFlags.PersistKeySet
-                //        X509KeyStorageFlags.Exportable
-                //    );
 
-                //    Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Complete - Cert:{0}; {1}; {2}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
-                //    return certificate;
-                //}
                 return ephemeral;
             }
         }
@@ -203,32 +189,6 @@ public static class MauiProgram
         {
             Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Exception - {0}", ex);
             throw;
-        }
-    }
-
-    static void InstallCertificateAsNonExportable(X509Certificate2 certificate)
-    {
-        Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Started - Cert:'{0}'/'{1}' ({2})", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber);
-        byte[] rawData = certificate.Export(X509ContentType.Pkcs12, password: "");
-
-        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser)) //, OpenFlags.ReadWrite))
-        {
-            try
-            {
-                store.Open(OpenFlags.ReadWrite | OpenFlags.OpenExistingOnly);
-                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Attempting to install - {0}", rawData.ToString());
-                store.Certificates.Import(rawData, password: "", keyStorageFlags: X509KeyStorageFlags.PersistKeySet);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Store Certificate Exception - {0}", ex);
-                throw;
-            }
-            finally
-            {
-                store.Close();
-                Console.WriteLine("MauiProgram:InstallCertificateAsNonExportable - Install Completed");
-            }
         }
     }
 
@@ -261,7 +221,7 @@ public static class MauiProgram
         return storedValue;
     }
 
-    static X509Certificate2 SetupDataProtectionCertificate2()
+    static X509Certificate2 SetupDataProtectionCertificate()
     {
         Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Started");
         try
@@ -297,50 +257,50 @@ public static class MauiProgram
         }
     }
 
-    static X509Certificate2 SetupDataProtectionCertificate()
-    {
-        Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Started");
-        string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
-        using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser)) //, OpenFlags.ReadOnly))
-        {
-            try
-            {
-                store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-                foreach (var cert in store.Certificates)
-                {
-                    Console.WriteLine("  Cert from store - '{0}' ({1})", cert.SubjectName, cert.SerialNumber);
-                }
+    //static X509Certificate2 SetupDataProtectionCertificate()
+    //{
+    //    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Started");
+    //    string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
+    //    using (X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser)) //, OpenFlags.ReadOnly))
+    //    {
+    //        try
+    //        {
+    //            store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+    //            foreach (var cert in store.Certificates)
+    //            {
+    //                Console.WriteLine("  Cert from store - '{0}' ({1})", cert.SubjectName, cert.SerialNumber);
+    //            }
 
-                X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
-                    subjectName,
-                    // self-signed certificate won't pass X509 chain validation
-                    validOnly: false);
-                if (certificateCollection.Count > 0)
-                {
-                    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
-                    return certificateCollection[0];
-                }
-                else
-                {
-                    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - None found in store");
-                }
+    //            X509Certificate2Collection certificateCollection = store.Certificates.Find(X509FindType.FindBySubjectName,
+    //                subjectName,
+    //                // self-signed certificate won't pass X509 chain validation
+    //                validOnly: false);
+    //            if (certificateCollection.Count > 0)
+    //            {
+    //                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Found in store");
+    //                return certificateCollection[0];
+    //            }
+    //            else
+    //            {
+    //                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - None found in store");
+    //            }
 
-                X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
-                InstallCertificateAsNonExportable(certificate);
-                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Created new certificate");
-                return certificate;
+    //            X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
+    //            InstallCertificateAsNonExportable(certificate);
+    //            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Setup Complete - Created new certificate");
+    //            return certificate;
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Exception - {0}", ex);
-                throw;
-            }
-            finally
-            { 
-                store.Close();
-            }
-        }
-    }
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - Exception - {0}", ex);
+    //            throw;
+    //        }
+    //        finally
+    //        { 
+    //            store.Close();
+    //        }
+    //    }
+    //}
 #endif
 }
