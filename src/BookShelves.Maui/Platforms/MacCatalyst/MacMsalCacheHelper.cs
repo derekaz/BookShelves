@@ -20,7 +20,7 @@ static class MacTokenCacheHelper
     /// $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{AppName}\msalcache.bin";
     /// </summary>
     // public static readonly string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalcache.bin3";
-    private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, "msalcache.bin"); 
+    private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
     // $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
 
     private static readonly object FileLock = new object();

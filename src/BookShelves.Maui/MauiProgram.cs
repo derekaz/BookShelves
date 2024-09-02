@@ -115,7 +115,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
-        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, Constants.LocalDbFile);
+        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
         Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 
         builder.Services.AddSingleton<IDataService>(
@@ -141,9 +141,10 @@ public static class MauiProgram
 #if MACCATALYST
         try
         {
-            string dataProtectionKeysDirectory = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "MacOsEncryption-Keys");
+            string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
+                //Path.Combine(
+                //Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                //"MacOsEncryption-Keys");
             X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
 
@@ -228,9 +229,10 @@ public static class MauiProgram
         try
         {
             string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
-            string dataProtectionCertDirectory = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "DataProtectionCert.pfx");
+            string dataProtectionCertDirectory = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
+                //Path.Combine(
+                //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                //    "DataProtectionCert.pfx");
 
             var certPassword = GetPasswordFromStore();
 
