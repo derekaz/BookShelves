@@ -15,7 +15,7 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
-      - '.github/workflows/BookShelves.Android-CI-Main.yml'
+      - '.github/workflows/BookShelvesAndroid-CI-Main.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
@@ -26,7 +26,7 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
-      - '.github/workflows/BookShelves.Android-CI-Main.yml'
+      - '.github/workflows/BookShelvesAndroid-CI-Main.yml'
     branches: 
       - '**'
 
