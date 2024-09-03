@@ -146,7 +146,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
-
         Console.WriteLine("AuthenticationService:InitializeMsalWithCache-Start");
         try
         {

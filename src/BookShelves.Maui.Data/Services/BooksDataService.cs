@@ -4,9 +4,10 @@ using BookShelves.Shared.DataInterfaces;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksDataService(IDataService dataService) : IBooksDataService
+public class BooksDataService(IDataService dataService, BookShelvesContext dataContext) : IBooksDataService
 {
     readonly IDataService dataService = dataService;
+    readonly BookShelvesContext dataContext = dataContext;
 
     public IBook InitializeBookInstance()
     {

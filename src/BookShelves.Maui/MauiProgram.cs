@@ -117,11 +117,20 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
+#if MACCATALYST
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+#else
+        var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
+        var dbPath2 = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+#endif
         Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 
         builder.Services.AddSingleton<IDataService>(
             s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
+
+        builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
+            s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, dbPath2));
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();

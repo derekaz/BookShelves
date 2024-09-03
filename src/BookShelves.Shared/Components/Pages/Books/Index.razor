@@ -23,6 +23,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Title</th>
                 <th>Author</th>
                 <th></th>
@@ -34,6 +35,7 @@ else
             @foreach (var book in books)
             {
                 <tr>
+                    <td>@book.Id</td>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>
