@@ -35,6 +35,7 @@ public class DataService(string dbPath) : IDataService
         catch (Exception ex)
         {
             Debug.WriteLine(ex);
+            throw;
         }
     }
 
@@ -83,14 +84,17 @@ public class DataService(string dbPath) : IDataService
     private async Task CheckData()
     {
         await Init();
-
-        var item = await connection.Table<Book>().Where(v => int.Parse(v.Id) == 1).FirstOrDefaultAsync();
-        Debug.WriteLine(item?.Title);
+        if (connection != null)
+        {
+            var item = await connection.Table<Book>().Where(v => int.Parse(v.Id ?? "") == 1).FirstOrDefaultAsync();
+            Debug.WriteLine(item?.Title);
+        }
     }
 
     public async Task<IEnumerable<T>> GetItems<T>() where T : BaseTable, new()
     {
         await Init();
+        if (connection == null) throw new InvalidOperationException("Unable to retrieve data.");
 
         return await connection.Table<T>().ToListAsync();
     }
@@ -98,6 +102,7 @@ public class DataService(string dbPath) : IDataService
     public async Task<IEnumerable<T>> GetItemsWithQuery<T>(string query) where T : BaseTable, new()
     {
         await Init();
+        if (connection == null) throw new InvalidOperationException("Unable to retrieve data.");
 
         return await connection.QueryAsync<T>(query);
     }
@@ -105,6 +110,7 @@ public class DataService(string dbPath) : IDataService
     public async Task<int> CountItemsWithQuery(string query)
     {
         await Init();
+        if (connection == null) throw new InvalidOperationException("Unable to retrieve data.");
 
         return await connection.ExecuteScalarAsync<int>(query);
     }
@@ -112,6 +118,7 @@ public class DataService(string dbPath) : IDataService
     public async Task<bool> ExecuteQuery(string query)
     {
         await Init();
+        if (connection == null) throw new InvalidOperationException("Unable to query data.");
 
         var op = await connection.ExecuteAsync(query);
         return op > 0;

@@ -2,9 +2,9 @@
 
 public interface IBook
 {
-    string Id { get; set; }
+    string? Id { get; set; }
 
-    string Title { get; set; }
+    string? Title { get; set; }
 
-    string Author { get; set; }
+    string? Author { get; set; }
 }
