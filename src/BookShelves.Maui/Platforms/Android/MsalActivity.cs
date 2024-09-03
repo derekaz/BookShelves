@@ -1,5 +1,8 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.PM;
+using Android.OS;
+using Android.Util;
 using Microsoft.Identity.Client;
 
 namespace BookShelves.Maui.Platforms.Android;
@@ -12,4 +15,24 @@ namespace BookShelves.Maui.Platforms.Android;
     //DataScheme = "msal{client-id}")]
 public class MsalActivity : BrowserTabActivity
 {
+}
+
+
+[Activity(NoHistory = true, Exported = true, LaunchMode = LaunchMode.SingleTop)]
+[IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+    DataScheme = CALLBACK_SCHEME)]
+public class WebAuthenticationCallbackActivity : WebAuthenticatorCallbackActivity
+{
+    const string CALLBACK_SCHEME = "bookshelves";
+
+    protected override void OnCreate(Bundle savedInstanceState)
+    {
+        base.OnCreate(savedInstanceState);
+        Log.Debug("WebAuthCallback", "Callback received");
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+    }
 }

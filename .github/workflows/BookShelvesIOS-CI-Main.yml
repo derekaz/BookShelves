@@ -41,7 +41,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set current date as env variable
         run: |
@@ -50,10 +50,10 @@ jobs:
             echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-          include-prerelease: true
+          # include-prerelease: true
 
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v1.1
@@ -63,7 +63,7 @@ jobs:
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v1
+        uses: Apple-Actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
@@ -79,7 +79,7 @@ jobs:
       #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v1
+        uses: Apple-Actions/download-provisioning-profiles@v3
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}

@@ -1,10 +1,7 @@
-﻿using Azure.Core;
-using BookShelves.Maui.Services;
-using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Maui.Alerts;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Identity.Client;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace BookShelves.Maui.Helpers;

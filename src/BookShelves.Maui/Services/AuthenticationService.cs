@@ -3,20 +3,23 @@
 
 using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace BookShelves.Maui.Services;
 
-public partial class AuthenticationService : ObservableObject, IAuthenticationService, IAuthenticationProvider, IIdToken
+public partial class AuthenticationService : ObservableObject, IAuthenticationService, IAuthenticationProvider //, IIdToken
 {
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
+    private readonly IDataProtector? _dataProtector;
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
@@ -35,15 +38,28 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider) // IServiceCollection serviceCollection)
     {
+        Console.WriteLine("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
 
         if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
         if (windowService == null) throw new NullReferenceException(nameof(windowService));
 
-        _settingsService = settingsService;
-        _windowService = windowService;
+        try
+        {
+            _settingsService = settingsService;
+            _windowService = windowService;
+#if MACCATALYST
+            _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
+            Console.WriteLine("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
+#endif
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw new InvalidOperationException("Unable initialize AuthenticationService", ex);
+        }
 
         try
         {
@@ -54,6 +70,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             Console.WriteLine(ex.ToString());
             throw new InvalidOperationException("Unable to lazy initialize the MSAL PublicClientApplication", ex);
         }
+        Console.WriteLine("AuthenticationService:Constructor-End");
     }
 
     /// <inheritdoc/>
@@ -74,10 +91,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     public async Task<bool> SignInAsync()
     {
         var account = await GetUserAccountAsync();
-        
+
         // First attempt to get a IIdToken silently
         var result = await GetTokenSilentlyAsync(account);
-        
+
         // If silent attempt didn't work, try an
         // interactive sign in
         result ??= await GetTokenInteractivelyAsync(account);
@@ -127,6 +144,8 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
+
+        Console.WriteLine("AuthenticationService:InitializeMsalWithCache-Start");
         try
         {
             // Initialize the PublicClientApplication
@@ -139,8 +158,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             builder = AddPlatformConfiguration(builder);
 
             var pca = builder.Build();
+            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-PCA Builder complete");
 
             await RegisterMsalCacheAsync(pca.UserTokenCache);
+            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
 
             return pca;
         } 
@@ -200,10 +221,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IAccount?> GetUserAccountAsync()
     {
+        var pca = await _pca.Value;
         try
         {
-            var pca = await _pca.Value;
-
             if (string.IsNullOrEmpty(_userIdentifier))
             {
                 // If no saved user ID, then get the first account.
@@ -233,10 +253,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount)
     {
+        var pca = await _pca.Value;
+
         try
         {
-            var pca = await _pca.Value;
-
             if (userAccount == null) return null;
 
             return await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
@@ -254,7 +274,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
     {
         var pca = await _pca.Value;
-        //var window = _windowService.GetMainWindowHandle();
 
         var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
             //builder.WithUseEmbeddedWebView(true);
@@ -279,7 +298,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex.Message);
+            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex);
             throw;
         }
     }
@@ -297,7 +316,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
             // First try to get the IIdToken silently
             var result = await GetTokenSilentlyAsync(account);
-            
+
             // If silent acquisition fails, try interactive
             result ??= await GetTokenInteractivelyAsync(account);
 

@@ -7,7 +7,7 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
-        builder.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
+        builder.WithRedirectUri($"msal{_settingsService.ClientId}://auth");
         return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
     }
 

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace BookShelves.Maui.Services;
+namespace BookShelves.Shared.DataInterfaces;
 
 /// <summary>
 /// Represents the application settings for the app.
