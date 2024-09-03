@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace BookShelves.Shared.DataInterfaces;
+namespace BookShelves.Shared.ServiceInterfaces;
 
 /// <summary>
 /// Represents the application settings for the app.

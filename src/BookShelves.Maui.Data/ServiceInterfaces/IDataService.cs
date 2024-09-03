@@ -1,4 +1,6 @@
-﻿namespace BookShelves.Maui.Data;
+﻿using BookShelves.Maui.Data.Models;
+
+namespace BookShelves.Maui.Data.ServiceInterfaces;
 
 public interface IDataService
 {

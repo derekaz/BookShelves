@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.ServiceInterfaces;
 using Microsoft.Graph.Models;
 //using TimeZoneConverter;
 

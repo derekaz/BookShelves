@@ -1,6 +1,6 @@
 ﻿using SQLite;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Maui.Data.Models;
 
 public class BaseTable
 {

@@ -1,5 +1,4 @@
-﻿using BookShelves.Maui.Data;
-using BookShelves.Maui.Helpers;
+﻿using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
 using BookShelves.Shared.DataInterfaces;
@@ -13,6 +12,9 @@ using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
+using BookShelves.Shared.ServiceInterfaces;
+using BookShelves.Maui.Data.ServiceInterfaces;
+using BookShelves.Maui.Data.Services;
 
 namespace BookShelves.Maui;
 
@@ -131,12 +133,6 @@ public static class MauiProgram
         builder.Services.AddTransient<HttpClient>();
 
         builder.Services.AddRazorClassLibraryServices(config);
-
-//#if WINDOWS
-//        WinUIEx.WebAuthenticator.CheckOAuthRedirectionActivation();
-//#else
-//        //WebAuthenticator.CheckOAuthRedirectionActivation();
-//#endif
 
 #if MACCATALYST
         try

@@ -1,7 +1,9 @@
-﻿using SQLite;
+﻿using BookShelves.Maui.Data.Models;
+using BookShelves.Maui.Data.ServiceInterfaces;
+using SQLite;
 using System.Diagnostics;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Maui.Data.Services;
 
 public class DataService(string dbPath) : IDataService
 {

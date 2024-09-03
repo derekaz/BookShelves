@@ -1,6 +1,8 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Maui.Data.Models;
+using BookShelves.Maui.Data.ServiceInterfaces;
+using BookShelves.Shared.DataInterfaces;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Maui.Data.Services;
 
 public class BooksDataService(IDataService dataService) : IBooksDataService
 {

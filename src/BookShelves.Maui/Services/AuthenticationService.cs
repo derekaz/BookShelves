@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Graph;

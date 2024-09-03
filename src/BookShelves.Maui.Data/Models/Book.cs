@@ -1,7 +1,8 @@
 ﻿using BookShelves.Shared.DataInterfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Maui.Data.Models;
 
 [Table(Constants.BookTable)]
 public class Book : BaseTable, IBook
