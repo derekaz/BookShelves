@@ -63,9 +63,9 @@
         <CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 
-	<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
+	<!--<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
 		<CustomEntitlements Include="aps-environment" Type="string" Value="development" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<!--<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
 		<CustomEntitlements Include="aps-environment" Type="string" Value="production" />
