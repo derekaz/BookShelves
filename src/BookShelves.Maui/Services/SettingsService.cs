@@ -12,20 +12,20 @@ namespace BookShelves.Maui.Services;
 /// </summary>
 public class SettingsService : ISettingsService
 {
-    private Settings _settings;
+    private readonly Settings? _settings;
 
     /// <inheritdoc/>
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string AzureAdAuthority { get => _settings.AzureAdAuthority; }
+    public string? AzureAdAuthority { get => _settings?.AzureAdAuthority; }
 
 
     /// <inheritdoc/>
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string ClientId { get => _settings.ClientId; }
+    public string? ClientId { get => _settings?.ClientId; }
 
     /// <inheritdoc/>
     /// <remarks>
