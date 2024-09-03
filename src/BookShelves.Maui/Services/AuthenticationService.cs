@@ -19,7 +19,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
+#if MACCATALYST
     private readonly IDataProtector? _dataProtector;
+#endif
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;

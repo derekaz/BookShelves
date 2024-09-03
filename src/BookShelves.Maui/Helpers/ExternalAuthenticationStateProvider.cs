@@ -60,6 +60,7 @@ public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, 
         }
         catch (MsalClientException ex)
         {
+            Console.WriteLine("ExternalAuthenticationStateProvider:LogingWithExternalProviderAsync - Exception: {0}", ex);
             //await Toast.Make(ex.Message).Show();
         }
         var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity());
