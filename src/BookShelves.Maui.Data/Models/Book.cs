@@ -7,7 +7,9 @@ namespace BookShelves.Maui.Data.Models;
 [Table(Constants.BookTable)]
 public class Book : BaseTable, IBook
 {
-    public new string? Id { get; set; }
+    //public string? Id { get; set; }
+
+    public string IdValue => Id.ToString() ?? string.Empty;
 
     public string? Title { get; set; }
 

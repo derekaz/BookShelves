@@ -3,7 +3,7 @@ using BookShelves.Shared.DataInterfaces;
 
 namespace BookShelves.WebShared.Data;
 
-public class BooksDataService : IBooksDataService
+public class BooksDataService : IBooksDataService //<Book>
 {
     readonly HttpClient _httpClient;
 
@@ -21,7 +21,7 @@ public class BooksDataService : IBooksDataService
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            return await _httpClient.GetFromJsonAsync<IBook[]>("/api/books") ?? new Book[] { };
         }
         catch (Exception ex)
         {
@@ -42,6 +42,6 @@ public class BooksDataService : IBooksDataService
 
     public async Task<bool> DeleteBookAsync(IBook book)
     {
-        return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.Id}").Result.IsSuccessStatusCode);
+        return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.IdValue}").Result.IsSuccessStatusCode);
     }
 }

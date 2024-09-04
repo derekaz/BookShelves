@@ -3,7 +3,7 @@
 @using Blazored.Modal.Services
 @using BookShelves.Shared
 @using BookShelves.Shared.DataInterfaces
-@inject IBooksDataService DataService
+@inject IBooksDataService DataService 
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
@@ -35,7 +35,7 @@ else
             @foreach (var book in books)
             {
                 <tr>
-                    <td>@book.Id</td>
+                    <td>@book.IdValue</td>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>
@@ -85,7 +85,7 @@ else
         }
         else
         {
-            if (String.IsNullOrEmpty(book.Id))
+            if (String.IsNullOrEmpty(book.IdValue))
                 message = "Add canceled";
             else
                 message = "Edit canceled";

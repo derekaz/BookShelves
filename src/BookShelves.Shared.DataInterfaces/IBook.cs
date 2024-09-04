@@ -2,7 +2,7 @@
 
 public interface IBook
 {
-    string? Id { get; set; }
+    string IdValue { get; }
 
     string? Title { get; set; }
 

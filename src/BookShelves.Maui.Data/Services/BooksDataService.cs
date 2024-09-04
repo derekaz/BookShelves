@@ -1,13 +1,13 @@
 ﻿using BookShelves.Maui.Data.Models;
-using BookShelves.Maui.Data.ServiceInterfaces;
+//using BookShelves.Maui.Data.ServiceInterfaces;
 using BookShelves.Shared.DataInterfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksDataService(IDataService dataService, BookShelvesContext dataContext) : IBooksDataService
+public class BooksDataService(BookShelvesContext dataContext) //IDataService dataService, ) : IBooksDataService //<Book>
 {
-    readonly IDataService dataService = dataService;
+    //readonly IDataService dataService = dataService;
     readonly BookShelvesContext dataContext = dataContext;
 
     public IBook InitializeBookInstance()

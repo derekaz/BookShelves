@@ -13,8 +13,9 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using BookShelves.Shared.ServiceInterfaces;
-using BookShelves.Maui.Data.ServiceInterfaces;
+//using BookShelves.Maui.Data.ServiceInterfaces;
 using BookShelves.Maui.Data.Services;
+using BookShelves.Maui.Data.Models;
 
 namespace BookShelves.Maui;
 
@@ -121,16 +122,16 @@ public static class MauiProgram
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
         var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
 #else
-        var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
-        var dbPath2 = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+        //var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
+        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
 #endif
         Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 
-        builder.Services.AddSingleton<IDataService>(
-            s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
+        //builder.Services.AddSingleton<IDataService>(
+        //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
 
         builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
-            s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, dbPath2));
+            s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, dbPath));
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
@@ -138,7 +139,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
-        builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
+        builder.Services.AddTransient<IBook, Book>();
+        //builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
 
         builder.Services.AddRazorClassLibraryServices(config);

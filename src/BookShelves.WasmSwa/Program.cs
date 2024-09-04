@@ -17,6 +17,7 @@ builder.Services.AddRazorClassLibraryServices();
 
 builder.Services.AddSingleton<IVersionService, VersionService>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddTransient<IBook, Book>();
 builder.Services.AddTransient<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGraphService, GraphService>();
