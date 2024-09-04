@@ -1,4 +1,5 @@
 ﻿using BookShelves.Maui.Data.Models;
+using BookShelves.Shared.DataInterfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ public class BookShelvesContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
+        SQLitePCL.Batteries_V2.Init();
         base.OnConfiguring(optionsBuilder);
     }
 }
