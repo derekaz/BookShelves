@@ -42,6 +42,6 @@ public class BooksDataService : IBooksDataService
 
     public async Task<bool> DeleteBookAsync(IBook book)
     {
-        return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.Id}").Result.IsSuccessStatusCode);
+        return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.IdValue}").Result.IsSuccessStatusCode);
     }
 }
