@@ -7,4 +7,8 @@ public interface IBook
     string? Title { get; set; }
 
     string? Author { get; set; }
+
+    DateTime? LastUpdateTime { get; set; }
+
+    int? Revision { get; set; }
 }

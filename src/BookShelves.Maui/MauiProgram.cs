@@ -16,6 +16,7 @@ using BookShelves.Shared.ServiceInterfaces;
 //using BookShelves.Maui.Data.ServiceInterfaces;
 using BookShelves.Maui.Data.Services;
 using BookShelves.Maui.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookShelves.Maui;
 
@@ -129,9 +130,11 @@ public static class MauiProgram
 
         //builder.Services.AddSingleton<IDataService>(
         //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
-
-        builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
-            s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, dbPath));
+        //var options = new DbContextOptionsBuilder();
+        //builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
+        //    s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, options, dbPath));
+        builder.Services.AddDbContext<BookShelvesContext>(
+            options => options.UseSqlite($"Data Source={dbPath}"));
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
@@ -140,7 +143,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddTransient<IBook, Book>();
-        //builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
+        builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
 
         builder.Services.AddRazorClassLibraryServices(config);
