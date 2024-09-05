@@ -78,6 +78,8 @@ public class BookShelvesContext : DbContext
 
     private void UpdateDatabaseIfRequired()
     {
+        //Database.GetService<IDatabaseCreator>().CanConnect();
+        //Database.CanConnect();
         if ((Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator).Exists())
         {
         }
