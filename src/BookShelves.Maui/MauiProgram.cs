@@ -160,7 +160,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IBook, Book>();
         builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
-        //builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 
