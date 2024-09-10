@@ -1,5 +1,7 @@
 ﻿using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
@@ -24,12 +26,60 @@ public class BookShelvesContext : DbContext
         UpdateDatabaseIfRequired();
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Book>().HasData(new Book() { Id = 1, Title = "Book 1", Author = "Author 1", LastUpdateTime = DateTime.UtcNow, Revision = 1 });
+        //base.OnModelCreating(modelBuilder);
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         //optionsBuilder.UseSqlite($"Data Source={DbPath}");
+        //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesContext>();
+        //Database.SetInitializer(sqliteConnectionInitializer);
         SQLitePCL.Batteries_V2.Init();
         base.OnConfiguring(optionsBuilder);
     }
+
+    //private class CreateOrMigrateDatabaseInitializer<TContext> : CreateDatabaseIfNotExists<TContext>, IDatabaseInitializer<TContext> where TContext : DbContext
+    //{
+    //    void IDatabaseInitializer<TContext>.InitializeDatabase(TContext context)
+    //    {
+    //        base.InitializeDatabase(context);
+
+    //        if (context.Database.Exists())
+    //        {
+    //            Migrate(context);
+    //        }
+    //    }
+
+    //    private void Migrate(DbContext context)
+    //    {
+    //        int version = context.Database.SqlQuery<int>($"PRAGMA user_version").First();
+    //        int numTables = context.Database.SqlQuery<int>($"SELECT COUNT(*) FROM sqlite_master AS TABLES WHERE TYPE = 'table'").First();
+
+    //        if (numTables == 0)
+    //        {
+    //            context.Database.ExecuteSqlRaw(Constants.CreateBookTableStatement);
+    //        }
+
+    //        //foreach (var migrationFile in Directory.GetFiles("migrations/", "*.sql"))
+    //        //{
+    //        //    if (!int.TryParse(Path.GetFileName(migrationFile).Split('.').First(), out int sqlVersion))
+    //        //    {
+    //        //        continue;
+    //        //    }
+
+    //        //    if (sqlVersion <= version)
+    //        //    {
+    //        //        continue;
+    //        //    }
+
+    //        //    var migrationScript = File.ReadAllText(migrationFile);
+    //        //    context.Database.ExecuteSqlRaw(migrationScript);
+    //        //}
+    //    }
+    //}
 
     private void UpdateDatabaseIfRequired()
     {
