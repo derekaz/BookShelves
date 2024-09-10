@@ -56,7 +56,6 @@ namespace BlazorApp.Api.BookFunction
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
                 logger.LogError(ex, $"Unable to edit book: {book}");
                 return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
             }

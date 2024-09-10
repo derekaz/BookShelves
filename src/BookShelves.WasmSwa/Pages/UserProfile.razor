@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
+@inject ILoggerFactory LoggerFactory
 @inject Microsoft.Graph.GraphServiceClient GraphServiceClient
 @attribute [Authorize]
 
@@ -35,14 +36,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var logger = LoggerFactory.CreateLogger<UserProfile>();
         try
         {
             user = await GraphServiceClient.Me.GetAsync();
-            Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+            logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            logger.LogError(ex, "BookShelves.WasmSwa.Pages.UserProfile:OnInitializeAsync-Exception");
         }
     }
 }

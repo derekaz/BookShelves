@@ -107,6 +107,10 @@ public static class MauiProgram
         //      {
         builder.Configuration.AddConfiguration(config);
         builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+        });
         //      }
         //      catch (Exception ex) 
         //{
@@ -122,9 +126,19 @@ public static class MauiProgram
 #if MACCATALYST
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
         var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+        if (File.Exists(dbPath2))
+        {
+            File.Delete(dbPath2);
+        }
 #else
         //var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
-        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+
+        var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+        if (File.Exists(oldDbPath))
+        {
+            File.Delete(oldDbPath);
+        }
 #endif
         Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 

@@ -4,6 +4,7 @@
 @using BookShelves.Shared
 @using BookShelves.Shared.DataInterfaces
 @inject IBooksDataService DataService 
+@inject ILogger Logger
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
@@ -65,7 +66,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:OnInitializedAsync-Exception");
         }
     }
 

@@ -1,10 +1,13 @@
 ﻿using BookShelves.Maui.Helpers;
+using BookShelves.Maui.Services;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
 static class MacTokenCacheHelper
 {
     static IDataProtector? _dataProtector;
+    static readonly ILogger _logger = ApplicationLogger.CreateLogger(nameof(MacTokenCacheHelper));
 
     public static void EnableSerialization(ITokenCache tokenCache, IDataProtector dataProtector)
     {
@@ -32,7 +35,7 @@ static class MacTokenCacheHelper
         {
             try
             {
-                Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
+                _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
                 args.TokenCache.DeserializeMsalV3(
                     File.Exists(CacheFilePath)
                         ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
@@ -41,10 +44,10 @@ static class MacTokenCacheHelper
             }
             catch (Exception ex) 
             {
-                Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Exception reading token cache - {0}", ex);
+                _logger.LogError(ex, "MacTokenCacheHelper:BeforeAccessNotification-Exception reading token cache");
             }
         }
-        Console.WriteLine("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file complete");
+        _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file complete");
     }
 
     private static void AfterAccessNotification(TokenCacheNotificationArgs args)
@@ -57,7 +60,7 @@ static class MacTokenCacheHelper
             lock (FileLock)
             {
                 // reflect changes in the persistent store
-                Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file started");
+                _logger.LogInformation("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file started");
                 try
                 {
                     File.WriteAllBytes(
@@ -67,14 +70,14 @@ static class MacTokenCacheHelper
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Exception writing token cache - {0}", ex);
+                    _logger.LogError(ex, "MacTokenCacheHelper:AfterAccessNotification-Exception writing token cache");
                 }
             }
-            Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file complete");
+            _logger.LogInformation("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file complete");
         }
         else
         {
-            Console.WriteLine("MacTokenCacheHelper:AfterAccessNotification-Write token cache not required");
+            _logger.LogInformation("MacTokenCacheHelper:AfterAccessNotification-Write token cache not required");
         }
     }
 }

@@ -1,15 +1,18 @@
 ﻿using System.Net.Http.Json;
 using BookShelves.Shared.DataInterfaces;
+using Microsoft.Extensions.Logging;
 
 namespace BookShelves.WebShared.Data;
 
 public class BooksDataService : IBooksDataService
 {
     readonly HttpClient _httpClient;
+    readonly ILogger _logger;
 
-    public BooksDataService(HttpClient http)
+    public BooksDataService(HttpClient http, ILoggerFactory loggerFactory)
     {
         _httpClient = http;
+        _logger = loggerFactory.CreateLogger<BooksDataService>();
     }
 
     public IBook InitializeBookInstance()
@@ -25,7 +28,7 @@ public class BooksDataService : IBooksDataService
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            _logger.LogError(ex, "BooksDataService:GetBooksAsync");
             return new Book[] { };
         }
     }
