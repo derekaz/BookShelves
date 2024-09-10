@@ -107,6 +107,7 @@ public static class MauiProgram
         //      {
         builder.Configuration.AddConfiguration(config);
         builder.Services.AddMauiBlazorWebView();
+
         builder.Services.AddLogging(logging =>
         {
             logging.AddConsole();
@@ -159,6 +160,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IBook, Book>();
         builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
+        //builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 

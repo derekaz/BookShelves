@@ -4,7 +4,7 @@
 @using Microsoft.Graph.Models
 @using System.Security.Claims
 @inject IGraphService GraphService
-@inject ILoggerFactory LoggerFactory
+@inject ILogger<UserProfile> Logger
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize]
 
@@ -75,7 +75,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         // HelloLabel.Text = $"Hello, {user.DisplayName}!";
-        var logger = LoggerFactory.CreateLogger<UserProfile>();
 
         try
         {
@@ -84,11 +83,11 @@ else
             claims = authState.User.Claims;
 
 
-            logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+            Logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "BookShelves.Shared.Components.Pages.UserProfile:OnInitializedAsync-Exception");
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.UserProfile:OnInitializedAsync-Exception");
         }
     }
 }
