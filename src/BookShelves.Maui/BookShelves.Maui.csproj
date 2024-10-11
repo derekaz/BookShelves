@@ -45,7 +45,6 @@
         <DefaultLanguage>en</DefaultLanguage>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     </PropertyGroup>
-
     <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
       <MtouchLink>Full</MtouchLink>
     </PropertyGroup>-->
@@ -54,6 +53,7 @@
       <CodesignKey>iOS Distribution</CodesignKey>
       <CodesignProvision>BookShelves Test Profile</CodesignProvision>
       <ProvisioningType>manual</ProvisioningType>
+	  <EnableAssemblyILStripping>false</EnableAssemblyILStripping>
     </PropertyGroup>
 
 
