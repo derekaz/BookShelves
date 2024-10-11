@@ -149,7 +149,7 @@ public static class MauiProgram
         //builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
         //    s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, options, dbPath));
         builder.Services.AddDbContext<BookShelvesContext>(
-            options => options.UseSqlite($"Data Source={dbPath}"));
+            options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
@@ -158,7 +158,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddTransient<IBook, Book>();
-        builder.Services.AddSingleton<IBooksDataService, BooksDataService>();
+        builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<HttpClient>();
         builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
