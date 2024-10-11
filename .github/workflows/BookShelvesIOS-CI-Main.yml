@@ -43,6 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      #Select your required version
+      - name: Select Xcode 15.1
+        run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
       - name: Set current date as env variable
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
