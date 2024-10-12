@@ -77,9 +77,9 @@
       <MtouchLink>SdkOnly</MtouchLink>
     </PropertyGroup>-->
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+    <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
       <MtouchLink>None</MtouchLink>
-    </PropertyGroup>
+    </PropertyGroup>-->
 
     <ItemGroup>
         <!-- App Icon -->
