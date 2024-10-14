@@ -21,6 +21,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
+		<PublishAot>true</PublishAot>
 
         <!-- Display name -->
         <ApplicationTitle>BookShelves</ApplicationTitle>
