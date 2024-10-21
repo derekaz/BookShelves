@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BookShelves.Shared.DataInterfaces;
+namespace BookShelves.Shared.ServiceModels;
 
 public class VersionInfo
 {

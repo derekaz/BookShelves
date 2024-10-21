@@ -4,6 +4,7 @@
 @using Microsoft.Graph.Models
 @using System.Security.Claims
 @inject IGraphService GraphService
+@inject ILogger<UserProfile> Logger
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize]
 
@@ -81,11 +82,12 @@ else
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             claims = authState.User.Claims;
 
-            Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+
+            Logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.UserProfile:OnInitializedAsync-Exception");
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Identity.Client;
 
-namespace BookShelves.Shared.DataInterfaces;
+namespace BookShelves.Shared.ServiceInterfaces;
 
 public interface IExternalAuthenticationStateProvider
 {

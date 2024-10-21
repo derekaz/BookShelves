@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace BookShelves.Shared.DataInterfaces;
+namespace BookShelves.Shared.ServiceInterfaces;
 
 /// <summary>
 /// Represents the application settings for the app.
@@ -11,17 +11,17 @@ public interface ISettingsService
     /// <summary>
     /// The Azure AD Authority to use for Authentication requests
     /// </summary>
-    string AzureAdAuthority { get; }
+    string? AzureAdAuthority { get; }
 
     /// <summary>
     /// The client ID (aka application ID) from the app registration in the Azure portal.
     /// </summary>
-    string ClientId { get; }
+    string? ClientId { get; }
 
     /// <summary>
     /// The redirect URI configured on the app registration in the Azure portal.
     /// </summary>
-    string RedirectUri { get; }
+    string? RedirectUri { get; }
 
     /// <summary>
     /// An array of permission scopes required by the application (ex. "User.Read").

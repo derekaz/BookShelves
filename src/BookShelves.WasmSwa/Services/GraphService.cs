@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.ServiceInterfaces;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 

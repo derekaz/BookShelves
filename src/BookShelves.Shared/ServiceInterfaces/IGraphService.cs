@@ -4,7 +4,7 @@
 
 using Microsoft.Graph.Models;
 
-namespace BookShelves.Shared.DataInterfaces
+namespace BookShelves.Shared.ServiceInterfaces
 {
     /// <summary>
     /// Service that provides access to data in Microsoft Graph

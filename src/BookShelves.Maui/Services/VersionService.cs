@@ -1,4 +1,5 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.ServiceInterfaces;
+using BookShelves.Shared.ServiceModels;
 
 namespace BookShelves.Maui.Services;
 
