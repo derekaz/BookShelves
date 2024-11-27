@@ -71,7 +71,11 @@
 	  <EnableAssemblyILStripping>false</EnableAssemblyILStripping>
     </PropertyGroup>
 
-
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
+		<EnableSGenConc>True</EnableSGenConc>
+		<MtouchInterpreter>-all,System.Private.Windows.Core</MtouchInterpreter>
+	</PropertyGroup>
+	
 	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-maccatalyst'">
     <!--<RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>-->
 		<CodesignKey>Apple Distribution</CodesignKey>
