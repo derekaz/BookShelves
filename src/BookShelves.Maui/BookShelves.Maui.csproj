@@ -84,6 +84,11 @@
         <CodesignEntitlements>Platforms\MacCatalyst\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-maccatalyst|AnyCPU'">
+		<EnableSGenConc>True</EnableSGenConc>
+		<MtouchInterpreter>-all,System.Private.Windows.Core</MtouchInterpreter>
+	</PropertyGroup>
+
 	<!--<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
 		<CustomEntitlements Include="aps-environment" Type="string" Value="development" />
 	</ItemGroup>-->
