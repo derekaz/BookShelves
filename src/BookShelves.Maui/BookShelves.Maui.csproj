@@ -30,8 +30,8 @@
 		<IsAotCompatible>true</IsAotCompatible>
 
 		<!-- select platforms to use with NativeAOT -->
-		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">false</PublishAot>
-		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">false</PublishAot>
+		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">true</PublishAot>
+		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">true</PublishAot>
 
 		<!-- Display name -->
         <ApplicationTitle>BookShelves</ApplicationTitle>
