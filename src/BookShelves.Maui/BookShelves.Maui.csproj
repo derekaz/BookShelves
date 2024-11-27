@@ -27,11 +27,11 @@
 		<!--<SelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">false</SelfContained>-->
 
 		<!-- enable trimming and AOT analyzers on all platforms -->
-		<IsAotCompatible>true</IsAotCompatible>
+		<IsAotCompatible>false</IsAotCompatible>
 
 		<!-- select platforms to use with NativeAOT -->
-		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">true</PublishAot>
-		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">true</PublishAot>
+		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">false</PublishAot>
+		<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">false</PublishAot>
 
 		<!-- Display name -->
         <ApplicationTitle>BookShelves</ApplicationTitle>
