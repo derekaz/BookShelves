@@ -7,7 +7,7 @@
 
 <AuthorizeView>
     <Authorized>
-        Hello, @GetName().Result! @* @context.User.Identity?.Name!*@
+        Hello, <a href="/profile">@GetName().Result</a>! @* @context.User.Identity?.Name!*@
         <button class="nav-link btn btn-link" @onclick="Logout">Log out</button>
     </Authorized>
     <NotAuthorized>
