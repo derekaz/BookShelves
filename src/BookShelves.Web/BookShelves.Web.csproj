@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Graph" Version="5.63.0" />
+    <PackageReference Include="Microsoft.Graph" Version="5.68.0" />
   </ItemGroup>
 
   <ItemGroup>
