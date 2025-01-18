@@ -2,7 +2,6 @@ using BookShelves.WasmSwa;
 using BookShelves.WasmSwa.Data;
 using BookShelves.Shared;
 using BookShelves.Shared.DataInterfaces;
-using BookShelves.WebShared.Data;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BookShelves.WasmSwa.Services;

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using BookShelves.Shared.DataInterfaces;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.WasmSwa.Data;
 
 public class BooksDataService : IBooksDataService //<Book>
 {

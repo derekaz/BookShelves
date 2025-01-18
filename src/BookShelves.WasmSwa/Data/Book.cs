@@ -2,6 +2,8 @@
 using BookShelves.Shared.DataInterfaces;
 using Newtonsoft.Json.Serialization;
 
+namespace BookShelves.WasmSwa.Data;
+
 public class Book : IBook
 {
     [JsonProperty(PropertyName = "id")]
