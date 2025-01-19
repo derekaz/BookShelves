@@ -23,7 +23,9 @@ public class BooksDataService : IBooksDataService //<Book>
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<IBook[]>("/api/books") ?? new Book[] { };
+            var books = await _httpClient.GetFromJsonAsync<Book[]>("/api/books");
+            return books ?? new Book[] { };
+            //return await _httpClient.GetFromJsonAsync<IBook[]>("/api/books") ?? new Book[] { };
         }
         catch (Exception ex)
         {
