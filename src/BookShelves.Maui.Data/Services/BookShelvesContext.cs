@@ -124,14 +124,14 @@ public class BookShelvesContext : DbContext
                 if (LATEST_DATABASE_VERSION != currentDbVersion)
                 {
                     // Finally, set the db version to latest
-                    Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
+                    Database.ExecuteSql($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
                 }
 
             }
             else
             {
                 Database.EnsureCreated();
-                Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
+                Database.ExecuteSql($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
             }
         }
         catch (Exception ex)

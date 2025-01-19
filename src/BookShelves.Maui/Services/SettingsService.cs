@@ -38,7 +38,7 @@ public class SettingsService : ISettingsService
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string[] GraphScopes { get => _settings.GraphScopes; }
+    public string[] GraphScopes => _settings?.GraphScopes ?? [];
 
     // Token cache properties
     public string CacheFileName => "graphmaui_msal_cache.txt";

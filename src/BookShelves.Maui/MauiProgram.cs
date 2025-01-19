@@ -12,6 +12,7 @@ using Microsoft.Maui.LifecycleEvents;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
+
 using BookShelves.Shared.ServiceInterfaces;
 //using BookShelves.Maui.Data.ServiceInterfaces;
 using BookShelves.Maui.Data.Services;
@@ -252,13 +253,19 @@ public static class MauiProgram
         try
         {
             string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
-            string dataProtectionCertDirectory = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
+            string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
 
             var certPassword = GetPasswordFromStore();
 
-            if (File.Exists(dataProtectionCertDirectory))
+            if (File.Exists(dataProtectionCertFile))
             {
-                X509Certificate2 cert = new X509Certificate2(dataProtectionCertDirectory, certPassword);
+                X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(dataProtectionCertFile, certPassword);
+
+                // Replace the following code block
+                // X509Certificate2 cert = new X509Certificate2(dataProtectionCertFile, certPassword);
+
+                // With this code block
+                // X509Certificate2 cert = X509CertificateLoader.LoadFromFile(dataProtectionCertFile, certPassword);
                 if (cert != null && cert.Subject == subjectName && DateTime.Now <= cert.NotAfter)
                 {
                     Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Found existing file");
@@ -268,7 +275,7 @@ public static class MauiProgram
             }
 
             X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
-            SaveCertificateToFile(certificate, dataProtectionCertDirectory, certPassword);
+            SaveCertificateToFile(certificate, dataProtectionCertFile, certPassword);
             Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Created new certificate");
 
             return certificate;

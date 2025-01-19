@@ -17,13 +17,11 @@ public partial class AuthenticationService
 
     private async Task TryThisAsync(Uri uri)
     {
-        if (uri == null)
-        {
-            throw new ArgumentNullException(nameof(uri));
-        }
+        ArgumentNullException.ThrowIfNull(uri);
+
         string url = uri.AbsoluteUri;
         _logger.LogInformation("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={0})", url);
-        DispatchQueue.MainQueue.DispatchAsync(async () => 
+        DispatchQueue.MainQueue.DispatchAsync(async () =>
         { 
             await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
         });

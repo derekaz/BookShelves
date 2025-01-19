@@ -4,7 +4,7 @@ namespace BookShelves.Maui.Platforms.Mac;
 
 public class WindowService : IWindowService
 {
-    public Func<object> GetMainWindowHandle()
+    public Func<object?>? GetMainWindowHandle()
     {
         return null;
     }
