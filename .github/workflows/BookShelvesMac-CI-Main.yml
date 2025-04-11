@@ -44,6 +44,14 @@ jobs:
       - uses: actions/checkout@v4
   
       # Select your required version
+      - name: xcode diags
+        run: |
+            echo Mac OS version: $(sw_vers -productVersion)
+            echo Installed Xcode versions:
+            ls /Applications | grep 'Xcode'
+            echo Currently selected Xcode:
+            xcrun xcode-select --print-path
+
       - name: Select Xcode 16.3
         run: sudo xcode-select -s /Applications/Xcode_16.3.app #/Contents/Developer
 
