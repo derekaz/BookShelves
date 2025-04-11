@@ -60,6 +60,9 @@ jobs:
             echo Currently selected Xcode:
             xcrun xcode-select --print-path
 
+      - name: Add Xcode developer tools to PATH
+        run: export PATH="/Applications/Xcode_16.3.app/Contents/Developer/usr/bin:$PATH"
+
       - name: Set current date as env variable
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
