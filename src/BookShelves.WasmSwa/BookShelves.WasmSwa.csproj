@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
+    <ProjectReference Include="..\BookShelves.WebShared\BookShelves.WebShared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

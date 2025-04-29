@@ -28,7 +28,7 @@ public class BooksDataService : IBooksDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "BooksDataService:GetBooksAsync");
+            _logger.LogError(ex, "BooksDataService:GetBooksAsync-Exception");
             return new Book[] { };
         }
     }

@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using BookShelves.Shared.DataInterfaces;
 
+namespace BookShelves.WebShared.Data;
+
 public class Book : IItem, IBook
 {
     [JsonProperty(PropertyName = "id")]

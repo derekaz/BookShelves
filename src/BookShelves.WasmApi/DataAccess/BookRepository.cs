@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using BookShelves.WebShared.Data;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
 namespace BlazorApp.Api.DataAccess;

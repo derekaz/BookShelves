@@ -1,4 +1,5 @@
 using BlazorApp.Api.DataAccess;
+using BookShelves.WebShared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
