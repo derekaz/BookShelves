@@ -2,7 +2,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
-namespace BlazorApp.Api.DataAccess;
+namespace BookShelves.WasmApi.DataAccess;
 
 public class BookRepository : CosmosRepository<Book>
 {

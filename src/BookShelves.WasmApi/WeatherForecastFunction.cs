@@ -6,55 +6,54 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using System.Net;
 
-namespace BookShelves.WasmApi
+namespace BookShelves.WasmApi;
+
+public class WeatherForecastFunction
 {
-    public class WeatherForecastFunction
+    private readonly ILogger _logger;
+
+    public WeatherForecastFunction(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        _logger = loggerFactory.CreateLogger<WeatherForecastFunction>();
+    }
 
-        public WeatherForecastFunction(ILoggerFactory loggerFactory)
+    private string GetSummary(int temp)
+    {
+        var summary = "Mild";
+
+        if (temp >= 32)
         {
-            _logger = loggerFactory.CreateLogger<WeatherForecastFunction>();
+            summary = "Hot";
+        }
+        else if (temp <= 16 && temp > 0)
+        {
+            summary = "Cold";
+        }
+        else if (temp <= 0)
+        {
+            summary = "Freezing!";
         }
 
-        private string GetSummary(int temp)
+        return summary;
+    }
+
+    [Function("WeatherForecast")]
+    public HttpResponseData Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
+    {
+        var randomNumber = new Random();
+        var temp = 0;
+
+        var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
-            var summary = "Mild";
+            Date = DateTime.Now.AddDays(index),
+            TemperatureC = temp = randomNumber.Next(-20, 55),
+            Summary = GetSummary(temp)
+        }).ToArray();
 
-            if (temp >= 32)
-            {
-                summary = "Hot";
-            }
-            else if (temp <= 16 && temp > 0)
-            {
-                summary = "Cold";
-            }
-            else if (temp <= 0)
-            {
-                summary = "Freezing!";
-            }
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.WriteAsJsonAsync(result);
 
-            return summary;
-        }
-
-        [Function("WeatherForecast")]
-        public HttpResponseData Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
-        {
-            var randomNumber = new Random();
-            var temp = 0;
-
-            var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = temp = randomNumber.Next(-20, 55),
-                Summary = GetSummary(temp)
-            }).ToArray();
-
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.WriteAsJsonAsync(result);
-
-            return response;
-        }
+        return response;
     }
 }
