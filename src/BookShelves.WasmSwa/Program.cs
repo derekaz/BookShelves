@@ -32,6 +32,9 @@ builder.Services.AddGraphClient(baseUrl, scopes);
 
 builder.Services.AddMsalAuthentication<RemoteAuthenticationState, CustomUserAccount>(options =>
     {
+        options.ProviderOptions.DefaultAccessTokenScopes.Add("https://graph.microsoft.com/User.Read");
+        //options.ProviderOptions.DefaultAccessTokenScopes.Add("openid");
+        //options.ProviderOptions.DefaultAccessTokenScopes.Add("offline_access");
         options.UserOptions.RoleClaim = "roles";
         builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
     })
