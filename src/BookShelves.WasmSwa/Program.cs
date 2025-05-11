@@ -35,6 +35,7 @@ builder.Services.AddMsalAuthentication<RemoteAuthenticationState, CustomUserAcco
         options.ProviderOptions.DefaultAccessTokenScopes.Add("https://graph.microsoft.com/User.Read");
         //options.ProviderOptions.DefaultAccessTokenScopes.Add("openid");
         //options.ProviderOptions.DefaultAccessTokenScopes.Add("offline_access");
+        options.ProviderOptions.LoginMode = "redirect";
         options.UserOptions.RoleClaim = "roles";
         builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
     })
