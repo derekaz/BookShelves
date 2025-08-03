@@ -52,8 +52,8 @@ jobs:
             echo Currently selected Xcode:
             xcrun xcode-select --print-path
 
-      - name: Select Xcode 16.3
-        run: sudo xcode-select -s /Applications/Xcode_16.3.app #/Contents/Developer
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app #/Contents/Developer
 
       - name: xcode diags 2
         run: |
@@ -61,7 +61,7 @@ jobs:
             xcrun xcode-select --print-path
 
       - name: Add Xcode developer tools to PATH
-        run: export PATH="/Applications/Xcode_16.3.app/Contents/Developer/usr/bin:$PATH"
+        run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
 
       - name: Set current date as env variable
         run: |
