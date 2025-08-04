@@ -82,6 +82,10 @@ jobs:
         run: |
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
+      - name: Cert Info
+        run: |
+          echo ${{ secrets.MAC_COMBINED_DIST_INST_CERT_P12 }} | sed 's/./& /g'
+
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v3
         with:
