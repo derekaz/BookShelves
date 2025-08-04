@@ -89,7 +89,7 @@ jobs:
           echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
       - name: Cert Info 2
         run: |
-          openssl pkcs12 -in cert.p12 -text -noout
+          openssl pkcs12 -in cert.p12 -info
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v3
