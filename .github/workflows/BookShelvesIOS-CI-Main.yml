@@ -86,10 +86,10 @@ jobs:
         env:
           CERTIFICATE_BASE64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
         run: |
-          echo $CERTIFICATE_BASE64 | base64 --decode > cert.der
+          echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
       - name: Cert Info 2
         run: |
-          openssl pkcs12 -in cert.der -inform DER -text -noout
+          openssl pkcs12 -in certp12 -text -noout
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v3
