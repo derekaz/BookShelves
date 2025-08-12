@@ -92,7 +92,7 @@ jobs:
           openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
 
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v3
+        uses: Apple-Actions/import-codesign-certs@v5
         with:
           # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
 
@@ -123,7 +123,7 @@ jobs:
 
       # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           # profile-type: 'MAC_APP_DEVELOPMENT' (get all profiles)
@@ -132,7 +132,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_DEVELOPMENT'
@@ -141,7 +141,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
@@ -150,7 +150,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_STORE'
