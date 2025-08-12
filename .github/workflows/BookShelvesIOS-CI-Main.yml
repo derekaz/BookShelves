@@ -136,7 +136,7 @@ jobs:
       #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
+        uses: apple-actions/upload-testflight-build@v3
         with: 
           app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
