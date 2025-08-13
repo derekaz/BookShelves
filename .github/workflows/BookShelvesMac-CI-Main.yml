@@ -203,13 +203,13 @@ jobs:
 
           # Get the ApplicationDisplayVersion
           $applicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
-          echo APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion
+          echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
           # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_ENV
-          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_OUTPUT
-          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Build MAUI Mobile app
         shell: pwsh
