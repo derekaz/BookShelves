@@ -204,19 +204,14 @@ jobs:
 
           # Get the ApplicationDisplayVersion
           [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
-          Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
-          Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
-          if ($dirtyApplicationDisplayVersion -ne $null) {
-            $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
-          } else {
-            $applicationDisplayVersion = "" # Or handle the null case
-          }
-          # $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
+          # Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
+          # Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
+          $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
           echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
           # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_ENV
-          echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_OUTPUT
           echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
@@ -265,8 +260,8 @@ jobs:
       - name: test value
         shell: pwsh
         run: |
-          echo "APPLICATION_DISPLAY_VERSION=${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}"
-          Write-Host "APPLICATION_DISPLAY_VERSION= $($env:APPLICATION_DISPLAY_VERSION)"
+          Write-Host "APPLICATION_DISPLAY_VERSION=${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}"
+          # Write-Host "APPLICATION_DISPLAY_VERSION= $($env:APPLICATION_DISPLAY_VERSION)"
 
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
