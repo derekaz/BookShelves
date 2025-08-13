@@ -204,7 +204,7 @@ jobs:
 
           # Get the ApplicationDisplayVersion
           $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
-          echo D_A_D_V=$dirtyApplicationDisplayVersion.Trim()
+          echo D_A_D_V=$dirtyApplicationDisplayVersion
           if ($dirtyApplicationDisplayVersion -ne $null) {
             $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
           } else {
