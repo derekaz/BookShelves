@@ -6,16 +6,16 @@ on:
   push:
     branches:
       - 'main'
-      # - 'dev*'  
+  #     - 'dev*'  
     paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
+  #     # - 'src/BookShelves.Droid/**'
+  #     # - 'BookShelves.iOS/**'
+  #     # - 'BookShelves.Mac/**'
+  #     # - 'src/BookShelves.WinUI/**'
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
-      - '.github/workflows/BookShelvesMac-CI-Main.yml'  # push:
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
   pull_request:
     types: [opened, synchronize]
     paths:
@@ -63,11 +63,40 @@ jobs:
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
 
-      - name: Set current date as env variable
+      - name: Set some env variables (CURRENT_DATE, CURRENT_TIME, ASSEMBLY_BUILD_NUMBER)
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
             echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
             echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Set Application_Display_Version as env variable
+        id: get_application_version
+        shell: pwsh
+        run: |
+          pwsh --version
+          # Navigate to the directory containing your .csproj file (adjust as needed)
+          # cd <path_to_your_maui_project> 
+        
+          # Read the .csproj file and parse it as XML
+          [xml]$xml = Get-Content -Path ${{env.CSPROJ}} # Replace "YourMauiProject.csproj"
+
+          # Get the ApplicationDisplayVersion
+          [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
+          # Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
+          # Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
+          if ($dirtyApplicationDisplayVersion -ne $null) {
+            $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
+          } else {
+            $applicationDisplayVersion = "" # Or handle the null case
+          }
+          # $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
+          # echo A_D_V=$applicationDisplayVersion
+
+          # Set the version as an environment variable for later steps
+          # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_ENV
+          echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_OUTPUT
+          #echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -233,15 +262,22 @@ jobs:
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
 
+      # - name: test value
+      #   shell: pwsh
+      #   run: |
+      #     # Write-Host "APPLICATION_DISPLAY_VERSION=${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}"
+      #     Write-Host "APPLICATION_DISPLAY_VERSION=$($env:APPLICATION_DISPLAY_VERSION)"
+
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
         with:
           app-type: osx
-          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
+          # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
+          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
 
       - name: Archive build log
         if: always()
