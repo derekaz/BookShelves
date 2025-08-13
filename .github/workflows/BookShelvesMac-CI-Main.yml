@@ -202,7 +202,9 @@ jobs:
           $xml = [Xml](Get-Content ${{env.CSPROJ}}) # Replace "YourMauiProject.csproj"
 
           # Get the ApplicationDisplayVersion
-          $applicationDisplayVersion = $xml.Project?.PropertyGroup?.ApplicationDisplayVersion?.Trim()
+          $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
+          echo D_A_D_V=$dirtyApplicationDisplayVersion
+          $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
           echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
