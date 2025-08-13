@@ -203,7 +203,7 @@ jobs:
           [xml]$xml = Get-Content -Path ${{env.CSPROJ}} # Replace "YourMauiProject.csproj"
 
           # Get the ApplicationDisplayVersion
-          $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
+          [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
           Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
           Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
           if ($dirtyApplicationDisplayVersion -ne $null) {
