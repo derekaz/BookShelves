@@ -216,7 +216,7 @@ jobs:
           #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
 
           #app store deployment   -p:RuntimeIdentifier=maccatalyst-x64
-          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.plist" -p:UseHardenedRuntime=true
+          ###dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.plist" -p:UseHardenedRuntime=true
 
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
@@ -254,7 +254,7 @@ jobs:
         with:
           app-type: osx
           #app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
-          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-$env.APPLICATION_DISPLAY_VERSION.pkg'
+          app-path: "${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg"
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
