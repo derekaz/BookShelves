@@ -206,7 +206,12 @@ jobs:
           [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
           # Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
           # Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
-          $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
+          if ($dirtyApplicationDisplayVersion -ne $null) {
+            $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
+          } else {
+            $applicationDisplayVersion = "" # Or handle the null case
+          }
+          # $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
           echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
@@ -261,7 +266,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "APPLICATION_DISPLAY_VERSION=${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}"
-          # Write-Host "APPLICATION_DISPLAY_VERSION= $($env:APPLICATION_DISPLAY_VERSION)"
+          Write-Host "APPLICATION_DISPLAY_VERSION=$($env:APPLICATION_DISPLAY_VERSION)"
 
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
