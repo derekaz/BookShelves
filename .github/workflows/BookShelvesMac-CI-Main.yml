@@ -254,7 +254,7 @@ jobs:
         with:
           app-type: osx
           #app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
-          app-path: "${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg"
+          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-$APPLICATION_DISPLAY_VERSION.pkg'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
