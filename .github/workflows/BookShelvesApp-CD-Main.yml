@@ -1,15 +1,15 @@
 name: BookShelvesApp .NET MAUI Blazor CD
 
 on:
-  push:
-    paths:
-      - 'BookShelvesApp/**'
-      - 'SharedModels/**'
-      - 'SharedRazorClassFiles/**'
-      - '**/*build.props'  
-      - '.github/workflows/BookShelvesApp-CD-Main.yml'
-    branches:
-      - main
+  #push:
+  #  paths:
+  #    - 'BookShelvesApp/**'
+  #    - 'SharedModels/**'
+  #    - 'SharedRazorClassFiles/**'
+  #    - '**/*build.props'  
+  #    - '.github/workflows/BookShelvesApp-CD-Main.yml'
+  #  branches:
+  #    - main
   #     - dev*  
   # pull_request:
   #   types: [opened, synchronize]
