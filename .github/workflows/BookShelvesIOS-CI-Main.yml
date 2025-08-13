@@ -17,7 +17,7 @@ on:
       - '**/*build.props'  
       - '.github/workflows/BookShelvesIOS-CI-Main.yml'
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize]
     paths:
     # - 'src/BookShelves.Droid/**'
     # - 'BookShelves.iOS/**'
@@ -38,10 +38,30 @@ env:
 
 jobs:
   mac-build-ios:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: xcode diags 1
+        run: |
+            echo Mac OS version: $(sw_vers -productVersion)
+            echo Installed Xcode versions:
+            ls /Applications | grep 'Xcode'
+            echo Currently selected Xcode:
+            xcrun xcode-select --print-path
+
+      # Select your required version
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app #/Contents/Developer
+
+      - name: xcode diags 2
+        run: |
+            echo Currently selected Xcode:
+            xcrun xcode-select --print-path
+
+      - name: Add Xcode developer tools to PATH
+        run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
 
       - name: Set current date as env variable
         run: |
@@ -52,18 +72,27 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
           # include-prerelease: true
 
       # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v1.1
+      #   uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
         run: |
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
+      - name: Cert Info 1
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
+        run: |
+          echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
+      - name: Cert Info 2
+        run: |
+          openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
+
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v3
+        uses: Apple-Actions/import-codesign-certs@v5
         with:
           p12-file-base64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
@@ -79,7 +108,7 @@ jobs:
       #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
@@ -103,7 +132,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net8.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="iOS Distribution" /p:CodesignProvision="BookShelves Test Profile"
+          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="iOS Distribution" /p:CodesignProvision="BookShelves Test Profile"
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
@@ -136,7 +165,7 @@ jobs:
       #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
+        uses: apple-actions/upload-testflight-build@v3
         with: 
           app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}

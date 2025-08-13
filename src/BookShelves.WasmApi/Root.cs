@@ -3,28 +3,27 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-namespace BlazorApp.Api
+namespace BookShelves.WasmApi;
+
+public class Root
 {
-    public class Root
+    private readonly ILogger _logger;
+
+    public Root(ILoggerFactory loggerFactory)
     {
-        private readonly ILogger _logger;
+        _logger = loggerFactory.CreateLogger<Root>();
+    }
 
-        public Root(ILoggerFactory loggerFactory)
-        {
-            _logger = loggerFactory.CreateLogger<Root>();
-        }
+    [Function("Root")]
+    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "")] HttpRequestData req)
+    {
+        _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-        [Function("Root")]
-        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "")] HttpRequestData req)
-        {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+        response.WriteString("Welcome to Azure Functions!");
 
-            response.WriteString("Welcome to Azure Functions!");
-
-            return response;
-        }
+        return response;
     }
 }

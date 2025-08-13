@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions;
@@ -19,7 +20,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
+    private readonly ILogger<AuthenticationService> _logger;
+#if MACCATALYST
     private readonly IDataProtector? _dataProtector;
+#endif
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
@@ -38,9 +42,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider) // IServiceCollection serviceCollection)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger) // IServiceCollection serviceCollection)
     {
-        Console.WriteLine("AuthenticationService:Constructor-Start");
+        _logger = logger;
+
+        _logger.LogInformation("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
 
         if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
@@ -52,12 +58,12 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _windowService = windowService;
 #if MACCATALYST
             _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
-            Console.WriteLine("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
+            _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
 #endif
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            _logger.LogError(ex, "Unable to initialize AuthenticationService");
             throw new InvalidOperationException("Unable initialize AuthenticationService", ex);
         }
 
@@ -67,10 +73,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            _logger.LogError(ex, "Unable to lazy initialize the MSAL PublicClientApplication");
             throw new InvalidOperationException("Unable to lazy initialize the MSAL PublicClientApplication", ex);
         }
-        Console.WriteLine("AuthenticationService:Constructor-End");
+        _logger.LogInformation("AuthenticationService:Constructor-End");
     }
 
     /// <inheritdoc/>
@@ -144,8 +150,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// </summary>
     private async Task<IPublicClientApplication> InitializeMsalWithCache()
     {
-
-        Console.WriteLine("AuthenticationService:InitializeMsalWithCache-Start");
+        _logger.LogInformation("AuthenticationService:InitializeMsalWithCache-Start");
         try
         {
             // Initialize the PublicClientApplication
@@ -158,16 +163,16 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             builder = AddPlatformConfiguration(builder);
 
             var pca = builder.Build();
-            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-PCA Builder complete");
+            _logger.LogInformation("AuthenticationService:InitializeMsalWithCache-PCA Builder complete");
 
             await RegisterMsalCacheAsync(pca.UserTokenCache);
-            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
+            _logger.LogInformation("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
 
             return pca;
         } 
         catch (Exception ex)
         {
-            Console.WriteLine("AuthenticationService:InitializeMsalWithCache-{0}", ex.Message);
+            _logger.LogError(ex, "Unable to initialize the MSAL PublicClientApplication instance");
             throw new InvalidOperationException("Unable to initialize the MSAL PublicClientApplication instance", ex);
         }
     }
@@ -243,7 +248,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine("AuthenticationService:GetUserAccountAsync-{0}", ex.Message);
+            _logger.LogError(ex, "AuthenticationService:GetUserAccountAsync");
             return null;
         }
     }
@@ -298,7 +303,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
         catch (Exception ex)
         {
-            Console.WriteLine("AuthenticationService:GetTokenInteractivelyAsync-{0}", ex);
+            _logger.LogError(ex, "AuthenticationService:GetTokenInteractivelyAsync");
             throw;
         }
     }

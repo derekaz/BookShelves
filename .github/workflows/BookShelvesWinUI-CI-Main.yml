@@ -14,9 +14,9 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
-      - '.github/workflows/BookShelves.WinUI-CI-Main.yml'
+      - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize]
     paths:
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
@@ -24,7 +24,7 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
-      - '.github/workflows/BookShelves.WinUI-CI-Main.yml'
+      - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
     branches: 
       - '**'
 
@@ -43,11 +43,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
           # include-prerelease: true
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
         run: |
@@ -64,7 +64,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 
       - name: Archive build log

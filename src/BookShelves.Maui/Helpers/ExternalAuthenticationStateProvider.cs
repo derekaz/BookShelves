@@ -1,6 +1,7 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Maui.Alerts;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using System.Security.Claims;
 
@@ -10,15 +11,17 @@ public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, 
 {
     private ClaimsPrincipal currentUser = new ClaimsPrincipal(new ClaimsIdentity());
     private IAuthenticationService _authenticationService;
+    private ILogger<ExternalAuthenticationStateProvider> _logger;
 
     public async override Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         return await Task.FromResult(new AuthenticationState(currentUser));
     }
 
-    public ExternalAuthenticationStateProvider(IAuthenticationService authenticationService)
+    public ExternalAuthenticationStateProvider(IAuthenticationService authenticationService, ILogger<ExternalAuthenticationStateProvider> logger)
     {
         _authenticationService = authenticationService;
+        _logger = logger;
     }
 
     public async Task InitializeAsync()
@@ -60,6 +63,7 @@ public class ExternalAuthenticationStateProvider : AuthenticationStateProvider, 
         }
         catch (MsalClientException ex)
         {
+            _logger.LogError("ExternalAuthenticationStateProvider: LogingWithExternalProviderAsync - Exception: {0}", ex);
             //await Toast.Make(ex.Message).Show();
         }
         var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity());

@@ -17,7 +17,7 @@ on:
   #     - '**/*build.props'  
   #     - '.github/workflows/BookShelvesMac-CI-Main.yml'
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize]
     paths:
       # - 'src/BookShelves.Droid/**'
       # - 'BookShelves.iOS/**'
@@ -38,10 +38,30 @@ env:
 
 jobs:
   mac-build-mac:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
+  
+      # Select your required version
+      - name: xcode diags 1
+        run: |
+            echo Mac OS version: $(sw_vers -productVersion)
+            echo Installed Xcode versions:
+            ls /Applications | grep 'Xcode'
+            echo Currently selected Xcode:
+            xcrun xcode-select --print-path
+
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app #/Contents/Developer
+
+      - name: xcode diags 2
+        run: |
+            echo Currently selected Xcode:
+            xcrun xcode-select --print-path
+
+      - name: Add Xcode developer tools to PATH
+        run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
 
       - name: Set current date as env variable
         run: |
@@ -52,18 +72,27 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
           # include-prerelease: true
 
       # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v1.1
+      #   uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
         run: |
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
+      - name: Cert Info 1
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.MAC_COMBINED_DIST_INST_CERT_P12 }}
+        run: |
+          echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
+      - name: Cert Info 2
+        run: |
+          openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
+
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v3
+        uses: Apple-Actions/import-codesign-certs@v5
         with:
           # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
 
@@ -94,7 +123,7 @@ jobs:
 
       # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           # profile-type: 'MAC_APP_DEVELOPMENT' (get all profiles)
@@ -103,7 +132,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_DEVELOPMENT'
@@ -112,7 +141,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
@@ -121,7 +150,7 @@ jobs:
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v3
+        uses: Apple-Actions/download-provisioning-profiles@v4
         with:
           bundle-id: 'com.azmoore.bookshelves.maui'
           profile-type: 'MAC_APP_STORE'
@@ -171,7 +200,7 @@ jobs:
           #dotnet publish ${{env.CSPROJ}} -v diag -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Development: Derek Moore (C52LX4JJTM)" -p:CodesignProvision="BookShelvesApp (MacCatalyst Ad-Hoc)" -p:UseHardenedRuntime=true
 
           #app store deployment   -p:RuntimeIdentifier=maccatalyst-x64
-          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net8.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.plist" -p:UseHardenedRuntime=true
+          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-maccatalyst -c Release -o ${{ env.PUBLISH_PATH }} -p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} -p:MtouchLink=SdkOnly -p:CreatePackage=true -p:EnableCodeSigning=true -p:CodesignKey="Apple Distribution: Derek Moore (TPKXH5FT2P)" -p:CodesignProvision="BookShelves MacOS Provisioning" -p:EnablePackageSigning=true -p:PackageSigningKey="3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)" -p:CodesignEntitlements="Platforms\MacCatalyst\Entitlements.plist" -p:UseHardenedRuntime=true
 
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
@@ -205,10 +234,10 @@ jobs:
       #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v1
+        uses: apple-actions/upload-testflight-build@v3
         with:
           app-type: osx
-          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.1.pkg' 
+          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}

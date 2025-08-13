@@ -12,7 +12,7 @@ on:
       - main
   #     - dev*  
   # pull_request:
-  #   types: [opened, synchronize, reopened, closed]
+  #   types: [opened, synchronize]
   #   paths:
   #     - 'BookShelvesApp/**'
   #     - 'SharedModels/**'
@@ -38,11 +38,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 9.0.x
           # include-prerelease: true
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
         run: |
@@ -72,7 +72,7 @@ jobs:
 
       #POST-BUILD
       - name: Publish build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:     
           name: "WinUI .NET MAUI artifacts" 
           path: "${{ env.WINDOWS_ARTIFACTS_PATH }}/*"

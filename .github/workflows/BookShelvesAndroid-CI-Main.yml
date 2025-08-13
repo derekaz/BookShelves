@@ -3,32 +3,32 @@ name: BookShelves.Maui Android CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      - 'dev*'  
-    paths:
+#  push:
+#    branches:
+#      - 'main'
+#      - 'dev*'  
+#    paths:
       # - 'src/BookShelves.Droid/**'
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
       # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'  
-      - '.github/workflows/BookShelves.Android-CI-Main.yml'
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    paths:
+#      - 'src/BookShelves.Maui/**'
+#      - 'src/BookShelves.Shared/**'
+#      - '**/*build.props'  
+#      - '.github/workflows/BookShelvesAndroid-CI-Main.yml'
+#  pull_request:
+#    types: [opened, synchronize]
+#    paths:
       # - 'src/BookShelves.Droid/**'
       # - 'BookShelves.iOS/**'
       # - 'BookShelves.Mac/**'
       # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '.github/workflows/BookShelves.Android-CI-Main.yml'
-    branches: 
-      - '**'
+#      - 'src/BookShelves.Maui/**'
+#      - 'src/BookShelves.Shared/**'
+#      - '**/*build.props'      
+#      - '.github/workflows/BookShelvesAndroid-CI-Main.yml'
+#    branches: 
+#      - '**'
 
 env:
   CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
@@ -45,11 +45,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
           # include-prerelease: true
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
         run: |
@@ -66,7 +66,8 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net8.0-android -c Release 
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-android -c Release 
+          #-r android-x64 -p:SelfContained=false
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 

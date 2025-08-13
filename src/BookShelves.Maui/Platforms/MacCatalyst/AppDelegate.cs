@@ -1,4 +1,4 @@
-﻿using BookShelves.Maui.Data;
+﻿using BookShelves.Maui.Data.Extensions;
 using Foundation;
 
 namespace BookShelves.Maui
@@ -8,7 +8,7 @@ namespace BookShelves.Maui
     {
         protected override MauiApp CreateMauiApp()
         {
-            SqliteProvider.RegisterSqliteProvider();
+            SqliteProviderExtension.RegisterSqliteProvider();
             return MauiProgram.CreateMauiApp();
         }
     }

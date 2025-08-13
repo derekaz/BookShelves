@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using BookShelves.Shared.DataInterfaces;
 
+namespace BookShelves.WasmApi.DataAccess;
+
 public class CosmosRepository<T> where T : IItem, new()
 {
     private readonly Container container;

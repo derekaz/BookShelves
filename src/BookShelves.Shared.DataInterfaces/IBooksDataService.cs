@@ -1,10 +1,10 @@
 ﻿namespace BookShelves.Shared.DataInterfaces;
 
-public interface IBooksDataService
+public interface IBooksDataService // where T : IBook
 {
     IBook InitializeBookInstance();
-    Task<bool> CreateBookAsync(IBook book);
-    Task<bool> DeleteBookAsync(IBook book);
     Task<IEnumerable<IBook>> GetBooksAsync();
+    Task<bool> CreateBookAsync(IBook book);
     Task<bool> UpdateBookAsync(IBook book);
+    Task<bool> DeleteBookAsync(IBook book);
 }

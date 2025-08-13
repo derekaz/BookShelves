@@ -1,4 +1,4 @@
-﻿namespace BookShelves.Shared.DataInterfaces;
+﻿namespace BookShelves.Shared.ServiceInterfaces;
 
 public interface IAuthService
 {

@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
+@inject ILogger<UserProfile> Logger
 @inject Microsoft.Graph.GraphServiceClient GraphServiceClient
 @attribute [Authorize]
 
@@ -38,11 +39,11 @@ else
         try
         {
             user = await GraphServiceClient.Me.GetAsync();
-            Console.WriteLine("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+            Logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Logger.LogError(ex, "BookShelves.WasmSwa.Pages.UserProfile:OnInitializeAsync-Exception");
         }
     }
 }

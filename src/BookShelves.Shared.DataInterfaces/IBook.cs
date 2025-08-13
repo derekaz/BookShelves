@@ -2,9 +2,13 @@
 
 public interface IBook
 {
-    string Id { get; set; }
+    string IdValue { get; }
 
-    string Title { get; set; }
+    string? Title { get; set; }
 
-    string Author { get; set; }
+    string? Author { get; set; }
+
+    DateTime? LastUpdateTime { get; set; }
+
+    int? Revision { get; set; }
 }

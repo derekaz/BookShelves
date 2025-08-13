@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client.Extensions.Msal;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.ServiceInterfaces;
 
 namespace BookShelves.Maui.Services;
 
@@ -12,20 +12,20 @@ namespace BookShelves.Maui.Services;
 /// </summary>
 public class SettingsService : ISettingsService
 {
-    private Settings _settings;
+    private readonly Settings? _settings;
 
     /// <inheritdoc/>
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string AzureAdAuthority { get => _settings.AzureAdAuthority; }
+    public string? AzureAdAuthority { get => _settings?.AzureAdAuthority; }
 
 
     /// <inheritdoc/>
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string ClientId { get => _settings.ClientId; }
+    public string? ClientId { get => _settings?.ClientId; }
 
     /// <inheritdoc/>
     /// <remarks>
@@ -38,7 +38,7 @@ public class SettingsService : ISettingsService
     /// <remarks>
     /// Configurable in appSettings.json (or appSettings.Development.json)
     /// </remarks>
-    public string[] GraphScopes { get => _settings.GraphScopes; }
+    public string[] GraphScopes => _settings?.GraphScopes ?? [];
 
     // Token cache properties
     public string CacheFileName => "graphmaui_msal_cache.txt";

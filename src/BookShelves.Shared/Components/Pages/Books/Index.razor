@@ -3,7 +3,8 @@
 @using Blazored.Modal.Services
 @using BookShelves.Shared
 @using BookShelves.Shared.DataInterfaces
-@inject IBooksDataService DataService
+@inject IBooksDataService DataService 
+@inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
@@ -23,6 +24,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Title</th>
                 <th>Author</th>
                 <th></th>
@@ -34,6 +36,7 @@ else
             @foreach (var book in books)
             {
                 <tr>
+                    <td>@book.IdValue</td>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>
@@ -63,7 +66,7 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:OnInitializedAsync-Exception");
         }
     }
 
@@ -83,7 +86,7 @@ else
         }
         else
         {
-            if (String.IsNullOrEmpty(book.Id))
+            if (String.IsNullOrEmpty(book.IdValue))
                 message = "Add canceled";
             else
                 message = "Edit canceled";
