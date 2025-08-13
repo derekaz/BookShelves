@@ -3,19 +3,19 @@ name: BookShelves.Maui Mac CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - 'main'
+  push:
+    branches:
+      - 'main'
   #     - 'dev*'  
-  #   paths:
+    paths:
   #     # - 'src/BookShelves.Droid/**'
   #     # - 'BookShelves.iOS/**'
   #     # - 'BookShelves.Mac/**'
   #     # - 'src/BookShelves.WinUI/**'
-  #     - 'src/BookShelves.Maui/**'
-  #     - 'src/BookShelves.Shared/**'
-  #     - '**/*build.props'  
-  #     - '.github/workflows/BookShelvesMac-CI-Main.yml'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'  
+      - '.github/workflows/BookShelvesMac-CI-Main.yml'
   pull_request:
     types: [opened, synchronize]
     paths:
@@ -241,7 +241,7 @@ jobs:
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
 
       - name: Archive build log
         if: always()
