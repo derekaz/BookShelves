@@ -16,19 +16,19 @@ on:
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
       - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-  # pull_request:
-  #   types: [opened, synchronize]
-  #   paths:
-  #   # - 'src/BookShelves.Droid/**'
-  #   # - 'BookShelves.iOS/**'
-  #   # - 'BookShelves.Mac/**'
-  #   # - 'src/BookShelves.WinUI/**'
-  #     - 'src/BookShelves.Maui/**'
-  #     - 'src/BookShelves.Shared/**'
-  #     - '**/*build.props'      
-  #     - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-  #   branches: 
-  #     - '**'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    # - 'src/BookShelves.Droid/**'
+    # - 'BookShelves.iOS/**'
+    # - 'BookShelves.Mac/**'
+    # - 'src/BookShelves.WinUI/**'
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'      
+      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+    branches: 
+      - '**'
 
 env:
   CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
