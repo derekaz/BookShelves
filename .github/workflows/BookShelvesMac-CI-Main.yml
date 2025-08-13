@@ -202,9 +202,10 @@ jobs:
 
           # Get the ApplicationDisplayVersion
           $applicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
+          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion'
 
           # Set the version as an environment variable for later steps
-          echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" >> $GITHUB_ENV 
+          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_ENV 
 
       - name: Build MAUI Mobile app
         shell: pwsh
