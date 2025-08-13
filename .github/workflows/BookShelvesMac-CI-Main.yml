@@ -204,7 +204,7 @@ jobs:
           # Get the ApplicationDisplayVersion
           $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
           echo D_A_D_V=$dirtyApplicationDisplayVersion
-          $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
+          $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
           echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
