@@ -250,6 +250,11 @@ jobs:
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
 
+      - name: test value
+        shell: pwsh
+        run: |
+          echo 'APPLICATION_DISPLAY_VERSION=${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}'
+          
       - name: 'Upload app to TestFlight'
         uses: apple-actions/upload-testflight-build@v3
         with:
