@@ -205,7 +205,7 @@ jobs:
           # Get the ApplicationDisplayVersion
           $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
           Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
-          Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType().FullName())"
+          Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
           if ($dirtyApplicationDisplayVersion -ne $null) {
             $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
           } else {
