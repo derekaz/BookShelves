@@ -192,6 +192,7 @@ jobs:
           mkdir -p ${{ env.PUBLISH_PATH }}
 
       - name: Get Application Display Version
+        id: get_application_version
         shell: pwsh
         run: |
           # Navigate to the directory containing your .csproj file (adjust as needed)
@@ -205,7 +206,7 @@ jobs:
           echo APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
-          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_ENV 
+          echo 'APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion' >> $GITHUB_OUTPUT 
 
       - name: Build MAUI Mobile app
         shell: pwsh
@@ -254,7 +255,7 @@ jobs:
         with:
           app-type: osx
           #app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
-          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg'
+          app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ steps.get_application_version.outputs.APPLICATION_DISPLAY_VERSION }}.pkg'
           issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
           api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
