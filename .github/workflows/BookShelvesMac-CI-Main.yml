@@ -195,6 +195,7 @@ jobs:
         id: get_application_version
         shell: pwsh
         run: |
+          pwsh --version
           # Navigate to the directory containing your .csproj file (adjust as needed)
           # cd <path_to_your_maui_project> 
         
@@ -204,7 +205,12 @@ jobs:
           # Get the ApplicationDisplayVersion
           $dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
           echo D_A_D_V=$dirtyApplicationDisplayVersion
-          $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
+          if ($dirtyApplicationDisplayVersion -ne $null) {
+            $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
+          } else {
+            $applicationDisplayVersion = "" # Or handle the null case
+          }
+          # $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
           echo A_D_V=$applicationDisplayVersion
 
           # Set the version as an environment variable for later steps
