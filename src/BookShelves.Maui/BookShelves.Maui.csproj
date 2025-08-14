@@ -40,7 +40,7 @@
         <ApplicationId>com.azmoore.bookshelves.maui</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>0.1.2</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion>0.1.3</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
 		<PackageVersion>$(ApplicationDisplayVersion)</PackageVersion>
