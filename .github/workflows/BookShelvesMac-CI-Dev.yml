@@ -1,12 +1,12 @@
-name: BookShelves.Maui Mac CI Main
+name: BookShelves.Maui Mac CI Dev
 
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   push:
     branches:
-      - 'main'
-  #     - 'dev*'  
+  #    - 'main'
+       - 'dev*'  
     paths:
   #     # - 'src/BookShelves.Droid/**'
   #     # - 'BookShelves.iOS/**'
@@ -15,20 +15,20 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
-      - '.github/workflows/BookShelvesMac-CI-Main.yml'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '.github/workflows/BookShelvesMac-CI-Main.yml'
-    branches: 
-      - '**'
+      - '.github/workflows/BookShelvesMac-CI-Dev.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     # - 'src/BookShelves.Droid/**'
+  #     # - 'BookShelves.iOS/**'
+  #     # - 'BookShelves.Mac/**'
+  #     # - 'src/BookShelves.WinUI/**'
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'      
+  #     - '.github/workflows/BookShelvesMac-CI-Dev.yml'
+  #   branches: 
+  #     - '**'
 
 env:
   CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
