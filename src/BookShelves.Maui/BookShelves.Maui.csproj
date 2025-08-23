@@ -151,6 +151,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.2" />
         <PackageReference Include="Microsoft.Graph" Version="5.91.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.76.0" />
         <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.76.0" />
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.40" />
