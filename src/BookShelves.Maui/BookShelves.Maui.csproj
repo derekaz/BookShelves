@@ -161,6 +161,10 @@
         <PackageReference Include="System.Private.Uri" Version="4.3.2" />
         <PackageReference Include="System.Text.Json" Version="9.0.8" />
     </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.19041.0'">
+		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.76.0" />
+	</ItemGroup>
+
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.19041.0'">
 		<PackageReference Include="WinUIEx">
 			<Version>2.5.0</Version>

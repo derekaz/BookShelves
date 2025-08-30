@@ -1,8 +1,10 @@
 ﻿using Microsoft.Identity.Client;
 //using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
+using Microsoft.Identity.Client.Desktop;
 
 namespace BookShelves.Maui.Services;
+
 
 public partial class AuthenticationService
 {
@@ -13,7 +15,7 @@ public partial class AuthenticationService
             Title = "BookShelves"
         };
 
-        //builder.WithWindowsEmbeddedBrowserSupport();
+        builder.WithWindowsEmbeddedBrowserSupport();
         //builder.WithWindowsDesktopFeatures();
         builder.WithDefaultRedirectUri();
         //builder.WithBroker(brokerOptions);
