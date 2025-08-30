@@ -87,6 +87,7 @@ public class BookShelvesContext : DbContext
         {
             if (Database.CanConnect())
             {
+                _logger.LogDebug($"ConnectionString={Database.GetDbConnection().ConnectionString}");
                 long currentDbVersion = Database.SqlQueryRaw<long>("PRAGMA user_version")
                     .AsEnumerable().FirstOrDefault();
 
