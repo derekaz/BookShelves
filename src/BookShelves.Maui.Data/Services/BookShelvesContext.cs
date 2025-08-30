@@ -91,11 +91,15 @@ public class BookShelvesContext : DbContext
                 long currentDbVersion = Database.SqlQueryRaw<long>("PRAGMA user_version")
                     .AsEnumerable().FirstOrDefault();
 
+                _logger.LogDebug($"currentDbVersion={currentDbVersion}");
+
                 //IEnumerable<string> tables = Database.SqlQueryRaw<string>($"SELECT name FROM sqlite_master WHERE type = 'table';")
                 //    .AsEnumerable();
 
                 long hasTables = Database.SqlQueryRaw<long>($"SELECT COUNT(*) AS TableCount FROM sqlite_master WHERE type = 'table' AND name = 'books';")
                     .AsEnumerable().FirstOrDefault();
+
+                _logger.LogDebug($"hasTables={hasTables}");
 
                 if (currentDbVersion == 0 && hasTables == 0)
                 {
