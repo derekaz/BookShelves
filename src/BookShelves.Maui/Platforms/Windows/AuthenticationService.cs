@@ -1,5 +1,5 @@
 ﻿using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Broker;
+//using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace BookShelves.Maui.Services;
@@ -16,7 +16,7 @@ public partial class AuthenticationService
         //builder.WithWindowsEmbeddedBrowserSupport();
         //builder.WithWindowsDesktopFeatures();
         builder.WithDefaultRedirectUri();
-        builder.WithBroker(brokerOptions);
+        //builder.WithBroker(brokerOptions);
         builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
 
         return builder;
