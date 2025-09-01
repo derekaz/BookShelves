@@ -25,6 +25,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -142,7 +143,10 @@ public static class MauiProgram
             File.Delete(oldDbPath);
         }
 #endif
-        Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
 
         //builder.Services.AddSingleton<IDataService>(
         //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));

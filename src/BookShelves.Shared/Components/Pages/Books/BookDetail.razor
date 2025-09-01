@@ -21,6 +21,13 @@
                         <label for="Author" class="control-label">Author</label>
                         <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
                     </div>
+                    <div class="form-group">
+                        <label for="LastUpdateTime" class="control-label">Last Update</label>
+                        <div class="form-control">
+                            @BookObject.LastUpdateTime
+                        </div>
+                        @* <InputText for="LastUpdateTime" class="form-control" @bind-Value="@BookObject.LastUpdateTime" /> *@
+                    </div>
                 </EditForm>
             </div>
             <div class="modal-footer">

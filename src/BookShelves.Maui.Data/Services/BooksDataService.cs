@@ -27,12 +27,14 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
     public async Task<bool> CreateBookAsync(IBook book)
     {
         Book b = (Book)book;
+        b.LastUpdateTime = DateTime.UtcNow;
         await dataContext.Books.AddAsync(b);
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
+        book.LastUpdateTime = DateTime.UtcNow;
         dataContext.Update((Book)book);
         return (await dataContext.SaveChangesAsync()) > 0;
     }

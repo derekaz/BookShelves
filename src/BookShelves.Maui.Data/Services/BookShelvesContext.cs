@@ -34,10 +34,13 @@ public class BookShelvesContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        //optionsBuilder.UseSqlite($"Data Source={DbPath}");
-        //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesContext>();
-        //Database.SetInitializer(sqliteConnectionInitializer);
-        SQLitePCL.Batteries_V2.Init();
+        if (!optionsBuilder.IsConfigured)
+        {
+            //optionsBuilder.UseSqlite($"Data Source={DbPath}");
+            //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesContext>();
+            //Database.SetInitializer(sqliteConnectionInitializer);
+            SQLitePCL.Batteries_V2.Init();
+        }
         base.OnConfiguring(optionsBuilder);
     }
 

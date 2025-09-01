@@ -27,6 +27,7 @@ else
                 <th>Id</th>
                 <th>Title</th>
                 <th>Author</th>
+                <th>Last Update</th>
                 <th></th>
 @*                <th>Temp. (F)</th>
                 <th>Summary</th>
@@ -39,6 +40,7 @@ else
                     <td>@book.IdValue</td>
                     <td>@book.Title</td>
                     <td>@book.Author</td>
+                    <td>@book.LastUpdateTime</td>
                     <td>
                         <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
                         <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(book))" value="Delete" />
