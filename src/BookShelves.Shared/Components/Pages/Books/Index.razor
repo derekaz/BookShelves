@@ -24,10 +24,11 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Last Update</th>
+                <th scope="col">Id</th>
+                <th scope="col"><div class="fw-bold mb-1">Title</div><div class="text-muted mb-0">Author</div></th>
+                @* <th scope="col">Title</th>
+                <th scope="col">Author</th> *@
+                <th scope="col">Last Update</th>
                 <th></th>
 @*                <th>Temp. (F)</th>
                 <th>Summary</th>
@@ -37,9 +38,10 @@ else
             @foreach (var book in books)
             {
                 <tr>
-                    <td>@book.IdValue</td>
-                    <td>@book.Title</td>
-                    <td>@book.Author</td>
+                    <th scope="row">@book.IdValue</th>
+                    <td><div class="fw-normal mb-1">@book.Title</div><div class="text-muted mb-0">@book.Author</div></td>
+                    @* <td>@book.Title</td>
+                    <td>@book.Author</td> *@
                     <td>@book.LastUpdateTime</td>
                     <td>
                         <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
