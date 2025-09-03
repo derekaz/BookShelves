@@ -1,8 +1,9 @@
 ﻿using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using static SQLite.SQLite3;
@@ -16,12 +17,16 @@ public class BookShelvesContext : DbContext
 
     public DbSet<Book> Books { get; set; }
 
-    //public string DbPath { get; private set; }
-
     public BookShelvesContext(DbContextOptions<BookShelvesContext> options, ILogger<BookShelvesContext> logger) : base(options)
     {
+        var connectionString = Database.GetDbConnection().ConnectionString;
+        if (options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault() is SqliteOptionsExtension sqliteOptions)
+        {
+
+        }
+
         _logger = logger;
-        //DbPath = dbPath;
+        _logger.LogDebug($"BookShelvesContext-Constructor; dbPath={connectionString}");
         //Database.EnsureCreated();
         UpdateDatabaseIfRequired();
     }
@@ -132,14 +137,14 @@ public class BookShelvesContext : DbContext
                 if (LATEST_DATABASE_VERSION != currentDbVersion)
                 {
                     // Finally, set the db version to latest
-                    Database.ExecuteSql($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
+                    Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION};");
                 }
 
             }
             else
             {
                 Database.EnsureCreated();
-                Database.ExecuteSql($"PRAGMA user_version={LATEST_DATABASE_VERSION}");
+                Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION};");
             }
         }
         catch (Exception ex)
@@ -152,8 +157,19 @@ public class BookShelvesContext : DbContext
     private void UpgradeToOne()
     {
         FormattableString script = $"ALTER TABLE Books ADD COLUMN LastUpdateTime DATETIME; ALTER TABLE Books ADD COLUMN Revision INT;";
-        int rows_affected = Database.ExecuteSql(script);
-        _logger.LogInformation($"{rows_affected}");
+        try
+        {
+            int rows_affected = Database.ExecuteSql(script);
+            _logger.LogInformation($"{rows_affected}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:UpgradeToOne-Exception");
+            
+            if (!ex.Message.Contains("duplicate column name"))
+            {
+                throw;
+            }
+        }
     }
-
 }

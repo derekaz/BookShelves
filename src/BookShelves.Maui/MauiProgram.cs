@@ -113,6 +113,10 @@ public static class MauiProgram
         builder.Services.AddLogging(logging =>
         {
             logging.AddConsole();
+#if DEBUG
+            logging.AddDebug();
+            //logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+#endif
         });
         //      }
         //      catch (Exception ex) 
@@ -120,7 +124,6 @@ public static class MauiProgram
         //	Debug.WriteLine(ex);
         //}
 #if DEBUG
-        builder.Logging.AddDebug();
         builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
