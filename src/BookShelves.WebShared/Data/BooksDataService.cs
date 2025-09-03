@@ -35,16 +35,21 @@ public class BooksDataService : IBooksDataService
 
     public async Task<bool> CreateBookAsync(IBook book)
     {
-        return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/new", book).Result.IsSuccessStatusCode);
+        var temp = await _httpClient.PostAsJsonAsync("api/books/new", book);
+        return temp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
-        return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/edit", book).Result.IsSuccessStatusCode);
+        var temp = await _httpClient.PostAsJsonAsync("api/books/edit", book);
+        return temp.IsSuccessStatusCode;
+        // return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/edit", book).Result.IsSuccessStatusCode);
     }
 
     public async Task<bool> DeleteBookAsync(IBook book)
     {
-        return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.IdValue}").Result.IsSuccessStatusCode);
+        var temp = await _httpClient.DeleteAsync($"/api/book/{book.IdValue}");
+        return temp.IsSuccessStatusCode;
+        // return await Task.FromResult(_httpClient.DeleteAsync($"/api/book/{book.IdValue}").Result.IsSuccessStatusCode);
     }
 }

@@ -28,7 +28,7 @@ public class EditBook
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(EditBook)}");
 
-        string? id = req.FunctionContext.BindingContext.BindingData["id"]!.ToString();
+        string? id = req.FunctionContext.BindingContext.BindingData["idValue"]!.ToString();
         string? title = req.FunctionContext.BindingContext.BindingData["title"]!.ToString();
         string? author = req.FunctionContext.BindingContext.BindingData["author"]!.ToString();
 

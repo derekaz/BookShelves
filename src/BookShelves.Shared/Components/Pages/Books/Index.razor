@@ -80,22 +80,29 @@ else
             .Add(nameof(BookDetail.BookObject), book)
             .Add(nameof(BookDetail.TitleText), titleText);
         var options = new ModalOptions() { UseCustomLayout = true };
-        var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
-        var result = await form.Result;
-        if (result.Confirmed)
+        try
         {
-            message = result?.Data?.ToString() ?? "";
+            var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
+            var result = await form.Result;
+            if (result.Confirmed)
+            {
+                message = result?.Data?.ToString() ?? "";
 
-            books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
-        }
-        else
-        {
-            if (String.IsNullOrEmpty(book.IdValue))
-                message = "Add canceled";
+                books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
+            }
             else
-                message = "Edit canceled";
+            {
+                if (String.IsNullOrEmpty(book.IdValue))
+                    message = "Add canceled";
+                else
+                    message = "Edit canceled";
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:ShowDetailAsync-Exception");
+        }
     }
 
     private void AddAsync()
