@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BookShelves.Shared.DataInterfaces;
+@inject IBooksSyncService booksSyncService;
 
 <h1>BookShelves</h1>
 
@@ -9,8 +10,17 @@ Welcome to your book library!
 <button class="btn" @onclick="Logout">Logout</button>
 <p role="status">Current token: @currentToken</p>-->
 
+<input type="button" class="btn btn-primary" @onclick="(() => GetBooksAsync())" value="Edit" />
+
 @code
 {
+    private async void GetBooksAsync()
+    {
+        booksSyncService.BeginSync();
+        // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");
+        // var temp = await http.GetStringAsync("/api/books");
+    }
+
     // [Inject] IMacAuthenticationService _authService { get; set; }
     // [Inject] ISettingsService _settingsService { get; set; }
 

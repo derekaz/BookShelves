@@ -14,7 +14,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 
 using BookShelves.Shared.ServiceInterfaces;
-//using BookShelves.Maui.Data.ServiceInterfaces;
 using BookShelves.Maui.Data.Services;
 using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -158,7 +157,7 @@ public static class MauiProgram
         //    s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, options, dbPath));
         builder.Services.AddDbContext<BookShelvesContext>(
             options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
-
+        builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IAuthService, AuthService>();
