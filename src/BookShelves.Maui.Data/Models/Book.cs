@@ -24,5 +24,7 @@ public class Book : IBook //BaseTable, IBook
 
     public int? Revision { get; set; }
 
+    public string? UpdateType { get; set; }
+
     public Book() { }
 }

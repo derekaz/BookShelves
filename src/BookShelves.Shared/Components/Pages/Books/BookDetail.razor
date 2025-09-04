@@ -53,7 +53,7 @@
 
     private async Task SubmitForm()
     {
-        if (String.IsNullOrEmpty(BookObject!.IdValue))
+        if (String.IsNullOrEmpty(BookObject!.IdValue) || BookObject!.IdValue == "0")
         {
             var result = await DataService.CreateBookAsync(BookObject);
             if (result)

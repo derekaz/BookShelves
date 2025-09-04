@@ -13,7 +13,7 @@ namespace BookShelves.Maui.Data.Services;
 
 public class BookShelvesContext : DbContext
 {
-    private readonly int LATEST_DATABASE_VERSION = 1;
+    private readonly int LATEST_DATABASE_VERSION = 2;
     private readonly ILogger _logger;
 
     public DbSet<Book> Books { get; set; }
@@ -125,10 +125,10 @@ public class BookShelvesContext : DbContext
                         switch (upgradeToDbVersion)
                         {
                             case 1:
-                                UpgradeToOne();
-                                //    goto case 2;
-                                //case 2:
-                                //    UpgradeToTwo();
+                                currentDbVersion = UpgradeToOne();
+                                break;
+                            case 2:
+                                currentDbVersion = UpgradeToTwo();
                                 break;
                             default:
                                 Database.EnsureCreatedAsync();
@@ -158,14 +158,14 @@ public class BookShelvesContext : DbContext
         }
     }
 
-    private long GetUserVersion()
+    private int GetUserVersion()
     {
         string script = "PRAGMA user_version;";
         try
         {
             long version = Database.SqlQueryRaw<long>(script).AsEnumerable().FirstOrDefault();
             _logger.LogInformation($"User Version: {version}");
-            return version;
+            return Convert.ToInt32(version);
         }
         catch (Exception ex)
         {
@@ -189,22 +189,96 @@ public class BookShelvesContext : DbContext
         }
     }   
 
-    private void UpgradeToOne()
+    private int UpgradeToOne()
     {
-        FormattableString script = $"ALTER TABLE Books ADD COLUMN LastUpdateTime DATETIME; ALTER TABLE Books ADD COLUMN Revision INT;";
+        int VERSION = 1;
+
+        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN LastUpdateTime DATETIME;", $"ALTER TABLE Books ADD COLUMN Revision INT;" };
         try
         {
-            int rows_affected = Database.ExecuteSql(script);
-            _logger.LogInformation($"{rows_affected}");
+            foreach (var stepScript in stepScripts)
+            {
+                int rows_affected = ExecuteUpdateStep(stepScript, true);
+                _logger.LogInformation($"Rows Affected: {rows_affected}");
+            }
+
+            SetUserVersion(VERSION);
+            var newVersion = GetUserVersion();
+
+            if (newVersion != VERSION)
+            {
+                throw new ApplicationException("Unable to upgrade DB Version");
+            }
+
+            return newVersion;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "BookShelvesContext:UpgradeToOne-Exception");
-            
-            if (!ex.Message.Contains("duplicate column name"))
+            throw;
+        }
+    }
+
+    private int UpgradeToTwo()
+    {
+        int VERSION = 2;
+
+        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN UpdateType TEXT;" };
+        try
+        {
+            foreach (var stepScript in stepScripts)
             {
-                throw;
+                int rows_affected = ExecuteUpdateStep(stepScript, true);
+                _logger.LogInformation($"Rows Affected: {rows_affected}");
             }
+
+            SetUserVersion(VERSION);
+            var newVersion = GetUserVersion();
+
+            if (newVersion != VERSION)
+            {
+                throw new ApplicationException("Unable to upgrade DB Version");
+            }
+
+            return newVersion;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:UpgradeToTwo-Exception");
+            throw;
+        }
+    }
+
+    private int ExecuteUpdateStep(FormattableString? script, bool swallowDuplicateColumnErrors = false)
+    {
+        if (script == null)
+        {
+            return 0;
+        }
+
+        var itemString = script.ToString();
+
+        if (String.IsNullOrEmpty(itemString))
+        {
+            return 0;
+        }
+
+        try
+        {
+            int rows_affected = Database.ExecuteSqlRaw(itemString);
+            _logger.LogInformation($"Rows Affected: {rows_affected}");
+            return rows_affected;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:ExecuteUpdateStep-Exception");
+
+            if (swallowDuplicateColumnErrors && ex.Message.Contains("duplicate column name"))
+            {
+                return 0;
+            }
+
+            throw;
         }
     }
 }
