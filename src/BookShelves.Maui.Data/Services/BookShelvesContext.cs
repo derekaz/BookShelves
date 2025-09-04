@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using SQLite;
 using System.Diagnostics;
 using static SQLite.SQLite3;
 
@@ -19,28 +20,32 @@ public class BookShelvesContext : DbContext
 
     public BookShelvesContext(DbContextOptions<BookShelvesContext> options, ILogger<BookShelvesContext> logger) : base(options)
     {
-        var connectionString = Database.GetDbConnection().ConnectionString;
-        if (options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault() is SqliteOptionsExtension sqliteOptions)
-        {
-
-        }
-
         _logger = logger;
-        _logger.LogDebug($"BookShelvesContext-Constructor; dbPath={connectionString}");
+
+        var connectionString = Database.GetDbConnection().ConnectionString;
+        //if (options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault() is SqliteOptionsExtension sqliteOptions)
+        //{
+
+        //}
+
+        _logger.LogInformation($"BookShelvesContext-Constructor; dbPath: {connectionString}");
         //Database.EnsureCreated();
         UpdateDatabaseIfRequired();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        _logger.LogInformation("BookShelvesContext-OnModelCreating");
         modelBuilder.Entity<Book>().HasData(new Book() { Id = 1, Title = "Book 1", Author = "Author 1", LastUpdateTime = DateTime.UtcNow, Revision = 1 });
         //base.OnModelCreating(modelBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        _logger.LogInformation("BookShelvesContext-OnConfiguring");
         if (!optionsBuilder.IsConfigured)
         {
+            _logger.LogInformation("BookShelvesContext-OnConfiguring-NotConfigured");
             //optionsBuilder.UseSqlite($"Data Source={DbPath}");
             //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesContext>();
             //Database.SetInitializer(sqliteConnectionInitializer);
@@ -95,11 +100,10 @@ public class BookShelvesContext : DbContext
         {
             if (Database.CanConnect())
             {
-                _logger.LogDebug($"ConnectionString={Database.GetDbConnection().ConnectionString}");
-                long currentDbVersion = Database.SqlQueryRaw<long>("PRAGMA user_version")
-                    .AsEnumerable().FirstOrDefault();
+                _logger.LogInformation($"ConnectionString={Database.GetDbConnection().ConnectionString}");
+                long currentDbVersion = GetUserVersion();
 
-                _logger.LogDebug($"currentDbVersion={currentDbVersion}");
+                _logger.LogInformation($"currentDbVersion: {currentDbVersion}");
 
                 //IEnumerable<string> tables = Database.SqlQueryRaw<string>($"SELECT name FROM sqlite_master WHERE type = 'table';")
                 //    .AsEnumerable();
@@ -107,7 +111,7 @@ public class BookShelvesContext : DbContext
                 long hasTables = Database.SqlQueryRaw<long>($"SELECT COUNT(*) AS TableCount FROM sqlite_master WHERE type = 'table' AND name = 'books';")
                     .AsEnumerable().FirstOrDefault();
 
-                _logger.LogDebug($"hasTables={hasTables}");
+                _logger.LogDebug($"hasTables: {hasTables}");
 
                 if (currentDbVersion == 0 && hasTables == 0)
                 {
@@ -137,14 +141,14 @@ public class BookShelvesContext : DbContext
                 if (LATEST_DATABASE_VERSION != currentDbVersion)
                 {
                     // Finally, set the db version to latest
-                    Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION};");
+                    SetUserVersion(LATEST_DATABASE_VERSION);
                 }
 
             }
             else
             {
                 Database.EnsureCreated();
-                Database.ExecuteSqlRaw($"PRAGMA user_version={LATEST_DATABASE_VERSION};");
+                SetUserVersion(LATEST_DATABASE_VERSION);
             }
         }
         catch (Exception ex)
@@ -153,6 +157,37 @@ public class BookShelvesContext : DbContext
             throw;
         }
     }
+
+    private long GetUserVersion()
+    {
+        string script = "PRAGMA user_version;";
+        try
+        {
+            long version = Database.SqlQueryRaw<long>(script).AsEnumerable().FirstOrDefault();
+            _logger.LogInformation($"User Version: {version}");
+            return version;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:GetUserVersion-Exception");
+            throw;
+        }
+    }
+
+    private void SetUserVersion(long version)
+    {
+        FormattableString script = $"PRAGMA user_version={version};";
+        try
+        {
+            int rows_affected = Database.ExecuteSqlRaw(script.ToString());
+            _logger.LogInformation($"Rows Affected: {rows_affected}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:SetUserVersion-Exception");
+            throw;
+        }
+    }   
 
     private void UpgradeToOne()
     {
