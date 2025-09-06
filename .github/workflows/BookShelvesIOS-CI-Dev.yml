@@ -63,7 +63,7 @@ jobs:
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
 
-      - name: Set current date as env variable
+      - name: Set some env variables (CURRENT_DATE, CURRENT_TIME, ASSEMBLY_BUILD_NUMBER)
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
             echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
@@ -78,9 +78,13 @@ jobs:
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v2
 
-      - name: Install MAUI Workloads
-        run: |
-          dotnet workload install maui --source https://api.nuget.org/v3/index.json
+      - name: Restore Workloads
+        run: dotnet workload restore ${{env.CSPROJ}}
+
+
+      # - name: Install MAUI Workloads
+      #   run: |
+      #     dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
       - name: Cert Info 1
         env:
@@ -123,13 +127,16 @@ jobs:
       # - name: Add Cert to Store
       #   run: certutil -user -q -p ${{ secrets.WINDOWS_PFX_PASSWORD }} -importpfx cert.pfx NoRoot
 
+      - name: NuGet Restore
+        run: dotnet restore ${{env.CSPROJ}}
+
       - name: Create publish folder
         shell: pwsh
         run: |
           cd ${{ github.workspace }}
           mkdir -p ${{ env.PUBLISH_PATH }}
 
-      - name: Build MAUI Mobile app
+      - name: Publish MAUI Mobile app
         shell: pwsh
         run: |
           dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="iOS Distribution" /p:CodesignProvision="BookShelves Test Profile"
