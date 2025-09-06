@@ -35,6 +35,10 @@ env:
   PUBLISH_PATH: '${{ github.workspace }}/publish-output'
   IOS_ARTIFACTS_PATH: 'artifacts_ios'
   BUILD_LOG_FILE: 'ios.binlog'
+  CODESIGN_PROVISION: 'BookShelves Test Profile'
+  CODESIGN_KEY: 'iOS Distribution'
+  DOTNET_VERSION: 'net9.0'
+  RELEASE_CONFIGURATION: 'Release'
 
 jobs:
   mac-build-ios:
@@ -91,6 +95,7 @@ jobs:
           CERTIFICATE_BASE64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
         run: |
           echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
+
       - name: Cert Info 2
         run: |
           openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
@@ -134,12 +139,12 @@ jobs:
         shell: pwsh
         run: |
           cd ${{ github.workspace }}
-          mkdir -p ${{ env.PUBLISH_PATH }}
+          mkdir -p ${{env.PUBLISH_PATH}}
 
       - name: Publish MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f net9.0-ios -c Release -o ${{ env.PUBLISH_PATH }} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{ env.ASSEMBLY_BUILD_NUMBER }} /p:CodesignKey="iOS Distribution" /p:CodesignProvision="BookShelves Test Profile"
+          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f ${{env.DOTNET_VERSION}}-ios -c ${{env.RELEASE_CONFIGURATION}} -o ${{env.PUBLISH_PATH}} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} /p:CodesignKey=${{env.CODESIGN_KEY}} /p:CodesignProvision=${{env.CODESIGN_PROVISION}}
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
