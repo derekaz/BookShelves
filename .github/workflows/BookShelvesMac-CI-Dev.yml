@@ -334,7 +334,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'mac pkg'
-          path: ${{ steps.findipa.outputs.ipa }} #${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          path: ${{ steps.findpkg.outputs.pkg }} #${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
       # # BUILD
