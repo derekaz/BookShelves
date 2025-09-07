@@ -147,15 +147,15 @@ jobs:
       - name: Publish MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish |
-          ${{env.CSPROJ}} |
-          -bl:${{env.BUILD_LOG_FILE}} |
-          -f ${{env.DOTNET_VERSION}}-ios |
-          -c ${{env.RELEASE_CONFIGURATION}} |
-          -o ${{env.PUBLISH_PATH}} |
-          /p:ArchiveOnBuild=true |
-          /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} |
-          /p:CodesignKey="${{env.CODESIGN_KEY}}" |
+          dotnet publish `
+          ${{env.CSPROJ}} `
+          -bl:${{env.BUILD_LOG_FILE}} `
+          -f ${{env.DOTNET_VERSION}}-ios `
+          -c ${{env.RELEASE_CONFIGURATION}} `
+          -o ${{env.PUBLISH_PATH}} `
+          /p:ArchiveOnBuild=true `
+          /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} `
+          /p:CodesignKey="${{env.CODESIGN_KEY}}" `
           /p:CodesignProvision="${{env.CODESIGN_PROVISION}}"
           # -v normal
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
