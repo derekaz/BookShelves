@@ -31,7 +31,7 @@ on:
   #     - '**'
 
 concurrency:
-  group: maui-ios-${{ github.ref }}
+  group: maui-ios-dev-${{github.ref}}
   cancel-in-progress: true
 
 jobs:
@@ -101,19 +101,19 @@ jobs:
 
       - name: Cert Info 1
         env:
-          CERTIFICATE_BASE64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
+          CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
         run: |
           echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
 
       - name: Cert Info 2
         run: |
-          openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
+          openssl pkcs12 -in cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v5
         with:
-          p12-file-base64: ${{ secrets.IOS_DIST_CERTIFICATES_P12 }}
-          p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
+          p12-file-base64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
+          p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
       
       # - name: Issuer ID
       #   run: |
@@ -233,7 +233,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'ios ipa'
-          path: ${{ steps.findipa.outputs.ipa }} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
       # # BUILD
