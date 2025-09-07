@@ -75,10 +75,10 @@ jobs:
       #- name: Install Xcode command-line tools
       #  run: xcode-select --install
 
-      - name: xcode diags 2
-        run: |
-            echo Currently selected Xcode:
-            xcrun xcode-select --print-path
+      # - name: xcode diags 2
+      #   run: |
+      #       echo Currently selected Xcode:
+      #       xcrun xcode-select --print-path
 
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
@@ -136,12 +136,12 @@ jobs:
 
       - name: Cert Info 1
         env:
-          CERTIFICATE_BASE64: ${{ secrets.MAC_COMBINED_DIST_INST_CERT_P12 }}
+          CERTIFICATE_BASE64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
         run: |
           echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
       - name: Cert Info 2
         run: |
-          openssl pkcs12 -in cert.p12 -passin pass:${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }} -info -nokeys
+          openssl pkcs12 -in cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v5
@@ -149,12 +149,12 @@ jobs:
           # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
 
           # use this one for Mac app store/test flight
-          p12-file-base64: ${{ secrets.MAC_COMBINED_DIST_INST_CERT_P12 }}
+          p12-file-base64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
           
           # use this one for ad-hoc
           #p12-file-base64: ${{ secrets.APPLE_DEVELOPMENT_CERT_P12 }}
           
-          p12-password: ${{ secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD }}
+          p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
       
       # - name: Issuer ID
       #   run: |
@@ -310,10 +310,10 @@ jobs:
           app-type: osx
           # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
           # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg'
-          app-path: ${{ steps.findpkg.outputs.pkg }}
-          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+          app-path: ${{steps.findpkg.outputs.pkg}}
+          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       # - name: Archive build log
       #   if: always()
