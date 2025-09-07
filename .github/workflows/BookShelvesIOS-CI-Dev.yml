@@ -35,10 +35,13 @@ env:
   PUBLISH_PATH: '${{ github.workspace }}/publish-output'
   IOS_ARTIFACTS_PATH: 'artifacts_ios'
   BUILD_LOG_FILE: 'ios.binlog'
+  BUNDLE_ID: 'com.azmoore.bookshelves.maui'
   CODESIGN_PROVISION: 'BookShelves Test Profile'
   CODESIGN_KEY: 'iOS Distribution'
   DOTNET_VERSION: 'net9.0'
+  DOTNET_SDK_VERSION: '9.0.x'
   RELEASE_CONFIGURATION: 'Release'
+  XCODE_VERSION: '16.4'
 
 jobs:
   mac-build-ios:
@@ -56,8 +59,8 @@ jobs:
             xcrun xcode-select --print-path
 
       # Select your required version
-      - name: Select Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app #/Contents/Developer
+      - name: Select Xcode ${{env.XCODE_VERSION}}
+        run: sudo xcode-select -s /Applications/Xcode_${{env.XCODE_VERSION}}.app #/Contents/Developer
 
       - name: xcode diags 2
         run: |
@@ -65,7 +68,7 @@ jobs:
             xcrun xcode-select --print-path
 
       - name: Add Xcode developer tools to PATH
-        run: export PATH="/Applications/Xcode_16.4.app/Contents/Developer/usr/bin:$PATH"
+        run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
 
       - name: Set some env variables (CURRENT_DATE, CURRENT_TIME, ASSEMBLY_BUILD_NUMBER)
         run: |
@@ -76,7 +79,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: ${{env.DOTNET_SDK_VERSION}}
           # include-prerelease: true
 
       # - name: Add msbuild to PATH
@@ -119,10 +122,10 @@ jobs:
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v4
         with:
-          bundle-id: 'com.azmoore.bookshelves.maui'
-          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
+          bundle-id: ${{env.BUNDLE_ID}}
+          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       # - name: Decrypt PFX File
       #   run: |
@@ -158,7 +161,7 @@ jobs:
       - name: Show publish folder content
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ env.PUBLISH_PATH }} -Include *.* -File -Recurse
+          Get-Childitem -Path ${{env.PUBLISH_PATH}} -Include *.* -File -Recurse
 
       # - name: version
       #   run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
@@ -175,15 +178,27 @@ jobs:
       #    # body_path: 'TEST TAG' #CHANGELOG.md
       #  env:
       #    GITHUB_TOKEN: ${{ github.token }}
+      - name: Locate IPA
+        # if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: findipa
+        run: |
+          IPA_PATH=$(find MyScoreBoardMaui/bin/${{env.RELEASE_CONFIGURATION}}/${{env.DOTNET_VERSION}}-ios/${{env.RUNTIME_ID}}/publish -maxdepth 1 -name '*.ipa' | head -n1)
+          if [ -z "$IPA_PATH" ]; then
+            echo 'IPA not found' >&2
+            exit 1
+          fi
+          echo "ipa=$IPA_PATH" >> $GITHUB_OUTPUT
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v3
-        with: 
-          app-path: '${{ env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
-          issuer-id: ${{ secrets.APPLE_APPSTORE_ISSUER_ID }}
-          api-key-id: ${{ secrets.APPLE_APPSTORE_KEY_ID }}
-          api-private-key: ${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}
         if: github.event_name == 'pull_request' || github.event_name == 'push'
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-type: 'ios'
+          app-path: ${{ steps.findipa.outputs.ipa }}
+          #app-path: '${{env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
+          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       - name: Archive build log
         uses: actions/upload-artifact@v4
