@@ -19,6 +19,8 @@ public partial class AuthenticationService
     {
         ArgumentNullException.ThrowIfNull(uri);
 
+        await Task.Delay(10);
+
         string url = uri.AbsoluteUri;
         _logger.LogInformation("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={0})", url);
         DispatchQueue.MainQueue.DispatchAsync(async () =>
