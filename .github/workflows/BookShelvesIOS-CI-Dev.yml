@@ -147,7 +147,17 @@ jobs:
       - name: Publish MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -v normal -bl:${{env.BUILD_LOG_FILE}} -f ${{env.DOTNET_VERSION}}-ios -c ${{env.RELEASE_CONFIGURATION}} -o ${{env.PUBLISH_PATH}} /p:ArchiveOnBuild=true /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} /p:CodesignKey="${{env.CODESIGN_KEY}}" /p:CodesignProvision="${{env.CODESIGN_PROVISION}}"
+          dotnet publish |
+          ${{env.CSPROJ}} |
+          -bl:${{env.BUILD_LOG_FILE}} |
+          -f ${{env.DOTNET_VERSION}}-ios |
+          -c ${{env.RELEASE_CONFIGURATION}} |
+          -o ${{env.PUBLISH_PATH}} |
+          /p:ArchiveOnBuild=true |
+          /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} |
+          /p:CodesignKey="${{env.CODESIGN_KEY}}" |
+          /p:CodesignProvision="${{env.CODESIGN_PROVISION}}"
+          # -v normal
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
       
@@ -182,7 +192,8 @@ jobs:
         # if: ${{ github.event_name == 'workflow_dispatch' }}
         id: findipa
         run: |
-          IPA_PATH=$(find MyScoreBoardMaui/bin/${{env.RELEASE_CONFIGURATION}}/${{env.DOTNET_VERSION}}-ios/${{env.RUNTIME_ID}}/publish -maxdepth 1 -name '*.ipa' | head -n1)
+          IPA_PATH=$(find ${{env.PUBLISH_PATH}} -maxdepth 1 -name '*.ipa' | head -n1)
+          # IPA_PATH=$(find MyScoreBoardMaui/bin/${{env.RELEASE_CONFIGURATION}}/${{env.DOTNET_VERSION}}-ios/${{env.RUNTIME_ID}}/publish -maxdepth 1 -name '*.ipa' | head -n1)
           if [ -z "$IPA_PATH" ]; then
             echo 'IPA not found' >&2
             exit 1
@@ -206,22 +217,23 @@ jobs:
           name: logs
           path: '${{env.BUILD_LOG_FILE}}'
 
-      - name: Create artifacts folder
-        shell: pwsh
-        run: |
-          cd ${{ github.workspace }}
-          mkdir -p ${{ env.IOS_ARTIFACTS_PATH }}
+      # - name: Create artifacts folder
+      #   shell: pwsh
+      #   run: |
+      #     cd ${{ github.workspace }}
+      #     mkdir -p ${{ env.IOS_ARTIFACTS_PATH }}
 
-      - name: Copy IOS IPA package
-        shell: pwsh
-        run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
+      # - name: Copy IOS IPA package
+      #   shell: pwsh
+      #   run: |
+      #       ${{ steps.findipa.outputs.ipa }}
+      #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v4
         with:
           name: 'ios ipa'
-          path: ${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          path: ${{ steps.findipa.outputs.ipa }} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
       # # BUILD
