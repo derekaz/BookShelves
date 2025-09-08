@@ -1,4 +1,5 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Maui.Data.Models;
+using BookShelves.Shared.DataInterfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,8 +35,19 @@ namespace BookShelves.Maui.Data.Services
 
         private async void GetBooksAsync()
         {
-            _httpClient.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
-            var temp = await _httpClient.GetStringAsync("/api/books");
+            try
+            {
+                _httpClient.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
+                var temp = await _httpClient.GetStringAsync("/api/books/sync?lastSyncTime=1970-01-01");
+                var books = System.Text.Json.JsonSerializer.Deserialize<List<Book>>(temp!);
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                // _httpClient.Dispose();
+            }
         }
     }
 }
