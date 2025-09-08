@@ -19,16 +19,20 @@ public class CosmosRepository<T> where T : IItem, new()
         string containerName)
     {
         container = cosmosDbClient.GetContainer(databaseName, containerName);
-        this.logger = logger;   
+        this.logger = logger;
+        logger.LogInformation("CosmosRepository-Constructor");
     }
+
     public async Task AddAsync(T item)
     {
         await container.CreateItemAsync(item, new PartitionKey(item.Id));
     }
+    
     public async Task DeleteAsync(string id)
     {
         await container.DeleteItemAsync<T>(id, new PartitionKey(id));
     }
+    
     public async Task<T?> GetAsync(string id)
     {
         try
@@ -41,6 +45,7 @@ public class CosmosRepository<T> where T : IItem, new()
             return default;
         }
     }
+    
     public async Task<IEnumerable<T>> GetMultipleAsync(string queryString)
     {
         var query = container.GetItemQueryIterator<T>(new QueryDefinition(queryString));
@@ -52,6 +57,7 @@ public class CosmosRepository<T> where T : IItem, new()
         }
         return results;
     }
+
     public async Task UpdateAsync(string id, T item)
     {
         await container.UpsertItemAsync(item, new PartitionKey(id));

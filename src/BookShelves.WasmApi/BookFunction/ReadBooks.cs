@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
-using System.Security.Policy;
 using System;
+using BookShelves.WebShared.Data;
 
 namespace BookShelves.WasmApi.BookFunction;
 
@@ -28,7 +28,7 @@ public class ReadBooks
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync("SELECT * FROM c"));
+        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM c WHERE c.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}'"));
         return response;
     }
 
@@ -91,7 +91,7 @@ public class ReadBooks
         }
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC"));
+        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}' AND i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC"));
         return response;
     }
 }

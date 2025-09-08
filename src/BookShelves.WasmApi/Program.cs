@@ -23,12 +23,26 @@ public class Program
         }*/)
         .ConfigureServices(s =>
         {
-            s.AddSingleton(x =>
+            s.AddTransient(x =>
+            // s.AddSingleton(x =>
             {
                 IConfiguration? configuration = x.GetService<IConfiguration>();
 
                 return new BookRepository(
                     x.GetRequiredService<ILogger<BookRepository>>(),
+                    new CosmosClient(configuration!["CosmosDBConnectionString"]),
+                    "azmoore-westus2-db1",
+                    "azmoore-books-westus2-dbc1"
+                );
+            });
+
+            s.AddTransient(x =>
+            // s.AddSingleton(x =>
+            {
+                IConfiguration? configuration = x.GetService<IConfiguration>();
+
+                return new UniqueIdRepository(
+                    x.GetRequiredService<ILogger<UniqueIdRepository>>(),
                     new CosmosClient(configuration!["CosmosDBConnectionString"]),
                     "azmoore-westus2-db1",
                     "azmoore-books-westus2-dbc1"

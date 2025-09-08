@@ -5,6 +5,8 @@ namespace BookShelves.WebShared.Data;
 
 public class Book : IItem, IBook
 {
+    public const string BOOKS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
+
     [JsonProperty(PropertyName = "id")]
     public string? Id { get; set; } = string.Empty;
 
@@ -24,5 +26,4 @@ public class Book : IItem, IBook
 
     [JsonProperty(PropertyName = "updateType")] 
     public string? UpdateType { get; set; } = string.Empty;
-
 }
