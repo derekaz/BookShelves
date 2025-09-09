@@ -1,11 +1,5 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.DataInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace BookShelves.Maui.Data.Services
 {
@@ -18,6 +12,9 @@ namespace BookShelves.Maui.Data.Services
         {
             _httpClient = httpClient;
             _booksDataService = booksDataService;
+
+            // _httpClient.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
+            _httpClient.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
         }
 
         public void BeginSync()
@@ -37,10 +34,8 @@ namespace BookShelves.Maui.Data.Services
         {
             try
             {
-                // _httpClient.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
-                _httpClient.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
                 var temp = await _httpClient.GetStringAsync("/api/books/sync?lastSyncTime=1970-01-01");
-                var books = System.Text.Json.JsonSerializer.Deserialize<List<Book>>(temp!);
+                var books = System.Text.Json.JsonSerializer.Deserialize<List<RemoteBook>>(temp!);
             }
             catch (Exception ex)
             {

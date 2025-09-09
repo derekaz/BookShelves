@@ -23,7 +23,4 @@ public class Book : IItem, IBook
 
     [JsonProperty(PropertyName = "revision")]
     public int? Revision { get; set; } = 0;
-
-    [JsonProperty(PropertyName = "updateType")] 
-    public string? UpdateType { get; set; } = string.Empty;
 }

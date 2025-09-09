@@ -22,30 +22,32 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
 
     public async Task<bool> DeleteBookAsync(IBook book)
     {
-        book.Revision = book.Revision + 1;
-        book.UpdateType = "D";
-        book.LastUpdateTime = DateTime.UtcNow;
+        var localBook = (Book)book;
+        localBook.Revision = book.Revision + 1;
+        localBook.UpdateType = "D";
+        localBook.LastUpdateTime = DateTime.UtcNow;
         // dataContext.Books.Remove((Book)book);
-        dataContext.Update((Book)book); 
+        dataContext.Update(localBook); 
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
     public async Task<bool> CreateBookAsync(IBook book)
     {
-        Book b = (Book)book;
-        b.Revision = 0;
-        b.UpdateType = "C";
-        b.LastUpdateTime = DateTime.UtcNow;
-        await dataContext.Books.AddAsync(b);
+        var localBook = (Book)book;
+        localBook.Revision = 0;
+        localBook.UpdateType = "C";
+        localBook.LastUpdateTime = DateTime.UtcNow;
+        await dataContext.Books.AddAsync(localBook);
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
-        book.Revision = book.Revision + 1;
-        book.UpdateType = "U";
-        book.LastUpdateTime = DateTime.UtcNow;
-        dataContext.Update((Book)book);
+        var localBook = (Book)book;
+        localBook.Revision = book.Revision + 1;
+        localBook.UpdateType = "U";
+        localBook.LastUpdateTime = DateTime.UtcNow;
+        dataContext.Update(localBook);
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 }

@@ -11,6 +11,4 @@ public interface IBook
     DateTime? LastUpdateTime { get; set; }
 
     int? Revision { get; set; }
-
-    string? UpdateType { get; set; }
 }
