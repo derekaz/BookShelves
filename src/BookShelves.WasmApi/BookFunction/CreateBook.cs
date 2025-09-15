@@ -4,7 +4,6 @@ using BookShelves.WebShared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-// using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
@@ -36,15 +35,15 @@ public class CreateBook
         string? author = req.FunctionContext.BindingContext.BindingData["author"]!.ToString();
 
         string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
-        title ??= data?.title;
-        author ??= data?.author;
+        //dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
+        //title ??= data?.title;
+        //author ??= data?.author;
 
         JsonNode? jsonNode = JsonNode.Parse(requestBody);
         if (jsonNode is JsonObject jsonObject)
         {
-            title = (string?)jsonObject["title"];
-            author = (string?)jsonObject["author"];
+            title ??= (string?)jsonObject["title"];
+            author ??= (string?)jsonObject["author"];
 
             // Console.WriteLine($"Name: {name}, Age: {age}");
         }
@@ -77,7 +76,7 @@ public class CreateBook
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Unable to get id for new book: {data}");
+                _logger.LogError(ex, $"Unable to get id for new book: {jsonNode}");
                 return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
             }
 
@@ -118,19 +117,17 @@ public class CreateBook
         string? lastUpdateTime = req.FunctionContext.BindingContext.BindingData["lastUpdateTime"]!.ToString();
 
         string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
-        title ??= data?.title;
-        author ??= data?.author;
-        lastUpdateTime ??= data?.lastUpdateTime;
+        //dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
+        //title ??= data?.title;
+        //author ??= data?.author;
+        //lastUpdateTime ??= data?.lastUpdateTime;
 
         JsonNode? jsonNode = JsonNode.Parse(requestBody);
         if (jsonNode is JsonObject jsonObject)
         {
-            title = (string?)jsonObject["title"];
-            author = (string?)jsonObject["author"];
-            lastUpdateTime = (string?)jsonObject["lastUpdateTime"];
-
-            // Console.WriteLine($"Name: {name}, Age: {age}");
+            title ??= (string?)jsonObject["title"];
+            author ??= (string?)jsonObject["author"];
+            lastUpdateTime ??= (string?)jsonObject["lastUpdateTime"];
         }
 
         string responseMessage;
@@ -166,7 +163,7 @@ public class CreateBook
             }
             catch (Exception ex)
             {
-                responseMessage = $"Unable to get id for new book: {data}";
+                responseMessage = $"Unable to get id for new book: {jsonNode}";
                 _logger.LogError(ex, responseMessage);
 
                 return await ResponseFactory.CreateFailedResponseNoContentAsync(req, HttpStatusCode.UnprocessableEntity, responseMessage, ex);

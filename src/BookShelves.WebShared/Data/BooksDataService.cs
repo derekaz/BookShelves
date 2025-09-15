@@ -1,9 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.Logging;
-// using Newtonsoft.Json;
 
 namespace BookShelves.WebShared.Data;
 

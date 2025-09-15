@@ -1,7 +1,6 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.Logging;
-// using Newtonsoft.Json;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
 using System.Text;
@@ -62,7 +61,6 @@ namespace BookShelves.Maui.Data.Services
                         var content = await result.Content.ReadAsStringAsync();
                         // var response = JsonConvert.DeserializeObject<ApiResponse<RemoteBook>>(content);
                         var response = JsonSerializer.Deserialize<ApiResponse<RemoteBook>>(content);
-                        // var t = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<RemoteBook>>(content);
 
                         // update the local version and save it
                         if (response != null && response.IsSuccess)
@@ -75,7 +73,6 @@ namespace BookShelves.Maui.Data.Services
                                 var localUpdateResult = await _localBooksDataService.UpdateBookFromSyncAsync(updatedBook);
                             }
                         }
-                        // return response?.Success ?? false;
                     }
                     catch (Exception ex)
                     {
