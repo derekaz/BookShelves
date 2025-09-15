@@ -1,6 +1,7 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.DataInterfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data.Services;
 
@@ -17,7 +18,27 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
     {
         return await dataContext.Books
             .Where(b => b.UpdateType != "D")
+            .AsNoTracking()
             .ToListAsync();
+    }
+
+    public async Task<List<Book>> GetBooksAsync(Expression<Func<Book, bool>> whereExp)
+    {
+        return await dataContext
+            .Books
+            .AsNoTracking()
+            // .Where(b => b.UpdateType != "D")
+            .Where(whereExp)
+            .ToListAsync();
+    }
+
+    public async Task<Book?> GetBookWithServerIdAsync(int serverId)
+    {
+        return await dataContext
+            .Books
+            .AsNoTracking()
+            .Where(b => b.ServerId == serverId)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<bool> DeleteBookAsync(IBook book)
@@ -28,6 +49,13 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
         localBook.LastUpdateTime = DateTime.UtcNow;
         // dataContext.Books.Remove((Book)book);
         dataContext.Update(localBook); 
+        // dataContext.Entry<Book>(localBook).State = EntityState.Deleted;
+        return (await dataContext.SaveChangesAsync()) > 0;
+    }
+
+    public async Task<bool> CreateBookFromSyncAsync(Book book)
+    {
+        await dataContext.Books.AddAsync(book);
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
@@ -38,6 +66,12 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
         localBook.UpdateType = "C";
         localBook.LastUpdateTime = DateTime.UtcNow;
         await dataContext.Books.AddAsync(localBook);
+        return (await dataContext.SaveChangesAsync()) > 0;
+    }
+
+    public async Task<bool> UpdateBookFromSyncAsync(Book book)
+    {
+        dataContext.Update(book);
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 

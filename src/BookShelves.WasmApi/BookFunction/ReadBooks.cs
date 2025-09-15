@@ -6,6 +6,10 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using System;
 using BookShelves.WebShared.Data;
+using BookShelves.WasmApi.Utilities;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BookShelves.WasmApi.BookFunction;
 
@@ -75,23 +79,30 @@ public class ReadBooks
         DateTime searchValue = DateTime.MinValue;
         if (string.IsNullOrWhiteSpace(searchterm))
         {
-            return req.CreateResponse(HttpStatusCode.NotFound);
+            return await ResponseFactory.CreateFailedResponseNoContentAsync(req, HttpStatusCode.NotFound, "Query not defined.");
+            // return req.CreateResponse(HttpStatusCode.NotFound);
         }
 
         var parseResult = DateTime.TryParse(req.FunctionContext.BindingContext.BindingData["lastSyncTime"]!.ToString(), out searchValue);
         if (!parseResult)
         {
-            return req.CreateResponse(HttpStatusCode.NotFound);
+            return await ResponseFactory.CreateFailedResponseNoContentAsync(req, HttpStatusCode.NotFound, "Query parameter lastSyncTime not found or invalid format.");
+            // return req.CreateResponse(HttpStatusCode.NotFound);
         }
 
         var searchString = searchValue.ToString("o");
         if (string.IsNullOrWhiteSpace(searchString))
         {
-            return req.CreateResponse(HttpStatusCode.NotFound);
+            return await ResponseFactory.CreateFailedResponseNoContentAsync(req, HttpStatusCode.NotFound, "Query parameter lastSyncTime invalid format.");
+            // return req.CreateResponse(HttpStatusCode.NotFound);
         }
 
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}' AND i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC"));
+        var books = await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}' AND i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC");
+        var response = await ResponseFactory.CreateSuccessResponseAsync<List<Book>>(req, "Records returned.", [.. books]);
+
+        //var response = req.CreateResponse(HttpStatusCode.OK);
+        //await response.WriteAsJsonAsync(books);
+
         return response;
     }
 }

@@ -26,5 +26,7 @@ public class Book : IBook //BaseTable, IBook
 
     public string? UpdateType { get; set; }
 
+    public int? ServerId { get; set; }
+
     public Book() { }
 }

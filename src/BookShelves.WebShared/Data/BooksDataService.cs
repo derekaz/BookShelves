@@ -1,6 +1,9 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.Logging;
+// using Newtonsoft.Json;
 
 namespace BookShelves.WebShared.Data;
 
@@ -35,15 +38,52 @@ public class BooksDataService : IBooksDataService
 
     public async Task<bool> CreateBookAsync(IBook book)
     {
-        var temp = await _httpClient.PostAsJsonAsync("api/books/new", book);
-        return temp.IsSuccessStatusCode;
+        // var temp = await _httpClient.PostAsJsonAsync("api/books/new", book);
+        // return temp.IsSuccessStatusCode;
+
+        var result = await _httpClient.PostAsJsonAsync("api/v2/books/new", book);
+        if (!result.IsSuccessStatusCode) return false;
+
+        if (result.Content == null) return true;
+
+        try
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            // var response = JsonConvert.DeserializeObject<ApiResponse<Book>>(content);
+            var response = JsonSerializer.Deserialize<ApiResponse<Book>>(content);
+
+            return response?.IsSuccess ?? false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to deserialize ApiResponse");
+            throw;
+        }
     }
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
-        var temp = await _httpClient.PostAsJsonAsync("api/books/edit", book);
-        return temp.IsSuccessStatusCode;
-        // return await Task.FromResult(_httpClient.PostAsJsonAsync("api/books/edit", book).Result.IsSuccessStatusCode);
+        //var temp = await _httpClient.PostAsJsonAsync("api/books/edit", book);
+        //return temp.IsSuccessStatusCode;
+
+        var result = await _httpClient.PostAsJsonAsync("api/v2/books/edit", book);
+        if (!result.IsSuccessStatusCode) return false;
+
+        if (result.Content == null) return true;
+
+        try
+        {
+            var content = await result.Content.ReadAsStringAsync();
+            // var response = JsonConvert.DeserializeObject<ApiResponse<Book>>(content);
+            var response = JsonSerializer.Deserialize<ApiResponse<Book>>(content);
+
+            return response?.IsSuccess ?? false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to deserialize ApiResponse");
+            throw;
+        }
     }
 
     public async Task<bool> DeleteBookAsync(IBook book)

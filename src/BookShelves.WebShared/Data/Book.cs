@@ -1,26 +1,36 @@
-﻿using Newtonsoft.Json;
+﻿// using Newtonsoft.Json;
 using BookShelves.Shared.DataInterfaces;
+using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace BookShelves.WebShared.Data;
 
+// [JsonObject(Title = "Book")]
 public class Book : IItem, IBook
 {
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
     public const string BOOKS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
 
-    [JsonProperty(PropertyName = "id")]
+    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string? Id { get; set; } = string.Empty;
 
     public string IdValue => Id ?? string.Empty;
 
-    [JsonProperty(PropertyName = "title")]
+    [JsonProperty("title")]
+    [JsonPropertyName("title")]
     public string? Title { get; set; } = string.Empty;
 
-    [JsonProperty(PropertyName = "author")]
+    [JsonProperty("author")]
+    [JsonPropertyName("author")]
     public string? Author { get; set; } = string.Empty;
 
-    [JsonProperty(PropertyName = "lastUpdateTime")]
+    [JsonProperty("lastUpdateTime")]
+    [JsonPropertyName("lastUpdateTime")]
     public DateTime? LastUpdateTime { get; set; } = DateTime.UtcNow;
 
-    [JsonProperty(PropertyName = "revision")]
+    [JsonProperty("revision")]
+    [JsonPropertyName("revision")]
     public int? Revision { get; set; } = 0;
 }

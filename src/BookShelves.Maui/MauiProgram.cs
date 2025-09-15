@@ -5,6 +5,7 @@ using BookShelves.Shared.DataInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+//using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
@@ -24,7 +25,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        Thread.Sleep(10000);
+        // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -41,10 +42,19 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
 
-//#if DEBUG
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+#if DEBUG
+            logging.AddDebug();
+            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+#endif
+        });
+
+#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
-//#endif
+#endif
 
 
         builder.ConfigureLifecycleEvents(events =>
@@ -109,22 +119,14 @@ public static class MauiProgram
         builder.Configuration.AddConfiguration(config);
         builder.Services.AddMauiBlazorWebView();
 
-        builder.Services.AddLogging(logging =>
-        {
-            logging.AddConsole();
-#if DEBUG
-            logging.AddDebug();
-            //logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
-#endif
-        });
         //      }
         //      catch (Exception ex) 
         //{
         //	Debug.WriteLine(ex);
         //}
-#if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
+//#if DEBUG
+//        builder.Services.AddBlazorWebViewDeveloperTools();
+//#endif
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
@@ -166,7 +168,31 @@ public static class MauiProgram
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddTransient<IBook, Book>();
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-        builder.Services.AddTransient<HttpClient>();
+        builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient("BooksApi", client =>
+        {
+            // client.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
+            // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
+            client.BaseAddress = new Uri("http://localhost:7071");
+            client.Timeout = new TimeSpan(0, 0, 20);
+        })
+#if DEBUG
+            // .AddTraceContentLogging();
+#endif
+        ;
+
+        //builder.Services.AddHttpLogging(logging =>
+        //{
+        //    logging.LoggingFields = HttpLoggingFields.All;
+        //    logging.RequestHeaders.Add("sec-ch-ua");
+        //    logging.ResponseHeaders.Add("MyResponseHeader");
+        //    logging.MediaTypeOptions.AddText("application/javascript");
+        //    logging.RequestBodyLogLimit = 4096;
+        //    logging.ResponseBodyLogLimit = 4096;
+
+        //});
+
+        // builder.Services.AddTransient<HttpClient>();
         builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
         builder.Services.AddRazorClassLibraryServices(config);

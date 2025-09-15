@@ -1,32 +1,28 @@
 ﻿using BookShelves.Shared.DataInterfaces;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace BookShelves.Maui.Data.Models
 {
+    // [JsonObject(Title ="Book")]
     public class RemoteBook : IItem, IBook
     {
         public const string BOOKS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
 
-        [JsonProperty(PropertyName = "id")]
+        [JsonPropertyName("id")]
         public string? Id { get; set; } = string.Empty;
 
         public string IdValue => Id ?? string.Empty;
 
-        [JsonProperty(PropertyName = "title")]
+        [JsonPropertyName("title")]
         public string? Title { get; set; } = string.Empty;
 
-        [JsonProperty(PropertyName = "author")]
+        [JsonPropertyName("author")]
         public string? Author { get; set; } = string.Empty;
 
-        [JsonProperty(PropertyName = "lastUpdateTime")]
+        [JsonPropertyName("lastUpdateTime")]
         public DateTime? LastUpdateTime { get; set; } = DateTime.UtcNow;
 
-        [JsonProperty(PropertyName = "revision")]
+        [JsonPropertyName("revision")]
         public int? Revision { get; set; } = 0;
     }
 }

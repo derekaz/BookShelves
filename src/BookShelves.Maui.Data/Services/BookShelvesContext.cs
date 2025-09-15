@@ -13,7 +13,7 @@ namespace BookShelves.Maui.Data.Services;
 
 public class BookShelvesContext : DbContext
 {
-    private readonly int LATEST_DATABASE_VERSION = 2;
+    private readonly int LATEST_DATABASE_VERSION = 3;
     private readonly ILogger _logger;
 
     public DbSet<Book> Books { get; set; }
@@ -130,6 +130,9 @@ public class BookShelvesContext : DbContext
                             case 2:
                                 currentDbVersion = UpgradeToTwo();
                                 break;
+                            case 3:
+                                currentDbVersion = UpgradeToThree();
+                                break;
                             default:
                                 Database.EnsureCreatedAsync();
                                 break;
@@ -245,6 +248,36 @@ public class BookShelvesContext : DbContext
         catch (Exception ex)
         {
             _logger.LogError(ex, "BookShelvesContext:UpgradeToTwo-Exception");
+            throw;
+        }
+    }
+
+    private int UpgradeToThree()
+    {
+        int VERSION = 3;
+
+        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN ServerId INT;" };
+        try
+        {
+            foreach (var stepScript in stepScripts)
+            {
+                int rows_affected = ExecuteUpdateStep(stepScript, true);
+                _logger.LogInformation($"Rows Affected: {rows_affected}");
+            }
+
+            SetUserVersion(VERSION);
+            var newVersion = GetUserVersion();
+
+            if (newVersion != VERSION)
+            {
+                throw new ApplicationException("Unable to upgrade DB Version");
+            }
+
+            return newVersion;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:UpgradeToThree-Exception");
             throw;
         }
     }
