@@ -4,7 +4,6 @@ using BookShelves.WebShared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-// using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
@@ -35,11 +34,6 @@ public class EditBook
         string? author = req.FunctionContext.BindingContext.BindingData["author"]!.ToString();
 
         string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        //dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
-        //id ??= data?.id;
-        //title ??= data?.title;
-        //author ??= data?.author;
-
         JsonNode? jsonNode = JsonNode.Parse(requestBody);
         if (jsonNode is JsonObject jsonObject)
         {
@@ -90,12 +84,6 @@ public class EditBook
         string? lastUpdateTime = req.FunctionContext.BindingContext.BindingData["lastUpdateTime"]!.ToString();
 
         string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        //dynamic? data = JsonConvert.DeserializeObject(requestBody);
-        //id ??= data?.id;
-        //title ??= data?.title;
-        //author ??= data?.author;
-        //lastUpdateTime ??= data?.lastUpdateTime;
-
         JsonNode? jsonNode = JsonNode.Parse(requestBody);
         if (jsonNode is JsonObject jsonObject)
         {

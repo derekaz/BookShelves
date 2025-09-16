@@ -7,9 +7,7 @@ using Microsoft.Azure.Functions.Worker;
 using System;
 using BookShelves.WebShared.Data;
 using BookShelves.WasmApi.Utilities;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BookShelves.WasmApi.BookFunction;
 

@@ -35,17 +35,11 @@ public class CreateBook
         string? author = req.FunctionContext.BindingContext.BindingData["author"]!.ToString();
 
         string? requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        //dynamic? data = Newtonsoft.Json.JsonConvert.DeserializeObject(requestBody);
-        //title ??= data?.title;
-        //author ??= data?.author;
-
         JsonNode? jsonNode = JsonNode.Parse(requestBody);
         if (jsonNode is JsonObject jsonObject)
         {
             title ??= (string?)jsonObject["title"];
             author ??= (string?)jsonObject["author"];
-
-            // Console.WriteLine($"Name: {name}, Age: {age}");
         }
 
         if (string.IsNullOrEmpty(title))
