@@ -23,15 +23,15 @@ namespace BookShelves.Maui.Data.Services
             UpdateServerStoreAsync(updatedLocalBooks);
         }
 
-        readonly Expression<Func<Book, bool>> changedBooks = p => p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
+        readonly Expression<Func<LocalBook, bool>> changedBooks = p => p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
 
-        private async Task<List<Book>> GetLocalBooksAsync()
+        private async Task<List<LocalBook>> GetLocalBooksAsync()
         {
             var books = await _localBooksDataService.GetBooksAsync(changedBooks);
             return books;
         }
 
-        private async void UpdateServerStoreAsync(List<Book> updatedLocalBooks)
+        private async void UpdateServerStoreAsync(List<LocalBook> updatedLocalBooks)
         {
             var httpClient = _httpClientFactory.CreateClient("BooksApi");
             var currentServerBooks = await httpClient.GetFromJsonAsync<RemoteBook[]>("/api/books") ?? [];
@@ -170,7 +170,7 @@ namespace BookShelves.Maui.Data.Services
                         }
                         else if (currentBook == null)
                         {
-                            currentBook = (Book)_localBooksDataService.InitializeBookInstance();
+                            currentBook = (LocalBook)_localBooksDataService.InitializeBookInstance();
 
                             currentBook.Title = book.Title;
                             currentBook.Author = book.Author;

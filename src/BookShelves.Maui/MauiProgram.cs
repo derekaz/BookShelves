@@ -1,23 +1,24 @@
-﻿using BookShelves.Maui.Helpers;
+﻿using BookShelves.Maui.Data;
+using BookShelves.Maui.Data.Models;
+using BookShelves.Maui.Data.Services;
+using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
 using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
 //using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
+using System;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-
-using BookShelves.Shared.ServiceInterfaces;
-using BookShelves.Maui.Data.Services;
-using BookShelves.Maui.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BookShelves.Maui;
 
@@ -155,9 +156,9 @@ public static class MauiProgram
         //builder.Services.AddSingleton<IDataService>(
         //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
         //var options = new DbContextOptionsBuilder();
-        //builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
-        //    s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, options, dbPath));
-        builder.Services.AddDbContext<BookShelvesContext>(
+        //builder.Services.AddSingleton<BookShelvesDbContext, BookShelvesDbContext>(
+        //    s => ActivatorUtilities.CreateInstance<BookShelvesDbContext>(s, options, dbPath));
+        builder.Services.AddDbContext<BookShelvesDbContext>(
             options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
@@ -166,7 +167,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
-        builder.Services.AddTransient<IBook, Book>();
+        builder.Services.AddTransient<IBook, LocalBook>();
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddHttpClient();
         builder.Services.AddHttpClient("BooksApi", client =>
@@ -180,6 +181,11 @@ public static class MauiProgram
             // .AddTraceContentLogging();
 #endif
         ;
+
+        // Configure DbContext
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IRepository<LocalBook>, LocalRepository<LocalBook>>(); // Register specific repositories if needed
+
 
         //builder.Services.AddHttpLogging(logging =>
         //{

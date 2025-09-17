@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksDataService(BookShelvesContext dataContext) : IBooksDataService
+public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataService
 {
-    readonly BookShelvesContext dataContext = dataContext;
+    readonly BookShelvesDbContext dataContext = dataContext;
 
     public IBook InitializeBookInstance()
     {
-        return new Book();
+        return new LocalBook();
     }
 
     public async Task<IEnumerable<IBook>> GetBooksAsync()
@@ -22,7 +22,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
             .ToListAsync();
     }
 
-    public async Task<List<Book>> GetBooksAsync(Expression<Func<Book, bool>> whereExp)
+    public async Task<List<LocalBook>> GetBooksAsync(Expression<Func<LocalBook, bool>> whereExp)
     {
         return await dataContext
             .Books
@@ -32,7 +32,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
             .ToListAsync();
     }
 
-    public async Task<Book?> GetBookWithServerIdAsync(int serverId)
+    public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
     {
         return await dataContext
             .Books
@@ -43,7 +43,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
 
     public async Task<bool> DeleteBookAsync(IBook book)
     {
-        var localBook = (Book)book;
+        var localBook = (LocalBook)book;
         localBook.Revision = book.Revision + 1;
         localBook.UpdateType = "D";
         localBook.LastUpdateTime = DateTime.UtcNow;
@@ -53,7 +53,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> CreateBookFromSyncAsync(Book book)
+    public async Task<bool> CreateBookFromSyncAsync(LocalBook book)
     {
         await dataContext.Books.AddAsync(book);
         return (await dataContext.SaveChangesAsync()) > 0;
@@ -61,7 +61,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
 
     public async Task<bool> CreateBookAsync(IBook book)
     {
-        var localBook = (Book)book;
+        var localBook = (LocalBook)book;
         localBook.Revision = 0;
         localBook.UpdateType = "C";
         localBook.LastUpdateTime = DateTime.UtcNow;
@@ -69,7 +69,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
         return (await dataContext.SaveChangesAsync()) > 0;
     }
 
-    public async Task<bool> UpdateBookFromSyncAsync(Book book)
+    public async Task<bool> UpdateBookFromSyncAsync(LocalBook book)
     {
         dataContext.Update(book);
         return (await dataContext.SaveChangesAsync()) > 0;
@@ -77,7 +77,7 @@ public class BooksDataService(BookShelvesContext dataContext) : IBooksDataServic
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
-        var localBook = (Book)book;
+        var localBook = (LocalBook)book;
         localBook.Revision = book.Revision + 1;
         localBook.UpdateType = "U";
         localBook.LastUpdateTime = DateTime.UtcNow;

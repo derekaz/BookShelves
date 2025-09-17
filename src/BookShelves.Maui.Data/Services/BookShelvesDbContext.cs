@@ -1,24 +1,17 @@
 ﻿using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using SQLite;
-using System.Diagnostics;
-using static SQLite.SQLite3;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BookShelvesContext : DbContext
+public class BookShelvesDbContext : DbContext
 {
     private readonly int LATEST_DATABASE_VERSION = 3;
     private readonly ILogger _logger;
 
-    public DbSet<Book> Books { get; set; }
+    public DbSet<LocalBook> Books { get; set; }
 
-    public BookShelvesContext(DbContextOptions<BookShelvesContext> options, ILogger<BookShelvesContext> logger) : base(options)
+    public BookShelvesDbContext(DbContextOptions<BookShelvesDbContext> options, ILogger<BookShelvesDbContext> logger) : base(options)
     {
         _logger = logger;
 
@@ -36,7 +29,7 @@ public class BookShelvesContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         _logger.LogInformation("BookShelvesContext-OnModelCreating");
-        modelBuilder.Entity<Book>().HasData(new Book() { Id = 1, Title = "Book 1", Author = "Author 1", LastUpdateTime = DateTime.UtcNow, Revision = 1 });
+        modelBuilder.Entity<LocalBook>().HasData(new LocalBook() { Id = 1, Title = "Book 1", Author = "Author 1", LastUpdateTime = DateTime.UtcNow, Revision = 1 });
         //base.OnModelCreating(modelBuilder);
     }
 
@@ -47,7 +40,7 @@ public class BookShelvesContext : DbContext
         {
             _logger.LogInformation("BookShelvesContext-OnConfiguring-NotConfigured");
             //optionsBuilder.UseSqlite($"Data Source={DbPath}");
-            //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesContext>();
+            //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesDbContext>();
             //Database.SetInitializer(sqliteConnectionInitializer);
             SQLitePCL.Batteries_V2.Init();
         }
