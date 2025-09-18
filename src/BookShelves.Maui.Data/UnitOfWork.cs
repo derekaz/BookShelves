@@ -12,9 +12,9 @@ namespace BookShelves.Maui.Data;
 public class UnitOfWork(BookShelvesDbContext context) : IUnitOfWork
 {
     private readonly BookShelvesDbContext _context = context;
-    private IRepository<LocalBook>? _yourEntities;
+    private IRepository<LocalBook>? _localBooks;
 
-    public IRepository<LocalBook> YourEntities => _yourEntities ??= new LocalRepository<LocalBook>(_context);
+    public IRepository<LocalBook> LocalBooks => _localBooks ??= new LocalRepository<LocalBook>(_context);
     // Initialize other repositories similarly
 
     public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();

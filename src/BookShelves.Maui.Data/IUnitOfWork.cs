@@ -4,7 +4,7 @@ namespace BookShelves.Maui.Data;
 
 public interface IUnitOfWork : IDisposable
 {
-    IRepository<LocalBook> YourEntities { get; }
+    IRepository<LocalBook> LocalBooks { get; }
     // Add other repository properties
     Task<int> CompleteAsync();
 }

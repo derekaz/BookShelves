@@ -18,12 +18,12 @@ public class TestBooksService
 
     public async Task AddNewEntityAsync(LocalBook entity)
     {
-        await _unitOfWork.YourEntities.AddAsync(entity);
+        await _unitOfWork.LocalBooks.AddAsync(entity);
         await _unitOfWork.CompleteAsync();
     }
 
     public async Task<IEnumerable<LocalBook>> GetAllEntitiesAsync()
     {
-        return await _unitOfWork.YourEntities.GetAllAsync();
+        return await _unitOfWork.LocalBooks.GetAllAsync();
     }
 }
