@@ -168,7 +168,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
         builder.Services.AddTransient<IBook, LocalBook>();
-        builder.Services.AddTransient<IBooksDataService, BooksDataService>();
+        // builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddHttpClient();
         builder.Services.AddHttpClient("BooksApi", client =>
         {
@@ -185,6 +185,7 @@ public static class MauiProgram
         // Configure DbContext
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IRepository<LocalBook>, LocalRepository<LocalBook>>(); // Register specific repositories if needed
+        builder.Services.AddTransient<IBooksDataService, TestBooksService>();
 
 
         //builder.Services.AddHttpLogging(logging =>

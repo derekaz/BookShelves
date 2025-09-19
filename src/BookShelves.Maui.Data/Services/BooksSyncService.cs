@@ -10,7 +10,8 @@ namespace BookShelves.Maui.Data.Services
 {
     public class BooksSyncService(IHttpClientFactory httpClientFactory, IBooksDataService booksDataService, ILogger<BooksSyncService> logger) : IBooksSyncService
     {
-        private readonly BooksDataService _localBooksDataService = (BooksDataService)booksDataService;
+        private readonly TestBooksService _localBooksDataService = (TestBooksService)booksDataService;
+        // private readonly IBooksDataService _localBooksDataService = (BooksDataService)booksDataService;
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
         private readonly ILogger<BooksSyncService> _logger = logger;
 
@@ -25,13 +26,13 @@ namespace BookShelves.Maui.Data.Services
 
         readonly Expression<Func<LocalBook, bool>> changedBooks = p => p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
 
-        private async Task<List<LocalBook>> GetLocalBooksAsync()
+        private async Task<IEnumerable<LocalBook>> GetLocalBooksAsync()
         {
             var books = await _localBooksDataService.GetBooksAsync(changedBooks);
             return books;
         }
 
-        private async void UpdateServerStoreAsync(List<LocalBook> updatedLocalBooks)
+        private async void UpdateServerStoreAsync(IEnumerable<LocalBook> updatedLocalBooks)
         {
             var httpClient = _httpClientFactory.CreateClient("BooksApi");
             var currentServerBooks = await httpClient.GetFromJsonAsync<RemoteBook[]>("/api/books") ?? [];

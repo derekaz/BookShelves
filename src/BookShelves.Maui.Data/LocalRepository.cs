@@ -30,4 +30,21 @@ public class LocalRepository<TEntity> : IRepository<TEntity> where TEntity : cla
         _dbSet.Remove(entity);
         return Task.CompletedTask;
     }
+
+    public async Task<IEnumerable<TEntity>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null)
+    {
+        IQueryable<TEntity> query = _dbSet;
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        if (orderBy != null)
+        {
+            query = orderBy(query);
+        }
+
+        return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
 }
