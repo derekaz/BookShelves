@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
-    <ProjectReference Include="..\BookShelves.WebShared\BookShelves.WebShared.csproj" />
+    <ProjectReference Include="..\BookShelves.Web.Shared\BookShelves.Web.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
