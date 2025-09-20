@@ -16,12 +16,14 @@ public class BooksDataService : IBooksDataService
         _logger = loggerFactory.CreateLogger<BooksDataService>();
     }
 
+    public static IBook Create() => new Book();
+
     public IBook InitializeBookInstance()
     {
         return new Book();
     }
 
-    public async Task<IEnumerable<IBook>> GetBooksAsync()
+    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         try
         {
@@ -84,7 +86,7 @@ public class BooksDataService : IBooksDataService
         }
     }
 
-    public async Task<bool> DeleteBookAsync(IBook book)
+    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
     {
         var temp = await _httpClient.DeleteAsync($"/api/book/{book.IdValue}");
         return temp.IsSuccessStatusCode;

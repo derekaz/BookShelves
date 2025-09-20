@@ -14,12 +14,21 @@ public class LocalRepository<TEntity> : IRepository<TEntity> where TEntity : cla
         _context = context;
         _dbSet = _context.Set<TEntity>();
     }
-
+    
     public async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+    
+    public async Task<IEnumerable<TEntity>> GetAllReadOnlyAsync() => await _dbSet.AsNoTracking().ToListAsync();
+
     public async Task<TEntity?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+    
     public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) => 
         await _dbSet.Where(predicate).ToListAsync();
+
+    public async Task<IEnumerable<TEntity>> FindReadOnlyAsync(Expression<Func<TEntity, bool>> predicate) => 
+        await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+
     public async Task AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
+    
     public Task UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
@@ -31,9 +40,17 @@ public class LocalRepository<TEntity> : IRepository<TEntity> where TEntity : cla
         return Task.CompletedTask;
     }
 
-    public async Task<IEnumerable<TEntity>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null)
+    public async Task<IEnumerable<TEntity>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<TEntity, bool>>? predicate = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, bool readOnly = false)
     {
-        IQueryable<TEntity> query = _dbSet;
+        IQueryable<TEntity> query;
+        if (readOnly)
+        {
+            query = _dbSet.AsNoTracking();
+        }
+        else
+        {
+            query = _dbSet;
+        }
 
         if (predicate != null)
         {

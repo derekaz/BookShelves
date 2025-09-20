@@ -9,12 +9,14 @@ public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataServ
 {
     readonly BookShelvesDbContext dataContext = dataContext;
 
+    //public static IBook Create() => new LocalBook();
+
     public IBook InitializeBookInstance()
     {
         return new LocalBook();
     }
 
-    public async Task<IEnumerable<IBook>> GetBooksAsync()
+    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         return await dataContext.Books
             .Where(b => b.UpdateType != "D")
@@ -41,7 +43,7 @@ public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataServ
             .FirstOrDefaultAsync();
     }
 
-    public async Task<bool> DeleteBookAsync(IBook book)
+    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
     {
         var localBook = (LocalBook)book;
         localBook.Revision = book.Revision + 1;
