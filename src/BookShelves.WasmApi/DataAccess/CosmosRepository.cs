@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.Data.Interfaces;
 
 namespace BookShelves.WasmApi.DataAccess;
 

@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui.Data", "BookShelves.Maui.Data\BookShelves.Maui.Data.csproj", "{258E40D8-EB33-4113-9652-1E6A68628EA1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared.DataInterfaces", "BookShelves.Shared.DataInterfaces\BookShelves.Shared.DataInterfaces.csproj", "{90A28B0E-D6D3-494A-80AF-DD1D2F82040F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared.Data", "BookShelves.Shared.Data\BookShelves.Shared.Data.csproj", "{90A28B0E-D6D3-494A-80AF-DD1D2F82040F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

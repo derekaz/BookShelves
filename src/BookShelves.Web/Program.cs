@@ -1,8 +1,8 @@
 using BookShelves.Shared;
 using BookShelves.Web.Components;
 using BookShelves.WebShared.Data;
-using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.DependencyInjection;
+using BookShelves.Shared.Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

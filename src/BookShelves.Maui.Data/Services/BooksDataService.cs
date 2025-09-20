@@ -9,7 +9,7 @@
 //{
 //    readonly BookShelvesDbContext dataContext = dataContext;
 
-//    public IBook Create()
+//    public IBook CreateBook()
 //    {
 //        return new LocalBook();
 //    }

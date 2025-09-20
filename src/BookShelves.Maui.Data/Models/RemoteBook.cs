@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.Data.Interfaces;
 using System.Text.Json.Serialization;
 
 namespace BookShelves.Maui.Data.Models

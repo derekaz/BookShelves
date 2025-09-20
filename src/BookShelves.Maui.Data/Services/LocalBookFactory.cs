@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.Data.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,5 +9,5 @@ namespace BookShelves.Maui.Data.Services;
 
 public class LocalBookFactory : IBookFactory
 {
-    public IBook Create() => new Models.LocalBook();
+    public IBook CreateBook() => new Models.LocalBook();
 }

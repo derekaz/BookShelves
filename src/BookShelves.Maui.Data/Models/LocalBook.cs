@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 using System.ComponentModel.DataAnnotations.Schema;

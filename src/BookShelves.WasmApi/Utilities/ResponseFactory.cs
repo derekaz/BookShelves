@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.Data.Bases;
 using Microsoft.Azure.Functions.Worker.Http;
 using System;
 using System.Net;

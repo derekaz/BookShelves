@@ -1,20 +1,17 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Maui.Data.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BookShelves.Shared.Data.Bases;
+using BookShelves.Shared.Data.Interfaces;
 
 namespace BookShelves.Maui.Data;
 
 // DataAccess/UnitOfWork.cs
-public class UnitOfWork(BookShelvesDbContext context) : IUnitOfWork
+public class UnitOfWork(BookShelvesDbContext context) : IUnitOfWork<LocalBook>
 {
     private readonly BookShelvesDbContext _context = context;
     private IRepository<LocalBook>? _localBooks;
 
-    public IRepository<LocalBook> LocalBooks => _localBooks ??= new GenericRepository<LocalBook>(_context);
+    public IRepository<LocalBook> LocalBooks => _localBooks ??= new GenericRepository<BookShelvesDbContext, LocalBook>(_context);
     // Initialize other repositories similarly
 
     public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();

@@ -21,7 +21,7 @@ public class BookShelvesDbContext : DbContext
 
         //}
 
-        _logger.LogInformation($"BookShelvesContext-Constructor; dbPath: {connectionString}");
+        _logger.LogInformation("BookShelvesContext-Constructor; dbPath: {connectionString}", connectionString);
         //Database.EnsureCreated();
         UpdateDatabaseIfRequired();
     }
@@ -93,10 +93,10 @@ public class BookShelvesDbContext : DbContext
         {
             if (Database.CanConnect())
             {
-                _logger.LogInformation($"ConnectionString={Database.GetDbConnection().ConnectionString}");
+                _logger.LogInformation("ConnectionString={ConnectionString}", Database.GetDbConnection().ConnectionString);
                 long currentDbVersion = GetUserVersion();
 
-                _logger.LogInformation($"currentDbVersion: {currentDbVersion}");
+                _logger.LogInformation("currentDbVersion: {currentDbVersion}", currentDbVersion);
 
                 //IEnumerable<string> tables = Database.SqlQueryRaw<string>($"SELECT name FROM sqlite_master WHERE type = 'table';")
                 //    .AsEnumerable();
@@ -104,7 +104,7 @@ public class BookShelvesDbContext : DbContext
                 long hasTables = Database.SqlQueryRaw<long>($"SELECT COUNT(*) AS TableCount FROM sqlite_master WHERE type = 'table' AND name = 'books';")
                     .AsEnumerable().FirstOrDefault();
 
-                _logger.LogDebug($"hasTables: {hasTables}");
+                _logger.LogDebug("hasTables: {hasTables}", hasTables);
 
                 if (currentDbVersion == 0 && hasTables == 0)
                 {
@@ -160,7 +160,7 @@ public class BookShelvesDbContext : DbContext
         try
         {
             long version = Database.SqlQueryRaw<long>(script).AsEnumerable().FirstOrDefault();
-            _logger.LogInformation($"User Version: {version}");
+            _logger.LogInformation("User Version: {version}", version);
             return Convert.ToInt32(version);
         }
         catch (Exception ex)
@@ -176,7 +176,7 @@ public class BookShelvesDbContext : DbContext
         try
         {
             int rows_affected = Database.ExecuteSqlRaw(script.ToString());
-            _logger.LogInformation($"Rows Affected: {rows_affected}");
+            _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
         }
         catch (Exception ex)
         {
@@ -189,13 +189,13 @@ public class BookShelvesDbContext : DbContext
     {
         int VERSION = 1;
 
-        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN LastUpdateTime DATETIME;", $"ALTER TABLE Books ADD COLUMN Revision INT;" };
+        FormattableString[] stepScripts = [$"ALTER TABLE Books ADD COLUMN LastUpdateTime DATETIME;", $"ALTER TABLE Books ADD COLUMN Revision INT;"];
         try
         {
             foreach (var stepScript in stepScripts)
             {
                 int rows_affected = ExecuteUpdateStep(stepScript, true);
-                _logger.LogInformation($"Rows Affected: {rows_affected}");
+                _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
             }
 
             SetUserVersion(VERSION);
@@ -219,13 +219,13 @@ public class BookShelvesDbContext : DbContext
     {
         int VERSION = 2;
 
-        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN UpdateType TEXT;" };
+        FormattableString[] stepScripts = [$"ALTER TABLE Books ADD COLUMN UpdateType TEXT;"];
         try
         {
             foreach (var stepScript in stepScripts)
             {
                 int rows_affected = ExecuteUpdateStep(stepScript, true);
-                _logger.LogInformation($"Rows Affected: {rows_affected}");
+                _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
             }
 
             SetUserVersion(VERSION);
@@ -249,13 +249,13 @@ public class BookShelvesDbContext : DbContext
     {
         int VERSION = 3;
 
-        FormattableString[] stepScripts = { $"ALTER TABLE Books ADD COLUMN ServerId INT;" };
+        FormattableString[] stepScripts = [$"ALTER TABLE Books ADD COLUMN ServerId INT;"];
         try
         {
             foreach (var stepScript in stepScripts)
             {
                 int rows_affected = ExecuteUpdateStep(stepScript, true);
-                _logger.LogInformation($"Rows Affected: {rows_affected}");
+                _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
             }
 
             SetUserVersion(VERSION);
@@ -292,7 +292,7 @@ public class BookShelvesDbContext : DbContext
         try
         {
             int rows_affected = Database.ExecuteSqlRaw(itemString);
-            _logger.LogInformation($"Rows Affected: {rows_affected}");
+            _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
             return rows_affected;
         }
         catch (Exception ex)

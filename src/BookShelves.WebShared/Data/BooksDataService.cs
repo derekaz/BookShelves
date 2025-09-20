@@ -1,31 +1,26 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.Data.Bases;
+using BookShelves.Shared.Data.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace BookShelves.WebShared.Data;
 
-public class BooksDataService : IBooksDataService
+public class BooksDataService(HttpClient http, ILoggerFactory loggerFactory) : IBooksDataService
 {
-    readonly HttpClient _httpClient;
-    readonly ILogger _logger;
-
-    public BooksDataService(HttpClient http, ILoggerFactory loggerFactory)
-    {
-        _httpClient = http;
-        _logger = loggerFactory.CreateLogger<BooksDataService>();
-    }
+    private readonly HttpClient _httpClient = http;
+    private readonly ILogger _logger = loggerFactory.CreateLogger<BooksDataService>();
 
     public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? new Book[] { };
+            return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? [];
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "BooksDataService:GetBooksAsync-Exception");
-            return new Book[] { };
+            return [];
         }
     }
 

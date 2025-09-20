@@ -1,13 +1,13 @@
 using BookShelves.WasmSwa;
 using BookShelves.WasmSwa.Data;
 using BookShelves.Shared;
-using BookShelves.Shared.DataInterfaces;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BookShelves.WasmSwa.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using BookShelves.Shared.ServiceInterfaces;
 using BookShelves.WebShared.Data;
+using BookShelves.Shared.Data.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<WasmApp>("#app");

@@ -213,7 +213,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     //            _settingsService.KeyChainAccountName)
     //        .Build();
 
-    //    // Create a cache helper
+    //    // CreateBook a cache helper
     //    var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
 
     //    // Connect the PublicClientApplication's cache with the cacheHelper.

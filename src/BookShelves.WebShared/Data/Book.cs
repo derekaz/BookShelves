@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.DataInterfaces;
+﻿using BookShelves.Shared.Data.Interfaces;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 

@@ -1,4 +1,4 @@
-﻿namespace BookShelves.Shared.DataInterfaces;
+﻿namespace BookShelves.Shared.Data.Interfaces;
 
 public interface IBooksDataService // where T : IBook
 {

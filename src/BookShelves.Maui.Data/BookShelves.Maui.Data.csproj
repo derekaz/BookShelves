@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BookShelves.Shared.DataInterfaces\BookShelves.Shared.DataInterfaces.csproj" />
+    <ProjectReference Include="..\BookShelves.Shared.Data\BookShelves.Shared.Data.csproj" />
   </ItemGroup>
 
 </Project>

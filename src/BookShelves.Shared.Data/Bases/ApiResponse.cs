@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace BookShelves.Shared.DataInterfaces;
+namespace BookShelves.Shared.Data.Bases;
 
 public class ApiResponse
 {
@@ -91,7 +91,7 @@ public class ApiResponse<T>
 
     public ApiResponse<T> WithMessage(string? message)
     {
-        this.Message = message;
+        Message = message;
         return this;
     }
 

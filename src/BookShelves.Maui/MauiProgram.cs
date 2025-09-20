@@ -4,12 +4,14 @@ using BookShelves.Maui.Data.Services;
 using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.Data.Bases;
+using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
@@ -182,8 +184,10 @@ public static class MauiProgram
         ;
 
         // Configure DbContext
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IRepository<LocalBook>, GenericRepository<LocalBook>>(); // Register specific repositories if needed
+        //builder.Services.AddScoped<IUnitOfWork<BookShelvesDbContext, DbSet<LocalBook>, LocalBook> , UnitOfWork>();
+        //builder.Services.AddScoped<IRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>, GenericRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>>(); // Register specific repositories if needed
+        builder.Services.AddScoped<IUnitOfWork<LocalBook>, UnitOfWork>();
+        builder.Services.AddScoped<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, TestBooksService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
 
@@ -241,14 +245,12 @@ public static class MauiProgram
         Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Started - SubjectName:{0}", subjectName);
         try
         {
-            using (RSA rsa = RSA.Create(2048))
-            {
-                CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
-                Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
+            using RSA rsa = RSA.Create(2048);
+            CertificateRequest request = new(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
+            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
 
-                return ephemeral;
-            }
+            return ephemeral;
         }
         catch (Exception ex)
         {

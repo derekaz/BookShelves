@@ -1,5 +1,6 @@
 ﻿using BookShelves.Maui.Data.Models;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.Data.Bases;
+using BookShelves.Shared.Data.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
@@ -172,7 +173,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
                     }
                     else if (currentBook == null)
                     {
-                        currentBook = (LocalBook)_bookFactory.Create();
+                        currentBook = (LocalBook)_bookFactory.CreateBook();
 
                         currentBook.Title = book.Title;
                         currentBook.Author = book.Author;

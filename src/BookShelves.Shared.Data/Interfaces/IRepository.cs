@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Shared.Data.Interfaces;
 
-public interface IRepository<TEntity> where TEntity : class
+public interface IRepository<TEntity>
+    where TEntity : class
 {
     Task<IEnumerable<TEntity>> GetAllAsync();
     
