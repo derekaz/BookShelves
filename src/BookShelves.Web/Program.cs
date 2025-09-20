@@ -16,6 +16,8 @@ builder.Services.AddScoped(sp =>
         new HttpClient
         { BaseAddress = new Uri(builder.Configuration["API_Uri"] ?? builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
     );
+builder.Services.AddTransient<IBook, Book>();
+builder.Services.AddTransient<IBookFactory, BookFactory>();
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 
 var app = builder.Build();

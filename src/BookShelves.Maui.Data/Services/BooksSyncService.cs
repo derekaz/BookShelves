@@ -8,8 +8,9 @@ using System.Text.Json;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksSyncService(IHttpClientFactory httpClientFactory, IBooksDataService booksDataService, ILogger<BooksSyncService> logger) : IBooksSyncService
+public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory bookFactory, IBooksDataService booksDataService, ILogger<BooksSyncService> logger) : IBooksSyncService
 {
+    private readonly IBookFactory _bookFactory = bookFactory;
     private readonly TestBooksService _localBooksDataService = (TestBooksService)booksDataService;
     // private readonly IBooksDataService _localBooksDataService = (BooksDataService)booksDataService;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
@@ -171,7 +172,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBooksDataSe
                     }
                     else if (currentBook == null)
                     {
-                        currentBook = (LocalBook)_localBooksDataService.InitializeBookInstance();
+                        currentBook = (LocalBook)_bookFactory.Create();
 
                         currentBook.Title = book.Title;
                         currentBook.Author = book.Author;

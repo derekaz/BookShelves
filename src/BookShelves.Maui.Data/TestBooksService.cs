@@ -1,11 +1,6 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.DataInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BookShelves.Maui.Data;
 
@@ -21,13 +16,6 @@ public class TestBooksService : IBooksDataService
         _unitOfWork = unitOfWork;
     }
  
-    //public static IBook Create() => new LocalBook();
-
-    public IBook InitializeBookInstance()
-    {
-        return new LocalBook();
-    }
-
     public async Task<bool> CreateBookAsync(IBook book)
     {
         var newBook = (LocalBook)book;
@@ -48,7 +36,7 @@ public class TestBooksService : IBooksDataService
     {
         var localBook = (LocalBook)book;
         localBook.Revision = book.Revision + 1;
-        localBook.UpdateType = "D";
+        localBook.UpdateType = "C";
         localBook.LastUpdateTime = DateTime.UtcNow;
         await _unitOfWork.LocalBooks.UpdateAsync(localBook);
         return await _unitOfWork.CompleteAsync() > 0;

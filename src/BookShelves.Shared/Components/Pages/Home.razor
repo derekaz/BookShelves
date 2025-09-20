@@ -10,11 +10,11 @@ Welcome to your book library!
 <button class="btn" @onclick="Logout">Logout</button>
 <p role="status">Current token: @currentToken</p>-->
 
-<input type="button" class="btn btn-primary" @onclick="(() => GetBooksAsync())" value="Edit" />
+<input type="button" class="btn btn-primary" @onclick="(() => SyncBooksAsync())" value="Sync" />
 
 @code
 {
-    private async void GetBooksAsync()
+    private async void SyncBooksAsync()
     {
         booksSyncService.BeginSync();
         // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");

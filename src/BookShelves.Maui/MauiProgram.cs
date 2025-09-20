@@ -10,7 +10,6 @@ using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-//using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
@@ -186,6 +185,7 @@ public static class MauiProgram
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IRepository<LocalBook>, LocalRepository<LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, TestBooksService>();
+        builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
 
 
         //builder.Services.AddHttpLogging(logging =>

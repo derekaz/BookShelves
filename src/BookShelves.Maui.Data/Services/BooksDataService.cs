@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataService
+public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataService, IBookFactory
 {
     readonly BookShelvesDbContext dataContext = dataContext;
 
     //public static IBook Create() => new LocalBook();
 
-    public IBook InitializeBookInstance()
+    public IBook Create()
     {
         return new LocalBook();
     }

@@ -3,6 +3,7 @@
 @using Blazored.Modal.Services
 @using BookShelves.Shared
 @using BookShelves.Shared.DataInterfaces
+@inject IBookFactory BookFactory
 @inject IBooksDataService DataService 
 @inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
@@ -144,6 +145,6 @@ else
 
     private IBook InitializeBookObject()
     {
-        return DataService.InitializeBookInstance();
+        return BookFactory.Create();
     }
 }

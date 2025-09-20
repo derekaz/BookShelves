@@ -2,8 +2,6 @@
 
 public interface IBooksDataService // where T : IBook
 {
-    IBook InitializeBookInstance();
-
     Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false);
 
     Task<bool> CreateBookAsync(IBook book);
