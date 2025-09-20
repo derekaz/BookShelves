@@ -4,7 +4,7 @@ namespace BookShelves.WasmSwa.Services
 {
     public class BooksSyncService : IBooksSyncService
     {
-        public void BeginSync()
+        public Task BeginSyncAsync()
         {
             throw new NotImplementedException();
         }

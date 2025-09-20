@@ -8,6 +8,6 @@ namespace BookShelves.Shared.DataInterfaces
 {
     public interface IBooksSyncService
     {
-        void BeginSync();
+        Task BeginSyncAsync();
     }
 }

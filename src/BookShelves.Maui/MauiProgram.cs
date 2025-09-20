@@ -183,7 +183,7 @@ public static class MauiProgram
 
         // Configure DbContext
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IRepository<LocalBook>, LocalRepository<LocalBook>>(); // Register specific repositories if needed
+        builder.Services.AddScoped<IRepository<LocalBook>, GenericRepository<LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, TestBooksService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
 

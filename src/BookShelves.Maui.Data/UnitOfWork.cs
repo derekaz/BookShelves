@@ -14,7 +14,7 @@ public class UnitOfWork(BookShelvesDbContext context) : IUnitOfWork
     private readonly BookShelvesDbContext _context = context;
     private IRepository<LocalBook>? _localBooks;
 
-    public IRepository<LocalBook> LocalBooks => _localBooks ??= new LocalRepository<LocalBook>(_context);
+    public IRepository<LocalBook> LocalBooks => _localBooks ??= new GenericRepository<LocalBook>(_context);
     // Initialize other repositories similarly
 
     public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();

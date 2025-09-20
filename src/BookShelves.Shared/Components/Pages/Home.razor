@@ -16,7 +16,7 @@ Welcome to your book library!
 {
     private async void SyncBooksAsync()
     {
-        booksSyncService.BeginSync();
+        await booksSyncService.BeginSyncAsync();
         // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");
         // var temp = await http.GetStringAsync("/api/books");
     }

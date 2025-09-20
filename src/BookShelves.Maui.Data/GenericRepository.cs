@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data;
 
-public class LocalRepository<TEntity> : IRepository<TEntity> where TEntity : class
+public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
 {
     private readonly BookShelvesDbContext _context;
     private readonly DbSet<TEntity> _dbSet;
 
-    public LocalRepository(BookShelvesDbContext context)
+    public GenericRepository(BookShelvesDbContext context)
     {
         _context = context;
         _dbSet = _context.Set<TEntity>();

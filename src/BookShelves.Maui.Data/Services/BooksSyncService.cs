@@ -16,13 +16,13 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly ILogger<BooksSyncService> _logger = logger;
 
-    public void BeginSync()
+    public async Task BeginSyncAsync()
     {
         GetLastSyncTime();
-        var updatedServerBooks = GetServerBooksAsync().Result;
-        UpdateLocalStoreAsync(updatedServerBooks);
-        var updatedLocalBooks = GetLocalBooksAsync().Result;
-        UpdateServerStoreAsync(updatedLocalBooks);
+        var updatedServerBooks = await GetServerBooksAsync();
+        await UpdateLocalStoreAsync(updatedServerBooks);
+        var updatedLocalBooks = await GetLocalBooksAsync();
+        await UpdateServerStoreAsync(updatedLocalBooks);
     }
 
     readonly Expression<Func<LocalBook, bool>> changedBooks = p => p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
@@ -33,7 +33,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
         return books;
     }
 
-    private async void UpdateServerStoreAsync(IEnumerable<LocalBook> updatedLocalBooks)
+    private async Task UpdateServerStoreAsync(IEnumerable<LocalBook> updatedLocalBooks)
     {
         var httpClient = _httpClientFactory.CreateClient("BooksApi");
         var currentServerBooks = await httpClient.GetFromJsonAsync<RemoteBook[]>("/api/books") ?? [];
@@ -148,7 +148,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
         }
     }
 
-    private async void UpdateLocalStoreAsync(List<RemoteBook> updatedBooks)
+    private async Task UpdateLocalStoreAsync(List<RemoteBook> updatedBooks)
     {
         try
         {
