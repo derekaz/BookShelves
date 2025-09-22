@@ -12,7 +12,7 @@ namespace BookShelves.Maui.Data.Services;
 public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory bookFactory, IBooksDataService booksDataService, ILogger<BooksSyncService> logger) : IBooksSyncService
 {
     private readonly IBookFactory _bookFactory = bookFactory;
-    private readonly TestBooksService _localBooksDataService = (TestBooksService)booksDataService;
+    private readonly BooksDataService _localBooksDataService = (BooksDataService)booksDataService;
     // private readonly IBooksDataService _localBooksDataService = (BooksDataService)booksDataService;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly ILogger<BooksSyncService> _logger = logger;
@@ -97,15 +97,43 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
                         currentServerBook.Revision = updatedBook.Revision;
 
                         using StringContent jsonContent = new(
-                            System.Text.Json.JsonSerializer.Serialize(currentServerBook),
-                            Encoding.UTF8,
-                            "application/json");
+                        System.Text.Json.JsonSerializer.Serialize(currentServerBook),
+                        Encoding.UTF8,
+                        "application/json");
 
-                        var temp = await httpClient.PostAsync("api/v2/books/edit", jsonContent);
+                        try
+                        {
+                            var result = await httpClient.PostAsync("api/v2/books/edit", jsonContent);
+
+                            if (result != null && result.IsSuccessStatusCode)
+                            {
+                                updatedBook.UpdateType = string.Empty;
+                                var localUpdateResult = await _localBooksDataService.UpdateBookFromSyncAsync(updatedBook);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Unable to update server store from local change.");
+                            throw;
+                        }
                     }
                     else if (updatedBook.UpdateType == "D")
                     {
-                        var temp = await httpClient.DeleteAsync($"/api/book/{updatedBook.ServerId}");
+                        try
+                        {
+                            var result = await httpClient.DeleteAsync($"/api/book/{updatedBook.ServerId}");
+
+                            if (result != null && result.IsSuccessStatusCode)
+                            {
+                                updatedBook.UpdateType = string.Empty;
+                                var localUpdateResult = await _localBooksDataService.UpdateBookFromSyncAsync(updatedBook);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Unable to update server store from local delete.");
+                            throw;
+                        }
                     }
                 }
             }

@@ -22,4 +22,8 @@
     <ProjectReference Include="..\BookShelves.Shared.Data\BookShelves.Shared.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ServiceInterfaces\" />
+  </ItemGroup>
+
 </Project>

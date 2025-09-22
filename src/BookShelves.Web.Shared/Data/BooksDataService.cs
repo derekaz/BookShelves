@@ -6,10 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace BookShelves.WebShared.Data;
 
-public class BooksDataService(HttpClient http, ILoggerFactory loggerFactory) : IBooksDataService
+public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger) : IBooksDataService
 {
     private readonly HttpClient _httpClient = http;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<BooksDataService>();
+    private readonly ILogger _logger = logger;
 
     public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
     {

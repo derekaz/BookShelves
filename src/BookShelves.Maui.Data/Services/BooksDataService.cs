@@ -1,87 +1,95 @@
-﻿//using BookShelves.Maui.Data.Models;
-//using BookShelves.Shared.DataInterfaces;
-//using Microsoft.EntityFrameworkCore;
-//using System.Linq.Expressions;
+﻿using BookShelves.Maui.Data.Models;
+using BookShelves.Shared.Data.Interfaces;
+using System.Linq.Expressions;
 
-//namespace BookShelves.Maui.Data.Services;
+namespace BookShelves.Maui.Data.Services;
 
-//public class BooksDataService(BookShelvesDbContext dataContext) : IBooksDataService, IBookFactory
-//{
-//    readonly BookShelvesDbContext dataContext = dataContext;
+public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataService
+{
+    private readonly IUnitOfWork<LocalBook> _unitOfWork = unitOfWork;
 
-//    public IBook CreateBook()
-//    {
-//        return new LocalBook();
-//    }
+    private readonly Expression<Func<LocalBook, bool>> changedBooks = p => 
+        p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
 
-//    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
-//    {
-//        return await dataContext.Books
-//            .Where(b => b.UpdateType != "D")
-//            .AsNoTracking()
-//            .ToListAsync();
-//    }
+    public async Task<bool> CreateBookAsync(IBook book)
+    {
+        var newBook = (LocalBook)book;
+        newBook.Revision = book.Revision + 1;
+        newBook.UpdateType = "C";
+        newBook.LastUpdateTime = DateTime.UtcNow;
+        await _unitOfWork.LocalBooks.AddAsync(newBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
 
-//    public async Task<List<LocalBook>> GetBooksAsync(Expression<Func<LocalBook, bool>> whereExp)
-//    {
-//        return await dataContext
-//            .Books
-//            .AsNoTracking()
-//            // .Where(b => b.UpdateType != "D")
-//            .Where(whereExp)
-//            .ToListAsync();
-//    }
+    public async Task<bool> CreateBookFromSyncAsync(LocalBook book)
+    {
+        await _unitOfWork.LocalBooks.AddAsync(book);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
 
-//    public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
-//    {
-//        return await dataContext
-//            .Books
-//            .AsNoTracking()
-//            .Where(b => b.ServerId == serverId)
-//            .FirstOrDefaultAsync();
-//    }
+    public async Task<bool> UpdateBookAsync(IBook book)
+    {
+        var localBook = (LocalBook)book;
+        localBook.Revision = book.Revision + 1;
+        localBook.UpdateType = "C";
+        localBook.LastUpdateTime = DateTime.UtcNow;
+        await _unitOfWork.LocalBooks.UpdateAsync(localBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
 
-//    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
-//    {
-//        var localBook = (LocalBook)book;
-//        localBook.Revision = book.Revision + 1;
-//        localBook.UpdateType = "D";
-//        localBook.LastUpdateTime = DateTime.UtcNow;
-//        // dataContext.Books.Remove((Book)book);
-//        dataContext.Update(localBook); 
-//        // dataContext.Entry<Book>(localBook).State = EntityState.Deleted;
-//        return (await dataContext.SaveChangesAsync()) > 0;
-//    }
+    public async Task<bool> UpdateBookFromSyncAsync(LocalBook newBook)
+    {
+        await _unitOfWork.LocalBooks.UpdateAsync(newBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
 
-//    public async Task<bool> CreateBookFromSyncAsync(LocalBook book)
-//    {
-//        await dataContext.Books.AddAsync(book);
-//        return (await dataContext.SaveChangesAsync()) > 0;
-//    }
+    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    {
+        var localBook = (LocalBook)book;
 
-//    public async Task<bool> CreateBookAsync(IBook book)
-//    {
-//        var localBook = (LocalBook)book;
-//        localBook.Revision = 0;
-//        localBook.UpdateType = "C";
-//        localBook.LastUpdateTime = DateTime.UtcNow;
-//        await dataContext.Books.AddAsync(localBook);
-//        return (await dataContext.SaveChangesAsync()) > 0;
-//    }
+        if (softDelete)
+        {
+            localBook.Revision = book.Revision + 1;
+            localBook.UpdateType = "D";
+            localBook.LastUpdateTime = DateTime.UtcNow;
+            await _unitOfWork.LocalBooks.UpdateAsync(localBook);
+            return await _unitOfWork.CompleteAsync() > 0;
+        }
 
-//    public async Task<bool> UpdateBookFromSyncAsync(LocalBook book)
-//    {
-//        dataContext.Update(book);
-//        return (await dataContext.SaveChangesAsync()) > 0;
-//    }
+        await _unitOfWork.LocalBooks.DeleteAsync(localBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
 
-//    public async Task<bool> UpdateBookAsync(IBook book)
-//    {
-//        var localBook = (LocalBook)book;
-//        localBook.Revision = book.Revision + 1;
-//        localBook.UpdateType = "U";
-//        localBook.LastUpdateTime = DateTime.UtcNow;
-//        dataContext.Update(localBook);
-//        return (await dataContext.SaveChangesAsync()) > 0;
-//    }
-//}
+    //public async Task<IEnumerable<LocalBook>> GetAllEntitiesAsync()
+    //{
+    //    return await _unitOfWork.LocalBooks.GetAllAsync();
+    //}
+
+    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    {
+        if (includeSoftDeleted)
+        {
+            return await _unitOfWork.LocalBooks.GetAllAsync();
+        }
+
+        return await _unitOfWork
+            .LocalBooks
+            .FindAsync(b => b.UpdateType != "D");
+    }
+
+    public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
+    {
+        return (await _unitOfWork
+            .LocalBooks
+            .FindAsync(b => b.ServerId == serverId))
+            // .FindReadOnlyAsync(b => b.ServerId == serverId))
+            .FirstOrDefault();
+    }
+
+    public async Task<IEnumerable<LocalBook>> GetChangedBooksAsync()
+    {
+        return await _unitOfWork
+            .LocalBooks
+            .FindAsync(changedBooks);
+    }
+}

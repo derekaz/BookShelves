@@ -12,9 +12,9 @@ public class WeatherForecastFunction
 {
     private readonly ILogger _logger;
 
-    public WeatherForecastFunction(ILoggerFactory loggerFactory)
+    public WeatherForecastFunction(ILogger<WeatherForecastFunction> logger)
     {
-        _logger = loggerFactory.CreateLogger<WeatherForecastFunction>();
+        _logger = logger;
     }
 
     private string GetSummary(int temp)

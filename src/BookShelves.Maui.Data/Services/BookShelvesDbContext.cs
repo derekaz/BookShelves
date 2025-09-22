@@ -6,6 +6,11 @@ namespace BookShelves.Maui.Data.Services;
 
 public class BookShelvesDbContext : DbContext
 {
+    public static void Initialize()
+    {
+        SQLitePCL.Batteries_V2.Init();
+    }
+
     private readonly int LATEST_DATABASE_VERSION = 3;
     private readonly ILogger _logger;
 
@@ -16,13 +21,19 @@ public class BookShelvesDbContext : DbContext
         _logger = logger;
 
         var connectionString = Database.GetDbConnection().ConnectionString;
+        _logger.LogInformation("BookShelvesContext-Constructor; dbPath: {connectionString}", connectionString);
+
         //if (options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault() is SqliteOptionsExtension sqliteOptions)
         //{
 
         //}
 
-        _logger.LogInformation("BookShelvesContext-Constructor; dbPath: {connectionString}", connectionString);
         //Database.EnsureCreated();
+        // UpdateDatabaseIfRequired();
+    }
+
+    public void UpdateDatabase()
+    {
         UpdateDatabaseIfRequired();
     }
 
@@ -36,13 +47,14 @@ public class BookShelvesDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         _logger.LogInformation("BookShelvesContext-OnConfiguring");
+        // SQLitePCL.Batteries_V2.Init();
         if (!optionsBuilder.IsConfigured)
         {
             _logger.LogInformation("BookShelvesContext-OnConfiguring-NotConfigured");
             //optionsBuilder.UseSqlite($"Data Source={DbPath}");
             //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesDbContext>();
             //Database.SetInitializer(sqliteConnectionInitializer);
-            SQLitePCL.Batteries_V2.Init();
+            //SQLitePCL.Batteries_V2.Init();
         }
         base.OnConfiguring(optionsBuilder);
     }

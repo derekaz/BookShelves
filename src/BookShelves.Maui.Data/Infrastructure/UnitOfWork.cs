@@ -3,7 +3,7 @@ using BookShelves.Maui.Data.Services;
 using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
 
-namespace BookShelves.Maui.Data;
+namespace BookShelves.Maui.Data.Infrastructure;
 
 // DataAccess/UnitOfWork.cs
 public class UnitOfWork(BookShelvesDbContext context) : IUnitOfWork<LocalBook>

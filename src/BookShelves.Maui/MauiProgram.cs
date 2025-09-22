@@ -1,4 +1,4 @@
-﻿using BookShelves.Maui.Data;
+﻿using BookShelves.Maui.Data.Infrastructure;
 using BookShelves.Maui.Data.Models;
 using BookShelves.Maui.Data.Services;
 using BookShelves.Maui.Helpers;
@@ -27,6 +27,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        BookShelvesDbContext.Initialize();
+
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
@@ -119,19 +121,41 @@ public static class MauiProgram
         //      try
         //      {
         builder.Configuration.AddConfiguration(config);
-        builder.Services.AddMauiBlazorWebView();
 
         //      }
         //      catch (Exception ex) 
         //{
         //	Debug.WriteLine(ex);
         //}
-//#if DEBUG
-//        builder.Services.AddBlazorWebViewDeveloperTools();
-//#endif
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
+        //builder.Services.AddSingleton<IDataService>(
+        //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
+        //var options = new DbContextOptionsBuilder();
+        //builder.Services.AddSingleton<BookShelvesDbContext, BookShelvesDbContext>(
+        //    s => ActivatorUtilities.CreateInstance<BookShelvesDbContext>(s, options, dbPath));
+        builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
+        builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddSingleton<ISettingsService, SettingsService>();
+        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddSingleton<IGraphService, GraphService>();
+
+        builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient("BooksApi", client =>
+        {
+            // client.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
+            // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
+            client.BaseAddress = new Uri("http://localhost:7071");
+            client.Timeout = new TimeSpan(0, 0, 20);
+        })
+#if DEBUG
+            // .AddTraceContentLogging();
+#endif
+        ;
+
+        // Configure DbContext
 #if MACCATALYST
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
         var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
@@ -154,43 +178,18 @@ public static class MauiProgram
         System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 #endif
 
-        //builder.Services.AddSingleton<IDataService>(
-        //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
-        //var options = new DbContextOptionsBuilder();
-        //builder.Services.AddSingleton<BookShelvesDbContext, BookShelvesDbContext>(
-        //    s => ActivatorUtilities.CreateInstance<BookShelvesDbContext>(s, options, dbPath));
         builder.Services.AddDbContext<BookShelvesDbContext>(
             options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
-        builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-        builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
-        builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
-        builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddSingleton<ISettingsService, SettingsService>();
-        builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-        builder.Services.AddSingleton<IGraphService, GraphService>();
-        builder.Services.AddTransient<IBook, LocalBook>();
-        // builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-        builder.Services.AddHttpClient();
-        builder.Services.AddHttpClient("BooksApi", client =>
-        {
-            // client.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
-            // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
-            client.BaseAddress = new Uri("http://localhost:7071");
-            client.Timeout = new TimeSpan(0, 0, 20);
-        })
-#if DEBUG
-            // .AddTraceContentLogging();
-#endif
-        ;
+        builder.Services.AddTransient<IUnitOfWork<LocalBook>, UnitOfWork>();
+        builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
 
-        // Configure DbContext
         //builder.Services.AddScoped<IUnitOfWork<BookShelvesDbContext, DbSet<LocalBook>, LocalBook> , UnitOfWork>();
         //builder.Services.AddScoped<IRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>, GenericRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>>(); // Register specific repositories if needed
-        builder.Services.AddScoped<IUnitOfWork<LocalBook>, UnitOfWork>();
-        builder.Services.AddScoped<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
-        builder.Services.AddTransient<IBooksDataService, TestBooksService>();
+        builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
+        builder.Services.AddTransient<IBook, LocalBook>();
 
+        builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
         //builder.Services.AddHttpLogging(logging =>
         //{
@@ -204,7 +203,6 @@ public static class MauiProgram
         //});
 
         // builder.Services.AddTransient<HttpClient>();
-        builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 
@@ -230,7 +228,12 @@ public static class MauiProgram
 
         try
         {
-            return builder.Build();
+            var app = builder.Build();
+
+            ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+            app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
+
+            return app;
         }
         catch (Exception ex)
         {

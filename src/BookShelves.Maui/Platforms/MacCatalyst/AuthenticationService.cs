@@ -22,7 +22,7 @@ public partial class AuthenticationService
         await Task.Delay(10);
 
         string url = uri.AbsoluteUri;
-        _logger.LogInformation("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={0})", url);
+        _logger.LogInformation("AuthenticationService:TryThisAsync (Mac) - Before Url Open (url={url})", url);
         DispatchQueue.MainQueue.DispatchAsync(async () =>
         { 
             await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
