@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using BookShelves.Shared.Data.Interfaces
 @inject IBooksSyncService booksSyncService;
+@inject IConfiguration configuration;
 
 <h1>BookShelves</h1>
 
@@ -9,7 +10,9 @@ Welcome to your book library!
 <!--<button class="btn btn-primary" @onclick="LoginAsync">Login</button>
 <button class="btn" @onclick="Logout">Logout</button>
 <p role="status">Current token: @currentToken</p>-->
-
+<p>TestKey=@configuration["TestKey"]</p>
+<p>TestKey1=@configuration["settings:TestKey1"]</p>
+<p>TestKey2=@configuration["settings:TestKey2"]</p>
 <input type="button" class="btn btn-primary" @onclick="(() => SyncBooksAsync())" value="Sync" />
 
 @code

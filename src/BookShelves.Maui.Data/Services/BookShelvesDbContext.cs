@@ -11,9 +11,10 @@ public class BookShelvesDbContext : DbContext
         SQLitePCL.Batteries_V2.Init();
     }
 
-    private readonly int LATEST_DATABASE_VERSION = 3;
+    private readonly int LATEST_DATABASE_VERSION = 4;
     private readonly ILogger _logger;
 
+    public DbSet<ConfigurationSetting> ConfigurationSettings { get; set; }
     public DbSet<LocalBook> Books { get; set; }
 
     public BookShelvesDbContext(DbContextOptions<BookShelvesDbContext> options, ILogger<BookShelvesDbContext> logger) : base(options)
@@ -22,14 +23,6 @@ public class BookShelvesDbContext : DbContext
 
         var connectionString = Database.GetDbConnection().ConnectionString;
         _logger.LogInformation("BookShelvesContext-Constructor; dbPath: {connectionString}", connectionString);
-
-        //if (options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault() is SqliteOptionsExtension sqliteOptions)
-        //{
-
-        //}
-
-        //Database.EnsureCreated();
-        // UpdateDatabaseIfRequired();
     }
 
     public void UpdateDatabase()
@@ -47,14 +40,9 @@ public class BookShelvesDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         _logger.LogInformation("BookShelvesContext-OnConfiguring");
-        // SQLitePCL.Batteries_V2.Init();
         if (!optionsBuilder.IsConfigured)
         {
             _logger.LogInformation("BookShelvesContext-OnConfiguring-NotConfigured");
-            //optionsBuilder.UseSqlite($"Data Source={DbPath}");
-            //var sqliteConnectionInitializer = new CreateOrMigrateDatabaseInitializer<BookShelvesDbContext>();
-            //Database.SetInitializer(sqliteConnectionInitializer);
-            //SQLitePCL.Batteries_V2.Init();
         }
         base.OnConfiguring(optionsBuilder);
     }
@@ -113,7 +101,7 @@ public class BookShelvesDbContext : DbContext
                 //IEnumerable<string> tables = Database.SqlQueryRaw<string>($"SELECT name FROM sqlite_master WHERE type = 'table';")
                 //    .AsEnumerable();
 
-                long hasTables = Database.SqlQueryRaw<long>($"SELECT COUNT(*) AS TableCount FROM sqlite_master WHERE type = 'table' AND name = 'books';")
+                long hasTables = Database.SqlQueryRaw<long>($"SELECT COUNT(*) AS TableCount FROM sqlite_master WHERE type = 'table' AND name = 'books' OR name = 'configurationSettings';")
                     .AsEnumerable().FirstOrDefault();
 
                 _logger.LogDebug("hasTables: {hasTables}", hasTables);
@@ -137,6 +125,9 @@ public class BookShelvesDbContext : DbContext
                                 break;
                             case 3:
                                 currentDbVersion = UpgradeToThree();
+                                break;
+                            case 4:
+                                currentDbVersion = UpgradeToFour();
                                 break;
                             default:
                                 Database.EnsureCreatedAsync();
@@ -262,6 +253,38 @@ public class BookShelvesDbContext : DbContext
         int VERSION = 3;
 
         FormattableString[] stepScripts = [$"ALTER TABLE Books ADD COLUMN ServerId INT;"];
+        try
+        {
+            foreach (var stepScript in stepScripts)
+            {
+                int rows_affected = ExecuteUpdateStep(stepScript, true);
+                _logger.LogInformation("Rows Affected: {rows_affected}", rows_affected);
+            }
+
+            SetUserVersion(VERSION);
+            var newVersion = GetUserVersion();
+
+            if (newVersion != VERSION)
+            {
+                throw new ApplicationException("Unable to upgrade DB Version");
+            }
+
+            return newVersion;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "BookShelvesContext:UpgradeToThree-Exception");
+            throw;
+        }
+    }
+
+    private int UpgradeToFour()
+    {
+        int VERSION = 4;
+
+        FormattableString[] stepScripts = [
+            $"CREATE TABLE IF NOT EXISTS \"ConfigurationSettings\" (\"Id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"Key\" TEXT NOT NULL UNIQUE, \"Value\" TEXT, \"LastUpdateTime\" TEXT NOT NULL);"
+        ];
         try
         {
             foreach (var stepScript in stepScripts)

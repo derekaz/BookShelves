@@ -1,6 +1,7 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
@@ -9,18 +10,39 @@ using System.Text.Json;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory bookFactory, IBooksDataService booksDataService, ILogger<BooksSyncService> logger) : IBooksSyncService
+public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory bookFactory, IBooksDataService booksDataService, IConfiguration configuration, ILogger<BooksSyncService> logger) : IBooksSyncService
 {
     private readonly IBookFactory _bookFactory = bookFactory;
     private readonly BooksDataService _localBooksDataService = (BooksDataService)booksDataService;
     // private readonly IBooksDataService _localBooksDataService = (BooksDataService)booksDataService;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<BooksSyncService> _logger = logger;
 
     public async Task BeginSyncAsync()
     {
-        GetLastSyncTime();
-        var updatedServerBooks = await GetServerBooksAsync();
+        var lastSyncTime = DateTime.MinValue;
+        if (_configuration is IConfigurationRoot configRoot)
+        {
+            var dbProvider = configRoot.Providers.FirstOrDefault(p => p.GetType().Name == "SqliteConfigurationProvider") as SqliteConfigurationProvider ?? null;
+            if (dbProvider != null)
+            {
+                if (dbProvider.TryGet("lastSyncTime", out var lastSyncTimeString))
+                {
+                    DateTime.TryParse(lastSyncTimeString, out lastSyncTime);
+                }
+
+                
+            //    dbProvider.Set("LastSyncTime", DateTime.UtcNow.ToString("o"));
+            //    dbProvider.Set("Test", DateTime.UtcNow.ToString("o"));
+            //    dbProvider.Save();
+            //    dbProvider.Set("Test", null);
+            //    dbProvider.Save();
+            }
+        }
+
+        // GetLastSyncTime();
+        var updatedServerBooks = await GetServerBooksAsync(lastSyncTime.ToUniversalTime());
         await UpdateLocalStoreAsync(updatedServerBooks);
         var updatedLocalBooks = await GetLocalBooksAsync();
         await UpdateServerStoreAsync(updatedLocalBooks);
@@ -147,14 +169,15 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
         var maxUpdateTime = books.Max(book => book.LastUpdateTime ?? DateTime.MinValue);
     }
 
-    private async Task<List<RemoteBook>> GetServerBooksAsync()
+    private async Task<List<RemoteBook>> GetServerBooksAsync(DateTime lastSyncTime)
     {
+        var urlString = $"/api/books/sync?lastSyncTime={lastSyncTime:yyyy-MM-ddThh:mm:ss.tttt}";
         var httpClient = _httpClientFactory.CreateClient("BooksApi");
         try
-        {
-            var temp = await httpClient.GetAsync("/api/books/sync?lastSyncTime=2025-09-10", HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        { 
+            var temp = await httpClient.GetAsync(urlString, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             var data = await temp.Content.ReadAsStringAsync();
-            var response = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<List<RemoteBook>>>(data)
+            var response = JsonSerializer.Deserialize<ApiResponse<List<RemoteBook>>>(data)
                 ?? throw new ApplicationException("Unable to parse returned object");
             
             if (response.IsSuccess && response.StatusCode == System.Net.HttpStatusCode.OK && response.Data != null)

@@ -51,7 +51,7 @@ public static class MauiProgram
             logging.AddConsole();
 #if DEBUG
             logging.AddDebug();
-            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
 #endif
         });
 
@@ -88,6 +88,9 @@ public static class MauiProgram
         builder.Services.AddAuthorizationCore();
         builder.Services.AddCascadingAuthenticationState();
 
+        var assembly = Assembly.GetExecutingAssembly();
+        var appName = assembly.GetName().Name;
+
         //var baseUrl = string.Join("/",
         //    builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"],
         //    builder.Configuration.GetSection("MicrosoftGraph")["Version"]);
@@ -95,8 +98,27 @@ public static class MauiProgram
         //    .Get<List<string>>();
         //builder.Services.AddGraphClient(baseUrl, scopes);
 
-        var assembly = Assembly.GetExecutingAssembly();
-        var appName = assembly.GetName().Name;
+        // set the local database path
+#if MACCATALYST
+        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+        if (File.Exists(dbPath2))
+        {
+            File.Delete(dbPath2);
+        }
+#else
+        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+
+        //var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+        //if (File.Exists(oldDbPath))
+        //{
+        //    File.Delete(oldDbPath);
+        //}
+#endif
+
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
 
         using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
@@ -113,13 +135,9 @@ public static class MauiProgram
         //if (configBuilder.Sources.Count > 0) builder.Configuration.AddConfiguration(configBuilder.Build());
         var config = configBuilder.Build();
 
-        //var config = new ConfigurationBuilder()
-        //            .AddJsonFile(new EmbeddedFileProvider(assembly), "appsettings.json", optional: true, false)
-        //            //.AddJsonStream(stream)
-        //            .Build();
-
         //      try
         //      {
+
         builder.Configuration.AddConfiguration(config);
 
         //      }
@@ -130,11 +148,6 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
 
-        //builder.Services.AddSingleton<IDataService>(
-        //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
-        //var options = new DbContextOptionsBuilder();
-        //builder.Services.AddSingleton<BookShelvesDbContext, BookShelvesDbContext>(
-        //    s => ActivatorUtilities.CreateInstance<BookShelvesDbContext>(s, options, dbPath));
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IAuthService, AuthService>();
@@ -156,35 +169,17 @@ public static class MauiProgram
         ;
 
         // Configure DbContext
-#if MACCATALYST
-        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-        if (File.Exists(dbPath2))
-        {
-            File.Delete(dbPath2);
-        }
-#else
-        //var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
-        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+        var bsp = builder.Services.BuildServiceProvider();
+        var loggerFactory = bsp.GetRequiredService<ILoggerFactory>();
 
-        var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
-        if (File.Exists(oldDbPath))
-        {
-            File.Delete(oldDbPath);
-        }
-#endif
+        var localDbConnectionString = $"Data Source={dbPath}";
 
-#if DEBUG
-        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-#endif
+        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
         builder.Services.AddDbContext<BookShelvesDbContext>(
-            options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
+            options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
         builder.Services.AddTransient<IUnitOfWork<LocalBook>, UnitOfWork>();
         builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
-
-        //builder.Services.AddScoped<IUnitOfWork<BookShelvesDbContext, DbSet<LocalBook>, LocalBook> , UnitOfWork>();
-        //builder.Services.AddScoped<IRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>, GenericRepository<BookShelvesDbContext, DbSet<LocalBook>, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
