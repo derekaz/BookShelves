@@ -29,7 +29,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
             {
                 if (dbProvider.TryGet("lastSyncTime", out var lastSyncTimeString))
                 {
-                    DateTime.TryParse(lastSyncTimeString, out lastSyncTime);
+                    _ = DateTime.TryParse(lastSyncTimeString, out lastSyncTime);
                 }
 
                 
