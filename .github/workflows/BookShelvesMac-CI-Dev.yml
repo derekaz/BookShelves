@@ -49,7 +49,7 @@ jobs:
       PACKAGE_SIGNING_KEY: '3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)'
       CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.plist'
       DOTNET_VERSION: 'net9.0'
-      DOTNET_SDK_VERSION: '9.0.305'
+      DOTNET_SDK_VERSION: '9.0.304'
       # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
       XCODE_VERSION: '16.4'
