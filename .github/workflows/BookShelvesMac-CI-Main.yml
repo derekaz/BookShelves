@@ -41,7 +41,7 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
   
       # Select your required version
       - name: xcode diags 1
