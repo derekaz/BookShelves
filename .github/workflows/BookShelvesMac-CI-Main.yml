@@ -269,7 +269,7 @@ jobs:
       #     Write-Host "APPLICATION_DISPLAY_VERSION=$($env:APPLICATION_DISPLAY_VERSION)"
 
       - name: 'Upload app to TestFlight'
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v4
         with:
           app-type: osx
           # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
