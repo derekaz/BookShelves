@@ -253,7 +253,9 @@ jobs:
             -p:EnablePackageSigning=true `
             -p:PackageSigningKey="${{env.PACKAGE_SIGNING_KEY}}" `
             -p:CodesignEntitlements="${{env.CODESIGN_ENTITLEMENTS}}" `
-            -p:UseHardenedRuntime=true
+            -p:UseHardenedRuntime=true `
+            -p:MtouchUseLlvm=false
+
             # -v normal `
             # -bl:${{env.BUILD_LOG_FILE}} `
 
