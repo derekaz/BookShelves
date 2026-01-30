@@ -136,6 +136,9 @@ jobs:
           api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
+      - name: Verify Xcode Simulators
+        run: xcrun simctl list devices
+
       - name: NuGet Restore
         run: dotnet restore ${{env.CSPROJ}}
 
