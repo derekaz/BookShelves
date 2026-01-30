@@ -39,6 +39,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 60
     env:
+      PROJPATH: 'src/BookShelves.Maui'
       CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
       PUBLISH_PATH: '${{ github.workspace }}/publish-output'
       IOS_ARTIFACTS_PATH: 'artifacts_ios'
@@ -95,8 +96,11 @@ jobs:
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v2
 
+      - name: Change Directory
+        run: cd ${{env.PROJPATH}}
+
       - name: Restore Workloads
-        run: dotnet workload restore ${{env.CSPROJ}}
+        run: dotnet workload restore # ${{env.CSPROJ}}
 
       # - name: Install MAUI Workloads
       #   run: |
