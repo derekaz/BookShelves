@@ -39,6 +39,7 @@ jobs:
       PUBLISH_PATH: '${{ github.workspace }}/publish-output'
       WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
       BUILD_LOG_FILE: 'windows.binlog'
+      DOTNET_SDK_VERSION: '9.0.x'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
@@ -48,8 +49,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
-          # include-prerelease: true
+          dotnet-version: ${{env.DOTNET_SDK_VERSION}}
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
