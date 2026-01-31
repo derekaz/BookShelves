@@ -39,7 +39,9 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     env:
-      CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+      PROJPATH: 'src/BookShelves.Maui'
+      CSPROJ: 'BookShelves.Maui.csproj'
+      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
       PUBLISH_PATH: '${{ github.workspace }}/publish-output'
       MAC_ARTIFACTS_PATH: 'artifacts_mac'
       BUILD_LOG_FILE: 'mac.binlog'
@@ -52,7 +54,9 @@ jobs:
       DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
       XCODE_VERSION: '16.4'
-
+    defaults:
+      run:
+        working-directory: ${{env.PROJPATH}}
     steps:
       - uses: actions/checkout@v4
   
@@ -125,7 +129,8 @@ jobs:
       #   uses: microsoft/setup-msbuild@v2
 
       - name: Restore Workloads
-        run: dotnet workload restore ${{env.CSPROJ}}
+        # run: dotnet workload restore ${{env.CSPROJ}}
+        run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
 
       # - name: Install MAUI Workloads
       #   run: |
@@ -267,7 +272,8 @@ jobs:
             -p:EnablePackageSigning=true `
             -p:PackageSigningKey="${{env.PACKAGE_SIGNING_KEY}}" `
             -p:CodesignEntitlements="${{env.CODESIGN_ENTITLEMENTS}}" `
-            -p:UseHardenedRuntime=true
+            -p:UseHardenedRuntime=true `
+            -p:MtouchUseLlvm=false
             # -v normal `
             # -bl:${{env.BUILD_LOG_FILE}} `
 

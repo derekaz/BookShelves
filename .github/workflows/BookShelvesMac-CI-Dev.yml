@@ -136,7 +136,7 @@ jobs:
       - name: Restore Workloads
         # run: dotnet workload restore ${{env.CSPROJ}}
         run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
-        working-directory: ${{env.PROJPATH}}
+        # working-directory: ${{env.PROJPATH}}
 
 
       # - name: Install MAUI Workloads
