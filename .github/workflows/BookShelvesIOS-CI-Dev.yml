@@ -50,7 +50,9 @@ jobs:
       CODESIGN_KEY: 'iOS Distribution'
       DOTNET_VERSION: 'net9.0'
       # DOTNET_SDK_VERSION: '9.0.306'
-      DOTNET_SDK_VERSION: '9.0.310'
+      # dotnet workload install ios --version 9.0.203
+      DOTNET_SDK_VERSION: '9.0.203'
+      # DOTNET_SDK_VERSION: '9.0.310'
       # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
       XCODE_VERSION: '16.4'
@@ -153,6 +155,9 @@ jobs:
 
       - name: Verify Dotnet SDKs
         run: dotnet --list-sdks
+
+      - name: Verify Dotnet Version
+        run: dotnet --version
 
       - name: NuGet Restore
         run: dotnet restore ${{env.CSPROJ}}
