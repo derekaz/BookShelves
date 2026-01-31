@@ -28,20 +28,20 @@ on:
     branches: 
       - '**'
 
-env:
-  PROJPATH: 'src/BookShelves.Maui'
-  CSPROJ: 'BookShelves.Maui.csproj'
-  # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
-  PUBLISH_PATH: '${{ github.workspace }}/publish-output'
-  WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
-  BUILD_LOG_FILE: 'windows.binlog'
-defaults:
-  run:
-    working-directory: ${{env.PROJPATH}}
 jobs:
   windows-build-windows:
     runs-on: windows-latest
-
+    timeout-minutes: 45
+    env:
+      PROJPATH: 'src/BookShelves.Maui'
+      CSPROJ: 'BookShelves.Maui.csproj'
+      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+      PUBLISH_PATH: '${{ github.workspace }}/publish-output'
+      WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
+      BUILD_LOG_FILE: 'windows.binlog'
+    defaults:
+      run:
+        working-directory: ${{env.PROJPATH}}
     steps:
       - uses: actions/checkout@v4
   
