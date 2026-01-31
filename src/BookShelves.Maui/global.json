@@ -5,7 +5,8 @@
     "workloads": {
         "version": "9.0.310",
         "install": [
-            "ios"
+            "ios",
+            "maui"
         ]
     }
 }

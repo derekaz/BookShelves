@@ -96,14 +96,15 @@ jobs:
       # - name: Add msbuild to PATH
       #   uses: microsoft/setup-msbuild@v2
 
-      - name: Change Directory
-        run: cd ${{env.PROJPATH}}
+      # - name: Change Directory
+      #   run: cd ${{env.PROJPATH}}
 
-      - name: Change Directory
-        run: ls -al
+      # - name: Change Directory
+      #   run: ls -al
 
       - name: Restore Workloads
         run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
+        working-directory: ${{env.PROJPATH}}
 
       # - name: Install MAUI Workloads
       #   run: |
