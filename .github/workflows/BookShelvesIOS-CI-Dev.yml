@@ -97,7 +97,7 @@ jobs:
       #   uses: microsoft/setup-msbuild@v2
 
       - name: Change Directory
-        run: ${{env.PROJPATH}}
+        run: cd ${{env.PROJPATH}}
 
       - name: Change Directory
         run: ls -al
