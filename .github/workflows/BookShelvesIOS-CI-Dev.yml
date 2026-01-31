@@ -160,6 +160,9 @@ jobs:
       - name: Verify Dotnet Version
         run: dotnet --version
 
+      - name: Verify Dotnet Runtimes
+        run: dotnet --list-runtimes
+
       - name: NuGet Restore
         run: dotnet restore ${{env.CSPROJ}}
         working-directory: ${{env.PROJPATH}}
