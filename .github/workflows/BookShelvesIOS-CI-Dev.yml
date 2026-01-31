@@ -97,10 +97,13 @@ jobs:
       #   uses: microsoft/setup-msbuild@v2
 
       - name: Change Directory
+        run: ${{env.PROJPATH}}
+
+      - name: Change Directory
         run: ls -al
 
       - name: Restore Workloads
-        run: dotnet workload restore ${{env.PROJPATH}} # ${{env.CSPROJ}}
+        run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
 
       # - name: Install MAUI Workloads
       #   run: |
