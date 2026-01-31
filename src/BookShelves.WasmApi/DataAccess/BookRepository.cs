@@ -11,5 +11,8 @@ public class BookRepository : CosmosRepository<Book>
         CosmosClient client,
         string databaseName,
         string containerName
-        ) : base(logger, client, databaseName, containerName) { }
+        ) : base(logger, client, databaseName, containerName) 
+    {
+        logger.LogInformation("BookRepository-Constructor");
+    }
 }

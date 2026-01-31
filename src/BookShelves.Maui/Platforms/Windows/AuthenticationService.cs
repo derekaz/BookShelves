@@ -1,8 +1,10 @@
 ﻿using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Broker;
+//using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
+using Microsoft.Identity.Client.Desktop;
 
 namespace BookShelves.Maui.Services;
+
 
 public partial class AuthenticationService
 {
@@ -13,10 +15,10 @@ public partial class AuthenticationService
             Title = "BookShelves"
         };
 
-        //builder.WithWindowsEmbeddedBrowserSupport();
+        builder.WithWindowsEmbeddedBrowserSupport();
         //builder.WithWindowsDesktopFeatures();
         builder.WithDefaultRedirectUri();
-        builder.WithBroker(brokerOptions);
+        //builder.WithBroker(brokerOptions);
         builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
 
         return builder;
@@ -46,7 +48,7 @@ public partial class AuthenticationService
                 _settingsService.KeyChainAccountName)
             .Build();
 
-        // Create a cache helper
+        // CreateBook a cache helper
         var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
 
         // Connect the PublicClientApplication's cache with the cacheHelper.

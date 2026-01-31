@@ -5,14 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace BookShelves.WasmApi;
 
-public class Root
+public class Root(ILogger<Root> logger)
 {
-    private readonly ILogger _logger;
-
-    public Root(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<Root>();
-    }
+    private readonly ILogger _logger = logger;
 
     [Function("Root")]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "")] HttpRequestData req)

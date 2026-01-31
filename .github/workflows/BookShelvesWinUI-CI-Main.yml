@@ -28,30 +28,37 @@ on:
     branches: 
       - '**'
 
-env:
-  CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
-  WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
-  BUILD_LOG_FILE: 'windows.binlog'
-
 jobs:
   windows-build-windows:
     runs-on: windows-latest
-
+    timeout-minutes: 45
+    env:
+      PROJPATH: 'src/BookShelves.Maui'
+      CSPROJ: 'BookShelves.Maui.csproj'
+      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+      PUBLISH_PATH: '${{ github.workspace }}/publish-output'
+      WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
+      BUILD_LOG_FILE: 'windows.binlog'
+      DOTNET_SDK_VERSION: '9.0.x'
+    defaults:
+      run:
+        working-directory: ${{env.PROJPATH}}
     steps:
       - uses: actions/checkout@v4
   
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
-          # include-prerelease: true
+          dotnet-version: ${{env.DOTNET_SDK_VERSION}}
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
-        run: |
-          dotnet workload install maui --source https://api.nuget.org/v3/index.json
+        # run: |
+        #  dotnet workload install maui --source https://api.nuget.org/v3/index.json
+        run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
+        working-directory: ${{env.PROJPATH}}
 
       - name: Decrypt PFX File
         run: |
@@ -61,11 +68,23 @@ jobs:
       - name: Add Cert to Store
         run: certutil -user -q -p ${{ secrets.WINDOWS_PFX_PASSWORD }} -importpfx cert.pfx NoRoot
 
+      - name: Create publish folder
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          mkdir -p ${{ env.PUBLISH_PATH }}
+
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Release --self-contained false -p:RuntimeIdentifierOverride=win10-x64 /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Release -o ${{ env.PUBLISH_PATH }} --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:InvariantGlobalization=true /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Debug --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:DebugType=full /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
+
+      - name: Show publish folder content
+        shell: pwsh
+        run: |
+          Get-Childitem -Path ${{ env.PUBLISH_PATH }} -Include *.* -File -Recurse
 
       - name: Archive build log
         uses: actions/upload-artifact@v4

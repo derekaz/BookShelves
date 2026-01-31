@@ -1,23 +1,25 @@
-﻿using BookShelves.Maui.Helpers;
+﻿using BookShelves.Maui.Data.Infrastructure;
+using BookShelves.Maui.Data.Models;
+using BookShelves.Maui.Data.Services;
+using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
-using BookShelves.Shared.DataInterfaces;
+using BookShelves.Shared.Data.Bases;
+using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
+using System;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-
-using BookShelves.Shared.ServiceInterfaces;
-//using BookShelves.Maui.Data.ServiceInterfaces;
-using BookShelves.Maui.Data.Services;
-using BookShelves.Maui.Data.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BookShelves.Maui;
 
@@ -25,6 +27,9 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        BookShelvesDbContext.Initialize();
+
+        // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -41,10 +46,19 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
 
-//#if DEBUG
+        builder.Services.AddLogging(logging =>
+        {
+            logging.AddConsole();
+#if DEBUG
+            logging.AddDebug();
+            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+#endif
+        });
+
+#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
-//#endif
+#endif
 
 
         builder.ConfigureLifecycleEvents(events =>
@@ -74,6 +88,9 @@ public static class MauiProgram
         builder.Services.AddAuthorizationCore();
         builder.Services.AddCascadingAuthenticationState();
 
+        var assembly = Assembly.GetExecutingAssembly();
+        var appName = assembly.GetName().Name;
+
         //var baseUrl = string.Join("/",
         //    builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"],
         //    builder.Configuration.GetSection("MicrosoftGraph")["Version"]);
@@ -81,8 +98,27 @@ public static class MauiProgram
         //    .Get<List<string>>();
         //builder.Services.AddGraphClient(baseUrl, scopes);
 
-        var assembly = Assembly.GetExecutingAssembly();
-        var appName = assembly.GetName().Name;
+        // set the local database path
+#if MACCATALYST
+        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+        if (File.Exists(dbPath2))
+        {
+            File.Delete(dbPath2);
+        }
+#else
+        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+
+        //var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
+        //if (File.Exists(oldDbPath))
+        //{
+        //    File.Delete(oldDbPath);
+        //}
+#endif
+
+#if DEBUG
+        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
 
         using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
@@ -99,58 +135,18 @@ public static class MauiProgram
         //if (configBuilder.Sources.Count > 0) builder.Configuration.AddConfiguration(configBuilder.Build());
         var config = configBuilder.Build();
 
-        //var config = new ConfigurationBuilder()
-        //            .AddJsonFile(new EmbeddedFileProvider(assembly), "appsettings.json", optional: true, false)
-        //            //.AddJsonStream(stream)
-        //            .Build();
-
         //      try
         //      {
-        builder.Configuration.AddConfiguration(config);
-        builder.Services.AddMauiBlazorWebView();
 
-        builder.Services.AddLogging(logging =>
-        {
-            logging.AddConsole();
-        });
+        builder.Configuration.AddConfiguration(config);
+
         //      }
         //      catch (Exception ex) 
         //{
         //	Debug.WriteLine(ex);
         //}
-#if DEBUG
-        builder.Logging.AddDebug();
-        builder.Services.AddBlazorWebViewDeveloperTools();
-#endif
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
-
-#if MACCATALYST
-        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-        if (File.Exists(dbPath2))
-        {
-            File.Delete(dbPath2);
-        }
-#else
-        //var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
-        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
-
-        var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
-        if (File.Exists(oldDbPath))
-        {
-            File.Delete(oldDbPath);
-        }
-#endif
-        Console.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-
-        //builder.Services.AddSingleton<IDataService>(
-        //    s => ActivatorUtilities.CreateInstance<DataService>(s, dbPath));
-        //var options = new DbContextOptionsBuilder();
-        //builder.Services.AddSingleton<BookShelvesContext, BookShelvesContext>(
-        //    s => ActivatorUtilities.CreateInstance<BookShelvesContext>(s, options, dbPath));
-        builder.Services.AddDbContext<BookShelvesContext>(
-            options => options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
 
         builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
@@ -158,10 +154,50 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<IGraphService, GraphService>();
-        builder.Services.AddTransient<IBook, Book>();
+
+        builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient("BooksApi", client =>
+        {
+            // client.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
+            // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
+            client.BaseAddress = new Uri("http://localhost:7071");
+            client.Timeout = new TimeSpan(0, 0, 20);
+        })
+#if DEBUG
+            // .AddTraceContentLogging();
+#endif
+        ;
+
+        // Configure DbContext
+        var bsp = builder.Services.BuildServiceProvider();
+        var loggerFactory = bsp.GetRequiredService<ILoggerFactory>();
+
+        var localDbConnectionString = $"Data Source={dbPath}";
+
+        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
+
+        builder.Services.AddDbContext<BookShelvesDbContext>(
+            options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
+        builder.Services.AddTransient<IUnitOfWork<LocalBook>, UnitOfWork>();
+        builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-        builder.Services.AddTransient<HttpClient>();
-        builder.Services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
+        builder.Services.AddTransient<IBook, LocalBook>();
+
+        builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+
+        //builder.Services.AddHttpLogging(logging =>
+        //{
+        //    logging.LoggingFields = HttpLoggingFields.All;
+        //    logging.RequestHeaders.Add("sec-ch-ua");
+        //    logging.ResponseHeaders.Add("MyResponseHeader");
+        //    logging.MediaTypeOptions.AddText("application/javascript");
+        //    logging.RequestBodyLogLimit = 4096;
+        //    logging.ResponseBodyLogLimit = 4096;
+
+        //});
+
+        // builder.Services.AddTransient<HttpClient>();
 
         builder.Services.AddRazorClassLibraryServices(config);
 
@@ -187,7 +223,12 @@ public static class MauiProgram
 
         try
         {
-            return builder.Build();
+            var app = builder.Build();
+
+            ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+            app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
+
+            return app;
         }
         catch (Exception ex)
         {
@@ -202,14 +243,12 @@ public static class MauiProgram
         Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Started - SubjectName:{0}", subjectName);
         try
         {
-            using (RSA rsa = RSA.Create(2048))
-            {
-                CertificateRequest request = new CertificateRequest(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
-                Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
+            using RSA rsa = RSA.Create(2048);
+            CertificateRequest request = new(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
+            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
 
-                return ephemeral;
-            }
+            return ephemeral;
         }
         catch (Exception ex)
         {

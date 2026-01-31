@@ -1,8 +1,8 @@
 using BookShelves.Shared;
 using BookShelves.Web.Components;
 using BookShelves.WebShared.Data;
-using BookShelves.Shared.DataInterfaces;
 using Microsoft.Extensions.DependencyInjection;
+using BookShelves.Shared.Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +16,8 @@ builder.Services.AddScoped(sp =>
         new HttpClient
         { BaseAddress = new Uri(builder.Configuration["API_Uri"] ?? builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
     );
+builder.Services.AddTransient<IBook, Book>();
+builder.Services.AddTransient<IBookFactory, BookFactory>();
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 
 var app = builder.Build();

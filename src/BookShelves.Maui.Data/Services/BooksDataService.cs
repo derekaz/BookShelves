@@ -1,39 +1,95 @@
 ﻿using BookShelves.Maui.Data.Models;
-using BookShelves.Shared.DataInterfaces;
-using Microsoft.EntityFrameworkCore;
+using BookShelves.Shared.Data.Interfaces;
+using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data.Services;
 
-public class BooksDataService(BookShelvesContext dataContext) : IBooksDataService
+public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataService
 {
-    readonly BookShelvesContext dataContext = dataContext;
+    private readonly IUnitOfWork<LocalBook> _unitOfWork = unitOfWork;
 
-    public IBook InitializeBookInstance()
-    {
-        return new Book();
-    }
-
-    public async Task<IEnumerable<IBook>> GetBooksAsync()
-    {
-        return await dataContext.Books.ToListAsync();
-    }
-
-    public async Task<bool> DeleteBookAsync(IBook book)
-    {
-        dataContext.Books.Remove((Book)book);
-        return (await dataContext.SaveChangesAsync()) > 0;
-    }
+    private readonly Expression<Func<LocalBook, bool>> changedBooks = p => 
+        p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
 
     public async Task<bool> CreateBookAsync(IBook book)
     {
-        Book b = (Book)book;
-        await dataContext.Books.AddAsync(b);
-        return (await dataContext.SaveChangesAsync()) > 0;
+        var newBook = (LocalBook)book;
+        newBook.Revision = book.Revision + 1;
+        newBook.UpdateType = "C";
+        newBook.LastUpdateTime = DateTime.UtcNow;
+        await _unitOfWork.LocalBooks.AddAsync(newBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    public async Task<bool> CreateBookFromSyncAsync(LocalBook book)
+    {
+        await _unitOfWork.LocalBooks.AddAsync(book);
+        return await _unitOfWork.CompleteAsync() > 0;
     }
 
     public async Task<bool> UpdateBookAsync(IBook book)
     {
-        dataContext.Update((Book)book);
-        return (await dataContext.SaveChangesAsync()) > 0;
+        var localBook = (LocalBook)book;
+        localBook.Revision = book.Revision + 1;
+        localBook.UpdateType = "C";
+        localBook.LastUpdateTime = DateTime.UtcNow;
+        await _unitOfWork.LocalBooks.UpdateAsync(localBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    public async Task<bool> UpdateBookFromSyncAsync(LocalBook newBook)
+    {
+        await _unitOfWork.LocalBooks.UpdateAsync(newBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    {
+        var localBook = (LocalBook)book;
+
+        if (softDelete)
+        {
+            localBook.Revision = book.Revision + 1;
+            localBook.UpdateType = "D";
+            localBook.LastUpdateTime = DateTime.UtcNow;
+            await _unitOfWork.LocalBooks.UpdateAsync(localBook);
+            return await _unitOfWork.CompleteAsync() > 0;
+        }
+
+        await _unitOfWork.LocalBooks.DeleteAsync(localBook);
+        return await _unitOfWork.CompleteAsync() > 0;
+    }
+
+    //public async Task<IEnumerable<LocalBook>> GetAllEntitiesAsync()
+    //{
+    //    return await _unitOfWork.LocalBooks.GetAllAsync();
+    //}
+
+    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    {
+        if (includeSoftDeleted)
+        {
+            return await _unitOfWork.LocalBooks.GetAllAsync();
+        }
+
+        return await _unitOfWork
+            .LocalBooks
+            .FindAsync(b => b.UpdateType != "D");
+    }
+
+    public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
+    {
+        return (await _unitOfWork
+            .LocalBooks
+            .FindAsync(b => b.ServerId == serverId))
+            // .FindReadOnlyAsync(b => b.ServerId == serverId))
+            .FirstOrDefault();
+    }
+
+    public async Task<IEnumerable<LocalBook>> GetChangedBooksAsync()
+    {
+        return await _unitOfWork
+            .LocalBooks
+            .FindAsync(changedBooks);
     }
 }

@@ -6,8 +6,8 @@ using Microsoft.Identity.Client;
 
 static class MacTokenCacheHelper
 {
-    static IDataProtector? _dataProtector;
-    static readonly ILogger _logger = ApplicationLogger.CreateLogger(nameof(MacTokenCacheHelper));
+    private static IDataProtector? _dataProtector;
+    private static readonly ILogger _logger = ApplicationLogger.CreateLogger(nameof(MacTokenCacheHelper));
 
     public static void EnableSerialization(ITokenCache tokenCache, IDataProtector dataProtector)
     {
@@ -25,7 +25,7 @@ static class MacTokenCacheHelper
     private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
     // $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
 
-    private static readonly object FileLock = new object();
+    private static readonly Lock FileLock = new();
 
     private static void BeforeAccessNotification(TokenCacheNotificationArgs args)
     {
@@ -35,7 +35,7 @@ static class MacTokenCacheHelper
         {
             try
             {
-                _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{0}", CacheFilePath);
+                _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{CacheFilePath}", CacheFilePath);
                 args.TokenCache.DeserializeMsalV3(
                     File.Exists(CacheFilePath)
                         ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))

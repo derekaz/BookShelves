@@ -2,7 +2,8 @@
 @using Blazored.Modal
 @using Blazored.Modal.Services
 @using BookShelves.Shared
-@using BookShelves.Shared.DataInterfaces
+@using BookShelves.Shared.Data.Interfaces
+@inject IBookFactory BookFactory
 @inject IBooksDataService DataService 
 @inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
@@ -24,9 +25,11 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Author</th>
+                <th scope="col">Id</th>
+                <th scope="col"><div class="fw-bold mb-1">Title</div><div class="text-muted mb-0">Author</div></th>
+                @* <th scope="col">Title</th>
+                <th scope="col">Author</th> *@
+                <th scope="col">Last Update</th>
                 <th></th>
 @*                <th>Temp. (F)</th>
                 <th>Summary</th>
@@ -36,9 +39,11 @@ else
             @foreach (var book in books)
             {
                 <tr>
-                    <td>@book.IdValue</td>
-                    <td>@book.Title</td>
-                    <td>@book.Author</td>
+                    <th scope="row">@book.IdValue</th>
+                    <td><div class="fw-normal mb-1">@book.Title</div><div class="text-muted mb-0">@book.Author</div></td>
+                    @* <td>@book.Title</td>
+                    <td>@book.Author</td> *@
+                    <td>@book.LastUpdateTime</td>
                     <td>
                         <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
                         <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(book))" value="Delete" />
@@ -76,22 +81,29 @@ else
             .Add(nameof(BookDetail.BookObject), book)
             .Add(nameof(BookDetail.TitleText), titleText);
         var options = new ModalOptions() { UseCustomLayout = true };
-        var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
-        var result = await form.Result;
-        if (result.Confirmed)
+        try
         {
-            message = result?.Data?.ToString() ?? "";
+            var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
+            var result = await form.Result;
+            if (result.Confirmed)
+            {
+                message = result?.Data?.ToString() ?? "";
 
-            books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
-        }
-        else
-        {
-            if (String.IsNullOrEmpty(book.IdValue))
-                message = "Add canceled";
+                books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
+            }
             else
-                message = "Edit canceled";
+            {
+                if (String.IsNullOrEmpty(book.IdValue))
+                    message = "Add canceled";
+                else
+                    message = "Edit canceled";
+            }
+            StateHasChanged();
         }
-        StateHasChanged();
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:ShowDetailAsync-Exception");
+        }
     }
 
     private void AddAsync()
@@ -133,6 +145,6 @@ else
 
     private IBook InitializeBookObject()
     {
-        return DataService.InitializeBookInstance();
+        return BookFactory.CreateBook();
     }
 }

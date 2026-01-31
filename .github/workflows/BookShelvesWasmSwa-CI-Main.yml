@@ -22,6 +22,10 @@ on:
       - 'src/BookShelves.Shared/**'
       - 'src/BookShelves.WebShared/**'
 
+concurrency:
+  group: wasmswa-${{github.ref}}
+  cancel-in-progress: true
+
 env:
   LOCATION: westus2
   STATICWEBAPPNAME: green-ground-05694281e

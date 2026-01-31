@@ -35,7 +35,7 @@ namespace BookShelves.Shared.ServiceInterfaces
         //public Task<EventCollectionResponse> GetCalendarForDateTimeRangeAsync(DateTime start, DateTime end, TimeZoneInfo timeZone);
 
         /// <summary>
-        /// Create an event on the authenticated user's calendar
+        /// CreateBook an event on the authenticated user's calendar
         /// </summary>
         //public Task CreateEventAsync(Event newEvent);
     }
