@@ -173,12 +173,12 @@ jobs:
             -f ${{env.DOTNET_VERSION}}-ios `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{env.PUBLISH_PATH}} `
-            # --no-restore `
             /p:ArchiveOnBuild=true `
             /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} `
             /p:CodesignKey="${{env.CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.CODESIGN_PROVISION}}" `
             /p:MtouchUseLlvm=false
+            # --no-restore `
             # -bl:${{env.BUILD_LOG_FILE}} `
             # -v normal
             # --self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
