@@ -96,7 +96,8 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+          global-json-file: ${{env.PROJPATH}}/global.json
+          # dotnet-version: ${{env.DOTNET_SDK_VERSION}}
           # include-prerelease: true
 
       # - name: Add msbuild to PATH
