@@ -40,7 +40,8 @@ jobs:
     timeout-minutes: 45
     env:
       PROJPATH: 'src/BookShelves.Maui'
-      CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+      CSPROJ: 'BookShelves.Maui.csproj'
+      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
       PUBLISH_PATH: '${{github.workspace}}/publish-output'
       MAC_ARTIFACTS_PATH: 'artifacts_mac'
       BUILD_LOG_FILE: 'mac.binlog'
