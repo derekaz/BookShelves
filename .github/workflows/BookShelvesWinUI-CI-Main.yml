@@ -29,11 +29,15 @@ on:
       - '**'
 
 env:
-  CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
+  PROJPATH: 'src/BookShelves.Maui'
+  CSPROJ: 'BookShelves.Maui.csproj'
+  # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
   PUBLISH_PATH: '${{ github.workspace }}/publish-output'
   WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
   BUILD_LOG_FILE: 'windows.binlog'
-
+defaults:
+  run:
+    working-directory: ${{env.PROJPATH}}
 jobs:
   windows-build-windows:
     runs-on: windows-latest
@@ -51,8 +55,10 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Install MAUI Workloads
-        run: |
-          dotnet workload install maui --source https://api.nuget.org/v3/index.json
+        # run: |
+        #  dotnet workload install maui --source https://api.nuget.org/v3/index.json
+        run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
+        working-directory: ${{env.PROJPATH}}
 
       - name: Decrypt PFX File
         run: |
