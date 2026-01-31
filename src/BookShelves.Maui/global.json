@@ -1,12 +1,13 @@
 {
-    "sdk": {
-        "version": "9.0.310"
-    },
-    "workloads": {
-        "version": "9.0.310",
-        "install": [
-            "ios",
-            "maui"
-        ]
-    }
+  "sdk": {
+    "version": "9.0.310"
+  },
+  "workloads": {
+    "version": "9.0.310",
+    "install": [
+      "ios",
+      "maui",
+      "maui-tizen"
+    ]
+  }
 }
