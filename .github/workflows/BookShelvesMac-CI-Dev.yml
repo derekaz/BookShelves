@@ -54,8 +54,8 @@ jobs:
       # DOTNET_SDK_VERSION: '9.0.305'
       DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
-      # XCODE_VERSION: '16.4'
-      XCODE_VERSION: '26.0.1'
+      XCODE_VERSION: '16.4'
+      # XCODE_VERSION: '26.0.1'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
