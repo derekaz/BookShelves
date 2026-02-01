@@ -39,7 +39,7 @@ jobs:
       PUBLISH_PATH: '${{ github.workspace }}/publish-output'
       WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
       BUILD_LOG_FILE: 'windows.binlog'
-      DOTNET_SDK_VERSION: '9.0.x'
+      DOTNET_SDK_VERSION: '10.0.x'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
@@ -77,7 +77,7 @@ jobs:
       - name: Build MAUI Mobile app
         shell: pwsh
         run: |
-          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Release -o ${{ env.PUBLISH_PATH }} --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:InvariantGlobalization=true /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+          dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net10.0-windows10.0.19041.0 -c Release -o ${{ env.PUBLISH_PATH }} --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:InvariantGlobalization=true /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Debug --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:DebugType=full /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 

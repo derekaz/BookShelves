@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
         <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
 
@@ -64,19 +64,19 @@
 	<PropertyGroup>
 	</PropertyGroup>
 	
-    <PropertyGroup Condition="'$(TargetFramework)'=='net9.0-ios'">
+    <PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
       <CodesignKey>iOS Distribution</CodesignKey>
       <CodesignProvision>BookShelves Test Profile</CodesignProvision>
       <ProvisioningType>manual</ProvisioningType>
 	  <EnableAssemblyILStripping>false</EnableAssemblyILStripping>
     </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
 		<EnableSGenConc>True</EnableSGenConc>
 		<MtouchInterpreter>-all,System.Private.Windows.Core</MtouchInterpreter>
 	</PropertyGroup>
 	
-	<PropertyGroup Condition="'$(TargetFramework)'=='net9.0-maccatalyst'">
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-maccatalyst'">
     <!--<RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers>-->
 		<CodesignKey>Apple Distribution</CodesignKey>
 		<CodesignProvision>BookShelves MacOS Provisioning</CodesignProvision>
@@ -146,24 +146,24 @@
     <ItemGroup>
         <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.1" />
         <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.1" />
-        <PackageReference Include="Azure.Identity" Version="1.16.0" />
-        <PackageReference Include="CommunityToolkit.Maui" Version="12.2.0" />
+        <PackageReference Include="Azure.Identity" Version="1.17.1" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.0.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Graph" Version="5.92.0" />
-        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.110" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="9.0.110" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Graph" Version="5.101.0" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.15.0" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.30" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.30" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.2" />
         <!--<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />-->
-        <PackageReference Include="Polly" Version="8.6.3" />
-        <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
+        <PackageReference Include="Polly" Version="8.6.5" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
         <PackageReference Include="System.Private.Uri" Version="4.3.2" />
-        <PackageReference Include="System.Text.Json" Version="9.0.9" />
+        <PackageReference Include="System.Text.Json" Version="10.0.2" />
     </ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.19041.0'">
-		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.77.0" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
+		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.81.0" />
 	</ItemGroup>
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.19041.0'">

@@ -50,12 +50,12 @@ jobs:
       CODESIGN_KEY: 'Apple Distribution: Derek Moore (TPKXH5FT2P)'
       PACKAGE_SIGNING_KEY: '3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)'
       CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.plist'
-      DOTNET_VERSION: 'net9.0'
+      DOTNET_VERSION: 'net10.0'
       # DOTNET_SDK_VERSION: '9.0.305'
-      DOTNET_SDK_VERSION: '9.0.x'
+      DOTNET_SDK_VERSION: '10.0.x'
       RELEASE_CONFIGURATION: 'Release'
-      XCODE_VERSION: '16.4'
-      # XCODE_VERSION: '26.0.1'
+      # XCODE_VERSION: '16.4'
+      XCODE_VERSION: '26.2'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
