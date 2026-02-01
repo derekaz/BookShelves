@@ -209,6 +209,7 @@ public static class MauiProgram
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
 
             builder.Services.AddDataProtection()
+                .SetApplicationName("BookShelves")
                 .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
                 .ProtectKeysWithCertificate(dataProtectionCertificate);
 
