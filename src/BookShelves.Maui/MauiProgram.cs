@@ -207,6 +207,7 @@ public static class MauiProgram
             string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
             X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
             Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
+            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection KeysDirectory:{0}", dataProtectionKeysDirectory);
 
             builder.Services.AddDataProtection()
                 .SetApplicationName("BookShelves")
