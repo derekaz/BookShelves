@@ -83,7 +83,6 @@ public static class MauiProgram
 #elif WINDOWS
         builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
 #endif
-
         builder.Services.AddOptions();
         builder.Services.AddAuthorizationCore();
         builder.Services.AddCascadingAuthenticationState();

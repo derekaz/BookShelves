@@ -4,6 +4,7 @@
 using BookShelves.Shared.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
@@ -42,7 +43,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger) // IServiceCollection serviceCollection)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger, IHostEnvironment environment) // IServiceCollection serviceCollection)
     {
         _logger = logger;
 
@@ -57,6 +58,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _settingsService = settingsService;
             _windowService = windowService;
 #if MACCATALYST
+            _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment);
             _logger.LogInformation("AuthenticationService:Constructor-DataProtector start");
             _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
             _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
