@@ -58,7 +58,8 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _settingsService = settingsService;
             _windowService = windowService;
 #if MACCATALYST
-            _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment);
+            _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment.ToString());
+            _logger.LogInformation("AuthenticationService:Constructor-EnvironmentContentRoot:{0}", environment.ContentRootPath);
             _logger.LogInformation("AuthenticationService:Constructor-DataProtector start");
             _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
             _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
