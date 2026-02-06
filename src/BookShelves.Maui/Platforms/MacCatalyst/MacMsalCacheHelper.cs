@@ -6,12 +6,12 @@ using Microsoft.Identity.Client;
 
 static class MacTokenCacheHelper
 {
-    private static IDataProtector? _dataProtector;
+    // private static IDataProtector? _dataProtector;
     private static readonly ILogger _logger = ApplicationLogger.CreateLogger(nameof(MacTokenCacheHelper));
 
-    public static void EnableSerialization(ITokenCache tokenCache, IDataProtector dataProtector)
+    public static void EnableSerialization(ITokenCache tokenCache) // , IDataProtector dataProtector)
     {
-        _dataProtector = dataProtector;
+        // _dataProtector = dataProtector;
         tokenCache.SetBeforeAccess(BeforeAccessNotification);
         tokenCache.SetAfterAccess(AfterAccessNotification);
     }
@@ -22,25 +22,32 @@ static class MacTokenCacheHelper
     /// $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{AppName}\msalcache.bin";
     /// </summary>
     // public static readonly string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalcache.bin3";
-    private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
+    // private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
+    private static readonly string CacheFilePath = "BookShelves.Maui.msalcache.bin";
     // $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
 
     private static readonly Lock FileLock = new();
 
     private static void BeforeAccessNotification(TokenCacheNotificationArgs args)
     {
-        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+        // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
 
         lock (FileLock)
         {
             try
             {
                 _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{CacheFilePath}", CacheFilePath);
+                var temp = SecureStorage.GetAsync(CacheFilePath).Result;
+                //args.TokenCache.DeserializeMsalV3(
+                //    File.Exists(CacheFilePath)
+                //        ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
+                //        : null
+                //);
                 args.TokenCache.DeserializeMsalV3(
-                    File.Exists(CacheFilePath)
-                        ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
+                    temp != null 
+                        ? Convert.FromBase64String(temp) 
                         : null
-                );
+                    );
             }
             catch (Exception ex) 
             {
@@ -55,7 +62,7 @@ static class MacTokenCacheHelper
         // if the access operation resulted in a cache update
         if (args.HasStateChanged)
         {
-            if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+            // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
 
             lock (FileLock)
             {
@@ -63,10 +70,12 @@ static class MacTokenCacheHelper
                 _logger.LogInformation("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file started");
                 try
                 {
-                    File.WriteAllBytes(
-                        CacheFilePath,
-                        _dataProtector.Protect(args.TokenCache.SerializeMsalV3())
-                    );
+                    SecureStorage.SetAsync(CacheFilePath, 
+                        Convert.ToBase64String(args.TokenCache.SerializeMsalV3())).Wait();
+                    //File.WriteAllBytes(
+                    //    CacheFilePath,
+                    //    _dataProtector.Protect(args.TokenCache.SerializeMsalV3())
+                    //);
                 }
                 catch (Exception ex)
                 {
