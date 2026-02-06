@@ -1,48 +1,50 @@
 ﻿using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
 static class MacTokenCacheHelper
 {
-    // private static IDataProtector? _dataProtector;
     private static readonly ILogger _logger = ApplicationLogger.CreateLogger(nameof(MacTokenCacheHelper));
 
-    public static void EnableSerialization(ITokenCache tokenCache) // , IDataProtector dataProtector)
+    public static void EnableSerialization(ITokenCache tokenCache)
     {
-        // _dataProtector = dataProtector;
         tokenCache.SetBeforeAccess(BeforeAccessNotification);
         tokenCache.SetAfterAccess(AfterAccessNotification);
+
+        if (File.Exists(CacheFilePath))
+        {
+            _logger.LogInformation("MacTokenCacheHelper:EnableSerialization-Token cache file exists at path:{CacheFilePath}", CacheFilePath);
+            File.Delete(CacheFilePath);
+            _logger.LogInformation("MacTokenCacheHelper:EnableSerialization-Existing token cache file deleted at path:{CacheFilePath}", CacheFilePath);
+        }
     }
 
     /// <summary>
-    /// Path to the token cache. Note that this could be something different, for instance, for MSIX applications:
-    /// private static readonly string CacheFilePath =
-    /// $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{AppName}\msalcache.bin";
+    /// Represents the full file system path to the local MSAL cache file used for storing authentication data.
     /// </summary>
-    // public static readonly string CacheFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location + ".msalcache.bin3";
-    // private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
-    private static readonly string CacheFilePath = "BookShelves.Maui.msalcache.bin";
-    // $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/msalcache.bin";
+    /// <remarks>This path is determined using the application's local storage directory and is intended for
+    /// use with file-based token caching mechanisms. The file is named "msalcache.bin" and is typically used to persist
+    /// authentication tokens securely.</remarks>
+    private static readonly string CacheFilePath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "msalcache.bin"); 
+
+    /// <summary>
+    /// Represents the storage key used for caching authentication data in the application.
+    /// </summary>
+    /// <remarks>This key is used to identify the cache file for storing authentication tokens. Changing this
+    /// value may result in loss of access to previously cached authentication data.</remarks>
+    private static readonly string CacheStorageKey = "BookShelves.Maui.msalcache.bin";
 
     private static readonly Lock FileLock = new();
 
     private static void BeforeAccessNotification(TokenCacheNotificationArgs args)
     {
-        // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
-
         lock (FileLock)
         {
             try
             {
-                _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{CacheFilePath}", CacheFilePath);
-                var temp = SecureStorage.GetAsync(CacheFilePath).Result;
-                //args.TokenCache.DeserializeMsalV3(
-                //    File.Exists(CacheFilePath)
-                //        ? _dataProtector.Unprotect(File.ReadAllBytes(CacheFilePath))
-                //        : null
-                //);
+                _logger.LogInformation("MacTokenCacheHelper:BeforeAccessNotification-Attempt to read token cache file started-File:{CacheFilePath}", CacheStorageKey);
+                var temp = SecureStorage.GetAsync(CacheStorageKey).Result;
                 args.TokenCache.DeserializeMsalV3(
                     temp != null 
                         ? Convert.FromBase64String(temp) 
@@ -62,20 +64,14 @@ static class MacTokenCacheHelper
         // if the access operation resulted in a cache update
         if (args.HasStateChanged)
         {
-            // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
-
             lock (FileLock)
             {
                 // reflect changes in the persistent store
                 _logger.LogInformation("MacTokenCacheHelper:AfterAccessNotification-Attempt to write token cache file started");
                 try
                 {
-                    SecureStorage.SetAsync(CacheFilePath, 
+                    SecureStorage.SetAsync(CacheStorageKey, 
                         Convert.ToBase64String(args.TokenCache.SerializeMsalV3())).Wait();
-                    //File.WriteAllBytes(
-                    //    CacheFilePath,
-                    //    _dataProtector.Protect(args.TokenCache.SerializeMsalV3())
-                    //);
                 }
                 catch (Exception ex)
                 {
