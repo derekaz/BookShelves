@@ -200,27 +200,39 @@ public static class MauiProgram
 
         builder.Services.AddRazorClassLibraryServices(config);
 
-// #if MACCATALYST
-//        try
-//        {
-//            string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
-//            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
-//            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
-//            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection KeysDirectory:{0}", dataProtectionKeysDirectory);
+#if MACCATALYST
+        string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
+        if (File.Exists(dataProtectionCertFile))
+        {
+            File.Delete(dataProtectionCertFile);
+        }
 
-//            builder.Services.AddDataProtection()
-//                .SetApplicationName("BookShelves")
-//                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-//                .ProtectKeysWithCertificate(dataProtectionCertificate);
+        string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
+        if (Directory.Exists(dataProtectionKeysDirectory))
+        {
+            Directory.Delete(dataProtectionKeysDirectory, true);
+        }
 
-//            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
-//        }
-//        catch (Exception ex)
-//        {
-//            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Exception - {0}", ex);
-//        }
+        //        try
+        //        {
+        //            string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
+        //            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
+        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
+        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection KeysDirectory:{0}", dataProtectionKeysDirectory);
 
-// #endif
+        //            builder.Services.AddDataProtection()
+        //                .SetApplicationName("BookShelves")
+        //                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
+        //                .ProtectKeysWithCertificate(dataProtectionCertificate);
+
+        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Exception - {0}", ex);
+        //        }
+
+#endif
 
         try
         {
