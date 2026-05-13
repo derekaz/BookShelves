@@ -1,0 +1,6 @@
+@BookShelves.WebApi_HostAddress = http://localhost:5224
+
+GET {{BookShelves.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

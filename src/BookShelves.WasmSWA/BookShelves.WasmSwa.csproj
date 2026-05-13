@@ -15,9 +15,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.2" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Graph" Version="5.101.0" />
-    <PackageReference Include="Microsoft.Graph.Core" Version="3.2.5" />
-    <PackageRefer ence Include="System.Text.Json" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Graph" Version="5.105.0" />
+    <PackageReference Include="Microsoft.Graph.Core" Version="4.0.1" />
+    <!--<PackageReference Include="System.Text.Json" Version="10.0.2" />-->
   </ItemGroup>
 
   <ItemGroup>
