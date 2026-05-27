@@ -1,5 +1,7 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
 
+namespace BookShelves.Shared.Data.Models;
+
 public class WeatherForecast : IWeatherForecast
 {
     public DateOnly Date { get; set; }

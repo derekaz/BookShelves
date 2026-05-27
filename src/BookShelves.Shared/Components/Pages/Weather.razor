@@ -1,12 +1,13 @@
 ﻿@page "/weather"
-@inject IWeatherForecastService DataService
+@* @inject IWeatherForecastService DataService *@
+@inject IWeatherForecaster WeatherForecaster
 @inject ILogger<Weather> Logger
 
 <h1>Weather</h1>
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (Forecasts == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -22,7 +23,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var forecast in Forecasts)
             {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
@@ -36,18 +37,28 @@ else
 }
 
 @code {
-    private IEnumerable<IWeatherForecast> forecasts = new List<IWeatherForecast>();
+
+    [PersistentState]
+    public IEnumerable<IWeatherForecast>? Forecasts { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            forecasts = await DataService.GetWeatherForecastsAsync() ?? new List<IWeatherForecast>() { };
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Weather:OnInitializedAsync-Exception");
-        }
+        Forecasts ??= await WeatherForecaster.GetWeatherForecastAsync();
+
+    }
+
+    // private IEnumerable<IWeatherForecast> forecasts = new List<IWeatherForecast>();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+    //         forecasts = await DataService.GetWeatherForecastsAsync() ?? new List<IWeatherForecast>() { };
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Weather:OnInitializedAsync-Exception");
+    //     }
 
 
         // // Simulate asynchronous loading to demonstrate a loading indicator
@@ -61,7 +72,7 @@ else
         //     TemperatureC = Random.Shared.Next(-20, 55),
         //     Summary = summaries[Random.Shared.Next(summaries.Length)]
         // }).ToArray();
-    }
+//    }
 
     // private class WeatherForecast
     // {

@@ -1,17 +1,19 @@
-﻿using BookShelves.Web.Client.Weather;
+﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Data.Models;
 
 namespace BookShelves.Web.Services;
 
 internal sealed class ServerWeatherForecaster(IHttpClientFactory clientFactory) : IWeatherForecaster
 {
-    public async Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
+    public async Task<IEnumerable<IWeatherForecast>> GetWeatherForecastAsync()
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast");
         var client = clientFactory.CreateClient("ExternalApi");
         using var response = await client.SendAsync(request);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<WeatherForecast[]>() ??
-            throw new IOException("No weather forecast!");
+        var temp = await response.Content.ReadFromJsonAsync<WeatherForecast[]>();
+        var result = temp.Cast<IWeatherForecast>();
+        return temp ?? throw new IOException("No weather forecast!");
     }
 }

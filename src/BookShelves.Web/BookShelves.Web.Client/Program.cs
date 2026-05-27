@@ -1,3 +1,4 @@
+using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Web.Client.Weather;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

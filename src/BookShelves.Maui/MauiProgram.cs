@@ -182,7 +182,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
-        builder.Services.AddTransient<IWeatherForecastService, WeatherForecastsDataService>();
+        builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 

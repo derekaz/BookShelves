@@ -1,21 +1,21 @@
-﻿//using BookShelves.Shared.ServiceInterfaces;
-//using BookShelves.Shared.ServiceModels;
-//using System.Reflection;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
+using BookShelves.Shared.Services.ServiceModels;
+using System.Reflection;
 
-//namespace BookShelves.Web.Services
-//{
-//    internal class VersionService : IVersionService
-//    {
-//        public VersionInfo GetVersion()
-//        {
-//            var version = Assembly.GetExecutingAssembly()
-//                .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+namespace BookShelves.Web.Services
+{
+    internal class VersionService : IVersionService
+    {
+        public VersionInfo GetVersion()
+        {
+            var version = Assembly.GetExecutingAssembly()
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-//            return new VersionInfo()
-//            {
-//                CurrentVersion = version?.InformationalVersion ?? "NA",
-//                CurrentBuild = "0",
-//            };
-//        }
-//    }
-//}
+            return new VersionInfo()
+            {
+                CurrentVersion = version?.InformationalVersion ?? "NA",
+                CurrentBuild = "0",
+            };
+        }
+    }
+}

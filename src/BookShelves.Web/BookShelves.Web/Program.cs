@@ -1,6 +1,6 @@
 //using BookShelves.Shared;
-//using BookShelves.Shared.Data.Interfaces;
-//using BookShelves.Shared.ServiceInterfaces;
+using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web;
 using BookShelves.Web.Client.Weather;
 using BookShelves.Web.Components;
@@ -92,7 +92,7 @@ builder.Services.AddHttpClient("ExternalApi",
           throw new Exception("Missing base address!")))
       .AddHttpMessageHandler<TokenHandler>();
 
-// builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<IVersionService, VersionService>();
 //builder.Services.AddScoped(sp =>
 //        new HttpClient
 //        { BaseAddress = new Uri(builder.Configuration["API_Uri"] ?? builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
@@ -100,9 +100,9 @@ builder.Services.AddHttpClient("ExternalApi",
 // builder.Services.AddTransient<IBook, Book>();
 // builder.Services.AddTransient<IBookFactory, BookFactory>();
 // builder.Services.AddScoped<IBooksDataService, BooksDataService>();
-// builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
-// builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
@@ -134,6 +134,7 @@ app.MapGet("/weather-forecast", ([FromServices] IWeatherForecaster WeatherForeca
 app.MapRazorComponents<WebApp>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly)
     .AddAdditionalAssemblies(typeof(BookShelves.Web.Client.Components._Imports).Assembly);
 // .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly);
 

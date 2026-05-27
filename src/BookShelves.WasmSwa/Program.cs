@@ -21,7 +21,7 @@ builder.Services.AddTransient<IBook, Book>();
 builder.Services.AddTransient<IBookFactory, BookFactory>();
 builder.Services.AddTransient<IBooksDataService, BooksDataService>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-builder.Services.AddTransient<IWeatherForecastService, WeatherForecastsDataService>();
+builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGraphService, GraphService>();
 builder.Services.AddCascadingAuthenticationState();
