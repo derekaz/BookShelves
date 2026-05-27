@@ -1,13 +1,12 @@
-﻿using BookShelves.Shared.ServiceInterfaces;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace BookShelves.WasmSwa.Services;
 
 public class AuthService(IServiceProvider serviceProvider) : IAuthService
 {
-    private IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public Task InitializeAsync()
     {

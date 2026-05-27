@@ -1,10 +1,10 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using BookShelves.Shared.Data.Bases;
+﻿using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
+using System.Text.Json;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.Web.Shared.Data;
 
 public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger) : IBooksDataService
 {

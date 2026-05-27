@@ -51,7 +51,8 @@ jobs:
       DOTNET_VERSION: 'net10.0'
       # DOTNET_SDK_VERSION: '9.0.306'
       # dotnet workload install ios --version 9.0.203
-      DOTNET_SDK_VERSION: '10.0.102'
+      DOTNET_SDK_VERSION: '10.0.204'
+      #DOTNET_SDK_VERSION: '10.0.102'
       # DOTNET_SDK_VERSION: '9.0.310'
       # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'

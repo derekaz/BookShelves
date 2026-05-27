@@ -1,9 +1,8 @@
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
 using System.Net;
 
 namespace BookShelves.WasmApi;
@@ -46,7 +45,7 @@ public class WeatherForecastFunction
 
         var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
-            Date = DateTime.Now.AddDays(index),
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             TemperatureC = temp = randomNumber.Next(-20, 55),
             Summary = GetSummary(temp)
         }).ToArray();

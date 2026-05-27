@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.ServiceInterfaces;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BookShelves.Maui.Services;

@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.ServiceInterfaces;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Maui.Alerts;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;

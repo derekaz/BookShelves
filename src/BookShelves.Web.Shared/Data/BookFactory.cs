@@ -1,11 +1,6 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.Web.Shared.Data;
 
 public class BookFactory : IBookFactory
 {

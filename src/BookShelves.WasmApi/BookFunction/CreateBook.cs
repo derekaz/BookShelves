@@ -1,6 +1,6 @@
 using BookShelves.WasmApi.DataAccess;
 using BookShelves.WasmApi.Utilities;
-using BookShelves.WebShared.Data;
+using BookShelves.Web.Shared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -58,9 +58,10 @@ public class CreateBook
                 var temp = await _uniqueIdRepository.GetAsync(Book.BOOKS_UNIQUEID_RECORD_ID); // ?? throw new ApplicationException("Unable to get unique id");
                 if (temp == null)
                 {
-                    temp = new UniqueId() { 
+                    temp = new UniqueId()
+                    {
                         Id = Book.BOOKS_UNIQUEID_RECORD_ID,
-                        UniqueIdValue = 0 
+                        UniqueIdValue = 0
                     };
                 }
                 temp.UniqueIdValue++;

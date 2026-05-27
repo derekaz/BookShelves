@@ -19,11 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BookShelves.Shared.Data\BookShelves.Shared.Data.csproj" />
+    <Folder Include="ServiceInterfaces\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ServiceInterfaces\" />
+    <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,13 +1,13 @@
 using BookShelves.WasmApi.DataAccess;
+using BookShelves.WasmApi.Utilities;
+using BookShelves.Web.Shared.Data;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
-using System;
-using BookShelves.WebShared.Data;
-using BookShelves.WasmApi.Utilities;
-using System.Collections.Generic;
 
 namespace BookShelves.WasmApi.BookFunction;
 

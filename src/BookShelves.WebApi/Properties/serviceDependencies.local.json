@@ -1,8 +1,16 @@
 {
   "dependencies": {
     "identityapp1": {
-      "connectionInfo": "App registration: BookShelves-API, Tenant: cloud.azmoore.com (cloud.azmoore.com - Microsoft Entra ID)",
+      "connectionInfo": "App registration: BookShelves App, Tenant: cloud.azmoore.com (cloud.azmoore.com - Microsoft Entra ID)",
+      "secretStore": null,
+      "resourceId": null,
       "type": "identityapp.default"
+    },
+    "secrets1": {
+      "secretStore": null,
+      "resourceId": null,
+      "type": "secrets.user",
+      "connectionId": null
     }
   }
 }

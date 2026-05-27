@@ -1,13 +1,13 @@
+using BookShelves.Shared;
+using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.WasmSwa;
 using BookShelves.WasmSwa.Data;
-using BookShelves.Shared;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BookShelves.WasmSwa.Services;
+using BookShelves.Web.Shared.Data;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-using BookShelves.Shared.ServiceInterfaces;
-using BookShelves.WebShared.Data;
-using BookShelves.Shared.Data.Interfaces;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<WasmApp>("#app");
@@ -21,6 +21,7 @@ builder.Services.AddTransient<IBook, Book>();
 builder.Services.AddTransient<IBookFactory, BookFactory>();
 builder.Services.AddTransient<IBooksDataService, BooksDataService>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+builder.Services.AddTransient<IWeatherForecastService, WeatherForecastsDataService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGraphService, GraphService>();
 builder.Services.AddCascadingAuthenticationState();

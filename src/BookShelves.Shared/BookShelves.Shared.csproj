@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="DataModels\**" />
+    <Content Remove="DataModels\**" />
+    <EmbeddedResource Remove="DataModels\**" />
+    <None Remove="DataModels\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -17,19 +23,11 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.8" />
 	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.8" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8" />
     <PackageReference Include="Microsoft.Graph" Version="5.105.0" />
     <PackageReference Include="Microsoft.Graph.Core" Version="4.0.1" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.84.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DataModels\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BookShelves.Shared.Data\BookShelves.Shared.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

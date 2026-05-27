@@ -1,6 +1,6 @@
 using BookShelves.WasmApi.DataAccess;
 using BookShelves.WasmApi.Utilities;
-using BookShelves.WebShared.Data;
+using BookShelves.Web.Shared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -23,7 +23,7 @@ public class GetBook
 
     [Function("GetBook1")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "book/{id}")] HttpRequestData req, 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "book/{id}")] HttpRequestData req,
         string id
     )
     {
