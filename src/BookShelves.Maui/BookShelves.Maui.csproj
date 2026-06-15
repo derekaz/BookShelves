@@ -126,7 +126,7 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
         <PackageReference Include="Microsoft.Graph" Version="6.2.0" />		
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.84.2" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.84.2" />		
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.71" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.71" />
@@ -136,8 +136,9 @@
         <PackageReference Include="System.Drawing.Common" Version="10.0.9" />
     </ItemGroup>
 
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
 		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.84.2" />
+		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.84.2" />
 	</ItemGroup>
 	
     <ItemGroup>

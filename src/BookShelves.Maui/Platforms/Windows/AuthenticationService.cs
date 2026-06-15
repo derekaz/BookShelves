@@ -1,4 +1,6 @@
 ﻿using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Desktop;
+
 
 
 
@@ -29,6 +31,7 @@ public partial class AuthenticationService
         //builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
         //builder.WithBroker(brokerOptions);
         //builder.WithBroker(false);
+        builder.WithWindowsEmbeddedBrowserSupport();
 
         return builder;
     }
