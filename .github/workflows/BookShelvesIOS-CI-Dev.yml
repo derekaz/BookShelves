@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   mac-build-ios:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     env:
       PROJPATH: 'src/BookShelves.Maui'
@@ -57,7 +57,7 @@ jobs:
       # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
       # XCODE_VERSION: '16.4'
-      XCODE_VERSION: '26.4'
+      XCODE_VERSION: '26.5'
       # XCODE_VERSION: '18.6'
     defaults:
       run:
