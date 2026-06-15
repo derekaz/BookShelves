@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "10.0.103",
-    "sdkVersion": "10.0.103",
-    "workloadVersion": "10.0.103"
+    "version": "10.0.300",
+    "sdkVersion": "10.0.300",
+    "workloadVersion": "10.0.300"
   },
   "workloads": {
-    "version": "10.0.103",
+    "version": "10.0.300",
     "install": [
       "ios",
       "maui",
