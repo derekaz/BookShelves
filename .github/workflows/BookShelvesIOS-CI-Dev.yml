@@ -181,6 +181,7 @@ jobs:
             publish `
             ${{env.CSPROJ}} `
             -f ${{env.DOTNET_VERSION}}-ios `
+            -p:RuntimeIdentifier=ios-arm64 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{env.PUBLISH_PATH}} `
             -v diag `

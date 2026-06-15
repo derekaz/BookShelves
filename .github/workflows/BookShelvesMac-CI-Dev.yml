@@ -251,7 +251,6 @@ jobs:
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{env.PUBLISH_PATH}} `
-            -p:RuntimeIdentifier=ios-arm64 `
             -p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
