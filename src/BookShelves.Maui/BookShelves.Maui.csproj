@@ -136,9 +136,9 @@
         <PackageReference Include="System.Drawing.Common" Version="10.0.9" />
     </ItemGroup>
 
-	<ImportGroup Condition="$(TargetFramework.Contains('-windows'))">
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.84.2" />
-	</ImportGroup>
+	</ItemGroup>
 	
     <ItemGroup>
       <ProjectReference Include="..\BookShelves.Maui.Data\BookShelves.Maui.Data.csproj" />
