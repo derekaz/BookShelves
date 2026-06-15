@@ -1,4 +1,5 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Data.Models;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
@@ -9,11 +10,11 @@ public class WeatherForecastsDataService(HttpClient http, ILogger<BooksDataServi
     private readonly HttpClient _httpClient = http;
     private readonly ILogger _logger = logger;
 
-    public async Task<IEnumerable<IWeatherForecast>> GetWeatherForecastAsync()
+    public async Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<IWeatherForecast[]>("/api/weatherforecast") ?? [];
+            return await _httpClient.GetFromJsonAsync<WeatherForecast[]>("/api/weatherforecast") ?? [];
         }
         catch (Exception ex)
         {

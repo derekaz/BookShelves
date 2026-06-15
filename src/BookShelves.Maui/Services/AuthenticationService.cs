@@ -3,11 +3,13 @@
 
 using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
+//#if WINDOWS
+//using Microsoft.Identity.Client.Desktop;
+//#endif
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Diagnostics;
@@ -22,9 +24,9 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
     private readonly ILogger<AuthenticationService> _logger;
-#if MACCATALYST
-    private readonly IDataProtector? _dataProtector;
-#endif
+    //#if MACCATALYST
+    //    private readonly IDataProtector? _dataProtector;
+    //#endif
 
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
@@ -108,6 +110,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         // If silent attempt didn't work, try an
         // interactive sign in
         result ??= await GetTokenInteractivelyAsync(account);
+        //result ??= await GetTokenInteractivelyAsync(account);
 
         SetCurrentPrincipal(result);
 
@@ -160,9 +163,19 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             // Initialize the PublicClientApplication
             var builder = PublicClientApplicationBuilder
                 .Create(_settingsService?.ClientId)
-                .WithAuthority(_settingsService?.AzureAdAuthority);
-                //.WithBroker(brokerOptions)
-                //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
+                .WithAuthority(_settingsService?.AzureAdAuthority)
+                .WithLogging((level, message, pii) =>
+                {
+                    Debug.WriteLine($"[{level}] {message}");
+                }, Microsoft.Identity.Client.LogLevel.Verbose, enablePiiLogging: true)
+#if WINDOWS
+                //.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" })
+                //.WithWindowsEmbeddedBrowserSupport()
+#endif
+                // .WithRedirectUri("http://localhost");
+                .WithDefaultRedirectUri();
+            //.WithBroker(brokerOptions)
+            //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
             builder = AddPlatformConfiguration(builder);
 
@@ -173,7 +186,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _logger.LogInformation("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
 
             return pca;
-        } 
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to initialize the MSAL PublicClientApplication instance");
@@ -268,11 +281,23 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             if (userAccount == null) return null;
 
-            return await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
+            var result = await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
                 .ExecuteAsync();
+            return result;
+
+            //var authResult = await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount).ExecuteAsync();
+            //if (authResult.Account != null)
+            //{
+            //    pca.SetActiveAccount(authResult.account);
+            //}
         }
         catch (MsalUiRequiredException)
         {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AuthenticationService:GetTokenSilentlyAsync");
             return null;
         }
     }
@@ -285,10 +310,28 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var pca = await _pca.Value;
 
         var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
-            //builder.WithUseEmbeddedWebView(true);
-        
-        builder = AddAquireTokenPlatformConfiguration(builder);
+        builder.WithPrompt(Prompt.ForceLogin);
 
+        //builder.WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions
+        //{
+        //    Title = "BookShelves Sign In"
+        //    // This is required for the authentication flow to work correctly on Mac Catalyst
+        //    // and may also help with the authentication flow on iOS. Android and Windows should be unaffected.
+        //    //PreferredBrowserOption = PreferredEmbeddedBrowser.SystemDefault
+        //});
+        // builder.WithUseEmbeddedWebView(true);
+        // builder.WithParentActivityOrWindow(Application.Current?.MainPage?.Window?.Handler?.PlatformView as Microsoft.UI.Xaml.Window);
+
+        // var window = _windowService?.GetMainWindowHandle();
+
+        //var window = _windowService?.GetMainWindowHandle();
+        //var window = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).CoreWindow;
+        // var window = App.Current.MainPage.Window.Handler.PlatformView;
+
+        builder = AddAquireTokenPlatformConfiguration(builder);
+        // builder.WithParentActivityOrWindow(window); // trying this to maybe fix the IOS launch issue
+        //builder.WithParentActivityOrWindow(GetWindowHandle()); // trying this to maybe fix the IOS launch issue
+        //builder.WithUseEmbeddedWebView(true);
         try
         {
             var result = await builder.ExecuteAsync();
@@ -297,7 +340,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
             //.WithPrompt(Prompt.NoPrompt)
-            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()) // trying this to maybe fix the IOS launch issue
+            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()); // trying this to maybe fix the IOS launch issue
             //.WithUseEmbeddedWebView(true)
             //.ExecuteAsync();
 
@@ -310,6 +353,25 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _logger.LogError(ex, "AuthenticationService:GetTokenInteractivelyAsync");
             throw;
         }
+    }
+
+    private IntPtr GetWindowHandle()
+    {
+#if WINDOWS
+        // Get the current MAUI Window
+        var window = Application.Current?.Windows.FirstOrDefault();
+        if (window != null)
+        {
+            // Retrieve the native WinUI 3 Window
+            var nativeWindow = window.Handler.PlatformView as Microsoft.UI.Xaml.Window;
+            if (nativeWindow != null)
+            {
+                // Retrieve the HWND for the WinUI 3 window
+                return WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+            }
+        }
+#endif
+        return IntPtr.Zero;
     }
 
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder);

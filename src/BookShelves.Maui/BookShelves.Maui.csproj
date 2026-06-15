@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+	
     <PropertyGroup>
         <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
         <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
@@ -21,10 +21,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
-		<!--RuntimeIdentifiers Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">android-x64;android-arm64</RuntimeIdentifiers-->
-		<!--<PublishAot Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'android'">true</PublishAot>-->
-		<!--<PublishAot>true</PublishAot>-->
-		<!--<SelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">false</SelfContained>-->
 
 		<!-- enable trimming and AOT analyzers on all platforms -->
 		<IsAotCompatible>false</IsAotCompatible>
@@ -45,7 +41,6 @@
 
 		<PackageVersion>$(ApplicationDisplayVersion)</PackageVersion>
 		<AssemblyVersion>$(ApplicationDisplayVersion)</AssemblyVersion>
-		<!--<AssemblyVersion>$(ApplicationDisplayVersion).$(ApplicationVersion)</AssemblyVersion>-->
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -57,12 +52,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <WindowsPackageType>None</WindowsPackageType>
     </PropertyGroup>
-    <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
-      <MtouchLink>Full</MtouchLink>
-    </PropertyGroup>-->
-	
-	<PropertyGroup>
-	</PropertyGroup>
 	
     <PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
       <CodesignKey>iOS Distribution</CodesignKey>
@@ -88,22 +77,6 @@
 		<EnableSGenConc>True</EnableSGenConc>
 		<MtouchInterpreter>-all,System.Private.Windows.Core</MtouchInterpreter>
 	</PropertyGroup>
-
-	<!--<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
-		<CustomEntitlements Include="aps-environment" Type="string" Value="development" />
-	</ItemGroup>-->
-
-	<!--<ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
-		<CustomEntitlements Include="aps-environment" Type="string" Value="production" />
-	</ItemGroup>-->
-
-	<!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-ios|AnyCPU'">
-      <MtouchLink>SdkOnly</MtouchLink>
-    </PropertyGroup>-->
-
-    <!--<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-ios|AnyCPU'">
-      <MtouchLink>None</MtouchLink>
-    </PropertyGroup>-->
 
     <ItemGroup>
         <!-- App Icon -->
@@ -147,36 +120,23 @@
         <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.3" />
         <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.3" />
         <PackageReference Include="Azure.Identity" Version="1.21.0" />
-        <PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.8" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.8" />
-        <PackageReference Include="Microsoft.Graph" Version="5.105.0" />
-        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.18.0" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.60" />
+        <PackageReference Include="Microsoft.Graph" Version="6.1.0" />		
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.84.1" />
+        <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.84.1" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.0" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.70" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.70" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
         <!--<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />-->
         <PackageReference Include="Polly" Version="8.6.6" />
         <PackageReference Include="System.Drawing.Common" Version="10.0.8" />
     </ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'">
-		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.84.0" />
-	</ItemGroup>
-
-	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.19041.0'">
-		<PackageReference Include="WinUIEx">
-			<Version>2.5.0</Version>
-		</PackageReference>
-	</ItemGroup>-->
-	<!--<ItemGroup Condition="'$(TargetFramework)'=='net9.0-maccatalyst'">
-		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.2" PrivateAssets="None" GeneratePathProperty="true" />
-		<NativeReference Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)/runtimes/osx-x64/native/libe_sqlite3.dylib">
-			<Kind>Dynamic</Kind>
-			<SmartLink>False</SmartLink>
-		</NativeReference>
-	</ItemGroup>-->
+	
     <ItemGroup>
       <ProjectReference Include="..\BookShelves.Maui.Data\BookShelves.Maui.Data.csproj" />
       <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />

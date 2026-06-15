@@ -1,4 +1,5 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Data.Models;
 
 namespace BookShelves.Maui.Data.Services
 {
@@ -15,7 +16,7 @@ namespace BookShelves.Maui.Data.Services
         //    });
         //}
 
-        public Task<IEnumerable<IWeatherForecast>> GetWeatherForecastAsync()
+        public Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
         {
             // HttpContext.VerifyUserHasAnyAcceptedScope("Weather.Get");
 
@@ -24,7 +25,8 @@ namespace BookShelves.Maui.Data.Services
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                 TemperatureC = Random.Shared.Next(-20, 55),
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            }).Cast<IWeatherForecast>());
+            }));
+            // .Cast<IWeatherForecast>())
 
             //return Enumerable.Range(1, 5).Select(index => new BookShelves.Shared.Data.Models.WeatherForecast
             //{

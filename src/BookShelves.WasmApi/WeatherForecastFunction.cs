@@ -1,4 +1,3 @@
-using BookShelves.Shared.Data.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -47,14 +46,14 @@ public class WeatherForecastFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
     {
         var randomNumber = new Random();
-        var temp = 0;
+        //var temp = 0;
 
         var result = Enumerable.Range(1, 5).Select(index => new BookShelves.Shared.Data.Models.WeatherForecast
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        }).Cast<IWeatherForecast>().ToArray();
+        }); //   .Cast<IWeatherForecast>().ToArray();
 
         //var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
         //{

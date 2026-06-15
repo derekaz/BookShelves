@@ -2,7 +2,6 @@
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web;
-using BookShelves.Web.Client.Weather;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
 //using BookShelves.WebShared.Data;
@@ -126,11 +125,6 @@ app.UseAntiforgery();
 //app.UseAuthentication();
 //app.UseAuthorization();
 
-app.MapGet("/weather-forecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
-{
-    return WeatherForecaster.GetWeatherForecastAsync();
-}).RequireAuthorization();
-
 app.MapRazorComponents<WebApp>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
@@ -139,5 +133,11 @@ app.MapRazorComponents<WebApp>()
 // .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly);
 
 app.MapGroup("/authentication").MapLoginAndLogout();
+
+app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
+{
+    return WeatherForecaster.GetWeatherForecastAsync();
+}); //.RequireAuthorization();
+
 
 app.Run();

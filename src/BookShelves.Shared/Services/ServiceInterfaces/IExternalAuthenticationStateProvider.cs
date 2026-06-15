@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Identity.Client;
 
 namespace BookShelves.Shared.Services.ServiceInterfaces;
 

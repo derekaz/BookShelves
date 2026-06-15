@@ -1,27 +1,59 @@
-﻿@using BookShelves.Shared.Data.Interfaces
-@using Microsoft.AspNetCore.Components.Authorization
-@*inject NavigationManager Navigation
-@*inject IExternalAuthStateProvider AuthenticationStateProvider *@
-@inject AuthenticationStateProvider AuthenticationStateProvider 
-@inject IAuthService AuthService
+﻿@implements IDisposable
+@* @using BookShelves.Shared.Data.Interfaces *@
+@* @using Microsoft.AspNetCore.Components.Authorization *@
+
+@inject NavigationManager Navigation
+
+@* @inject IExternalAuthenticationStateProvider AuthenticationStateProvider *@
+@inject IExternalAuthenticationStateProvider AuthenticationStateProvider
+@* @inject IAuthService? AuthService *@
 
 <AuthorizeView>
     <Authorized>
-        <div class="mx-0">Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div> @* @context.User.Identity?.Name!*@
-        <button class="nav-link btn btn-link" @onclick="Logout">Log out</button>
+        <form action="./authentication/logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+            <div class="mx-0 d-flex align-items-center gap-2">
+                <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div>
+            @* @context.User.Identity?.Name!*@
+                <button type="submit" class="nav-link btn btn-link">Logout
+                    @* <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout *@
+                </button>
+            </div>
+        </form>
+      @*   <button class="nav-link btn btn-link" @onclick="Logout">Log out</button> *@
     </Authorized>
     <NotAuthorized>
-        <button class="nav-link btn btn-link" @onclick="Login">Log in</button>
+        <a class="nav-link" href="./authentication/login">Login
+            @* <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login *@
+        </a>
+        @* <button class="nav-link btn btn-link" @onclick="Login">Log in</button> *@
         <!--<a href="authentication/login">Log in</a>-->
     </NotAuthorized>
 </AuthorizeView>
 
 @code{
-    protected async override Task OnInitializedAsync()
+    private string? currentUrl;
+
+    protected override void OnInitialized() // Async()
     {
-        await AuthService.InitializeAsync();
-        // return base.OnInitializedAsync();
+        currentUrl = Navigation.Uri;
+        Navigation.LocationChanged += OnLocationChanged;
     }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = Navigation.Uri;
+        StateHasChanged();
+    }
+
+    // protected async override Task OnInitializedAsync()
+    // {
+    //     await AuthService!.InitializeAsync();
+    //    // return base.OnInitializedAsync();
+    // }
+    
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
 
     private async Task<string?> GetName() 
     {
@@ -38,43 +70,43 @@
         return authState?.User?.Identity?.Name;
     }
     
-    async Task Login()
-    {
-        await AuthService.LoginAsync();
+    // async Task Login()
+    // {
+    //     await AuthService!.LoginAsync();
 
         // if web or wasm
         //BeginLoginWeb();
 
         // if maui
         //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogInAsync();
-    }
+    // }
 
-    async Task Logout()
-    {
-        await AuthService.LogoutAsync();
+    // async Task Logout()
+    // {
+    //     await AuthService!.LogoutAsync();
 
         // if web or wasm
         //BeginLogoutWeb();
 
         // if maui
         //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogoutAsync();
-    }
+    // }
 
-    void BeginLoginWeb()
-    {
+    // void BeginLoginWeb()
+    // {
         // if wasm
         //Navigation.NavigateTo("RedirectToLogin1");
 
         //if web
         //Navigation.NavigateTo("authentication/login");
-    }
+    // }
 
-    void BeginLogoutWeb()
-    {
+    // void BeginLogoutWeb()
+    // {
         // if wasm
         //Navigation.NavigateTo("RedirectToLogout1");
 
         // if web
         //Navigation.NavigateTo("authentication/logout");
-    }
+    // }
 }

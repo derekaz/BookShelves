@@ -1,0 +1,22 @@
+﻿@page "/authentication/logout"
+@using BookShelves.Maui.Services
+@using BookShelves.Shared.Services.ServiceInterfaces
+@* @using Microsoft.AspNetCore.Components.Authorization *@
+@inject NavigationManager navigationManager
+@* @inject IAuthService AuthService *@
+@inject IExternalAuthenticationStateProvider AuthStateProvider
+@* @inject AuthenticationStateProvider AuthStateProvider *@
+
+<div class="loader loader-bouncing"><span>Redirecting...</span></div>
+@code{
+    protected override void OnInitialized()
+    {
+        AuthStateProvider.LogoutAsync().Wait();
+        // AuthService.LogoutAsync().Wait();
+        
+        // return;
+
+        // AuthStateProvider.Logout();
+        navigationManager.NavigateTo("/");
+    }
+}

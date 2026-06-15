@@ -1,6 +1,5 @@
 ﻿using BookShelves.WasmApi.DataAccess;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,15 +11,15 @@ namespace BookShelves.WasmApi;
 
 public class Program
 {
-    public async static Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = FunctionsApplication.CreateBuilder(args);
 
         builder.ConfigureFunctionsWebApplication();
 
-        builder.Services
-            .AddApplicationInsightsTelemetryWorkerService()
-            .ConfigureFunctionsApplicationInsights();
+        //builder.Services
+        //    //.AddApplicationInsightsTelemetryWorkerService()
+        //    .ConfigureFunctionsApplicationInsights();
 
         //builder.Logging.Services.Configure<LoggerFilterOptions>(options =>
         //{
@@ -99,7 +98,7 @@ public class Program
         //    });
         //})
         //.Build();
-        
+
         //await host.RunAsync();
     }
 }

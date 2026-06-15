@@ -1,5 +1,4 @@
 ﻿using BookShelves.Shared.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BookShelves.Maui.Services;
 
@@ -9,19 +8,19 @@ internal class AuthService(IServiceProvider serviceProvider) : IAuthService
 
     public async Task InitializeAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
-        await ((IExternalAuthenticationStateProvider)authenticationStateProvider).InitializeAsync();
+        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
+        await authenticationStateProvider.InitializeAsync();
     }
 
     public async Task LoginAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
-        await ((IExternalAuthenticationStateProvider)authenticationStateProvider).LogInAsync();
+        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
+        await authenticationStateProvider.LogInAsync();
     }
 
     public async Task LogoutAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<AuthenticationStateProvider>();
-        await ((IExternalAuthenticationStateProvider)authenticationStateProvider).LogoutAsync();
+        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
+        await authenticationStateProvider.LogoutAsync();
     }
 }

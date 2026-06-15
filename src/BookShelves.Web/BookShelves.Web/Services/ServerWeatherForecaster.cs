@@ -5,7 +5,7 @@ namespace BookShelves.Web.Services;
 
 internal sealed class ServerWeatherForecaster(IHttpClientFactory clientFactory) : IWeatherForecaster
 {
-    public async Task<IEnumerable<IWeatherForecast>> GetWeatherForecastAsync()
+    public async Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast");
         var client = clientFactory.CreateClient("ExternalApi");
@@ -13,7 +13,7 @@ internal sealed class ServerWeatherForecaster(IHttpClientFactory clientFactory) 
         response.EnsureSuccessStatusCode();
 
         var temp = await response.Content.ReadFromJsonAsync<WeatherForecast[]>();
-        var result = temp.Cast<IWeatherForecast>();
-        return temp ?? throw new IOException("No weather forecast!");
+        var result = temp ?? throw new IOException("No weather forecast!"); //.Cast<IWeatherForecast>();
+        return result ?? throw new IOException("No weather forecast!");
     }
 }

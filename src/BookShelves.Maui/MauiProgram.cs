@@ -31,6 +31,13 @@ public static class MauiProgram
 
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
+
+        AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+        {
+            Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+            Console.WriteLine(args.Exception.StackTrace);
+        };
+
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
@@ -58,6 +65,7 @@ public static class MauiProgram
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
+        // builder.UseWebAuthentication();
 #endif
 
 
@@ -146,9 +154,8 @@ public static class MauiProgram
         //}
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
-
-        builder.Services.AddScoped<AuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
+        builder.Services.AddScoped<AuthenticationStateProvider>(s => (AuthenticationStateProvider)s.GetRequiredService<IExternalAuthenticationStateProvider>());
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();

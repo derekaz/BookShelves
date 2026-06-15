@@ -1,6 +1,8 @@
-﻿namespace BookShelves.Shared.Data.Interfaces;
+﻿using BookShelves.Shared.Data.Models;
+
+namespace BookShelves.Shared.Data.Interfaces;
 
 public interface IWeatherForecaster
 {
-    Task<IEnumerable<IWeatherForecast>> GetWeatherForecastAsync();
+    Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync();
 }
