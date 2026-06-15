@@ -154,6 +154,7 @@ public static class MauiProgram
         //}
 
         builder.Services.AddSingleton<IVersionService, VersionService>();
+        builder.Services.AddScoped<IAuthenticationUIProvider, MauiAuthenticationUIProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<AuthenticationStateProvider>(s => (AuthenticationStateProvider)s.GetRequiredService<IExternalAuthenticationStateProvider>());
         builder.Services.AddScoped<IAuthService, AuthService>();

@@ -1,112 +1,128 @@
-﻿@implements IDisposable
-@* @using BookShelves.Shared.Data.Interfaces *@
-@* @using Microsoft.AspNetCore.Components.Authorization *@
+﻿@* @implements IDisposable *@
 
+@inject IAuthenticationUIProvider AuthenticationUIProvider
 @inject NavigationManager Navigation
+@inject IServiceProvider ServiceProvider
 
 @* @inject IExternalAuthenticationStateProvider AuthenticationStateProvider *@
-@inject IExternalAuthenticationStateProvider AuthenticationStateProvider
+@* @inject IExternalAuthenticationStateProvider AuthenticationStateProvider *@
 @* @inject IAuthService? AuthService *@
 
 <AuthorizeView>
+    <Authorized>
+        <div class="login-display">
+            @* <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div> *@
+            <span class="user-name">Hello, @context.User.Identity?.Name!</span>
+            @if (AuthenticationUIProvider.RequiresNavigation)
+            {
+                <a href="@AuthenticationUIProvider.GetLogoutUrl()" class="logout-link">Logout</a>
+            }
+            else
+            {
+                <button class="btn btn-link logout-button" @onclick="LogoutAsync">Logout</button>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="login-display">
+            @if (AuthenticationUIProvider.RequiresNavigation)
+            {
+                <a href="@AuthenticationUIProvider.GetLoginUrl()" class="login-link">Login</a>
+            }
+            else
+            {
+                <button class="btn btn-link login-button" @onclick="LoginAsync">Login</button>
+            }
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@* <AuthorizeView>
     <Authorized>
         <form action="./authentication/logout" method="post">
             <AntiforgeryToken />
             <input type="hidden" name="ReturnUrl" value="@currentUrl" />
             <div class="mx-0 d-flex align-items-center gap-2">
                 <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div>
-            @* @context.User.Identity?.Name!*@
-                <button type="submit" class="nav-link btn btn-link">Logout
-                    @* <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout *@
-                </button>
+                <button type="submit" class="nav-link btn btn-link">Logout</button>
             </div>
         </form>
-      @*   <button class="nav-link btn btn-link" @onclick="Logout">Log out</button> *@
     </Authorized>
     <NotAuthorized>
-        <a class="nav-link" href="./authentication/login">Login
-            @* <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login *@
-        </a>
-        @* <button class="nav-link btn btn-link" @onclick="Login">Log in</button> *@
-        <!--<a href="authentication/login">Log in</a>-->
+        <a class="nav-link" href="./authentication/login">Login</a>
     </NotAuthorized>
-</AuthorizeView>
+</AuthorizeView> *@
 
 @code{
-    private string? currentUrl;
+    private IExternalAuthenticationStateProvider? authStateProvider { get; set; }
 
-    protected override void OnInitialized() // Async()
+    private async Task LoginAsync()
     {
-        currentUrl = Navigation.Uri;
-        Navigation.LocationChanged += OnLocationChanged;
+        authStateProvider = ServiceProvider.GetService(typeof(AuthenticationStateProvider)) as IExternalAuthenticationStateProvider;
+        if (authStateProvider is not null)
+        {
+            try
+            {
+                var authProvider = (IExternalAuthenticationStateProvider)authStateProvider;
+                if (authProvider is not null)
+                {
+                    await authProvider.LogInAsync();
+
+                    var state = await authStateProvider.GetAuthenticationStateAsync();
+                    if (state.User.Identity?.IsAuthenticated == true)
+                    {
+                        Navigation.NavigateTo("/");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Login failed: {ex.Message}");
+            }
+        }
     }
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private async Task LogoutAsync()
     {
-        currentUrl = Navigation.Uri;
-        StateHasChanged();
+        authStateProvider = ServiceProvider.GetService(typeof(AuthenticationStateProvider)) as IExternalAuthenticationStateProvider;
+        if (authStateProvider is not null)
+        {
+            var authProvider = (IExternalAuthenticationStateProvider)authStateProvider;
+            if (authProvider is not null)
+            {
+                await authProvider.LogoutAsync();
+
+                var state = await authStateProvider.GetAuthenticationStateAsync();
+                if (state.User.Identity?.IsAuthenticated == true)
+                {
+                    Navigation.NavigateTo("/", forceLoad: true);
+                }
+            }
+        }
     }
 
-    // protected async override Task OnInitializedAsync()
+    // private string? currentUrl;
+
+    // protected override void OnInitialized() Async()
     // {
-    //     await AuthService!.InitializeAsync();
-    //    // return base.OnInitializedAsync();
-    // }
-    
-    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
-
-    private async Task<string?> GetName() 
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        // var user = authState.User;
-        // var userIdentity = (System.Security.Claims.ClaimsIdentity)user.Identity;
-        // System.Diagnostics.Debug.WriteLine(userIdentity);
-        // System.Diagnostics.Debug.WriteLine(authState.User.IsInRole("Administrator"));
-        // var claims = userIdentity?.Claims;
-        // var roleClaimType = userIdentity?.RoleClaimType;
-        // var roles1 = claims?.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
-        // var roles2 = claims?.Where(c => c.Type == roleClaimType).ToList();
-
-        return authState?.User?.Identity?.Name;
-    }
-    
-    // async Task Login()
-    // {
-    //     await AuthService!.LoginAsync();
-
-        // if web or wasm
-        //BeginLoginWeb();
-
-        // if maui
-        //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogInAsync();
+    //     currentUrl = Navigation.Uri;
+    //     Navigation.LocationChanged += OnLocationChanged;
     // }
 
-    // async Task Logout()
+    // private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     // {
-    //     await AuthService!.LogoutAsync();
-
-        // if web or wasm
-        //BeginLogoutWeb();
-
-        // if maui
-        //await ((IExternalAuthenticationStateProvider)AuthenticationStateProvider).LogoutAsync();
+    //     currentUrl = Navigation.Uri;
+    //     StateHasChanged();
     // }
 
-    // void BeginLoginWeb()
+    // public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+
+    // private async Task<string?> GetName() 
     // {
-        // if wasm
-        //Navigation.NavigateTo("RedirectToLogin1");
+    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-        //if web
-        //Navigation.NavigateTo("authentication/login");
-    // }
-
-    // void BeginLogoutWeb()
-    // {
-        // if wasm
-        //Navigation.NavigateTo("RedirectToLogout1");
-
-        // if web
-        //Navigation.NavigateTo("authentication/logout");
+    //     return authState?.User?.Identity?.Name;
     // }
 }
