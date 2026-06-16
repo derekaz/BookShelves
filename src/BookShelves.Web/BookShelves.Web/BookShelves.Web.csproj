@@ -15,10 +15,12 @@
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.9" />
     <PackageReference Include="Microsoft.Identity.Web" Version="4.10.0" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="4.10.0" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.10.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BookShelves.Web.Shared\BookShelves.Web.Shared.csproj" />
     <ProjectReference Include="..\BookShelves.Web.Client\BookShelves.Web.Client.csproj" />
   </ItemGroup>
 

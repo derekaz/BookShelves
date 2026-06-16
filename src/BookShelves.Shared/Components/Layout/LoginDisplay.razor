@@ -13,25 +13,45 @@
         <div class="login-display">
             @* <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div> *@
             <span class="user-name">Hello, @context.User.Identity?.Name!</span>
-            @if (AuthenticationUIProvider.RequiresNavigation)
+            @switch (AuthenticationUIProvider.LogoutActionType)
             {
-                <a href="@string.Concat(AuthenticationUIProvider.GetLogoutUrl(), $"&returnUrl={Uri.EscapeDataString(currentUrl ?? "")}")" class="logout-link">Logout</a>
-            }
-            else
-            {
-                <button class="btn btn-link logout-button" @onclick="LogoutAsync">Logout</button>
+                case AuthenticationUIActionType.Link:
+                    <a href="@string.Concat(AuthenticationUIProvider.GetLogoutUrl()
+                        // , $"&returnUrl={Uri.EscapeDataString(currentUrl ?? "")}"
+                    )" class="logout-link">Logout</a>
+                    break;
+                case AuthenticationUIActionType.Form:
+                    <form action="@AuthenticationUIProvider.GetLogoutUrl()" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <button type="submit" class="nav-link">
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                    </form>
+                    break;
+                case AuthenticationUIActionType.Code:
+                    <button class="btn btn-link logout-button" @onclick="LogoutAsync">Logout</button>
+                    break;
+                default:
+                    break;
             }
         </div>
     </Authorized>
     <NotAuthorized>
         <div class="login-display">
-            @if (AuthenticationUIProvider.RequiresNavigation)
+            @switch (AuthenticationUIProvider.LoginActionType)
             {
-                <a href="@AuthenticationUIProvider.GetLoginUrl()" class="login-link">Login</a>
-            }
-            else
-            {
-                <button class="btn btn-link login-button" @onclick="LoginAsync">Login</button>
+                case AuthenticationUIActionType.Link:
+                    <a href="@AuthenticationUIProvider.GetLoginUrl()" class="login-link">Login</a>
+                    break;
+                case AuthenticationUIActionType.Form:
+
+                    break;
+                case AuthenticationUIActionType.Code:
+                    <button class="btn btn-link login-button" @onclick="LoginAsync">Login</button>
+                    break;
+                default:
+                    break;
             }
         </div>
     </NotAuthorized>

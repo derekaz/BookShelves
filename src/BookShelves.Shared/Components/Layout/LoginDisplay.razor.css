@@ -1,0 +1,62 @@
+/* LoginDisplay Styles */
+.login-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+    gap: 0.5rem;
+}
+
+.login-display .user-name {
+    color: #ffffff;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.login-display a,
+.login-display button {
+    color: #d7d7d7;
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.login-display button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.login-display a:hover,
+.login-display button:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.login-display a:focus,
+.login-display button:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .login-display {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .login-display .user-name {
+        width: 100%;
+    }
+}

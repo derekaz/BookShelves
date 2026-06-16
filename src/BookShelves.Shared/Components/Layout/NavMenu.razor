@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@inject IFormFactor FormFactor
+
 <div class="top-row ps-3 navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BookShelves</a>
@@ -46,12 +48,36 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> About
             </NavLink>
         </div>
-        <LayoutFooter />
     </nav>
+
+    @* Bottom section: Login + Platform Info (always anchored to bottom) *@
+    <div class="nav-bottom">
+        @* LoginDisplay - Works in both Web and MAUI *@
+        <div class="nav-item px-3">
+            <LoginDisplay />
+        </div>
+
+        @* Platform/Version Footer *@
+        <div class="nav-footer">
+            <div class="platform-info">
+                <div class="info-row">
+                    <span class="info-label">Platform:</span>
+                    <span class="info-value">@platform</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Form Factor:</span>
+                    <span class="info-value">@factor</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private string factor => FormFactor.GetFormFactor();
+    private string platform => FormFactor.GetPlatform();
+
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

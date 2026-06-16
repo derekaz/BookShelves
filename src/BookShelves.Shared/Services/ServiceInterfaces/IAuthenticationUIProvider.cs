@@ -2,11 +2,22 @@
 
 public interface IAuthenticationUIProvider
 {
+    AuthenticationUIActionType LoginActionType { get; }
+
     string GetLoginUrl();
 
-    string GetLogoutUrl();
+    AuthenticationUIActionType LogoutActionType { get; }
+
+    string GetLogoutUrl();  
 
     bool RequiresNavigation { get; }
 
     string PlatformName { get; }
+}
+
+public enum AuthenticationUIActionType
+{
+    Code,
+    Link,
+    Form
 }

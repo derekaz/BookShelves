@@ -6,7 +6,7 @@ namespace BookShelves.Web;
 
 internal static class LoginLogoutEndpointRouteBuilderExtensions
 {
-    internal static IEndpointConventionBuilder MapLoginAndLogout(this IEndpointRouteBuilder endpoints)
+    internal static IEndpointConventionBuilder MapLoginAndLogoutEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("");
 
@@ -17,10 +17,10 @@ internal static class LoginLogoutEndpointRouteBuilderExtensions
         // the user will automatically be signed back in the next time they visit a page that requires authentication
         // without being able to choose another account.
         //group.MapPost("/logout", (string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl)));
-        //group.MapPost("/logout", ([FromForm] string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl),
-        //    [CookieAuthenticationDefaults.AuthenticationScheme, "MicrosoftOidc"]));
-        group.MapGet("/logout", ([FromQuery] string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl),
+        group.MapPost("/logout", ([FromForm] string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl),
             [CookieAuthenticationDefaults.AuthenticationScheme, "MicrosoftOidc"]));
+        //group.MapGet("/logout", ([FromQuery] string? returnUrl) => TypedResults.SignOut(GetAuthProperties(returnUrl),
+        //    [CookieAuthenticationDefaults.AuthenticationScheme, "MicrosoftOidc"]));
 
         return group;
     }

@@ -4,10 +4,18 @@ using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
+using BookShelves.Web.Shared;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+
 
 //using BookShelves.WebShared.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
+
+
+//using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 //using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
@@ -17,51 +25,68 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddAuthentication(MS_OIDC_SCHEME)
-    .AddOpenIdConnect(MS_OIDC_SCHEME, oidcOptions =>
-    {
-        var oidcConfig = builder.Configuration.GetSection("AzureSettings");
-        oidcOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        //oidcOptions.SignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
-        oidcOptions.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-        builder.Configuration.GetSection("AzureAD:Scopes").GetChildren().ToList().ForEach(scope =>
-        {
-            if (scope.Value != null)
-            {
-                oidcOptions.Scope.Add(scope.Value);
-            }
-        });
-        //oidcOptions.CallbackPath = new PathString("/signin-oidc");
-        //oidcOptions.SignedOutCallbackPath = new PathString("/signout-callback-oidc");
-        //oidcOptions.RemoteSignOutPath = new PathString("/signout-oidc");
-        oidcOptions.Authority = builder.Configuration["AzureAD:Authority"];
-        oidcOptions.ClientId = builder.Configuration["AzureAD:ClientId"];
-        oidcOptions.ClientSecret = builder.Configuration["AzureAD:ClientSecret"];
-        oidcOptions.ResponseType = OpenIdConnectResponseType.Code;
-        oidcOptions.MapInboundClaims = false;
-        oidcOptions.TokenValidationParameters.NameClaimType = "name";
-        oidcOptions.TokenValidationParameters.RoleClaimType = "roles";
-        //var microsoftIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(oidcOptions.Authority);
-        //oidcOptions.TokenValidationParameters.IssuerValidator = microsoftIssuerValidator.Validate;
+var initialScopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>();
+var weatherApiConfig = builder.Configuration.GetSection("WeatherApi");
 
-        // builder.Configuration.Bind("Authentication:Microsoft", oidcOptions);
-        //oidcOptions.SaveTokens = true;
-    })
-    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd", OpenIdConnectDefaults.AuthenticationScheme)
+    // .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    // .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
+    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+    .AddDownstreamApi("WeatherApi", weatherApiConfig)
+    .AddInMemoryTokenCaches();
+
+
+//builder.Services.AddAuthentication(MS_OIDC_SCHEME)
+//    .AddOpenIdConnect(MS_OIDC_SCHEME, oidcOptions =>
+//    {
+//        //var oidcConfig = builder.Configuration.GetSection("AzureSettings");
+//        oidcOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+//        //oidcOptions.SignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
+//        oidcOptions.Scope.Add(OpenIdConnectScope.OpenIdProfile);
+//        builder.Configuration.GetSection("AzureAD:Scopes").GetChildren().ToList().ForEach(scope =>
+//        {
+//            if (scope.Value != null)
+//            {
+//                oidcOptions.Scope.Add(scope.Value);
+//            }
+//        });
+//        //oidcOptions.CallbackPath = new PathString("/signin-oidc");
+//        //oidcOptions.SignedOutCallbackPath = new PathString("/signout-callback-oidc");
+//        //oidcOptions.RemoteSignOutPath = new PathString("/signout-oidc");
+//        oidcOptions.Authority = builder.Configuration["AzureAD:Authority"];
+//        oidcOptions.ClientId = builder.Configuration["AzureAD:ClientId"];
+//        oidcOptions.ClientSecret = builder.Configuration["AzureAD:ClientSecret"];
+//        oidcOptions.ResponseType = OpenIdConnectResponseType.Code;
+//        oidcOptions.MapInboundClaims = false;
+//        oidcOptions.TokenValidationParameters.NameClaimType = "name";
+//        oidcOptions.TokenValidationParameters.RoleClaimType = "roles";
+//        //var microsoftIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(oidcOptions.Authority);
+//        //oidcOptions.TokenValidationParameters.IssuerValidator = microsoftIssuerValidator.Validate;
+
+//        // builder.Configuration.Bind("Authentication:Microsoft", oidcOptions);
+//        //oidcOptions.SaveTokens = true;
+//    })
+//    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 //.AddCookie(OpenIdConnectDefaults.AuthenticationScheme);
 
-builder.Services.ConfigureCookieOidc(CookieAuthenticationDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
+//builder.Services.ConfigureCookieOidc(CookieAuthenticationDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
 //builder.Services.ConfigureCookieOidc(OpenIdConnectDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
-
-builder.Services.AddAuthorization();
-builder.Services.AddCascadingAuthenticationState();
+builder.Services.Configure<CookieAuthenticationOptions>(
+    CookieAuthenticationDefaults.AuthenticationScheme,
+    options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = true;
+    });
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
-// builder.Services.AddRazorClassLibraryServices();
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 
 builder.Services.AddHttpContextAccessor();
 
@@ -96,7 +121,9 @@ builder.Services.AddHttpClient("ExternalApi",
           throw new Exception("Missing base address!")))
       .AddHttpMessageHandler<TokenHandler>();
 
+builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<ITokenService, ServerTokenService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
 //builder.Services.AddScoped(sp =>
 //        new HttpClient
@@ -109,8 +136,8 @@ builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
 //builder.Services.AddScoped<IAuthService, AuthService>();
 
-//builder.Services.AddControllersWithViews()
-//    .AddMicrosoftIdentityUI();
+builder.Services.AddControllersWithViews()
+    .AddMicrosoftIdentityUI();
 
 var app = builder.Build();
 
@@ -125,14 +152,17 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
 app.UseHttpsRedirection();
 
 app.MapStaticAssets();
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
-//app.UseAuthentication();
-//app.UseAuthorization();
 
 app.MapRazorComponents<WebApp>()
     .AddInteractiveServerRenderMode()
@@ -146,9 +176,10 @@ app.MapRazorComponents<WebApp>()
 app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
-}); //.RequireAuthorization();
+}).RequireAuthorization();
 
-//app.MapControllers();
-app.MapGroup("/authentication").MapLoginAndLogout();
+//app.MapGroup("/authentication").MapLoginAndLogoutEndpoints();
+
+app.MapControllers();
 
 app.Run();
