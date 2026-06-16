@@ -4,10 +4,10 @@ using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 //using BookShelves.WebShared.Data;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.UI;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 //using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
@@ -16,12 +16,13 @@ const string MS_OIDC_SCHEME = "MicrosoftOidc";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 builder.Services.AddAuthentication(MS_OIDC_SCHEME)
     .AddOpenIdConnect(MS_OIDC_SCHEME, oidcOptions =>
     {
         var oidcConfig = builder.Configuration.GetSection("AzureSettings");
-        //oidcOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        oidcOptions.SignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
+        oidcOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        //oidcOptions.SignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
         oidcOptions.Scope.Add(OpenIdConnectScope.OpenIdProfile);
         builder.Configuration.GetSection("AzureAD:Scopes").GetChildren().ToList().ForEach(scope =>
         {
@@ -36,7 +37,7 @@ builder.Services.AddAuthentication(MS_OIDC_SCHEME)
         oidcOptions.Authority = builder.Configuration["AzureAD:Authority"];
         oidcOptions.ClientId = builder.Configuration["AzureAD:ClientId"];
         oidcOptions.ClientSecret = builder.Configuration["AzureAD:ClientSecret"];
-        oidcOptions.ResponseType = "code";
+        oidcOptions.ResponseType = OpenIdConnectResponseType.Code;
         oidcOptions.MapInboundClaims = false;
         oidcOptions.TokenValidationParameters.NameClaimType = "name";
         oidcOptions.TokenValidationParameters.RoleClaimType = "roles";
@@ -46,11 +47,11 @@ builder.Services.AddAuthentication(MS_OIDC_SCHEME)
         // builder.Configuration.Bind("Authentication:Microsoft", oidcOptions);
         //oidcOptions.SaveTokens = true;
     })
-    //.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
-    .AddCookie(OpenIdConnectDefaults.AuthenticationScheme); //  CookieAuthenticationDefaults.AuthenticationScheme);
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+//.AddCookie(OpenIdConnectDefaults.AuthenticationScheme);
 
-//builder.Services.ConfigureCookieOidc(CookieAuthenticationDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
-builder.Services.ConfigureCookieOidc(OpenIdConnectDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
+builder.Services.ConfigureCookieOidc(CookieAuthenticationDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
+//builder.Services.ConfigureCookieOidc(OpenIdConnectDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
 
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
@@ -106,10 +107,10 @@ builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvide
 // builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+//builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddControllersWithViews()
-    .AddMicrosoftIdentityUI();
+//builder.Services.AddControllersWithViews()
+//    .AddMicrosoftIdentityUI();
 
 var app = builder.Build();
 
@@ -147,6 +148,7 @@ app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecas
     return WeatherForecaster.GetWeatherForecastAsync();
 }); //.RequireAuthorization();
 
-app.MapControllers();
+//app.MapControllers();
+app.MapGroup("/authentication").MapLoginAndLogout();
 
 app.Run();

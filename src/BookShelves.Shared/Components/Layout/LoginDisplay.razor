@@ -1,4 +1,4 @@
-﻿@* @implements IDisposable *@
+﻿@implements IDisposable
 
 @inject IAuthenticationUIProvider AuthenticationUIProvider
 @inject NavigationManager Navigation
@@ -15,7 +15,7 @@
             <span class="user-name">Hello, @context.User.Identity?.Name!</span>
             @if (AuthenticationUIProvider.RequiresNavigation)
             {
-                <a href="@AuthenticationUIProvider.GetLogoutUrl()" class="logout-link">Logout</a>
+                <a href="@string.Concat(AuthenticationUIProvider.GetLogoutUrl(), $"&returnUrl={Uri.EscapeDataString(currentUrl ?? "")}")" class="logout-link">Logout</a>
             }
             else
             {
@@ -103,21 +103,21 @@
         }
     }
 
-    // private string? currentUrl;
+    private string? currentUrl;
 
-    // protected override void OnInitialized() Async()
-    // {
-    //     currentUrl = Navigation.Uri;
-    //     Navigation.LocationChanged += OnLocationChanged;
-    // }
+    protected override void OnInitialized()
+    {
+        currentUrl = Navigation.Uri;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
 
-    // private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    // {
-    //     currentUrl = Navigation.Uri;
-    //     StateHasChanged();
-    // }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = Navigation.Uri;
+        StateHasChanged();
+    }
 
-    // public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
 
     // private async Task<string?> GetName() 
     // {
