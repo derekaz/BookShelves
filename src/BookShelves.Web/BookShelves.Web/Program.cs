@@ -19,7 +19,7 @@ using Microsoft.Identity.Web.UI;
 //using Microsoft.Identity.Web;
 //using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
-const string MS_OIDC_SCHEME = "MicrosoftOidc";
+//const string MS_OIDC_SCHEME = "MicrosoftOidc";
 
 var builder = WebApplication.CreateBuilder(args);
 

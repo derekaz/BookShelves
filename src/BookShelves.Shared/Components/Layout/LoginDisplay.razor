@@ -4,14 +4,9 @@
 @inject NavigationManager Navigation
 @inject IServiceProvider ServiceProvider
 
-@* @inject IExternalAuthenticationStateProvider AuthenticationStateProvider *@
-@* @inject IExternalAuthenticationStateProvider AuthenticationStateProvider *@
-@* @inject IAuthService? AuthService *@
-
 <AuthorizeView>
     <Authorized>
         <div class="login-display">
-            @* <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div> *@
             <span class="user-name">Hello, @context.User.Identity?.Name!</span>
             @switch (AuthenticationUIProvider.LogoutActionType)
             {
@@ -56,24 +51,6 @@
         </div>
     </NotAuthorized>
 </AuthorizeView>
-
-
-
-@* <AuthorizeView>
-    <Authorized>
-        <form action="./authentication/logout" method="post">
-            <AntiforgeryToken />
-            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-            <div class="mx-0 d-flex align-items-center gap-2">
-                <div>Hello, <a href="/profile" class="mx-0">@GetName().Result</a>!</div>
-                <button type="submit" class="nav-link btn btn-link">Logout</button>
-            </div>
-        </form>
-    </Authorized>
-    <NotAuthorized>
-        <a class="nav-link" href="./authentication/login">Login</a>
-    </NotAuthorized>
-</AuthorizeView> *@
 
 @code{
     private IExternalAuthenticationStateProvider? authStateProvider { get; set; }
@@ -138,11 +115,4 @@
     }
 
     public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
-
-    // private async Task<string?> GetName() 
-    // {
-    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-    //     return authState?.User?.Identity?.Name;
-    // }
 }

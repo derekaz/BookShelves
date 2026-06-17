@@ -11,17 +11,12 @@ using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
-// using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-// using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
-// using System;
 using System.Reflection;
-// using System.Security.Cryptography;
-// using System.Security.Cryptography.X509Certificates;
 
 namespace BookShelves.Maui;
 
@@ -67,7 +62,6 @@ public static class MauiProgram
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-        // builder.UseWebAuthentication();
 #endif
 
 
@@ -106,13 +100,6 @@ public static class MauiProgram
         var assembly = Assembly.GetExecutingAssembly();
         var appName = assembly.GetName().Name;
 
-        //var baseUrl = string.Join("/",
-        //    builder.Configuration.GetSection("MicrosoftGraph")["BaseUrl"],
-        //    builder.Configuration.GetSection("MicrosoftGraph")["Version"]);
-        //var scopes = builder.Configuration.GetSection("MicrosoftGraph:Scopes")
-        //    .Get<List<string>>();
-        //builder.Services.AddGraphClient(baseUrl, scopes);
-
         // set the local database path
 #if MACCATALYST
         var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
@@ -123,12 +110,6 @@ public static class MauiProgram
         }
 #else
         var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
-
-        //var oldDbPath = FileAccessHelper.GetLocalFilePath("bookshelvestest.db");
-        //if (File.Exists(oldDbPath))
-        //{
-        //    File.Delete(oldDbPath);
-        //}
 #endif
 
 #if DEBUG
@@ -147,19 +128,9 @@ public static class MauiProgram
         // appSettings.json that shouldn't be committed to source control
         if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
 
-        //if (configBuilder.Sources.Count > 0) builder.Configuration.AddConfiguration(configBuilder.Build());
         var config = configBuilder.Build();
 
-        //      try
-        //      {
-
         builder.Configuration.AddConfiguration(config);
-
-        //      }
-        //      catch (Exception ex) 
-        //{
-        //	Debug.WriteLine(ex);
-        //}
 
         builder.Services.AddSingleton<IFormFactor, MauiFormFactor>();
         builder.Services.AddSingleton<IVersionService, MauiVersionService>();
@@ -212,7 +183,6 @@ public static class MauiProgram
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
-        //builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
@@ -228,8 +198,6 @@ public static class MauiProgram
 
         //});
 
-        // builder.Services.AddTransient<HttpClient>();
-
         builder.Services.AddRazorClassLibraryServices(config);
 
 #if MACCATALYST
@@ -244,26 +212,6 @@ public static class MauiProgram
         {
             Directory.Delete(dataProtectionKeysDirectory, true);
         }
-
-        //        try
-        //        {
-        //            string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
-        //            X509Certificate2 dataProtectionCertificate = SetupDataProtectionCertificate();
-        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Certificate Setup Complete-Cert:{0}; {1}; {2}", dataProtectionCertificate.FriendlyName, dataProtectionCertificate.SubjectName, dataProtectionCertificate.SerialNumber);
-        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection KeysDirectory:{0}", dataProtectionKeysDirectory);
-
-        //            builder.Services.AddDataProtection()
-        //                .SetApplicationName("BookShelves")
-        //                .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysDirectory))
-        //                .ProtectKeysWithCertificate(dataProtectionCertificate);
-
-        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Key Configuration Setup Complete");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine("MauiProgram:CreateMauiApp - Data Protection Build Exception - {0}", ex);
-        //        }
-
 #endif
 
         try
@@ -281,94 +229,4 @@ public static class MauiProgram
             throw;
         }
     }
-
-    // #if MACCATALYST
-    //    static X509Certificate2 CreateSelfSignedDataProtectionCertificate(string subjectName)
-    //    {
-    //        Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Creation Started - SubjectName:{0}", subjectName);
-    //        try
-    //        {
-    //            using RSA rsa = RSA.Create(2048);
-    //            CertificateRequest request = new(subjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-    //            X509Certificate2 ephemeral = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow.AddYears(5));
-    //            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Created Ephemeral - SubjectName:{0}", ephemeral.SubjectName);
-
-    //            return ephemeral;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Console.WriteLine("MauiProgram:CreateSelfSignedDataProtectionCertificate - Exception - {0}", ex);
-    //            throw;
-    //        }
-    //    }
-
-    //    static void SaveCertificateToFile(X509Certificate2 certificate, string filePath, string password)
-    //    {
-    //        Console.WriteLine("MauiProgram:SaveCertificateToFile - Start - Cert:'{0}'/'{1}' ({2}) File:{3}", certificate.FriendlyName, certificate.SubjectName, certificate.SerialNumber, filePath);
-    //        if (File.Exists(filePath)) 
-    //        {
-    //            Console.WriteLine("MauiProgram:SaveCertificateToFile - Deleting Existing - File:{0}", filePath);
-    //            File.Delete(filePath); 
-    //        }
-
-    //        File.WriteAllBytes(filePath, certificate.Export(X509ContentType.Pkcs12, password));
-    //        Console.WriteLine("MauiProgram:SaveCertificateToFile - Written - File:{0}", filePath);
-    //    }
-
-    //    static string GetPasswordFromStore()
-    //    {
-    //        string storageKey = "BookShelvesEncryptionCertificateKey";
-    //        var storedValue = SecureStorage.GetAsync(storageKey).Result;
-
-    //        if (storedValue == null)
-    //        {
-    //            var rng = new Random();
-    //            var randomString = rng.NextStrings(RandomExtensions.AllowableRandomStringCharacters, (15, 64), 1).First();
-    //            SecureStorage.SetAsync(storageKey, randomString);
-    //            return randomString;
-    //        }
-
-    //        return storedValue;
-    //    }
-
-    //    static X509Certificate2 SetupDataProtectionCertificate()
-    //    {
-    //        Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Started");
-    //        try
-    //        {
-    //            string subjectName = "CN=BooKShelves ASP.NET Core Data Protection Certificate";
-    //            string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
-
-    //            var certPassword = GetPasswordFromStore();
-
-    //            if (File.Exists(dataProtectionCertFile))
-    //            {
-    //                X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(dataProtectionCertFile, certPassword);
-
-    //                // Replace the following code block
-    //                // X509Certificate2 cert = new X509Certificate2(dataProtectionCertFile, certPassword);
-
-    //                // With this code block
-    //                // X509Certificate2 cert = X509CertificateLoader.LoadFromFile(dataProtectionCertFile, certPassword);
-    //                if (cert != null && cert.Subject == subjectName && DateTime.Now <= cert.NotAfter)
-    //                {
-    //                    Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Found existing file");
-    //                    return cert;
-    //                }
-    //                Console.WriteLine("MauiProgram:SetupDataProtectionCertificate - File not found");
-    //            }
-
-    //            X509Certificate2 certificate = CreateSelfSignedDataProtectionCertificate(subjectName);
-    //            SaveCertificateToFile(certificate, dataProtectionCertFile, certPassword);
-    //            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Setup Complete - Created new certificate");
-
-    //            return certificate;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Console.WriteLine("MauiProgram:SetupDataProtectionCertificate2 - Exception - {0}", ex);
-    //            throw;
-    //        }
-    //    }
-    // #endif
 }
