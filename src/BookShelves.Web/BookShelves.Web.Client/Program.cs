@@ -1,11 +1,17 @@
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-builder.Services.AddAuthorizationCore();
+// Add authorization services - auth state comes from server
+builder.Services.AddAuthorizationCore(options =>
+{
+    options.AddAppAuthorizationPolicies();
+});
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();
 

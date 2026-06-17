@@ -6,11 +6,11 @@ public class WasmAuthenticationUIProvider : IAuthenticationUIProvider
 {
     AuthenticationUIActionType IAuthenticationUIProvider.LoginActionType => AuthenticationUIActionType.Link;
 
-    public string GetLoginUrl() => "authentication/login";
+    public string GetLoginUrl() => "MicrosoftIdentity/Account/SignIn";
 
-    AuthenticationUIActionType IAuthenticationUIProvider.LogoutActionType => AuthenticationUIActionType.Form;
+    AuthenticationUIActionType IAuthenticationUIProvider.LogoutActionType => AuthenticationUIActionType.Link;
 
-    public string GetLogoutUrl() => "authentication/logout";
+    public string GetLogoutUrl() => "MicrosoftIdentity/Account/SignOut";
 
     public bool RequiresNavigation => true;
 

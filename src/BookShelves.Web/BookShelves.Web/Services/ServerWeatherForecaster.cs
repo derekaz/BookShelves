@@ -26,10 +26,11 @@ internal sealed class ServerWeatherForecaster  //IHttpClientFactory clientFactor
         try
         {
             HttpContext? context = _contextAccessor.HttpContext;
+            var curUser = context?.User;
+
             //var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             //var curUser = authState.User;
             //var loginHint = user.GetObjectId(); // or user.GetUpn()
-            var curUser = context?.User;
 
             //using var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast");
 

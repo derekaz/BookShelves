@@ -1,5 +1,6 @@
 //using BookShelves.Shared;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web;
 using BookShelves.Web.Components;
@@ -86,7 +87,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
-builder.Services.AddAuthorization();
+// Add authorization services - auth state comes from server
+builder.Services.AddAuthorization(options =>
+{
+    options.AddAppAuthorizationPolicies();
+});
+
 builder.Services.AddCascadingAuthenticationState();
 
 
@@ -118,10 +124,10 @@ builder.Services.AddScoped<BookShelves.Web.TokenHandler>();
 
 builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
 
-builder.Services.AddHttpClient("ExternalApi",
-      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
-          throw new Exception("Missing base address!")))
-      .AddHttpMessageHandler<TokenHandler>();
+//builder.Services.AddHttpClient("ExternalApi",
+//      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
+//          throw new Exception("Missing base address!")))
+//      .AddHttpMessageHandler<TokenHandler>();
 
 builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, VersionService>();

@@ -3,7 +3,7 @@ using BookShelves.Shared.Services.ServiceModels;
 
 namespace BookShelves.Maui.Services;
 
-internal class VersionService : IVersionService
+internal class MauiVersionService : IVersionService
 {
     public VersionInfo GetVersion()
     {

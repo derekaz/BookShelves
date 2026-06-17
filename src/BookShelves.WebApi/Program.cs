@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     // Add centralized app policies (AdminAccess, Authenticated)
-    //options.AddAppAuthorizationPolicies();
+    options.AddAppAuthorizationPolicies();
 
     // Add API-specific default policy if needed
     options.FallbackPolicy = options.DefaultPolicy;

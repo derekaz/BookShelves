@@ -6,6 +6,7 @@ using BookShelves.Maui.Services;
 using BookShelves.Shared;
 using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -92,7 +93,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
 #endif
         builder.Services.AddOptions();
-        builder.Services.AddAuthorizationCore();
+
+        // Add authorization with app-specific policies
+        builder.Services.AddAuthorizationCore(options =>
+        {
+            options.AddAppAuthorizationPolicies();
+        });
+
         builder.Services.AddCascadingAuthenticationState();
 
         var assembly = Assembly.GetExecutingAssembly();
@@ -153,7 +160,8 @@ public static class MauiProgram
         //	Debug.WriteLine(ex);
         //}
 
-        builder.Services.AddSingleton<IVersionService, VersionService>();
+        builder.Services.AddSingleton<IFormFactor, MauiFormFactor>();
+        builder.Services.AddSingleton<IVersionService, MauiVersionService>();
         builder.Services.AddScoped<IAuthenticationUIProvider, MauiAuthenticationUIProvider>();
         builder.Services.AddScoped<IExternalAuthenticationStateProvider, ExternalAuthenticationStateProvider>();
         builder.Services.AddScoped<AuthenticationStateProvider>(s => (AuthenticationStateProvider)s.GetRequiredService<IExternalAuthenticationStateProvider>());
