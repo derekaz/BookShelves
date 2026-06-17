@@ -16,7 +16,6 @@ using Microsoft.Identity.Web.UI;
 
 
 //using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 //using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 const string MS_OIDC_SCHEME = "MicrosoftOidc";
@@ -33,7 +32,8 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     // .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
     .AddDownstreamApi("WeatherApi", weatherApiConfig)
-    .AddInMemoryTokenCaches();
+    // .AddInMemoryTokenCaches()
+    .AddDistributedTokenCaches();
 
 
 //builder.Services.AddAuthentication(MS_OIDC_SCHEME)
@@ -78,6 +78,8 @@ builder.Services.Configure<CookieAuthenticationOptions>(
         options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
     });
+
+builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()

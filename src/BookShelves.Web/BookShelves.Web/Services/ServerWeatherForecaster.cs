@@ -46,7 +46,7 @@ internal sealed class ServerWeatherForecaster  //IHttpClientFactory clientFactor
 
             foreach (var item in forecasts)
             {
-                //item.Source = item.Source + " (from ServerWeatherForecastService)";
+                item.Source = item.Source + " (from ServerWeatherForecastService)";
             }
             return forecasts;
 

@@ -21,6 +21,7 @@ else
                 <th>Temp. (C)</th>
                 <th>Temp. (F)</th>
                 <th>Summary</th>
+                <th>Updated At</th>
             </tr>
         </thead>
         <tbody>
@@ -31,9 +32,24 @@ else
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
+                    <td class="text-muted" style="font-size: 0.875rem;">
+                        @if (forecast.LastUpdated.HasValue)
+                        {
+                            @forecast.LastUpdated.Value.ToString("MM/dd/yy h:mm:ss tt")
+                        }
+                        else
+                        {
+                            <text>N/A</text>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">Source: @Forecasts.FirstOrDefault()?.Source</td>
+            </tr>
+        </tfoot>
     </table>
 }
 
