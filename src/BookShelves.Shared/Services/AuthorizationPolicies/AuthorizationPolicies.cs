@@ -29,7 +29,7 @@ public static class AuthorizationPolicies
 		options.AddPolicy(AdminAccess, policy =>
 		{
 			policy.RequireAuthenticatedUser();
-			policy.RequireRole("Admin");
+			policy.RequireRole("Administrator");
 
 			// Alternative: Use claims instead of roles
 			// policy.RequireClaim("role", "Admin");
