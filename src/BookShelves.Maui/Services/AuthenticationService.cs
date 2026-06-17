@@ -28,6 +28,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     //    private readonly IDataProtector? _dataProtector;
     //#endif
 
+    private readonly string[] _defaultScopes = [];
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
 
@@ -59,6 +60,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             _settingsService = settingsService;
             _windowService = windowService;
+            _defaultScopes = _settingsService.GraphScopes;
 #if MACCATALYST
             // _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment.ToString());
             // _logger.LogInformation("AuthenticationService:Constructor-EnvironmentContentRoot:{0}", environment.ContentRootPath);
@@ -92,7 +94,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     public async Task<bool> IsAuthenticatedAsync()
     {
         var account = await GetUserAccountAsync();
-        var silentResult = await GetTokenSilentlyAsync(account);
+        var silentResult = await GetTokenSilentlyAsync(account, _defaultScopes);
 
         SetCurrentPrincipal(silentResult);
 
@@ -105,11 +107,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var account = await GetUserAccountAsync();
 
         // First attempt to get a IIdToken silently
-        var result = await GetTokenSilentlyAsync(account);
+        var result = await GetTokenSilentlyAsync(account, _defaultScopes);
 
         // If silent attempt didn't work, try an
         // interactive sign in
-        result ??= await GetTokenInteractivelyAsync(account);
+        result ??= await GetTokenInteractivelyAsync(account, _defaultScopes);
         //result ??= await GetTokenInteractivelyAsync(account);
 
         SetCurrentPrincipal(result);
@@ -150,6 +152,62 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         _userIdentifier = string.Empty;
         _currentPrincipal = new ClaimsPrincipal();
         IsSignedIn = false;
+    }
+
+    public async Task<string?> GetAccessTokenAsync(string[] scopes)
+    {
+        var pca = await _pca.Value;
+        var account = await GetUserAccountAsync();
+
+        // First attempt to get a IIdToken silently
+        var result = await GetTokenSilentlyAsync(account, scopes);
+
+        // If silent attempt didn't work, try an
+        // interactive sign in
+        result ??= await GetTokenInteractivelyAsync(account, scopes);
+
+        return result?.AccessToken;
+
+        //try
+        //{
+        //    var accounts = await pca.GetAccountsAsync();
+        //    var account = accounts.FirstOrDefault();
+
+        //    if (account == null)
+        //    {
+        //        _logger.LogWarning("No account found, cannot get access token");
+        //        return null;
+        //    }
+
+        //    var result = await pca
+        //        .AcquireTokenSilent(scopes, account)
+        //        .ExecuteAsync();
+
+        //    return result.AccessToken;
+        //}
+        //catch (MsalUiRequiredException)
+        //{
+        //    _logger.LogWarning("UI interaction required to get access token");
+
+        //    try
+        //    {
+        //        var result = await pca
+        //            .AcquireTokenInteractive(scopes)
+        //            .ExecuteAsync();
+
+        //        return result.AccessToken;
+        //    }
+        //    catch (MsalException ex)
+        //    {
+        //        _logger.LogError(ex, "Error during interactive token acquisition");
+        //        return null;
+        //    }
+        //}
+        //catch (MsalException ex)
+        //{
+        //    _logger.LogError(ex, "Error getting access token");
+        //    return null;
+        //}
     }
 
     /// <summary>
@@ -273,7 +331,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// <summary>
     /// Attempt to acquire a IIdToken silently (no prompts).
     /// </summary>
-    private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount)
+    private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount, string[] scopes)
     {
         var pca = await _pca.Value;
 
@@ -281,7 +339,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             if (userAccount == null) return null;
 
-            var result = await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
+            var result = await pca.AcquireTokenSilent(scopes, userAccount)
                 .ExecuteAsync();
             return result;
 
@@ -305,11 +363,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// <summary>
     /// Attempts to get a IIdToken interactively using the device's browser.
     /// </summary>
-    private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
+    private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount, string[] scopes)
     {
         var pca = await _pca.Value;
 
-        var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
+        var builder = pca.AcquireTokenInteractive(scopes);
         builder.WithPrompt(Prompt.ForceLogin);
 
         //builder.WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions
@@ -386,10 +444,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             var account = await GetUserAccountAsync();
 
             // First try to get the IIdToken silently
-            var result = await GetTokenSilentlyAsync(account);
+            var result = await GetTokenSilentlyAsync(account, _defaultScopes);
 
             // If silent acquisition fails, try interactive
-            result ??= await GetTokenInteractivelyAsync(account);
+            result ??= await GetTokenInteractivelyAsync(account, _defaultScopes);
 
             request.Headers.Add("Authorization", $"Bearer {result.AccessToken}");
         }

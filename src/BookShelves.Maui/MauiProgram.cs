@@ -1,6 +1,7 @@
 ﻿using BookShelves.Maui.Data.Infrastructure;
 using BookShelves.Maui.Data.Models;
 using BookShelves.Maui.Data.Services;
+using BookShelves.Maui.Handlers;
 using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
@@ -177,7 +178,20 @@ public static class MauiProgram
             // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
             client.BaseAddress = new Uri("http://localhost:7071");
             client.Timeout = new TimeSpan(0, 0, 20);
-        })
+        });
+        builder.Services.AddHttpClient("WeatherApi", client =>
+        {
+            string baseUrl = builder.Configuration.GetSection("WeatherApi:BaseUrl").Get<string>() ?? string.Empty;
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = new TimeSpan(0, 0, 20);
+        }).AddHttpMessageHandler(sp =>
+        {
+            string[] scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
+            return new MauiAuthenticationMessageHandler(
+                sp.GetRequiredService<IExternalAuthenticationStateProvider>(),
+                sp.GetRequiredService<ILogger<MauiAuthenticationMessageHandler>>(),
+                scopes);
+        }); ;
 #if DEBUG
         // .AddTraceContentLogging();
 #endif
@@ -198,7 +212,8 @@ public static class MauiProgram
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
-        builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
+        //builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
+        builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 

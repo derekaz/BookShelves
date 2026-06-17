@@ -8,4 +8,5 @@ public interface IExternalAuthenticationStateProvider
     Task InitializeAsync();
     Task LogInAsync();
     Task LogoutAsync();
+    Task<string?> GetAccessTokenAsync(string[] scopes);
 }

@@ -37,4 +37,6 @@ public interface IAuthenticationService : INotifyPropertyChanged
     /// Sign out the user.
     /// </summary>
     public Task SignOutAsync();
+
+    Task<string?> GetAccessTokenAsync(string[] scopes);
 }
