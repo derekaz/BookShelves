@@ -1,8 +1,10 @@
 ﻿@page "/weather"
+@* @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = AuthorizationPolicies.Authenticated)] *@
 @using BookShelves.Shared.Data.Models
-@* @inject IWeatherForecastService DataService *@
 @inject IWeatherForecaster WeatherForecaster
 @inject ILogger<Weather> Logger
+
+<PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
 

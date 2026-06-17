@@ -83,10 +83,10 @@
     display: none;
 }
 
-.navbar-toggler:checked ~ .nav-scrollable {
+/*.navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
-
+*/
 /* ===== Mobile Only (< 641px) ===== */
 @media (max-width: 640px) {
     .navbar-toggler:checked ~ .nav-scrollable {
@@ -136,4 +136,20 @@
 .platform-info {
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.7);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.info-label {
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.info-value {
+    font-style: italic;
+    opacity: 0.9;
 }

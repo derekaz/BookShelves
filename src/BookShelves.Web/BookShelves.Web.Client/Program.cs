@@ -16,6 +16,7 @@ builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(http
 
 builder.Services.AddScoped<IAuthenticationUIProvider, WasmAuthenticationUIProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
 builder.Services.AddScoped<IVersionService, VersionService>();
 builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
