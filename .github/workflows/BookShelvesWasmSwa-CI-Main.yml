@@ -60,7 +60,7 @@ jobs:
 
       #      echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
       - name: Build .NET App
-        run: dotnet publish -c Release -f net9.0 -o release_output
+        run: dotnet build -v diag -c Release -f net9.0 -o release_output
 
       - name: Build And Deploy
         id: builddeploy
