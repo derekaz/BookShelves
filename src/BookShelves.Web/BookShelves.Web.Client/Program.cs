@@ -21,16 +21,10 @@ builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(http
 });
 
 builder.Services.AddScoped<IAuthenticationUIProvider, WasmAuthenticationUIProvider>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
-builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<IVersionService, ClientVersionService>();
 builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
 var app = builder.Build();
-//app.MapGroup("/authentication").MapLoginAndLogout();
-//app.MapGet("/weather-forecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
-//{   
-//    return WeatherForecaster.GetWeatherForecastAsync();
-//}).RequireAuthorization();  
 
 await app.RunAsync();

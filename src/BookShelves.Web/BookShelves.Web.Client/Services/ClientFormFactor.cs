@@ -2,7 +2,7 @@ using BookShelves.Shared.Services.ServiceInterfaces;
 
 namespace BookShelves.Web.Client.Services;
 
-public class ClientFormFactor : IFormFactor
+internal class ClientFormFactor : IFormFactor
 {
     public string GetFormFactor()
     {

@@ -2,7 +2,7 @@
 
 namespace BookShelves.Web.Client.Services;
 
-public class WasmAuthenticationUIProvider : IAuthenticationUIProvider
+internal class WasmAuthenticationUIProvider : IAuthenticationUIProvider
 {
     AuthenticationUIActionType IAuthenticationUIProvider.LoginActionType => AuthenticationUIActionType.Link;
 

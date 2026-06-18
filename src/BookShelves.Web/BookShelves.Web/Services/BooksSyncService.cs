@@ -1,12 +1,11 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
 
-namespace BookShelves.Web.Services
+namespace BookShelves.Web.Services;
+
+internal class BooksSyncService : IBooksSyncService
 {
-    public class BooksSyncService : IBooksSyncService
+    public Task BeginSyncAsync()
     {
-        public Task BeginSyncAsync()
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
 }

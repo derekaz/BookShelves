@@ -6,7 +6,6 @@
 @* <CascadingBlazoredModal> *@
     <Router AppAssembly="typeof(Routes).Assembly">
         <Found Context="routeData">
-            <!--<RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />-->
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)

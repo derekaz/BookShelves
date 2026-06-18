@@ -1,4 +1,3 @@
-//using BookShelves.Shared;
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
@@ -8,18 +7,9 @@ using BookShelves.Web.Services;
 using BookShelves.Web.Shared;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-
-
-//using BookShelves.WebShared.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
-
-
-//using Microsoft.Identity.Web;
-//using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-
-//const string MS_OIDC_SCHEME = "MicrosoftOidc";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,49 +19,10 @@ var initialScopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<st
 var weatherApiConfig = builder.Configuration.GetSection("WeatherApi");
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd", OpenIdConnectDefaults.AuthenticationScheme)
-    // .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-    // .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
     .AddDownstreamApi("WeatherApi", weatherApiConfig)
-    // .AddInMemoryTokenCaches()
     .AddDistributedTokenCaches();
 
-
-//builder.Services.AddAuthentication(MS_OIDC_SCHEME)
-//    .AddOpenIdConnect(MS_OIDC_SCHEME, oidcOptions =>
-//    {
-//        //var oidcConfig = builder.Configuration.GetSection("AzureSettings");
-//        oidcOptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//        //oidcOptions.SignInScheme = OpenIdConnectDefaults.AuthenticationScheme;
-//        oidcOptions.Scope.Add(OpenIdConnectScope.OpenIdProfile);
-//        builder.Configuration.GetSection("AzureAD:Scopes").GetChildren().ToList().ForEach(scope =>
-//        {
-//            if (scope.Value != null)
-//            {
-//                oidcOptions.Scope.Add(scope.Value);
-//            }
-//        });
-//        //oidcOptions.CallbackPath = new PathString("/signin-oidc");
-//        //oidcOptions.SignedOutCallbackPath = new PathString("/signout-callback-oidc");
-//        //oidcOptions.RemoteSignOutPath = new PathString("/signout-oidc");
-//        oidcOptions.Authority = builder.Configuration["AzureAD:Authority"];
-//        oidcOptions.ClientId = builder.Configuration["AzureAD:ClientId"];
-//        oidcOptions.ClientSecret = builder.Configuration["AzureAD:ClientSecret"];
-//        oidcOptions.ResponseType = OpenIdConnectResponseType.Code;
-//        oidcOptions.MapInboundClaims = false;
-//        oidcOptions.TokenValidationParameters.NameClaimType = "name";
-//        oidcOptions.TokenValidationParameters.RoleClaimType = "roles";
-//        //var microsoftIssuerValidator = AadIssuerValidator.GetAadIssuerValidator(oidcOptions.Authority);
-//        //oidcOptions.TokenValidationParameters.IssuerValidator = microsoftIssuerValidator.Validate;
-
-//        // builder.Configuration.Bind("Authentication:Microsoft", oidcOptions);
-//        //oidcOptions.SaveTokens = true;
-//    })
-//    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
-//.AddCookie(OpenIdConnectDefaults.AuthenticationScheme);
-
-//builder.Services.ConfigureCookieOidc(CookieAuthenticationDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
-//builder.Services.ConfigureCookieOidc(OpenIdConnectDefaults.AuthenticationScheme, MS_OIDC_SCHEME);
 builder.Services.Configure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme,
     options =>
@@ -95,23 +46,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddCascadingAuthenticationState();
 
-
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<BookShelves.Web.TokenHandler>();
-//builder.Services.AddScoped<BookShelves.Web.TokenHandler>(sp =>
-//{
-//{
-//    var authorizationMessageHandler = sp.GetRequiredService<AuthorizationMessageHandler>();
-//    authorizationMessageHandler.InnerHandler = new HttpClientHandler();
-//    authorizationMessageHandler = authorizationMessageHandler.ConfigureHandler(
-//        authorizedUrls: new[] { builder.Configuration["DownstreamApi:BaseUrl"] },
-//        scopes: new[] { builder.Configuration["DownstreamApi:Scopes"] });
-//    return new HttpClient(authorizationMessageHandler)
-//    {
-//        BaseAddress = new Uri(builder.Configuration["DownstreamApi:BaseUrl"] ?? string.Empty)
-//    };
-//}});
 
 //builder.Services.AddMsalAuthentication(options =>
 //{
@@ -130,19 +65,9 @@ builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
 //      .AddHttpMessageHandler<TokenHandler>();
 
 builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
-builder.Services.AddScoped<IVersionService, VersionService>();
-builder.Services.AddScoped<ITokenService, ServerTokenService>();
+builder.Services.AddScoped<IVersionService, ServerVersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
-//builder.Services.AddScoped(sp =>
-//        new HttpClient
-//        { BaseAddress = new Uri(builder.Configuration["API_Uri"] ?? builder.Configuration["API_Prefix"] ?? builder.Environment.WebRootPath) }
-//    );
-// builder.Services.AddTransient<IBook, Book>();
-// builder.Services.AddTransient<IBookFactory, BookFactory>();
-// builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-
-//builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -177,16 +102,11 @@ app.MapRazorComponents<WebApp>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly)
     .AddAdditionalAssemblies(typeof(BookShelves.Web.Client.Components._Imports).Assembly);
-// .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly);
-
-// app.MapGroup("/authentication").MapLoginAndLogout();
 
 app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
 }).RequireAuthorization();
-
-//app.MapGroup("/authentication").MapLoginAndLogoutEndpoints();
 
 app.MapControllers();
 

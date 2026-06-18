@@ -2,15 +2,15 @@
 
 namespace BookShelves.Web.Services;
 
-public class WebAuthenticationUIProvider : IAuthenticationUIProvider
+internal class WebAuthenticationUIProvider : IAuthenticationUIProvider
 {
     AuthenticationUIActionType IAuthenticationUIProvider.LoginActionType => AuthenticationUIActionType.Link;
 
-    public string GetLoginUrl() => "MicrosoftIdentity/Account/SignIn"; // "authentication/login";
+    public string GetLoginUrl() => "MicrosoftIdentity/Account/SignIn";
 
-    AuthenticationUIActionType IAuthenticationUIProvider.LogoutActionType => AuthenticationUIActionType.Link; //.Form;
+    AuthenticationUIActionType IAuthenticationUIProvider.LogoutActionType => AuthenticationUIActionType.Link;
 
-    public string GetLogoutUrl() => "MicrosoftIdentity/Account/SignOut"; //"authentication/logout";
+    public string GetLogoutUrl() => "MicrosoftIdentity/Account/SignOut";
 
     public bool RequiresNavigation => true;
 

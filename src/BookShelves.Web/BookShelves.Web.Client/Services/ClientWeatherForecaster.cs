@@ -9,9 +9,7 @@ internal sealed class ClientWeatherForecaster(HttpClient httpClient) : IWeatherF
     public async Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
     {
         var temp = await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
-        var result = temp ?? throw new IOException("No weather forecast!"); //.Cast<IWeatherForecast>();
+        var result = temp ?? throw new IOException("No weather forecast!");
         return result ?? throw new IOException("No weather forecast!");
-        //return await httpClient.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast") ??
-        //    throw new IOException("No weather forecast!");
     }
 }
