@@ -60,6 +60,11 @@ jobs:
 
       #      echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
       - name: Build .NET App
+        working-directory: ./src/BookShelves.WasmSwa
+        run: dotnet publish -v diag -c Release -f net9.0 -o release_output
+
+      - name: Build .NET API
+        working-directory: ./src/BookShelves.WasmApi
         run: dotnet publish -v diag -c Release -f net9.0 -o release_output
 
       - name: Build And Deploy
