@@ -61,7 +61,7 @@ jobs:
       #      echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_OUTPUT
       - name: Build .NET App
         working-directory: ./src/BookShelves.WasmSwa
-        run: dotnet publish -v diag -c Release -f net9.0 -o release_output
+        run: dotnet publish -v normal -c Release -f net9.0 -o release_output
 
       - name: Build .NET API
         working-directory: ./src/BookShelves.WasmApi
@@ -80,7 +80,7 @@ jobs:
           skip_api_build: true
           production_branch: "main"
           app_location: "src/BookShelves.WasmSwa/release_output/wwwroot" # App source code path
-          api_location: "src/BookShelves.WasmApi/release_output/wwwroot" # Api source code path - optional
+          api_location: "src/BookShelves.WasmApi/release_output" # Api source code path - optional
           output_location: "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
     outputs:
