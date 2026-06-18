@@ -57,7 +57,9 @@ else
 
 @code {
 
+#if NET10_0
     [PersistentState]
+#endif
     public IEnumerable<WeatherForecast>? Forecasts { get; set; }
 
     protected override async Task OnInitializedAsync()
