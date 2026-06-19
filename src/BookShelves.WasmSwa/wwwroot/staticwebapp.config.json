@@ -28,11 +28,12 @@
     //  "route": "/*",
     //  "allowedRoles": [ "authenticated" ]
     //}
-  ],
-  "responseOverrides": {
-    "401": {
-      "statusCode": 302,
-      "redirect": "/authentication/login"
-    }
-  }
+  ]
+  //,
+  //"responseOverrides": {
+  //  "401": {
+  //    "statusCode": 302,
+  //    "redirect": "/authentication/login"
+  //  }
+  //}
 }
