@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+    <File Path="Notes.md" />
+  </Folder>
+  <Project Path="BookShelves.Maui.Data/BookShelves.Maui.Data.csproj" />
+  <Project Path="BookShelves.Maui/BookShelves.Maui.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="BookShelves.Shared/BookShelves.Shared.csproj" />
+  <Project Path="BookShelves.Web.Shared/BookShelves.Web.Shared.csproj" />
+  <Project Path="BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj" />
+  <Project Path="BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj" />
+  <Project Path="BookShelves.WebApi/BookShelves.WebApi.csproj" />
+</Solution>
