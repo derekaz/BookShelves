@@ -81,7 +81,7 @@ jobs:
           production_branch: "main"
           app_location: "src/BookShelves.WasmSwa/release_output/wwwroot" # App source code path
           api_location: "src/BookShelves.WasmApi/release_output" # Api source code path - optional
-          output_location: "wwwroot" # Built app content directory - optional
+          output_location: "" # "wwwroot" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
           FUNCTIONS_WORKER_RUNTIME: dotnet-isolated:9.0
