@@ -65,7 +65,7 @@ jobs:
 
       - name: Build .NET API
         working-directory: ./src/BookShelves.WasmApi
-        run: dotnet publish -v diag -c Release -f net9.0 -o release_output
+        run: dotnet publish -v normal -c Release -f net9.0 -o release_output
 
       - name: Build And Deploy
         id: builddeploy
