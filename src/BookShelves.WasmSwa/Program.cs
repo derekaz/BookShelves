@@ -42,6 +42,13 @@ var scopes = builder.Configuration.GetSection("MicrosoftGraph:Scopes")
     .Get<List<string>>();
 builder.Services.AddGraphClient(baseUrl, scopes);
 
+builder.Services.AddHttpClient("SecureAPIClient", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["SecureApi:BaseUrl"] ?? builder.HostEnvironment.BaseAddress);
+}).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("SecureAPIClient"));
+
 builder.Services.AddMsalAuthentication<RemoteAuthenticationState, CustomUserAccount>(options =>
     {
         options.ProviderOptions.DefaultAccessTokenScopes.Add("https://graph.microsoft.com/User.Read");
