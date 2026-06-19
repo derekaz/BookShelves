@@ -8,7 +8,7 @@ public interface IAuthenticationUIProvider
 
     AuthenticationUIActionType LogoutActionType { get; }
 
-    string GetLogoutUrl();  
+    string GetLogoutUrl();
 
     bool RequiresNavigation { get; }
 
@@ -19,5 +19,6 @@ public enum AuthenticationUIActionType
 {
     Code,
     Link,
-    Form
+    Form,
+    AuthenticationServiceShim
 }

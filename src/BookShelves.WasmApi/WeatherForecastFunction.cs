@@ -41,7 +41,7 @@ public class WeatherForecastFunction
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     ];
 
-    [Function("WeatherForecast")]
+    [Function("WeatherForecast99")]
     public HttpResponseData Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequestData req)
     {

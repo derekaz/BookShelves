@@ -1,5 +1,6 @@
 using BookShelves.Shared;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.WasmSwa;
 using BookShelves.WasmSwa.Data;
@@ -15,15 +16,23 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddRazorClassLibraryServices();
 
+builder.Services.AddSingleton<IFormFactor, WasmFormFactor>();
 builder.Services.AddSingleton<IVersionService, VersionService>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddTransient<IBook, Book>();
 builder.Services.AddTransient<IBookFactory, BookFactory>();
 builder.Services.AddTransient<IBooksDataService, BooksDataService>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-// builder.Services.AddTransient<IWeatherForecaster, WeatherForecastsDataService>();
+builder.Services.AddTransient<IWeatherForecaster, WasmWeatherForecaster>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthenticationUIProvider, WasmAuthenticationUIProvider>();
 builder.Services.AddScoped<IGraphService, GraphService>();
+
+// Add authorization services - auth state comes from server
+builder.Services.AddAuthorizationCore(options =>
+{
+    options.AddAppAuthorizationPolicies();
+});
 builder.Services.AddCascadingAuthenticationState();
 
 var baseUrl = string.Join("/",

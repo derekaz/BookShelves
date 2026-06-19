@@ -20,7 +20,7 @@ builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(http
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
 
-builder.Services.AddScoped<IAuthenticationUIProvider, WasmAuthenticationUIProvider>();
+builder.Services.AddScoped<IAuthenticationUIProvider, ClientAuthenticationUIProvider>();
 builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
 builder.Services.AddScoped<IVersionService, ClientVersionService>();
 builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
