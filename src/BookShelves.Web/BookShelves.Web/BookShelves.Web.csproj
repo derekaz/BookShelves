@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.10.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
     <ProjectReference Include="..\..\BookShelves.Web.Shared\BookShelves.Web.Shared.csproj" />
     <ProjectReference Include="..\BookShelves.Web.Client\BookShelves.Web.Client.csproj" />
   </ItemGroup>
