@@ -2,6 +2,7 @@
   "profiles": {
     "https": {
       "commandName": "Project",
+      "launchBrowser": true,
       "launchUrl": "http://localhost:4280",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
