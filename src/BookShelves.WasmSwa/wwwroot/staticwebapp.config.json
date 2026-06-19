@@ -16,11 +16,11 @@
       }
     },
     {
-      "route": "authentication/*",
+      "route": "/authentication/*",
       "allowedRoles": [ "anonymous" ]
     },
     {
-      "route": "api/*",
+      "route": "/api/*",
       "allowedRoles": [ "authenticated" ]
     }
     //,
