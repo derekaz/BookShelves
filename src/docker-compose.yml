@@ -1,0 +1,23 @@
+services:
+  webapi:
+    image: mywebapi:10.0
+    build:
+      context: .
+      dockerfile: BookShelves.WebApi/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+  webapp:
+    image: mywebapp:10.0
+    build:
+      context: .
+      dockerfile: BookShelves.Web/BookShelves.Web/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApiSettings__BaseUrl=http://webapi:8080
+    depends_on:
+      - webapi
