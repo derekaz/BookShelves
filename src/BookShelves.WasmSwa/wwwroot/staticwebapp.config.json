@@ -18,11 +18,12 @@
     {
       "route": "/authentication/*",
       "allowedRoles": [ "anonymous" ]
-    },
-    {
-      "route": "/api/*",
-      "allowedRoles": [ "authenticated" ]
     }
+    //,
+    //{
+    //  "route": "/api/*",
+    //  "allowedRoles": [ "authenticated" ]
+    //}
     //,
     //{
     //  "route": "/*",
