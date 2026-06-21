@@ -12,6 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 COPY ["BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
 RUN dotnet restore "./BookShelves.WebApi/BookShelves.WebApi.csproj"
 COPY . .

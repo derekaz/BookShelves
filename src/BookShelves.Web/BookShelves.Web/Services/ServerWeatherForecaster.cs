@@ -45,9 +45,9 @@ internal sealed class ServerWeatherForecaster  //IHttpClientFactory clientFactor
             var forecasts = await response.Content.ReadFromJsonAsync<WeatherForecast[]>() ??
                 throw new IOException("No weather forecast!");
 
-            foreach (var item in forecasts)
+            foreach (var forecast in forecasts)
             {
-                item.Source = item.Source + " (from ServerWeatherForecastService)";
+                forecast.Source = "(via ServerWeatherForecaster) " + forecast.Source;
             }
             return forecasts;
 

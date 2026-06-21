@@ -2,9 +2,9 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Graph.Models
 @using System.Security.Claims
-@inject IGraphService GraphService
+@* @inject IGraphService GraphService *@
 @inject ILogger<UserProfile> Logger
-@inject IExternalAuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize]
 
 <h3>User Profile</h3>
@@ -23,11 +23,11 @@ else
         </thead>
         <tr>
             <td> DisplayName </td>
-            <td> @user.DisplayName </td>
+            <td> @user.Identity?.Name ?? "N/A" </td>
         </tr>
         <tr>
             <td> UserPrincipalName </td>
-            <td> @user.UserPrincipalName </td>
+            <td> @user.Identity?.Name ?? "N/A" </td>
         </tr>
     </table>
 
@@ -68,7 +68,7 @@ else
 }
 
 @code {
-    User? user;
+    ClaimsPrincipal? user;
     IEnumerable<Claim> claims = new List<Claim>();
 
     protected override async Task OnInitializedAsync()
@@ -77,12 +77,13 @@ else
 
         try
         {
-            user = await GraphService.GetUserInfoAsync();
+            // user = await GraphService.GetUserInfoAsync();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            user = authState.User;
             claims = authState.User.Claims;
 
 
-            Logger.LogInformation("Logged in: '" + (user?.DisplayName ?? "N/A") + "'");
+            Logger.LogInformation("Logged in: '" + (authState.User.Identity?.Name ?? "N/A") + "'");
         }
         catch (Exception ex)
         {

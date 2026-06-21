@@ -3,7 +3,6 @@
 @inject IAuthenticationUIProvider AuthenticationUIProvider
 @inject NavigationManager Navigation
 @inject IServiceProvider ServiceProvider
-@inject IAuthService? AuthService
 
 <AuthorizeView>
     <Authorized>
@@ -58,6 +57,7 @@
 
 @code{
     private IExternalAuthenticationStateProvider? authStateProvider { get; set; }
+    private IAuthService? authService { get; set; }
 
     private async Task LoginAsync()
     {
@@ -106,9 +106,10 @@
 
     private async Task BeginLogoutUsingAuthenticationServiceShim()
     {
-        if (AuthService is not null)
+        authService = ServiceProvider.GetService(typeof(IAuthService)) as IAuthService;
+        if (authService is not null)
         {
-            await AuthService.LogoutAsync();
+            await authService.LogoutAsync();
         };
     }
 
