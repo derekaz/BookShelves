@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ServiceInterfaces\**" />
+    <EmbeddedResource Remove="ServiceInterfaces\**" />
+    <None Remove="ServiceInterfaces\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
@@ -16,10 +22,6 @@
 	  <Kind>Dynamic</Kind>
 	  <SmartLink>False</SmartLink>
 	</NativeReference>-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ServiceInterfaces\" />
   </ItemGroup>
 
   <ItemGroup>
