@@ -56,6 +56,9 @@ else
 }
 
 @code {
+// #if NET10_0
+//     [PersistentState]
+// #endif
     private IEnumerable<IBook> books = new List<IBook>();
     private string message = string.Empty;
 

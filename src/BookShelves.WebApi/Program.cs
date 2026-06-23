@@ -1,6 +1,7 @@
+using BookShelves.WebApi.BooksDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
-using BookShelves.Shared.Services.AuthorizationPolicies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,30 +39,55 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         builder.Configuration.Bind("AzureAd", options);
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    // Add centralized app policies (AdminAccess, Authenticated)
-    options.AddAppAuthorizationPolicies();
+//builder.Services.AddAuthorization(options =>
+//{
+//    // Add centralized app policies (AdminAccess, Authenticated)
+//    options.AddAppAuthorizationPolicies();
 
-    // Add API-specific default policy if needed
-    options.FallbackPolicy = options.DefaultPolicy;
-});
+//    // Add API-specific default policy if needed
+//    options.FallbackPolicy = options.DefaultPolicy;
+//});
 
 // Add CORS if needed for Web client
-builder.Services.AddCors(options =>
+//builder.Services.AddCors(options =>
+//{
+//    options.AddDefaultPolicy(policy =>
+//    {
+//        policy.WithOrigins(
+//            builder.Configuration["AllowedOrigins"] ?? "https://localhost:7098",
+//            "https://localhost:7098",
+//            "http://localhost:5261"
+//        )
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
+
+builder.Services.AddTransient(x =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(
-            builder.Configuration["AllowedOrigins"] ?? "https://localhost:7098",
-            "https://localhost:7098",
-            "http://localhost:5261"
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-    });
+    IConfiguration? configuration = x.GetService<IConfiguration>();
+
+    return new BookRepository(
+        x.GetRequiredService<ILogger<BookRepository>>(),
+        new CosmosClient(configuration!["ConnectionStrings:CosmosDBConnectionString"]),
+        "azmoore-westus2-db1",
+        "azmoore-books-westus2-dbc1"
+    );
 });
+
+//builder.Services.AddTransient(x =>
+//{
+//    IConfiguration? configuration = x.GetService<IConfiguration>();
+
+//    return new UniqueIdRepository(
+//        x.GetRequiredService<ILogger<UniqueIdRepository>>(),
+//        new CosmosClient(configuration!["CosmosDBConnectionString"]),
+//        "azmoore-westus2-db1",
+//        "azmoore-books-westus2-dbc1"
+//    );
+//});
+
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -76,7 +102,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
+// app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();

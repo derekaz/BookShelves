@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path=".env.development-laptop" />
+    <File Path=".env.production" />
     <File Path="docker-compose.yml" />
     <File Path="global.json" />
     <File Path="Notes.md" />

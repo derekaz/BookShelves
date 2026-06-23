@@ -1,10 +1,8 @@
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
-using BookShelves.Web;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
-using BookShelves.Web.Shared;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +15,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 var initialScopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>();
 var weatherApiConfig = builder.Configuration.GetSection("WeatherApi");
+var booksApiConfig = builder.Configuration.GetSection("BooksApi");
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration, "AzureAd", OpenIdConnectDefaults.AuthenticationScheme)
     .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
     .AddDownstreamApi("WeatherApi", weatherApiConfig)
+    .AddDownstreamApi("BooksApi", booksApiConfig)
     .AddDistributedTokenCaches();
 
 builder.Services.Configure<CookieAuthenticationOptions>(
@@ -58,6 +58,8 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddMicrosoftGraphClient("https://graph.microsoft.com/User.Read");
 
 builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
+builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
+builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
 
 //builder.Services.AddHttpClient("ExternalApi",
 //      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
@@ -106,6 +108,11 @@ app.MapRazorComponents<WebApp>()
 app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
+}).RequireAuthorization();
+
+app.MapGet("/booksdata", ([FromServices] IBooksDataService BooksDataService) =>
+{
+    return BooksDataService.GetBooksAsync();
 }).RequireAuthorization();
 
 app.MapControllers();

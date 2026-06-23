@@ -15,15 +15,23 @@ builder.Services.AddAuthorizationCore(options =>
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();
 
+builder.Services.AddScoped<IAuthenticationUIProvider, ClientAuthenticationUIProvider>();
+builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
+builder.Services.AddScoped<IVersionService, ClientVersionService>();
+builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
+
 builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
 
-builder.Services.AddScoped<IAuthenticationUIProvider, ClientAuthenticationUIProvider>();
-builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
-builder.Services.AddScoped<IVersionService, ClientVersionService>();
-builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
+builder.Services.AddScoped<IBookFactory, ClientBookFactory>();
+
+builder.Services.AddHttpClient<IBooksDataService, ClientBooksDataService>(httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+});
+
 
 var app = builder.Build();
 

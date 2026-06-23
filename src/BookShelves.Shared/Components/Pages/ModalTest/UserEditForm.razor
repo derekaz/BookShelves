@@ -1,0 +1,18 @@
+﻿<h3>Edit Profile</h3>
+
+<p>Managing details for: <strong>@Username</strong></p>
+<p>Account Role: <strong>@Role</strong></p>
+
+<button class="btn-save" @onclick="HandleSave">Save Changes</button>
+
+@code {
+    [Parameter] public string Username { get; set; } = "Guest";
+    [Parameter] public string Role { get; set; } = "User";
+    [Parameter] public EventCallback OnSaveSuccess { get; set; }
+
+    private async Task HandleSave()
+    {
+        // Perform save logic here...
+        await OnSaveSuccess.InvokeAsync();
+    }
+}

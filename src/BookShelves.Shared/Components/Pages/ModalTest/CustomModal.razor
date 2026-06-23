@@ -1,0 +1,43 @@
+﻿@inject IJSRuntime JS
+
+<dialog @ref="_dialogElement" class="custom-modal-box">
+    <div class="modal-content-wrapper">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+    </div>
+</dialog>
+
+<style>
+    /* Native backdrop styling */
+    dialog::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    dialog {
+        border: none;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+</style>
+
+@code {
+    private ElementReference _dialogElement;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    public async Task OpenAsync()
+    {
+        // Calls the browser's native, accessible modal method
+        await JS.InvokeVoidAsync("element => element.showModal()", _dialogElement);
+    }
+
+    public async Task CloseAsync()
+    {
+        // Safely closes the native dialog
+        await JS.InvokeVoidAsync("element => element.close()", _dialogElement);
+    }
+}
