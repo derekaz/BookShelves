@@ -3,8 +3,11 @@ using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Client.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.Services.AddMudServices();
 
 // Add authorization services - auth state comes from server
 builder.Services.AddAuthorizationCore(options =>
@@ -31,7 +34,6 @@ builder.Services.AddHttpClient<IBooksDataService, ClientBooksDataService>(httpCl
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
-
 
 var app = builder.Build();
 

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
+using MudBlazor.Services;
 using System.Reflection;
 
 namespace BookShelves.Maui;
@@ -49,6 +50,8 @@ public static class MauiProgram
 
 
         builder.Services.AddMauiBlazorWebView();
+
+        builder.Services.AddMudServices();
 
         builder.Services.AddLogging(logging =>
         {
