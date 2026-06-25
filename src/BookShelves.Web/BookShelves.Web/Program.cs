@@ -3,7 +3,6 @@ using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
@@ -26,13 +25,13 @@ builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration,
     .AddDownstreamApi("BooksApi", booksApiConfig)
     .AddDistributedTokenCaches();
 
-builder.Services.Configure<CookieAuthenticationOptions>(
-    CookieAuthenticationDefaults.AuthenticationScheme,
-    options =>
-    {
-        options.ExpireTimeSpan = TimeSpan.FromHours(1);
-        options.SlidingExpiration = true;
-    });
+//builder.Services.Configure<CookieAuthenticationOptions>(
+//    CookieAuthenticationDefaults.AuthenticationScheme,
+//    options =>
+//    {
+//        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+//        options.SlidingExpiration = true;
+//    });
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -40,6 +39,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
+
+builder.Services.AddMicrosoftIdentityConsentHandler();
 
 // Add authorization services - auth state comes from server
 builder.Services.AddAuthorization(options =>

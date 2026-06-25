@@ -2,7 +2,19 @@
 @using BookShelves.Shared.Data.Interfaces
 @*@inject HttpClient Http*@
 
-<div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
+<MudDialog>
+    <TitleContent>Delete Book</TitleContent>
+    <DialogContent>
+        Are you sure you want to delete '@BookObject!.Title'?
+    </DialogContent>
+    <DialogActions>
+        <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+    </DialogActions>
+</MudDialog>
+
+
+@* <div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
     <div class="modal-backdrop fade show" @onclick="Cancel"></div>
     <div class="modal-dialog" role="document" style="z-index: 1050">
         <div class="modal-content">
@@ -21,17 +33,17 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 @code 
 {
     [CascadingParameter] 
-    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+    IMudDialogInstance? MudDialog { get; set; } // = default!;
 
     [Parameter]
     public IBook? BookObject { get; set; }
 
-    private async Task Ok() => await BlazoredModal.CloseAsync(ModalResult.Ok());
-    private async Task Close() => await BlazoredModal.CloseAsync(ModalResult.Cancel());
-    private async Task Cancel() => await BlazoredModal.CancelAsync();
+    private void Ok() => MudDialog? .Close(DialogResult.Ok(BookObject?.IdValue));
+    private void Close() => MudDialog?.Close(DialogResult.Cancel());
+    private void Cancel() => MudDialog?.Cancel();
 }
