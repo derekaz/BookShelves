@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
 
 namespace BookShelves.Web.Services;
 
@@ -65,7 +66,10 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         return createdBook != null;
     }
 
-    // [AuthorizeForScopes(ScopeKeySection = "BooksApi:Scopes")]
+    [AuthorizeForScopes(ScopeKeySection = "BooksApi:Scopes")]
+    [RequiredScope(RequiredScopesConfigurationKey = "BooksApi:Scopes")]
+    //[AuthorizeForScopes(Scopes = new string[] { "api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.Read" })]
+    //[RequiredScope(AcceptedScope = new string[] { "api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.Read" })]
     public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         try
@@ -74,20 +78,7 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         }
         catch (MsalUiRequiredException ex)
         {
-            string[] scopes = new[] { "api://[client-id]/access_as_user" };
-            var token = await _tokenAcquisition.GetAccessTokenForUserAsync(scopes);
-
-            HandleMsalException(ex);
-            // _consentAndConditionalAccessHandler?.HandleException(ex);
-
-            try
-            {
-                return await GetBooksDataAsync(includeSoftDeleted);
-            }
-            catch (Exception ex2)
-            {
-                return [];
-            }
+            throw;
         }
         catch (Exception ex)
         {
@@ -122,7 +113,7 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         }
         catch (MicrosoftIdentityWebChallengeUserException ex)
         {
-            throw ex.MsalUiRequiredException;
+            throw;
         }
     }
 
