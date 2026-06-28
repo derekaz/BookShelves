@@ -1,7 +1,6 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Presentation.ViewModels;
 using BookShelves.Web.Shared.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
@@ -9,34 +8,25 @@ using Microsoft.Identity.Web.Resource;
 
 namespace BookShelves.Web.Services;
 
-internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory)
+internal sealed class ServerBooksDataService
     : IBooksDataService
 {
     private readonly IDownstreamApi _downstreamApi;
     private readonly IHttpContextAccessor _contextAccessor;
-    private readonly AuthenticationStateProvider _authenticationStateProvider;
-    private readonly MicrosoftIdentityConsentAndConditionalAccessHandler _consentAndConditionalAccessHandler;
-    private readonly ITokenAcquisition _tokenAcquisition;
-    private readonly NavigationManager _navigationManager;
+    //    private readonly MicrosoftIdentityConsentAndConditionalAccessHandler _consentAndConditionalAccessHandler;
 
     public ServerBooksDataService(//HttpClient? httpClient, 
         IDownstreamApi downstreamApi,
-        IHttpContextAccessor httpContextAccessor,
-        AuthenticationStateProvider authenticationStateProvider,
-        MicrosoftIdentityConsentAndConditionalAccessHandler consentAndConditionalAccessHandler,
-        ITokenAcquisition tokenAcquisition,
-        NavigationManager navigationManager)
+        IHttpContextAccessor httpContextAccessor
+        //      MicrosoftIdentityConsentAndConditionalAccessHandler consentAndConditionalAccessHandler
+        )
     {
-        //_httpClient = httpClient;
         _downstreamApi = downstreamApi;
         _contextAccessor = httpContextAccessor;
-        _authenticationStateProvider = authenticationStateProvider;
-        _consentAndConditionalAccessHandler = consentAndConditionalAccessHandler;
-        _tokenAcquisition = tokenAcquisition;
-        _navigationManager = navigationManager;
+        //_consentAndConditionalAccessHandler = consentAndConditionalAccessHandler;
     }
 
-    public async Task<bool> CreateBookAsync(IBook book)
+    public async Task<bool> CreateBookAsync(BookViewModel book)
     {
         HttpContext? context = _contextAccessor.HttpContext;
         var curUser = context?.User;
@@ -68,9 +58,7 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
 
     [AuthorizeForScopes(ScopeKeySection = "BooksApi:Scopes")]
     [RequiredScope(RequiredScopesConfigurationKey = "BooksApi:Scopes")]
-    //[AuthorizeForScopes(Scopes = new string[] { "api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.Read" })]
-    //[RequiredScope(AcceptedScope = new string[] { "api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.Read" })]
-    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         try
         {
@@ -82,12 +70,12 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         }
         catch (Exception ex)
         {
-            _consentAndConditionalAccessHandler.HandleException(ex);
+            // _consentAndConditionalAccessHandler.HandleException(ex);
             throw;
         }
     }
 
-    public async Task<IEnumerable<IBook>> GetBooksDataAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<BookViewModel>> GetBooksDataAsync(bool includeSoftDeleted = false)
     {
         try
         {
@@ -105,7 +93,13 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
             var books = await response.Content.ReadFromJsonAsync<Book[]>() ??
                 throw new IOException("No books!");
 
-            return books;
+            return books.Select(b => new BookViewModel
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                LastUpdateTime = b.LastUpdateTime,
+            });
         }
         catch (MsalUiRequiredException)
         {
@@ -117,16 +111,16 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         }
     }
 
-    private void HandleMsalException(MsalUiRequiredException ex)
-    {
-        // 1. Pass the current URL as a return parameter so the user redirects back after login
-        var returnUrl = Uri.EscapeDataString(_navigationManager.Uri);
+    //private void HandleMsalException(MsalUiRequiredException ex)
+    //{
+    //    // 1. Pass the current URL as a return parameter so the user redirects back after login
+    //    var returnUrl = Uri.EscapeDataString(_navigationManager.Uri);
 
-        // 2. Redirect to the login challenge path (e.g., MSAL's default route)
-        _navigationManager.NavigateTo($"MicrosoftIdentity/Account/SignIn?returnUrl={returnUrl}", forceLoad: true);
-    }
+    //    // 2. Redirect to the login challenge path (e.g., MSAL's default route)
+    //    _navigationManager.NavigateTo($"MicrosoftIdentity/Account/SignIn?returnUrl={returnUrl}", forceLoad: true);
+    //}
 
-    public async Task<bool> UpdateBookAsync(IBook book)
+    public async Task<bool> UpdateBookAsync(BookViewModel book)
     {
         HttpContext? context = _contextAccessor.HttpContext;
         var curUser = context?.User;
@@ -155,7 +149,7 @@ internal sealed class ServerBooksDataService  //IHttpClientFactory clientFactory
         return updatedBook != null;
     }
 
-    public Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    public Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
         throw new NotImplementedException();
     }

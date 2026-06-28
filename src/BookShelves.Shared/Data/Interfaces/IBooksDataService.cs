@@ -1,12 +1,14 @@
-﻿namespace BookShelves.Shared.Data.Interfaces;
+﻿using BookShelves.Shared.Presentation.ViewModels;
 
-public interface IBooksDataService // where T : IBook
+namespace BookShelves.Shared.Data.Interfaces;
+
+public interface IBooksDataService //<T> where T : IBook
 {
-    Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false);
+    Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false);
 
-    Task<bool> CreateBookAsync(IBook book);
+    Task<bool> CreateBookAsync(BookViewModel book);
 
-    Task<bool> UpdateBookAsync(IBook book);
+    Task<bool> UpdateBookAsync(BookViewModel book);
 
-    Task<bool> DeleteBookAsync(IBook book, bool softDelete = false);
+    Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false);
 }

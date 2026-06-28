@@ -12,19 +12,19 @@ public class GenericRepository<TDbContext, TEntity>(TDbContext context) : IRepos
     private DbSet<TEntity> DbSet => _context.Set<TEntity>();
 
     public async Task<IEnumerable<TEntity>> GetAllAsync() => await DbSet.ToListAsync();
-    
+
     public async Task<IEnumerable<TEntity>> GetAllReadOnlyAsync() => await DbSet.AsNoTracking().ToListAsync();
 
     public async Task<TEntity?> GetByIdAsync(int id) => await DbSet.FindAsync(id);
-    
-    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) => 
+
+    public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
         await DbSet.Where(predicate).ToListAsync();
 
-    public async Task<IEnumerable<TEntity>> FindReadOnlyAsync(Expression<Func<TEntity, bool>> predicate) => 
+    public async Task<IEnumerable<TEntity>> FindReadOnlyAsync(Expression<Func<TEntity, bool>> predicate) =>
         await DbSet.AsNoTracking().Where(predicate).ToListAsync();
 
     public async Task AddAsync(TEntity entity) => await DbSet.AddAsync(entity);
-    
+
     public Task UpdateAsync(TEntity entity)
     {
         DbSet.Update(entity);

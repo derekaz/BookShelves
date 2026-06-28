@@ -1,8 +1,4 @@
-﻿@using BookShelves.Shared
-@using BookShelves.Shared.Data.Interfaces
-@*@inject HttpClient Http*@
-
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>Delete Book</TitleContent>
     <DialogContent>
         Are you sure you want to delete '@BookObject!.Title'?
@@ -41,7 +37,7 @@
     IMudDialogInstance? MudDialog { get; set; } // = default!;
 
     [Parameter]
-    public IBook? BookObject { get; set; }
+    public BookViewModel? BookObject { get; set; }
 
     private void Ok() => MudDialog? .Close(DialogResult.Ok(BookObject?.IdValue));
     private void Close() => MudDialog?.Close(DialogResult.Cancel());

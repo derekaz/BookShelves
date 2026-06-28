@@ -1,25 +1,41 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
-using BookShelves.Web.Shared.Data;
+using BookShelves.Shared.Presentation.ViewModels;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using System.Net.Http.Json;
 
 namespace BookShelves.Web.Client.Services;
 
 internal sealed class ClientBooksDataService(HttpClient httpClient) : IBooksDataService
 {
-    public Task<bool> CreateBookAsync(IBook book)
+    public Task<bool> CreateBookAsync(BookViewModel book)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    public Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false)
     {
-        var temp = await httpClient.GetFromJsonAsync<Book[]>("/booksdata");
+        try
+        {
+            var temp = await httpClient.GetFromJsonAsync<Shared.Data.Book[]>("/booksdata");
+            Console.Write(temp);
 
+            return temp?.Select(b => b.ToBookViewModel()) ?? throw new IOException("No books found!");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            // Triggers the interactive login challenge on the client
+            exception.Redirect();
+            return [];
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
         //if (temp != null)
         //{
         //    foreach (var forecast in temp)
@@ -28,12 +44,12 @@ internal sealed class ClientBooksDataService(HttpClient httpClient) : IBooksData
         //    }
         //}
 
-        var result = temp ?? throw new IOException("No books found!");
+        //var result = temp ?? throw new IOException("No books found!");
 
-        return result ?? throw new IOException("No books found!");
+        //return result ?? throw new IOException("No books found!");
     }
 
-    public Task<bool> UpdateBookAsync(IBook book)
+    public Task<bool> UpdateBookAsync(BookViewModel book)
     {
         throw new NotImplementedException();
     }

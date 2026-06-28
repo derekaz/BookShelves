@@ -30,10 +30,12 @@ builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(http
 
 builder.Services.AddScoped<IBookFactory, ClientBookFactory>();
 
+builder.Services.AddTransient<BlazorAuthorizationHandler>();
+
 builder.Services.AddHttpClient<IBooksDataService, ClientBooksDataService>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
-});
+}).AddHttpMessageHandler<BlazorAuthorizationHandler>();
 
 var app = builder.Build();
 

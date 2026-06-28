@@ -1,9 +1,9 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
-using BookShelves.Web.Shared.Data;
+using BookShelves.Shared.Presentation.ViewModels;
 
 namespace BookShelves.Web.Services;
 
 public class ServerBookFactory : IBookFactory
 {
-    public IBook CreateBook() => new Book();
+    public BookViewModel CreateBook() => new BookViewModel();
 }

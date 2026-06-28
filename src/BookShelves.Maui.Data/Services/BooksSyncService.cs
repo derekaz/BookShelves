@@ -1,6 +1,7 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.DataAccess.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;

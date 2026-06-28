@@ -3,8 +3,11 @@ using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
 using BookShelves.Web.Services;
+using BookShelves.Web.Shared.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using MudBlazor.Services;
@@ -40,7 +43,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization(options => options.SerializeAllClaims = true);
 
-builder.Services.AddMicrosoftIdentityConsentHandler();
+// builder.Services.AddMicrosoftIdentityConsentHandler();
 
 // Add authorization services - auth state comes from server
 builder.Services.AddAuthorization(options =>
@@ -61,6 +64,7 @@ builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddMicrosoftGraphClient("https://graph.microsoft.com/User.Read");
 
+builder.Services.AddScoped<IBook, BookShelves.Web.Shared.Data.Book>();
 builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
 builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
 builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
@@ -78,6 +82,8 @@ builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
 
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -92,7 +98,11 @@ else
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+// app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+//app.UseWhen(context => !context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+//{
+//    appBuilder.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+//});
 
 app.UseHttpsRedirection();
 
@@ -109,16 +119,59 @@ app.MapRazorComponents<WebApp>()
     .AddAdditionalAssemblies(typeof(BookShelves.Shared._Imports).Assembly)
     .AddAdditionalAssemblies(typeof(BookShelves.Web.Client.Components._Imports).Assembly);
 
+app.MapControllers();
+app.MapRazorPages();
+
+app.MapGet("/account/login", (string returnUrl, HttpContext context) =>
+{
+    // Challenge tells the OIDC/Entra middleware to start the browser redirect safely
+    return Results.Challenge(
+        properties: new AuthenticationProperties { RedirectUri = returnUrl },
+        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
+    );
+});
+
+app.MapGet("/MicrosoftIdentity/Account/Challenge", (string? returnUrl, HttpContext context) =>
+{
+    // Fall back to the root if no returnUrl was successfully passed
+    var redirectUri = !string.IsNullOrEmpty(returnUrl) ? returnUrl : "/";
+
+    // Trigger a true OpenID Connect challenge to Entra ID
+    return Results.Challenge(
+        properties: new AuthenticationProperties { RedirectUri = redirectUri },
+        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
+    );
+});
+
 app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
 }).RequireAuthorization();
 
-app.MapGet("/booksdata", ([FromServices] IBooksDataService BooksDataService) =>
+app.MapGet("/booksdata", async ([FromServices] IBooksDataService BooksDataService, HttpContext context) =>
 {
-    return BooksDataService.GetBooksAsync();
+    try
+    {
+        var books = await BooksDataService.GetBooksAsync();
+        var xlatBooks = books.Select(b => Book.FromBookViewModel(b));
+        return Results.Ok(xlatBooks);
+    }
+    catch (MicrosoftIdentityWebChallengeUserException ex)
+    {
+        return Results.Unauthorized();
+    }
+    catch (MsalUiRequiredException ex)
+    {
+        return Results.Unauthorized();
+    }
+    catch (Exception ex)
+    {
+        if (ex.InnerException?.Message.Contains("MsalUiRequiredException") == true)
+        {
+            return Results.Unauthorized();
+        }
+        return Results.InternalServerError();
+    }
 }).RequireAuthorization();
-
-app.MapControllers();
 
 app.Run();

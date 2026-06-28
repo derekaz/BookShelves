@@ -1,5 +1,6 @@
 ﻿using BookShelves.Maui.Data.Models;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Presentation.ViewModels;
 using System.Linq.Expressions;
 
 namespace BookShelves.Maui.Data.Services;
@@ -8,12 +9,12 @@ public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataSer
 {
     private readonly IUnitOfWork<LocalBook> _unitOfWork = unitOfWork;
 
-    private readonly Expression<Func<LocalBook, bool>> changedBooks = p => 
+    private readonly Expression<Func<LocalBook, bool>> changedBooks = p =>
         p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
 
-    public async Task<bool> CreateBookAsync(IBook book)
+    public async Task<bool> CreateBookAsync(BookViewModel book)
     {
-        var newBook = (LocalBook)book;
+        var newBook = LocalBook.FromBookViewModel(book);
         newBook.Revision = book.Revision + 1;
         newBook.UpdateType = "C";
         newBook.LastUpdateTime = DateTime.UtcNow;
@@ -27,9 +28,9 @@ public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataSer
         return await _unitOfWork.CompleteAsync() > 0;
     }
 
-    public async Task<bool> UpdateBookAsync(IBook book)
+    public async Task<bool> UpdateBookAsync(BookViewModel book)
     {
-        var localBook = (LocalBook)book;
+        var localBook = LocalBook.FromBookViewModel(book);
         localBook.Revision = book.Revision + 1;
         localBook.UpdateType = "C";
         localBook.LastUpdateTime = DateTime.UtcNow;
@@ -43,9 +44,9 @@ public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataSer
         return await _unitOfWork.CompleteAsync() > 0;
     }
 
-    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    public async Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
-        var localBook = (LocalBook)book;
+        var localBook = LocalBook.FromBookViewModel(book);
 
         if (softDelete)
         {
@@ -65,16 +66,18 @@ public class BooksDataService(IUnitOfWork<LocalBook> unitOfWork) : IBooksDataSer
     //    return await _unitOfWork.LocalBooks.GetAllAsync();
     //}
 
-    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         if (includeSoftDeleted)
         {
-            return await _unitOfWork.LocalBooks.GetAllAsync();
+            return (await _unitOfWork.LocalBooks.GetAllAsync()).Select(b => b.ToBookViewModel());
         }
 
-        return await _unitOfWork
+        var localBooks = await _unitOfWork
             .LocalBooks
             .FindAsync(b => b.UpdateType != "D");
+
+        return localBooks.Select(b => b.ToBookViewModel());
     }
 
     public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
