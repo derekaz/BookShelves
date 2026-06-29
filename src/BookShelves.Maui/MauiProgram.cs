@@ -25,7 +25,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        BookShelvesDbContext.Initialize();
+        // BookShelvesDbContext.Initialize();
 
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
@@ -185,6 +185,8 @@ public static class MauiProgram
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
         });
+
+        BookShelves.Maui.Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
 
         //builder.Services.AddDbContext<BookShelvesDbContext>(
         //    options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);

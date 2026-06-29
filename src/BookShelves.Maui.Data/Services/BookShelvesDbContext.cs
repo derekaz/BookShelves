@@ -8,7 +8,7 @@ public class BookShelvesDbContext : DbContext
 {
     public static void Initialize()
     {
-        SQLitePCL.Batteries_V2.Init();
+        // SQLitePCL.Batteries_V2.Init();
     }
 
     private readonly int LATEST_DATABASE_VERSION = 4;
@@ -186,7 +186,7 @@ public class BookShelvesDbContext : DbContext
             _logger.LogError(ex, "BookShelvesContext:SetUserVersion-Exception");
             throw;
         }
-    }   
+    }
 
     private int UpgradeToOne()
     {
@@ -319,7 +319,7 @@ public class BookShelvesDbContext : DbContext
 
         var itemString = script.ToString();
 
-        if (String.IsNullOrEmpty(itemString))
+        if (string.IsNullOrEmpty(itemString))
         {
             return 0;
         }
