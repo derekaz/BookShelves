@@ -128,20 +128,20 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
         <PackageReference Include="Microsoft.Graph" Version="6.2.0" />		
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.84.2" />		
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.85.2" />		
         <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.1" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.71" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.71" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.80" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.80" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
-        <PackageReference Include="MudBlazor" Version="9.5.0" />
+        <PackageReference Include="MudBlazor" Version="9.6.0" />
         <!--<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />-->
         <PackageReference Include="Polly" Version="8.7.0" />
         <PackageReference Include="System.Drawing.Common" Version="10.0.9" />
     </ItemGroup>
 
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.84.2" />
-		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.84.2" />
+		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.85.2" />
+		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.85.2" />
 	</ItemGroup>
 	
     <ItemGroup>
