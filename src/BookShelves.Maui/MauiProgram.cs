@@ -25,7 +25,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        // BookShelvesDbContext.Initialize();
+        //  BookShelvesDbContext.Initialize();
 
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
