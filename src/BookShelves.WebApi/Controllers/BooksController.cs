@@ -1,10 +1,11 @@
 ﻿using BookShelves.WebApi.BooksDataAccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 
 namespace BookShelves.WebApi.Controllers;
 
-[AllowAnonymous]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class BooksController(ILogger<BooksController> logger, BookRepository booksData) : Controller
@@ -15,7 +16,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
     //}
 
     [HttpGet]
-    //[RequiredScopeOrAppPermission(AcceptedScope = new[] { "Data.Reader" })]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.Read" })]
     public async Task<IResult> ReadBooks()
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
@@ -32,7 +33,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [AllowAnonymous]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpPost("new")]
     public async Task<IResult> CreateBook(Book book)
     {
@@ -52,7 +53,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return TypedResults.Created($"/books/{book.Id}", book);
     }
 
-    [AllowAnonymous]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpPut("edit/{id}")]
     public async Task<IResult> EditBook(string id, Book inputBook)
     {
@@ -63,7 +64,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [AllowAnonymous]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpDelete("delete/{id}")]
     public async Task<IResult> DeleteBook(string id)
     {

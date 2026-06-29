@@ -39,6 +39,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         builder.Configuration.Bind("AzureAd", options);
     });
 
+builder.Services.AddRequiredScopeAuthorization();
+builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
 //builder.Services.AddAuthorization(options =>
 //{
 //    // Add centralized app policies (AdminAccess, Authenticated)
