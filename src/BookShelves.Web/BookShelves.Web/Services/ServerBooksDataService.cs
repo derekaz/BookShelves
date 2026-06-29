@@ -70,7 +70,7 @@ internal sealed class ServerBooksDataService
         }
         catch (Exception ex)
         {
-            // _consentAndConditionalAccessHandler.HandleException(ex);
+            //_consentAndConditionalAccessHandler.HandleException(ex);
             throw;
         }
     }
@@ -136,21 +136,48 @@ internal sealed class ServerBooksDataService
         var response = await _downstreamApi.CallApiForUserAsync("BooksApi",
             options =>
             {
-                options.RelativePath = $"/books/{book.IdValue}";
+                options.RelativePath = $"/books/edit/{book.IdValue}";
                 options.HttpMethod = "put";
                 options.ContentType = "application/json";
             }, curUser, JsonContent.Create(newBook));
 
         response.EnsureSuccessStatusCode();
 
-        var updatedBook = await response.Content.ReadFromJsonAsync<Book[]>() ??
-               throw new IOException("No books!");
+        var updatedBook = await response.Content.ReadFromJsonAsync<Book>();
 
         return updatedBook != null;
     }
 
-    public Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
+    public async Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
-        throw new NotImplementedException();
+        try
+        {
+            HttpContext? context = _contextAccessor.HttpContext;
+            var curUser = context?.User;
+
+            // If softDelete is requested, you could implement a different downstream call
+            // For now, call the BooksApi delete endpoint which removes the record by id
+            var id = book.IdValue;
+
+            using var response = await _downstreamApi.CallApiForUserAsync(
+                "BooksApi",
+                options =>
+                {
+                    options.RelativePath = $"books/delete/{id}";
+                    options.HttpMethod = "delete";
+                }, curUser);
+
+            response.EnsureSuccessStatusCode();
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (MsalUiRequiredException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }

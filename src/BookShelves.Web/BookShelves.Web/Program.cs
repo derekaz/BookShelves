@@ -11,6 +11,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using MudBlazor.Services;
+using BookShelves.Shared.Presentation.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -171,6 +172,51 @@ app.MapGet("/booksdata", async ([FromServices] IBooksDataService BooksDataServic
             return Results.Unauthorized();
         }
         return Results.InternalServerError();
+    }
+}).RequireAuthorization();
+
+// POST endpoint to create a book via the server-side IBooksDataService implementation
+app.MapPost("/booksdata", async ([FromServices] IBooksDataService BooksDataService, BookViewModel book) =>
+{
+    try
+    {
+        var result = await BooksDataService.CreateBookAsync(book);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception ex)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+// DELETE endpoint to delete a book via the server-side IBooksDataService implementation
+app.MapDelete("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataService, string id) =>
+{
+    try
+    {
+        var book = new BookViewModel { Id = id };
+        var result = await BooksDataService.DeleteBookAsync(book);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception ex)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+// PUT endpoint to update a book via the server-side IBooksDataService implementation
+app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataService, string id, BookViewModel book) =>
+{
+    try
+    {
+        // Ensure the id from route is set on the incoming book model
+        book.Id = id;
+        var result = await BooksDataService.UpdateBookAsync(book);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception ex)
+    {
+        return Results.StatusCode(500);
     }
 }).RequireAuthorization();
 

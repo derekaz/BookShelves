@@ -44,9 +44,16 @@ public class LocalBook : IBook
     {
         int temp;
 
-        if (!int.TryParse(book.Id, out temp))
+        if (book.Id == "")
         {
-            throw new ArgumentException("Invalid Id value. Cannot convert to int.", nameof(book.Id));
+            temp = 0;
+        }
+        else
+        {
+            if (!int.TryParse(book.Id, out temp))
+            {
+                throw new ArgumentException("Invalid Id value. Cannot convert to int.", nameof(book.Id));
+            }
         }
 
         return new LocalBook()

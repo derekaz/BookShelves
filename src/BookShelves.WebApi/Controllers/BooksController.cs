@@ -33,7 +33,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
     }
 
     [AllowAnonymous]
-    [HttpPut("new")]
+    [HttpPost("new")]
     public async Task<IResult> CreateBook(Book book)
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(CreateBook)}");
@@ -53,20 +53,14 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
     }
 
     [AllowAnonymous]
-    [HttpPost("edit/{id}")]
+    [HttpPut("edit/{id}")]
     public async Task<IResult> EditBook(string id, Book inputBook)
     {
-        //if (await db.TodoItems.FindAsync(id) is TodoItem todo)
-        //{
-        //    todo.Name = inputTodo.Name;
-        //    todo.IsComplete = inputTodo.IsComplete;
+        await booksData.UpdateAsync(id, inputBook);
 
-        //    await db.SaveChangesAsync();
+        var data = await booksData.GetAsync(id);
 
-        //    return TypedResults.NoContent();
-        //}
-
-        return TypedResults.Conflict();
+        return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
     [AllowAnonymous]

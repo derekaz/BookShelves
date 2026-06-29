@@ -5,8 +5,8 @@ using BookShelves.Maui.Handlers;
 using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
 using BookShelves.Shared;
+using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
-using BookShelves.Shared.DataAccess.Bases;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Maui;
@@ -179,12 +179,19 @@ public static class MauiProgram
 
         builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
-        builder.Services.AddDbContext<BookShelvesDbContext>(
-            options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
-        builder.Services.AddTransient<IUnitOfWork<LocalBook>, UnitOfWork>();
+        builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
+        {
+            options.UseSqlite(localDbConnectionString);
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+        });
+
+        //builder.Services.AddDbContext<BookShelvesDbContext>(
+        //    options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
+        builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
         builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-        builder.Services.AddTransient<IBookFactory, LocalBookFactory>();
+        builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 

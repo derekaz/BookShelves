@@ -1,4 +1,4 @@
-﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Presentation.ViewModels;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using System.Net.Http.Json;
@@ -7,14 +7,43 @@ namespace BookShelves.Web.Client.Services;
 
 internal sealed class ClientBooksDataService(HttpClient httpClient) : IBooksDataService
 {
-    public Task<bool> CreateBookAsync(BookViewModel book)
+    public async Task<bool> CreateBookAsync(BookViewModel book)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var response = await httpClient.PostAsJsonAsync("/booksdata", book);
+            response.EnsureSuccessStatusCode();
+            return true;
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+            return false;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
-    public Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
+    public async Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var id = book.IdValue;
+            var response = await httpClient.DeleteAsync($"/booksdata/{id}");
+            response.EnsureSuccessStatusCode();
+            return true;
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+            return false;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     public async Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false)
@@ -30,27 +59,31 @@ internal sealed class ClientBooksDataService(HttpClient httpClient) : IBooksData
         {
             // Triggers the interactive login challenge on the client
             exception.Redirect();
-            return [];
+            return Array.Empty<BookViewModel>();
         }
         catch (Exception ex)
         {
             throw;
         }
-        //if (temp != null)
-        //{
-        //    foreach (var forecast in temp)
-        //    {
-        //        forecast.Source = "(via ClientWeatherForecaster) " + forecast.Source;
-        //    }
-        //}
-
-        //var result = temp ?? throw new IOException("No books found!");
-
-        //return result ?? throw new IOException("No books found!");
     }
 
-    public Task<bool> UpdateBookAsync(BookViewModel book)
+    public async Task<bool> UpdateBookAsync(BookViewModel book)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var id = book.IdValue;
+            var response = await httpClient.PutAsJsonAsync($"/booksdata/{id}", book);
+            response.EnsureSuccessStatusCode();
+            return true;
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+            return false;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }

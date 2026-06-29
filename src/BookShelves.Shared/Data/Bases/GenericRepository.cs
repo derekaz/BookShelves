@@ -4,35 +4,42 @@ using System.Linq.Expressions;
 
 namespace BookShelves.Shared.Data.Bases;
 
-public class GenericRepository<TDbContext, TEntity>(TDbContext context) : IRepository<TEntity>
+public class GenericRepository<TDbContext, TEntity> : IRepository<TEntity>
     where TDbContext : DbContext
     where TEntity : class
 {
-    private readonly TDbContext _context = context;
-    private DbSet<TEntity> DbSet => _context.Set<TEntity>();
+    private readonly TDbContext _context; // = context;
+    private readonly DbSet<TEntity> _dbSet; // => _context.Set<TEntity>();
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync() => await DbSet.ToListAsync();
+    public GenericRepository(TDbContext context)
+    {
+        _context = context;
+        _dbSet = _context.Set<TEntity>();
+    }
 
-    public async Task<IEnumerable<TEntity>> GetAllReadOnlyAsync() => await DbSet.AsNoTracking().ToListAsync();
 
-    public async Task<TEntity?> GetByIdAsync(int id) => await DbSet.FindAsync(id);
+    public async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+
+    public async Task<IEnumerable<TEntity>> GetAllReadOnlyAsync() => await _dbSet.AsNoTracking().ToListAsync();
+
+    public async Task<TEntity?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
 
     public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate) =>
-        await DbSet.Where(predicate).ToListAsync();
+        await _dbSet.Where(predicate).ToListAsync();
 
     public async Task<IEnumerable<TEntity>> FindReadOnlyAsync(Expression<Func<TEntity, bool>> predicate) =>
-        await DbSet.AsNoTracking().Where(predicate).ToListAsync();
+        await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
 
-    public async Task AddAsync(TEntity entity) => await DbSet.AddAsync(entity);
+    public async Task AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
 
     public Task UpdateAsync(TEntity entity)
     {
-        DbSet.Update(entity);
+        _dbSet.Update(entity);
         return Task.CompletedTask;
     }
     public Task DeleteAsync(TEntity entity)
     {
-        DbSet.Remove(entity);
+        _dbSet.Remove(entity);
         return Task.CompletedTask;
     }
 
@@ -41,11 +48,11 @@ public class GenericRepository<TDbContext, TEntity>(TDbContext context) : IRepos
         IQueryable<TEntity> query;
         if (readOnly)
         {
-            query = DbSet.AsNoTracking();
+            query = _dbSet.AsNoTracking();
         }
         else
         {
-            query = DbSet;
+            query = _dbSet;
         }
 
         if (predicate != null)

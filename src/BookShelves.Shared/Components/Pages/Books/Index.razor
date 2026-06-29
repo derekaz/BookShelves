@@ -52,8 +52,20 @@ else
         </tbody>
     </table>
 
-    <MudDialogProvider />
+    <MudDialogProvider FullWidth="true"
+                       MaxWidth="MaxWidth.Medium"
+                       CloseButton="true"
+                       BackdropClick="false"
+                       Position="DialogPosition.Center"
+                       CloseOnEscapeKey="true"
+                       />
 }
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
 
 @code {
 #if NET10_0
@@ -98,7 +110,10 @@ else
         try
         {
             // var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
-            var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters);
+
+            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
+
+            var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
             var result = await dialog.Result;
             if (!result.Canceled)
             {
