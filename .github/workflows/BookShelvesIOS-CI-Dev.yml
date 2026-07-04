@@ -6,7 +6,7 @@ on:
   push:
     branches:
       # - 'main'
-      - 'dev*'  
+      - 'release/*'
     paths:
       # - 'src/BookShelves.Droid/**'
       # - 'BookShelves.iOS/**'
