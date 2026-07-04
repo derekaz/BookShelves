@@ -126,8 +126,8 @@ jobs:
         with:
           name: MAUI-Windows-App
           path: |
-            '${{env.PROJPATH}}\AppPackages\**\*.msix'
-            '${{env.PROJPATH}}\AppPackages\**\*.msixbundle'
+            ${{env.PROJPATH}}\AppPackages\**\*.msix
+            ${{env.PROJPATH}}\AppPackages\**\*.msixbundle
 
       # - name: Create artifacts folder
       #   shell: pwsh
