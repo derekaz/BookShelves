@@ -53,6 +53,7 @@ jobs:
         with:
           versionSpec: '6.8.x'
 
+
       - name: Determine Version
         id: version_step # step id used as a reference for output values
         uses: gittools/actions/gitversion/execute@v4.7.0
