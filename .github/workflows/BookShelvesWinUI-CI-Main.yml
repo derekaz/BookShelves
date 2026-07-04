@@ -108,7 +108,7 @@ jobs:
       - name: Show project folder content
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ env.PROJPATH }} -Include *.* -File -Recurse
+          Get-Childitem -Path . -Include *.* -File -Recurse
 
       - name: Show publish folder content
         shell: pwsh
