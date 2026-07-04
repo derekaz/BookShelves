@@ -63,7 +63,9 @@ jobs:
       run:
         working-directory: ${{env.PROJPATH}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: xcode diags 1
         run: |
@@ -83,7 +85,7 @@ jobs:
       # - name: xcode diags 2
       #   run: |
       #       echo Currently selected Xcode:
-      #       xcrun xcode-select --print-path
+      #       xcrun xcode-select --print-pat
 
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
@@ -129,7 +131,7 @@ jobs:
           openssl pkcs12 -in cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v5
+        uses: Apple-Actions/import-codesign-certs@v7
         with:
           p12-file-base64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
           p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
@@ -238,7 +240,7 @@ jobs:
 
       - name: 'Upload app to TestFlight'
         if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v5
         with:
           app-type: 'ios'
           app-path: ${{ steps.findipa.outputs.ipa }}
@@ -266,7 +268,7 @@ jobs:
       #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: 'ios ipa'
           path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
