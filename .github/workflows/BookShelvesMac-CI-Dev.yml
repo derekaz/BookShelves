@@ -6,7 +6,7 @@ on:
   push:
     branches:
   #    - 'main'
-       - 'dev*'  
+       - 'release/*'  
     paths:
   #     # - 'src/BookShelves.Droid/**'
   #     # - 'BookShelves.iOS/**'
@@ -60,7 +60,16 @@ jobs:
       run:
         working-directory: ${{env.PROJPATH}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+  
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: '6.8.x'
+
+      - name: Determine Version
+        id: version_step # step id used as a reference for output values
+        uses: gittools/actions/gitversion/execute@v4.7.0
   
       # Select your required version
       - name: xcode diags 1
@@ -153,7 +162,7 @@ jobs:
           openssl pkcs12 -in cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v5
+        uses: Apple-Actions/import-codesign-certs@v7
         with:
           # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
 
@@ -177,7 +186,7 @@ jobs:
 
       # For the type of profile to download: One of IOS_APP_DEVELOPMENT, IOS_APP_STORE, IOS_APP_ADHOC, IOS_APP_INHOUSE, MAC_APP_DEVELOPMENT, MAC_APP_STORE, MAC_APP_DIRECT, TVOS_APP_DEVELOPMENT, TVOS_APP_STORE, TVOS_APP_ADHOC, TVOS_APP_INHOUSE'
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v4
+        uses: Apple-Actions/download-provisioning-profiles@v6
         with:
           bundle-id: ${{env.BUNDLE_ID}}
           # profile-type: 'MAC_APP_DEVELOPMENT' (get all profiles)
@@ -186,7 +195,7 @@ jobs:
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v4
+        uses: Apple-Actions/download-provisioning-profiles@v6
         with:
           bundle-id: ${{env.BUNDLE_ID}}
           profile-type: 'MAC_APP_DEVELOPMENT'
@@ -195,7 +204,7 @@ jobs:
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v4
+        uses: Apple-Actions/download-provisioning-profiles@v6
         with:
           bundle-id: ${{env.BUNDLE_ID}}
           profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
@@ -204,7 +213,7 @@ jobs:
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v4
+        uses: Apple-Actions/download-provisioning-profiles@v6
         with:
           bundle-id: ${{env.BUNDLE_ID}}
           profile-type: 'MAC_APP_STORE'
@@ -316,7 +325,7 @@ jobs:
 
       - name: 'Upload app to TestFlight'
         if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v5
         with:
           app-type: osx
           # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
@@ -345,7 +354,7 @@ jobs:
       #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.pkg -File -Recurse | Copy-Item -Destination ${{ env.MAC_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: 'mac pkg'
           path: ${{steps.findpkg.outputs.pkg}} #${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
