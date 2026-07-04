@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <BuildId>#{Build.BuildId}#</BuildId>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <SLCVersion>0.1.4</SLCVersion>
+    <SLCBuild Condition="$(BuildId.Contains('#'))">1</SLCBuild>
+    <SLCBuild Condition="!$(BuildId.Contains('#'))">$(BuildId)</SLCBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <AssemblyVersion>$(SLCVersion).$(SLCBuild)</AssemblyVersion>
+    <FileVersion>$(SLCVersion).$(SLCBuild)</FileVersion>
+  </PropertyGroup>
+</Project>
