@@ -110,7 +110,7 @@ jobs:
           Get-Childitem -Path ${{ env.PUBLISH_PATH }} -Include *.* -File -Recurse
 
       - name: Archive build log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: logs
           path: '${{env.BUILD_LOG_FILE}}'
