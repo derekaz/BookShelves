@@ -105,6 +105,11 @@ jobs:
           #dotnet publish ${{env.CSPROJ}} -bl:${{env.BUILD_LOG_FILE}} -f net9.0-windows10.0.19041.0 -c Debug --self-contained false -p:RuntimeIdentifierOverride=win10-x64 -p:DebugType=full /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
           #dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
 
+      - name: Show project folder content
+        shell: pwsh
+        run: |
+          Get-Childitem -Path ${{ env.PROJPATH }} -Include *.* -File -Recurse
+
       - name: Show publish folder content
         shell: pwsh
         run: |
@@ -121,8 +126,8 @@ jobs:
         with:
           name: MAUI-Windows-App
           path: |
-            **\'${{env.PROJPATH}}\AppPackages\**\*.msix
-            **\'${{env.PROJPATH}}\AppPackages\**\*.msixbundle
+            '**\AppPackages\**\*.msix'
+            '**\AppPackages\**\*.msixbundle'
 
       # - name: Create artifacts folder
       #   shell: pwsh
