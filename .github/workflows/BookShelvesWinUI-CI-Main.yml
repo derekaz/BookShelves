@@ -89,7 +89,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet publish ${{env.CSPROJ}} `
-            -v diagnostic `
+            -v normal `
             -bl:${{env.BUILD_LOG_FILE}} `
             -f net10.0-windows10.0.19041.0 `
             -c Release `
@@ -97,6 +97,7 @@ jobs:
             --self-contained false `
             -p:RuntimeIdentifierOverride=win10-x64 `
             -p:InvariantGlobalization=true `
+            /p:GenerateTestArtifacts=false `
             /p:WindowsPackageType=MSIX `
             /p:GenerateAppxPackageOnBuild=true `
             /p:AppxPackageSigningEnabled=true `
@@ -115,51 +116,28 @@ jobs:
           name: logs
           path: '${{env.PROJPATH}}\${{env.BUILD_LOG_FILE}}'
 
-      - name: Create artifacts folder
-        shell: pwsh
-        run: |
-          cd ${{ github.workspace }}
-          mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      - name: Copy WinUI msix package
-        shell: pwsh
-        run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.msix* -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
-      
-      - name: Archive build artifact
+      - name: Upload Installer Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: 'win-x64 msix'
-          path: ${{ env.WINDOWS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
-          compression-level: 0
-
-      # # BUILD
-      # - name: Restore dependencies
-      #   shell: pwsh
-      #   run: |
-      #     dotnet restore ${{ env.csproj }}
-
-      # - name: Build Maui WinUI project
-      #   shell: pwsh
-      #   run: |
-      #     dotnet publish ${{ env.csproj }} -c Release -f net7.0-windows10.0.19041.0
+          name: MAUI-Windows-App
+          path: |
+            **\'${{env.PROJPATH}}\AppPackages\**\*.msix
+            **\'${{env.PROJPATH}}\AppPackages\**\*.msixbundle
 
       # - name: Create artifacts folder
       #   shell: pwsh
       #   run: |
-      #      cd ${{ github.workspace }}
-      #      mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
+      #     cd ${{ github.workspace }}
+      #     mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
 
       # - name: Copy WinUI msix package
       #   shell: pwsh
       #   run: |
-      #      Get-Childitem �Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      # #POST-BUILD
-      # - name: Publish build artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:     
-      #     name: "WinUI .NET MAUI artifacts" 
-      #     path: "${{ env.WINDOWS_ARTIFACTS_PATH }}/*"
-      #     if-no-files-found: error
-      #     retention-days: 90
+      #     Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.msix* -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
+      
+      # - name: Archive build artifact
+      #   uses: actions/upload-artifact@v7
+      #   with:
+      #     name: 'win-x64 msix'
+      #     path: ${{ env.WINDOWS_ARTIFACTS_PATH }} '${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+      #     compression-level: 0

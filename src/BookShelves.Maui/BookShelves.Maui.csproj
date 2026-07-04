@@ -21,6 +21,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
         <Nullable>enable</Nullable>
+		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
 
 		<!-- enable trimming and AOT analyzers on all platforms -->
 		<IsAotCompatible>false</IsAotCompatible>
