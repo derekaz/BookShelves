@@ -89,7 +89,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet publish ${{env.CSPROJ}} `
-            -v normal `
+            -v diagnostic `
             -bl:${{env.BUILD_LOG_FILE}} `
             -f net10.0-windows10.0.19041.0 `
             -c Release `
@@ -124,7 +124,7 @@ jobs:
       - name: Copy WinUI msix package
         shell: pwsh
         run: |
-          Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
+          Get-Childitem -Path ${{ github.workspace }} -Include BookShelves*.msix* -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
         uses: actions/upload-artifact@v7
