@@ -7,6 +7,14 @@
     <UserSecretsId>526312bf-765a-4490-8a96-f7e636306e7e</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+
+	<Version Condition="'$(Version)' == ''">10.1.2-local.998</Version>
+	<VersionPrefix Condition="'$(VersionPrefix)' == ''">10.1.2</VersionPrefix>
+	<FileVersion Condition="'$(FileVersion)' == ''">10.1.2.3</FileVersion>
+	<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">10.1.2.3</AssemblyVersion>
+	<PackageVersion Condition="'$(PackageVersion)' == ''">10.1.2</PackageVersion>
+	<ApplicationVersion Condition="'$(ApplicationVersion)' == ''">999</ApplicationVersion>
+	<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">10.1.2</ApplicationDisplayVersion>
   </PropertyGroup>
 
   <ItemGroup>

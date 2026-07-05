@@ -7,6 +7,7 @@ internal class MauiVersionService : IVersionService
 {
     public VersionInfo GetVersion()
     {
+        var temp = AppInfo.Current;
         return new VersionInfo()
         {
             CurrentVersion = VersionTracking.Default.CurrentVersion.ToString(),

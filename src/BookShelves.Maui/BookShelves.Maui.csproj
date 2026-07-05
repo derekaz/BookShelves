@@ -42,10 +42,10 @@
 		<ApplicationVersion>$(SLCBuild)</ApplicationVersion>
 		<AssemblyVersion>$(ApplicationDisplayVersion)</AssemblyVersion>
         -->
-		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.0.0.0</AssemblyVersion>
-		<PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0</PackageVersion>
+		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">10.1.2.3</AssemblyVersion>
+		<PackageVersion Condition="'$(PackageVersion)' == ''">10.1.2</PackageVersion>
 		<ApplicationVersion Condition="'$(ApplicationVersion)' == ''">999</ApplicationVersion>
-		<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">1.0.0</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">10.1.2</ApplicationDisplayVersion>
 		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>

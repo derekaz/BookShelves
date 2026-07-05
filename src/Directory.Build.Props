@@ -21,9 +21,9 @@
 
 	<PropertyGroup>
 		<!-- 1. Fallbacks for Local Developer Builds -->
-		<GitVersion_MajorMinorPatch Condition="'$(GitVersion_MajorMinorPatch)' == ''">1.0.0</GitVersion_MajorMinorPatch>
-		<GitVersion_FullSemVer Condition="'$(GitVersion_FullSemVer)' == ''">1.0.0-local</GitVersion_FullSemVer>
-		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">1.0.0-local+999</GitVersion_InformationalVersion>
+		<GitVersion_MajorMinorPatch Condition="'$(GitVersion_MajorMinorPatch)' == ''">10.1.2</GitVersion_MajorMinorPatch>
+		<GitVersion_FullSemVer Condition="'$(GitVersion_FullSemVer)' == ''">10.1.2-local.997</GitVersion_FullSemVer>
+		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">10.1.2-local.998</GitVersion_InformationalVersion>
 		<GitVersion_CommitsSinceVersionSource Condition="'$(GitVersion_CommitsSinceVersionSource)' == ''">999</GitVersion_CommitsSinceVersionSource>
 
 		<!-- 2. Global Versioning (Shared by Web App, WebAPI, RCL, and MAUI) -->
@@ -32,6 +32,7 @@
 		<AssemblyVersion>$(GitVersion_MajorMinorPatch)</AssemblyVersion>
 		<FileVersion>$(GitVersion_MajorMinorPatch)</FileVersion>
 		<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+		<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
 
 		<!-- 3. Dynamic Asset Shared Management -->
 		<StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>

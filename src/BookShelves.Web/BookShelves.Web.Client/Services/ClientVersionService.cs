@@ -8,7 +8,9 @@ internal class ClientVersionService : IVersionService
 {
     public VersionInfo GetVersion()
     {
-        var version = Assembly.GetExecutingAssembly()
+        var assembly = Assembly.GetExecutingAssembly();
+
+        var version = assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
         return new VersionInfo()
