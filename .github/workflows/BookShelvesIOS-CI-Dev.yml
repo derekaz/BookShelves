@@ -204,9 +204,6 @@ jobs:
             /p:MtouchUseLlvm=false
             # --no-restore `
             # -bl:${{env.BUILD_LOG_FILE}} `
-            # --self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
-            # dotnet publish ${{env.CSPROJ}} -bl:mobile.binlog -c Release -r win10-x64 -p:RuntimeIdentifierOverride=win10-x64 -p:WindowsPackageType=None
-        working-directory: ${{env.PROJPATH}}
       
       # - name: Show publish folder content 
       #   shell: pwsh
@@ -248,6 +245,13 @@ jobs:
           fi
           echo "ipa=$IPA_PATH" >> $GITHUB_OUTPUT
 
+      - name: Archive build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: 'ios ipa'
+          path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          compression-level: 0
+
       - name: 'Upload app to TestFlight'
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         uses: apple-actions/upload-testflight-build@v5
@@ -276,13 +280,6 @@ jobs:
       #       ${{ steps.findipa.outputs.ipa }}
       #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
       
-      - name: Archive build artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: 'ios ipa'
-          path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
-          compression-level: 0
-
       # # BUILD
       # - name: Restore dependencies
       #   shell: pwsh
