@@ -40,11 +40,11 @@
 		<!--
 		<ApplicationDisplayVersion>$(SLCVersion)</ApplicationDisplayVersion>
 		<ApplicationVersion>$(SLCBuild)</ApplicationVersion>
-
-		<PackageVersion>$(ApplicationDisplayVersion)</PackageVersion>
 		<AssemblyVersion>$(ApplicationDisplayVersion)</AssemblyVersion>
         -->
-		
+
+		<PackageVersion>$(ApplicationDisplayVersion)</PackageVersion>
+
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
