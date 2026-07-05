@@ -23,8 +23,8 @@
 		<!-- 1. Fallbacks for Local Developer Builds -->
 		<GitVersion_MajorMinorPatch Condition="'$(GitVersion_MajorMinorPatch)' == ''">1.0.0</GitVersion_MajorMinorPatch>
 		<GitVersion_FullSemVer Condition="'$(GitVersion_FullSemVer)' == ''">1.0.0-local</GitVersion_FullSemVer>
-		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">1.0.0-local+001</GitVersion_InformationalVersion>
-		<GitVersion_CommitsSinceVersionSource Condition="'$(GitVersion_CommitsSinceVersionSource)' == ''">1</GitVersion_CommitsSinceVersionSource>
+		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">1.0.0-local+999</GitVersion_InformationalVersion>
+		<GitVersion_CommitsSinceVersionSource Condition="'$(GitVersion_CommitsSinceVersionSource)' == ''">999</GitVersion_CommitsSinceVersionSource>
 
 		<!-- 2. Global Versioning (Shared by Web App, WebAPI, RCL, and MAUI) -->
 		<Version>$(GitVersion_FullSemVer)</Version>
