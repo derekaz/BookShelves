@@ -87,6 +87,10 @@
                     <span class="info-label">Form Factor:</span>
                     <span class="info-value">@factor</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">Version:</span>
+                    <span class="info-value">@version</span>
+                </div>
             </div>
         </div>
     </div>
@@ -95,4 +99,5 @@
 @code {
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
+    private string version => FormFactor.GetVersion();
 }

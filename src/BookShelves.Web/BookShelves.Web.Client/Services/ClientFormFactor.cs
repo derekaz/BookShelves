@@ -2,7 +2,7 @@ using BookShelves.Shared.Services.ServiceInterfaces;
 
 namespace BookShelves.Web.Client.Services;
 
-internal class ClientFormFactor : IFormFactor
+internal class ClientFormFactor(IVersionService versionService) : IFormFactor
 {
     public string GetFormFactor()
     {
@@ -12,5 +12,11 @@ internal class ClientFormFactor : IFormFactor
     public string GetPlatform()
     {
         return Environment.OSVersion.ToString();
+    }
+
+    public string GetVersion()
+    {
+        var version = versionService.GetVersion();
+        return version.CurrentVersion.ToString() + " - " + version.CurrentBuild.ToString();
     }
 }
