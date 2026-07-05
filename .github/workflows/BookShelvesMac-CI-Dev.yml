@@ -15,6 +15,7 @@ on:
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'  
+      - '**/GitVersion.yml'
       - '.github/workflows/BookShelvesMac-CI-Dev.yml'
   # pull_request:
   #   types: [opened, synchronize]
