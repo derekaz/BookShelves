@@ -42,9 +42,11 @@
 		<ApplicationVersion>$(SLCBuild)</ApplicationVersion>
 		<AssemblyVersion>$(ApplicationDisplayVersion)</AssemblyVersion>
         -->
-
-		<PackageVersion>$(ApplicationDisplayVersion)</PackageVersion>
-
+		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.0.0.0</AssemblyVersion>
+		<PackageVersion Condition="'$(PackageVersion)' == ''">1.0.0</PackageVersion>
+		<ApplicationVersion Condition="'$(ApplicationVersion)' == ''">999</ApplicationVersion>
+		<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">1.0.0</ApplicationDisplayVersion>
+		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>

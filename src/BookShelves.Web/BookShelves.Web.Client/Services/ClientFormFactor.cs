@@ -17,6 +17,6 @@ internal class ClientFormFactor(IVersionService versionService) : IFormFactor
     public string GetVersion()
     {
         var version = versionService.GetVersion();
-        return version.CurrentVersion.ToString() + " - " + version.CurrentBuild.ToString();
+        return version.CurrentVersion.ToString(); // + " - " + version.CurrentBuild.ToString();
     }
 }
