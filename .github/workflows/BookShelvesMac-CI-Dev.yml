@@ -335,13 +335,18 @@ jobs:
       #     api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
       #     api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
+      - name: Authenticate App Store Connect API Key
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APPLE_APPSTORE_KEY_ID }}.p8
+
       - name: Upload to TestFlight via altool
         run: |
           xcrun altool --upload-app \
             --type macos \
             --file ${{steps.findpkg.outputs.pkg}} \
-            --apiKey "${{ secrets.APPSTORE_API_KEY_ID }}" \
-            --apiIssuer "${{ secrets.APPSTORE_ISSUER_ID }}"
+            --apiKey "${{ secrets.APPLE_APPSTORE_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APPLE_APPSTORE_ISSUER_ID }}"
 
       # - name: Archive build log
       #   if: always()
