@@ -42,7 +42,6 @@ jobs:
     env:
       PROJPATH: 'src/BookShelves.Maui'
       CSPROJ: 'BookShelves.Maui.csproj'
-      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
       PUBLISH_PATH: '${{github.workspace}}/publish-output'
       MAC_ARTIFACTS_PATH: 'artifacts_mac'
       BUILD_LOG_FILE: 'mac.binlog'
@@ -53,9 +52,7 @@ jobs:
       CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.plist'
       DOTNET_VERSION: 'net10.0'
       DOTNET_SDK_VERSION: '10.0.x'
-      # DOTNET_SDK_VERSION: '9.0.305'
       RELEASE_CONFIGURATION: 'Release'
-      # XCODE_VERSION: '16.4'
       XCODE_VERSION: '26.4.1'
     defaults:
       run:
@@ -330,7 +327,7 @@ jobs:
 
       - name: 'Upload app to TestFlight'
         if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: apple-actions/upload-testflight-build@v4
+        uses: apple-actions/upload-testflight-build@v3
         with:
           app-type: osx
           app-path: ${{steps.findpkg.outputs.pkg}}

@@ -41,7 +41,6 @@ jobs:
     timeout-minutes: 60
     env:
       PROJPATH: 'src/BookShelves.Maui'
-      # CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
       CSPROJ: 'BookShelves.Maui.csproj'
       PUBLISH_PATH: '${{ github.workspace }}/publish-output'
       IOS_ARTIFACTS_PATH: 'artifacts_ios'
@@ -50,16 +49,9 @@ jobs:
       CODESIGN_PROVISION: 'BookShelves Test Profile'
       CODESIGN_KEY: 'iOS Distribution'
       DOTNET_VERSION: 'net10.0'
-      # DOTNET_SDK_VERSION: '9.0.306'
-      # dotnet workload install ios --version 9.0.203
       DOTNET_SDK_VERSION: '10.0.x'
-      #DOTNET_SDK_VERSION: '10.0.102'
-      # DOTNET_SDK_VERSION: '9.0.310'
-      # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
-      # XCODE_VERSION: '16.4'
       XCODE_VERSION: '26.4.1'
-      # XCODE_VERSION: '18.6'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
