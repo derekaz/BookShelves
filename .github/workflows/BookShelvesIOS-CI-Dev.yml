@@ -96,7 +96,7 @@ jobs:
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
             echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
-            echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+            # echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -190,10 +190,10 @@ jobs:
             -o ${{env.PUBLISH_PATH}} `
             -v normal `
             /p:ArchiveOnBuild=true `
-            /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} `
             /p:CodesignKey="${{env.CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.CODESIGN_PROVISION}}" `
             /p:MtouchUseLlvm=false
+            # /p:ApplicationVersion=${{env.ASSEMBLY_BUILD_NUMBER}} `
             # --no-restore `
             # -bl:${{env.BUILD_LOG_FILE}} `
       
@@ -244,61 +244,12 @@ jobs:
           path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
-      - name: 'Upload app to TestFlight'
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: apple-actions/upload-testflight-build@v5
-        with:
-          app-type: 'ios'
-          app-path: ${{ steps.findipa.outputs.ipa }}
-          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
-          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
-          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
-
-      # - name: Archive build log
-      #   uses: actions/upload-artifact@v4
+      # - name: 'Upload app to TestFlight'
+      #   if: github.event_name == 'pull_request' || github.event_name == 'push'
+      #   uses: apple-actions/upload-testflight-build@v5
       #   with:
-      #     name: logs
-      #     path: '${{env.BUILD_LOG_FILE}}'
-
-      # - name: Create artifacts folder
-      #   shell: pwsh
-      #   run: |
-      #     cd ${{ github.workspace }}
-      #     mkdir -p ${{ env.IOS_ARTIFACTS_PATH }}
-
-      # - name: Copy IOS IPA package
-      #   shell: pwsh
-      #   run: |
-      #       ${{ steps.findipa.outputs.ipa }}
-      #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
-      
-      # # BUILD
-      # - name: Restore dependencies
-      #   shell: pwsh
-      #   run: |
-      #     dotnet restore ${{ env.csproj }}
-
-      # - name: Build Maui WinUI project
-      #   shell: pwsh
-      #   run: |
-      #     dotnet publish ${{ env.csproj }} -c Release -f net7.0-windows10.0.19041.0
-
-      # - name: Create artifacts folder
-      #   shell: pwsh
-      #   run: |
-      #      cd ${{ github.workspace }}
-      #      mkdir -p ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      # - name: Copy WinUI msix package
-      #   shell: pwsh
-      #   run: |
-      #      Get-Childitem �Path ${{ github.workspace }} -Include *.msix -File -Recurse | Copy-Item -Destination ${{ env.WINDOWS_ARTIFACTS_PATH }}
-
-      # #POST-BUILD
-      # - name: Publish build artifacts
-      #   uses: actions/upload-artifact@v2
-      #   with:     
-      #     name: "WinUI .NET MAUI artifacts" 
-      #     path: "${{ env.WINDOWS_ARTIFACTS_PATH }}/*"
-      #     if-no-files-found: error
-      #     retention-days: 90
+      #     app-type: 'ios'
+      #     app-path: ${{ steps.findipa.outputs.ipa }}
+      #     issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+      #     api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+      #     api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}

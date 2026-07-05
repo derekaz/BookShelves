@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - 'main'
-      - 'dev*'
+      - 'release/*'  
     paths:
       - 'src/BookShelves.WasmSwa/**'
       - 'src/BookShelves.WasmApi/**'
