@@ -260,6 +260,7 @@ jobs:
           dotnet `
             publish `
             ${{env.CSPROJ}} `
+            -v diagnostic `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{env.PUBLISH_PATH}} `
@@ -275,7 +276,7 @@ jobs:
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false
 
-            # -v normal `
+            # -v options: normal, minimal, quiet, detailed, diagnostic
             # -bl:${{env.BUILD_LOG_FILE}} `
 
           #--self-contained false -p:RuntimeIdentifierOverride=android-x64 /p:GenerateAppxPackageOnBuild=true /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
@@ -331,8 +332,6 @@ jobs:
         uses: apple-actions/upload-testflight-build@v5
         with:
           app-type: osx
-          # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-0.1.2.pkg' 
-          # app-path: '${{ env.PUBLISH_PATH }}/BookShelves.Maui-${{ env.APPLICATION_DISPLAY_VERSION }}.pkg'
           app-path: ${{steps.findpkg.outputs.pkg}}
           issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
           api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}

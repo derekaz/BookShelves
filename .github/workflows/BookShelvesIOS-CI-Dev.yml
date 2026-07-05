@@ -254,7 +254,6 @@ jobs:
         with:
           app-type: 'ios'
           app-path: ${{ steps.findipa.outputs.ipa }}
-          #app-path: '${{env.PUBLISH_PATH }}/bookshelves.maui.ipa' 
           issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
           api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
