@@ -11,6 +11,7 @@ on:
       - 'src/BookShelves.WasmApi/**'
       - 'src/BookShelves.Shared/**'
       - 'src/BookShelves.WebShared/**'
+      - '**/*build.props'
       - '.github/workflows/BookShelvesWasmSwa-CI-Main.yml'
   pull_request:
     types: [opened, synchronize]
