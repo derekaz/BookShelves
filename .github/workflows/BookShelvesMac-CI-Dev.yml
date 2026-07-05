@@ -87,14 +87,6 @@ jobs:
       - name: Verify Xcode version
         run: xcodebuild -version
 
-      #- name: Install Xcode command-line tools
-      #  run: xcode-select --install
-
-      # - name: xcode diags 2
-      #   run: |
-      #       echo Currently selected Xcode:
-      #       xcrun xcode-select --print-path
-
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
 
@@ -102,52 +94,31 @@ jobs:
         run: |
             echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
             echo "CURRENT_TIME=$(date +'%H:%M:%S')" >> $GITHUB_ENV
-            # echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
-      - name: Set Application_Display_Version as env variable
-        id: get_application_version
-        shell: pwsh
-        run: |
-          pwsh --version
-          # Navigate to the directory containing your .csproj file (adjust as needed)
-          # cd <path_to_your_maui_project> 
-        
-          # Read the .csproj file and parse it as XML
-          [xml]$xml = Get-Content -Path ${{env.CSPROJ}} # Replace "YourMauiProject.csproj"
+      # - name: Set Application_Display_Version as env variable
+      #   id: get_application_version
+      #   shell: pwsh
+      #   run: |
+      #     pwsh --version
+       
+      #    # Read the .csproj file and parse it as XML
+      #    [xml]$xml = Get-Content -Path ${{env.CSPROJ}} # Replace "YourMauiProject.csproj"
 
-          # Get the ApplicationDisplayVersion
-          [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
-          # Write-Host "D_A_D_V: $($dirtyApplicationDisplayVersion)"
-          # Write-Host "D_A_D_V Type: $($dirtyApplicationDisplayVersion.GetType())"
-          if ($dirtyApplicationDisplayVersion -ne $null) {
-            $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
-          } else {
-            $applicationDisplayVersion = "" # Or handle the null case
-          }
-          # $applicationDisplayVersion = $dirtyApplicationDisplayVersion?.Trim()
-          # echo A_D_V=$applicationDisplayVersion
-
-          # Set the version as an environment variable for later steps
-          # echo "APPLICATION_DISPLAY_VERSION=$applicationDisplayVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      #    # Get the ApplicationDisplayVersion
+      #    [string]$dirtyApplicationDisplayVersion = $xml.Project.PropertyGroup.ApplicationDisplayVersion
+      #    if ($dirtyApplicationDisplayVersion -ne $null) {
+      #      $applicationDisplayVersion = $dirtyApplicationDisplayVersion.Trim()
+      #    } else {
+      #      $applicationDisplayVersion = "" # Or handle the null case
+      #    }
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
-          # include-prerelease: true
-
-      # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v2
 
       - name: Restore Workloads
-        # run: dotnet workload restore ${{env.CSPROJ}}
         run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
-        # working-directory: ${{env.PROJPATH}}
-
-
-      # - name: Install MAUI Workloads
-      #   run: |
-      #     dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
       - name: Cert Info 1
         env:
@@ -161,8 +132,6 @@ jobs:
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
         with:
-          # p12-file-base64: ${{ secrets.IOS_ALL_PLATFORM_DIST_CERTIFICATES_P12 }}
-
           # use this one for Mac app store/test flight
           p12-file-base64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
           
@@ -286,7 +255,6 @@ jobs:
         id: findpkg
         run: |
           PKG_PATH=$(find ${{env.PUBLISH_PATH}} -maxdepth 1 -name '*.pkg' | head -n1)
-          # IPA_PATH=$(find MyScoreBoardMaui/bin/${{env.RELEASE_CONFIGURATION}}/${{env.DOTNET_VERSION}}-ios/${{env.RUNTIME_ID}}/publish -maxdepth 1 -name '*.ipa' | head -n1)
           if [ -z "$PKG_PATH" ]; then
             echo 'PKG not found' >&2
             exit 1
@@ -297,7 +265,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: 'mac pkg'
-          path: ${{steps.findpkg.outputs.pkg}} #${{ env.MAC_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
+          path: ${{steps.findpkg.outputs.pkg}}
           compression-level: 0
 
       - name: Authenticate App Store Connect API Key
@@ -305,10 +273,10 @@ jobs:
           mkdir -p ~/private_keys
           echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APPLE_APPSTORE_KEY_ID }}.p8
 
-      # - name: Upload to TestFlight via altool
-      #   run: |
-      #     xcrun altool --upload-app \
-      #       --type macos \
-      #       --file ${{steps.findpkg.outputs.pkg}} \
-      #       --apiKey "${{ secrets.APPLE_APPSTORE_KEY_ID }}" \
-      #       --apiIssuer "${{ secrets.APPLE_APPSTORE_ISSUER_ID }}"
+      - name: Upload to TestFlight via altool
+        run: |
+          xcrun altool --upload-app \
+            --type macos \
+            --file ${{steps.findpkg.outputs.pkg}} \
+            --apiKey "${{ secrets.APPLE_APPSTORE_KEY_ID }}" \
+            --apiIssuer "${{ secrets.APPLE_APPSTORE_ISSUER_ID }}"
