@@ -23,7 +23,7 @@ COPY ["src/global.json", "./"]
 COPY ["src/Directory.Build.Props", "./"]
 
 # 3. Copy project files using their true paths from your repository root tree
-COPY ["src/BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/BookShelves.WebApi/"]
+COPY ["src/BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
 COPY ["src/BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 
 # Note: Based on your file tree output, "BookShelves.Shared" does not exist at your root level.
