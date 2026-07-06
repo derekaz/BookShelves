@@ -57,7 +57,7 @@ jobs:
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
 
-      - name: Debug Registry URL
+      - name: Debug Registry URL 
         run: |
           echo "The registry URL is: '${{ secrets.NAS_DOCKER_REGISTRY_URL }}'"
 
