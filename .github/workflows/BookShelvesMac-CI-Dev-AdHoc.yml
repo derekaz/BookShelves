@@ -287,7 +287,7 @@ jobs:
 
       # - name: Archive build log
       #   if: always()
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: logs
       #     path: '${{env.BUILD_LOG_FILE}}'
@@ -316,7 +316,7 @@ jobs:
           echo "pkg=$PKG_PATH" >> $GITHUB_OUTPUT
 
       - name: Archive build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: 'mac pkg'
           path: ${{steps.findpkg.outputs.pkg}} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'

@@ -214,7 +214,7 @@ jobs:
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       # - name: Archive build log
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: logs
       #     path: '${{env.BUILD_LOG_FILE}}'
@@ -231,7 +231,7 @@ jobs:
       #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse | Copy-Item -Destination ${{ env.IOS_ARTIFACTS_PATH }}
       
       - name: Archive build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: 'ios ipa'
           path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
