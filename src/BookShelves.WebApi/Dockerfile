@@ -23,7 +23,7 @@ COPY ["src/global.json", "./"]
 COPY ["src/Directory.Build.Props", "./"]
 
 # 3. Copy project files using their true paths from your repository root tree
-COPY ["src/BookShelves.Web/BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/BookShelves.WebApi/"]
+COPY ["src/BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/BookShelves.WebApi/"]
 COPY ["src/BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 
 # Note: Based on your file tree output, "BookShelves.Shared" does not exist at your root level.
@@ -31,13 +31,13 @@ COPY ["src/BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.W
 # COPY ["src/BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 
 # 4. Restore dependencies using the nested project path
-RUN dotnet restore "BookShelves.Web/BookShelves.WebApi/BookShelves.WebApi.csproj"
+RUN dotnet restore "BookShelves.WebApi/BookShelves.WebApi.csproj"
 
 # 5. Copy the remaining repository source code into the container /src directory
 COPY . .
 
 # 6. Change working directories to build the targeted app context
-WORKDIR "/src/src/BookShelves.Web/BookShelves.WebApi"
+WORKDIR "/src/BookShelves.WebApi"
 RUN dotnet build "BookShelves.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 
