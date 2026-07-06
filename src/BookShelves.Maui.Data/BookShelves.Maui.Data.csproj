@@ -29,7 +29,7 @@
 
   <ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-android'))">
 	<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
-	<PackageReference Include="SourceGear.sqlite3" Version="3.50.4.5" />
+	<PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">

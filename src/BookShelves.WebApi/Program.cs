@@ -2,6 +2,7 @@ using BookShelves.WebApi.BooksDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,7 +91,6 @@ builder.Services.AddTransient(x =>
 //    );
 //});
 
-
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddOpenApi();
@@ -110,5 +110,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("/version", () => new
+{
+    ProductVersion = typeof(Program).Assembly
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+        .InformationalVersion ?? "Unknown",
+    AssemblyVersion = typeof(Program).Assembly.GetName().Version?.ToString()
+}).RequireAuthorization();
 
 app.Run();

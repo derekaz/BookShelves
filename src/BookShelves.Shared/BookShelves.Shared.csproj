@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Azure.Core" Version="1.59.0" />
+	<PackageReference Include="Azure.Core" Version="1.60.0" />
 	<PackageReference Include="Azure.Identity" Version="1.21.0" />
 	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
