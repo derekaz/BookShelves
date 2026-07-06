@@ -75,6 +75,7 @@ jobs:
           context: .
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
+          no-cache: true
           build-args: |
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
           tags: |
