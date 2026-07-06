@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 45
     env:
       WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
-      API_PROJPATH: 'src/BookShelves.Web/BookShelves.WebApi'
+      API_PROJPATH: 'src/BookShelves.WebApi'
       WEB_CSPROJ: 'BookShelves.Web.csproj'
       API_CSPROJ: 'BookShelves.WebApi.csproj'
       DOTNET_SDK_VERSION: '10.0.x'
