@@ -78,6 +78,7 @@ jobs:
           no-cache: true
           build-args: |
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
