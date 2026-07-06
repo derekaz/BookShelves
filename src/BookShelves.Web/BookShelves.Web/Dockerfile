@@ -21,12 +21,12 @@ COPY ["BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj", "B
 RUN dotnet restore "./BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
 COPY . .
 WORKDIR "/src/BookShelves.Web/BookShelves.Web"
-RUN dotnet build "./BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "/BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "/BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
