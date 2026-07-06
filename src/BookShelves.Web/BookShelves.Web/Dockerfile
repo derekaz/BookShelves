@@ -7,17 +7,15 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
-ARG CACHE_BUST=1
+ARG RUN_ID
 RUN echo "=== CURRENT DIRECTORY CONTENT ===" && ls -la && \
     echo "=== RECURSIVE DIRECTORY TREE ===" && find . -maxdepth 3
 WORKDIR ./src
 RUN echo "=== CURRENT DIRECTORY CONTENT ===" && ls -la && \
     echo "=== RECURSIVE DIRECTORY TREE ===" && find . -maxdepth 3
-
 COPY ["BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj", "BookShelves.Web/BookShelves.Web/"]
 COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
