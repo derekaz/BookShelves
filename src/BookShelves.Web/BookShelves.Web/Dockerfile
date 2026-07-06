@@ -24,8 +24,9 @@ COPY ["Directory.Build.Props", "./"]
 
 # 3. Copy project files using their true paths from your repository root tree
 COPY ["BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj", "BookShelves.Web/BookShelves.Web/"]
-COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj", "BookShelves.Web/BookShelves.Web.Client/"]
+COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
+COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 
 # Note: Based on your file tree output, "BookShelves.Shared" does not exist at your root level.
 # If it is missing, comment out or delete the line below so it doesn't cause a failure:
