@@ -19,12 +19,12 @@ WORKDIR /src
 RUN echo "=== RUN ID: ${RUN_ID} ===" && ls -la
 
 # 2. Copy .NET global configuration settings first (Crucial for .NET 10/Directory properties)
-COPY ["src/global.json", "./"]
-COPY ["src/Directory.Build.Props", "./"]
+COPY ["global.json", "./"]
+COPY ["Directory.Build.Props", "./"]
 
 # 3. Copy project files using their true paths from your repository root tree
-COPY ["src/BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
-COPY ["src/BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
+COPY ["BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
+COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 
 # Note: Based on your file tree output, "BookShelves.Shared" does not exist at your root level.
 # If it is missing, comment out or delete the line below so it doesn't cause a failure:
