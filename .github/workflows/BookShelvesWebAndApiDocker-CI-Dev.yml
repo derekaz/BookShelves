@@ -79,7 +79,7 @@ jobs:
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.fullSemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -92,4 +92,4 @@ jobs:
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.fullSemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}
