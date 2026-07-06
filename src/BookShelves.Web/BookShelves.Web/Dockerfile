@@ -11,14 +11,14 @@ EXPOSE 8081
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
+WORKDIR ./src
 COPY ["BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj", "BookShelves.Web/BookShelves.Web/"]
 COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 COPY ["BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj", "BookShelves.Web/BookShelves.Web.Client/"]
 RUN dotnet restore "./BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
 COPY . .
-WORKDIR "/src/BookShelves.Web/BookShelves.Web"
+WORKDIR "./src/BookShelves.Web/BookShelves.Web"
 RUN dotnet build "./BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
