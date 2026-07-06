@@ -22,19 +22,15 @@ RUN echo "=== RUN ID: ${RUN_ID} ===" && ls -la
 COPY ["global.json", "./"]
 COPY ["Directory.Build.Props", "./"]
 
-# 3. Copy project files using their true paths from your repository root tree
+# 3. Copy ALL required project files to preserve references 
 COPY ["BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
 COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 
-# Note: Based on your file tree output, "BookShelves.Shared" does not exist at your root level.
-# If it is missing, comment out or delete the line below so it doesn't cause a failure:
-# COPY ["src/BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
-
 # 4. Restore dependencies using the nested project path
 RUN dotnet restore "BookShelves.WebApi/BookShelves.WebApi.csproj"
 
-# 5. Copy the remaining repository source code into the container /src directory
+# 5. Copy the actual source code files
 COPY . .
 
 # 6. Change working directories to build the targeted app context

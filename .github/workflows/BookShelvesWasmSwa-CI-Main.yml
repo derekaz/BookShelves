@@ -22,6 +22,8 @@ on:
       - 'src/BookShelves.WasmApi/**'
       - 'src/BookShelves.Shared/**'
       - 'src/BookShelves.WebShared/**'
+      - '**/*build.props'
+      - '.github/workflows/BookShelvesWasmSwa-CI-Main.yml'
 
 concurrency:
   group: wasmswa-${{github.ref}}

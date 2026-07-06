@@ -5,31 +5,24 @@ on:
   workflow_dispatch:
   push:
     branches:
-      # - 'main'
+      - 'main'
       - 'release/*'
     paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
       - 'src/BookShelves.Maui/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'
       - '**/GitVersion.yml'
       - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
-  # pull_request:
-  #   types: [opened, synchronize]
-  #   paths:
-  #   #- 'src/BookShelves.Droid/**'
-  #   #- 'BookShelves.iOS/**'
-  #   #- 'BookShelves.Mac/**'
-  #   #- 'src/BookShelves.WinUI/**'
-  #     - 'src/BookShelves.Maui/**'
-  #     - 'src/BookShelves.Shared/**'
-  #     - '**/*build.props'      
-  #     - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-  #   branches: 
-  #     - '**'
+  pull_request:
+    types: [opened, synchronize]
+    branches: 
+      - '**'
+    paths:
+      - 'src/BookShelves.Maui/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'
+      - '**/GitVersion.yml'
+      - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
 
 concurrency:
   group: maui-ios-dev-${{github.ref}}
@@ -102,25 +95,10 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: ${{env.PROJPATH}}/global.json
-          # dotnet-version: ${{env.DOTNET_SDK_VERSION}}
-          # include-prerelease: true
-
-      # - name: Add msbuild to PATH
-      #   uses: microsoft/setup-msbuild@v2
-
-      # - name: Change Directory
-      #   run: cd ${{env.PROJPATH}}
-
-      # - name: Change Directory
-      #   run: ls -al
 
       - name: Restore Workloads
         run: dotnet workload restore # ${{env.PROJPATH}} # ${{env.CSPROJ}}
         working-directory: ${{env.PROJPATH}}
-
-      # - name: Install MAUI Workloads
-      #   run: |
-      #     dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
       - name: Cert Info 1
         env:
@@ -197,22 +175,11 @@ jobs:
             # --no-restore `
             # -bl:${{env.BUILD_LOG_FILE}} `
       
-      # - name: Show publish folder content 
-      #   shell: pwsh
-      #   run: |
-      #     cd '${{ github.workspace }}'
-      #     Get-Childitem -Path ${{ github.workspace }} -Include *BookShelves*.ipa -File -Recurse
-      #     Get-Childitem -Path ${{ github.workspace }} -Include *.plist -File -Recurse
-
       - name: Show publish folder content
         shell: pwsh
         run: |
           Get-Childitem -Path ${{env.PUBLISH_PATH}} -Include *.* -File -Recurse
 
-      # - name: version
-      #   run: echo "::set-output name=version::$(./bin/azblogfilter --version)"
-      #   id: version
- 
       #- name: release
       #  uses: actions/create-release@v1
       #  id: create_release

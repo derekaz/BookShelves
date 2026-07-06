@@ -3,19 +3,19 @@ name: BookShelves.Maui Mac Ad-Hoc CI (Dev Branches)
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      # - 'main'
-      - 'dev*'  
-    paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'  
-      - '.github/workflows/BookShelvesMac-CI-Dev-AdHoc.yml'
+  # push:
+  #   branches:
+  #     # - 'main'
+  #     - 'dev*'  
+  #   paths:
+  #     # - 'src/BookShelves.Droid/**'
+  #     # - 'BookShelves.iOS/**'
+  #     # - 'BookShelves.Mac/**'
+  #     # - 'src/BookShelves.WinUI/**'
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'  
+  #     - '.github/workflows/BookShelvesMac-CI-Dev-AdHoc.yml'
   # pull_request:
   #   types: [opened, synchronize]
   #   paths:
