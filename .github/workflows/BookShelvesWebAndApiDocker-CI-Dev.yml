@@ -72,7 +72,7 @@ jobs:
       - name: Build and Push Web App Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ github.workspace }}
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
           no-cache: true
