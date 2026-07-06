@@ -1,0 +1,108 @@
+name: Build, Version, and Push .NET Apps
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+      - 'release/*'  
+    paths:
+      - 'src/BookShelves.Web/BookShelves.Web/**'
+      - 'src/BookShelves.WebApi/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'
+      - '**/GitVersion.yml'
+      - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'src/BookShelves.Web/BookShelves.Web/**'
+      - 'src/BookShelves.WebApi/**'
+      - 'src/BookShelves.Shared/**'
+      - '**/*build.props'      
+      - '**/GitVersion.yml'
+      - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
+    branches: 
+      - '**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    timeout-minutes: 45
+    env:
+      WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
+      API_PROJPATH: 'src/BookShelves.WebApi'
+      WEB_CSPROJ: 'BookShelves.Web.csproj'
+      API_CSPROJ: 'BookShelves.WebApi.csproj'
+      DOTNET_SDK_VERSION: '10.0.x'
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for GitVersion to determine the version
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: '6.8.x'
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.7.0
+  
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+
+      # - name: Debug Registry URL 
+      #   run: |
+      #     echo "The registry URL is: '${{ secrets.NAS_DOCKER_REGISTRY_URL }}'"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+          username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+
+      - name: Force Print Runner File Tree Outside Docker
+        run: |
+          echo "=== CURRENT DIRECTORY ==="
+          pwd
+          echo "=== RECURSIVE FILE TREE ==="
+          find . -maxdepth 4 -not -path '*/.*'
+
+      # --- WEB APPLICATION PROJECT ---
+      - name: Build and Push Web App Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
+          push: true
+          no-cache: true
+          build-args: |
+            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+          tags: |
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
+
+      # --- WEB API PROJECT ---
+      - name: Build and Push Web API Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.API_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
+          push: true
+          no-cache: true
+          build-args: |
+            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+          tags: |
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}

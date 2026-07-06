@@ -3,32 +3,24 @@ name: BookShelves.Maui IOS CI Main
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      # - 'dev*'  
-    paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'  
-      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-    # - 'src/BookShelves.Droid/**'
-    # - 'BookShelves.iOS/**'
-    # - 'BookShelves.Mac/**'
-    # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '.github/workflows/BookShelvesIOS-CI-Main.yml'
-    branches: 
-      - '**'
+  # push:
+  #   branches:
+  #     - 'main'
+  #     - 'dev*'  
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'
+  #     - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'      
+  #     - '.github/workflows/BookShelvesIOS-CI-Main.yml'
+  #   branches: 
+  #     - '**'
 
 concurrency:
   group: maui-ios-main-${{github.ref}}
@@ -48,11 +40,13 @@ jobs:
       BUNDLE_ID: 'com.azmoore.bookshelves.maui'
       CODESIGN_PROVISION: 'BookShelves Test Profile'
       CODESIGN_KEY: 'iOS Distribution'
-      DOTNET_VERSION: 'net9.0'
-      DOTNET_SDK_VERSION: '9.0.305'
+      DOTNET_VERSION: 'net10.0'
+      DOTNET_SDK_VERSION: '10.0.204'
+      # DOTNET_SDK_VERSION: '10.0.102'
       # DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
-      XCODE_VERSION: '16.4'
+      XCODE_VERSION: '26.2'
+      # XCODE_VERSION: '16.4'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}

@@ -1,12 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using BookShelves.Shared.ServiceInterfaces;
+using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
+//#if WINDOWS
+//using Microsoft.Identity.Client.Desktop;
+//#endif
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
 using System.Diagnostics;
@@ -21,10 +24,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private readonly ISettingsService _settingsService;
     private readonly IWindowService? _windowService;
     private readonly ILogger<AuthenticationService> _logger;
-#if MACCATALYST
-    private readonly IDataProtector? _dataProtector;
-#endif
+    //#if MACCATALYST
+    //    private readonly IDataProtector? _dataProtector;
+    //#endif
 
+    private readonly string[] _defaultScopes = [];
     private string _userIdentifier = string.Empty;
     private ClaimsPrincipal _currentPrincipal;
 
@@ -42,7 +46,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger) // IServiceCollection serviceCollection)
+    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger, IHostEnvironment environment) // IServiceCollection serviceCollection)
     {
         _logger = logger;
 
@@ -56,9 +60,13 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             _settingsService = settingsService;
             _windowService = windowService;
+            _defaultScopes = _settingsService.GraphScopes;
 #if MACCATALYST
-            _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
-            _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
+            // _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment.ToString());
+            // _logger.LogInformation("AuthenticationService:Constructor-EnvironmentContentRoot:{0}", environment.ContentRootPath);
+            // _logger.LogInformation("AuthenticationService:Constructor-DataProtector start");
+            // _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
+            // _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
 #endif
         }
         catch (Exception ex)
@@ -86,7 +94,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     public async Task<bool> IsAuthenticatedAsync()
     {
         var account = await GetUserAccountAsync();
-        var silentResult = await GetTokenSilentlyAsync(account);
+        var silentResult = await GetTokenSilentlyAsync(account, _defaultScopes);
 
         SetCurrentPrincipal(silentResult);
 
@@ -99,11 +107,12 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         var account = await GetUserAccountAsync();
 
         // First attempt to get a IIdToken silently
-        var result = await GetTokenSilentlyAsync(account);
+        var result = await GetTokenSilentlyAsync(account, _defaultScopes);
 
         // If silent attempt didn't work, try an
         // interactive sign in
-        result ??= await GetTokenInteractivelyAsync(account);
+        result ??= await GetTokenInteractivelyAsync(account, _defaultScopes);
+        //result ??= await GetTokenInteractivelyAsync(account);
 
         SetCurrentPrincipal(result);
 
@@ -145,6 +154,62 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         IsSignedIn = false;
     }
 
+    public async Task<string?> GetAccessTokenAsync(string[] scopes)
+    {
+        var pca = await _pca.Value;
+        var account = await GetUserAccountAsync();
+
+        // First attempt to get a IIdToken silently
+        var result = await GetTokenSilentlyAsync(account, scopes);
+
+        // If silent attempt didn't work, try an
+        // interactive sign in
+        result ??= await GetTokenInteractivelyAsync(account, scopes);
+
+        return result?.AccessToken;
+
+        //try
+        //{
+        //    var accounts = await pca.GetAccountsAsync();
+        //    var account = accounts.FirstOrDefault();
+
+        //    if (account == null)
+        //    {
+        //        _logger.LogWarning("No account found, cannot get access token");
+        //        return null;
+        //    }
+
+        //    var result = await pca
+        //        .AcquireTokenSilent(scopes, account)
+        //        .ExecuteAsync();
+
+        //    return result.AccessToken;
+        //}
+        //catch (MsalUiRequiredException)
+        //{
+        //    _logger.LogWarning("UI interaction required to get access token");
+
+        //    try
+        //    {
+        //        var result = await pca
+        //            .AcquireTokenInteractive(scopes)
+        //            .ExecuteAsync();
+
+        //        return result.AccessToken;
+        //    }
+        //    catch (MsalException ex)
+        //    {
+        //        _logger.LogError(ex, "Error during interactive token acquisition");
+        //        return null;
+        //    }
+        //}
+        //catch (MsalException ex)
+        //{
+        //    _logger.LogError(ex, "Error getting access token");
+        //    return null;
+        //}
+    }
+
     /// <summary>
     /// Initializes a PublicClientApplication with a secure serialized cache.
     /// </summary>
@@ -156,9 +221,19 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             // Initialize the PublicClientApplication
             var builder = PublicClientApplicationBuilder
                 .Create(_settingsService?.ClientId)
-                .WithAuthority(_settingsService?.AzureAdAuthority);
-                //.WithBroker(brokerOptions)
-                //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
+                .WithAuthority(_settingsService?.AzureAdAuthority)
+                .WithLogging((level, message, pii) =>
+                {
+                    Debug.WriteLine($"[{level}] {message}");
+                }, Microsoft.Identity.Client.LogLevel.Verbose, enablePiiLogging: true)
+#if WINDOWS
+                //.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" })
+                //.WithWindowsEmbeddedBrowserSupport()
+#endif
+                // .WithRedirectUri("http://localhost");
+                .WithDefaultRedirectUri();
+            //.WithBroker(brokerOptions)
+            //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
             builder = AddPlatformConfiguration(builder);
 
@@ -169,7 +244,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             _logger.LogInformation("AuthenticationService:InitializeMsalWithCache-RegisterMsalCacheAsync complete");
 
             return pca;
-        } 
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to initialize the MSAL PublicClientApplication instance");
@@ -256,7 +331,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// <summary>
     /// Attempt to acquire a IIdToken silently (no prompts).
     /// </summary>
-    private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount)
+    private async Task<AuthenticationResult?> GetTokenSilentlyAsync(IAccount? userAccount, string[] scopes)
     {
         var pca = await _pca.Value;
 
@@ -264,11 +339,23 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         {
             if (userAccount == null) return null;
 
-            return await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount)
+            var result = await pca.AcquireTokenSilent(scopes, userAccount)
                 .ExecuteAsync();
+            return result;
+
+            //var authResult = await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount).ExecuteAsync();
+            //if (authResult.Account != null)
+            //{
+            //    pca.SetActiveAccount(authResult.account);
+            //}
         }
         catch (MsalUiRequiredException)
         {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "AuthenticationService:GetTokenSilentlyAsync");
             return null;
         }
     }
@@ -276,15 +363,33 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     /// <summary>
     /// Attempts to get a IIdToken interactively using the device's browser.
     /// </summary>
-    private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount)
+    private async Task<AuthenticationResult> GetTokenInteractivelyAsync(IAccount? userAccount, string[] scopes)
     {
         var pca = await _pca.Value;
 
-        var builder = pca.AcquireTokenInteractive(_settingsService.GraphScopes);
-            //builder.WithUseEmbeddedWebView(true);
-        
-        builder = AddAquireTokenPlatformConfiguration(builder);
+        var builder = pca.AcquireTokenInteractive(scopes);
+        builder.WithPrompt(Prompt.ForceLogin);
 
+        //builder.WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions
+        //{
+        //    Title = "BookShelves Sign In"
+        //    // This is required for the authentication flow to work correctly on Mac Catalyst
+        //    // and may also help with the authentication flow on iOS. Android and Windows should be unaffected.
+        //    //PreferredBrowserOption = PreferredEmbeddedBrowser.SystemDefault
+        //});
+        // builder.WithUseEmbeddedWebView(true);
+        // builder.WithParentActivityOrWindow(Application.Current?.MainPage?.Window?.Handler?.PlatformView as Microsoft.UI.Xaml.Window);
+
+        // var window = _windowService?.GetMainWindowHandle();
+
+        //var window = _windowService?.GetMainWindowHandle();
+        //var window = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).CoreWindow;
+        // var window = App.Current.MainPage.Window.Handler.PlatformView;
+
+        builder = AddAquireTokenPlatformConfiguration(builder);
+        // builder.WithParentActivityOrWindow(window); // trying this to maybe fix the IOS launch issue
+        //builder.WithParentActivityOrWindow(GetWindowHandle()); // trying this to maybe fix the IOS launch issue
+        //builder.WithUseEmbeddedWebView(true);
         try
         {
             var result = await builder.ExecuteAsync();
@@ -293,7 +398,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             //.WithAccount(userAccount)
             //.WithLoginHint("derek_m@outlook.com")
             //.WithPrompt(Prompt.NoPrompt)
-            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()) // trying this to maybe fix the IOS launch issue
+            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()); // trying this to maybe fix the IOS launch issue
             //.WithUseEmbeddedWebView(true)
             //.ExecuteAsync();
 
@@ -308,6 +413,25 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
+    private IntPtr GetWindowHandle()
+    {
+#if WINDOWS
+        // Get the current MAUI Window
+        var window = Application.Current?.Windows.FirstOrDefault();
+        if (window != null)
+        {
+            // Retrieve the native WinUI 3 Window
+            var nativeWindow = window.Handler.PlatformView as Microsoft.UI.Xaml.Window;
+            if (nativeWindow != null)
+            {
+                // Retrieve the HWND for the WinUI 3 window
+                return WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+            }
+        }
+#endif
+        return IntPtr.Zero;
+    }
+
     private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder);
 
     public async Task AuthenticateRequestAsync(
@@ -320,10 +444,10 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             var account = await GetUserAccountAsync();
 
             // First try to get the IIdToken silently
-            var result = await GetTokenSilentlyAsync(account);
+            var result = await GetTokenSilentlyAsync(account, _defaultScopes);
 
             // If silent acquisition fails, try interactive
-            result ??= await GetTokenInteractivelyAsync(account);
+            result ??= await GetTokenInteractivelyAsync(account, _defaultScopes);
 
             request.Headers.Add("Authorization", $"Bearer {result.AccessToken}");
         }

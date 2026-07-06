@@ -1,0 +1,34 @@
+﻿@page "/authentication/login"
+@using BookShelves.Shared.Services.ServiceInterfaces
+
+@inject NavigationManager Navigation
+@inject IExternalAuthenticationStateProvider AuthStateProvider
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var temp = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (temp == null || temp.User.Identity == null || temp.User.Identity.IsAuthenticated == false)
+        {
+            await AuthStateProvider.LogInAsync(); //.Wait();
+        };
+
+        await base.OnInitializedAsync();
+    }
+
+    // protected override void OnInitialized()
+    // {
+        // AuthStateProvider.LogInAsync().Wait();
+
+        // Navigation.NavigateTo("/");
+
+        // return;
+
+        // var temp = AuthStateProvider.GetAuthenticationStateAsync().Result;
+        // if (temp == null || temp.User.Identity == null || temp.User.Identity.IsAuthenticated == false)
+        // {
+            // AuthStateProvider.LogInAsync(); .Wait();
+        // };
+        // Navigation.NavigateTo("/");
+    // }
+}

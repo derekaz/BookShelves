@@ -1,5 +1,5 @@
-﻿using BookShelves.Shared.ServiceInterfaces;
-using BookShelves.Shared.ServiceModels;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
+using BookShelves.Shared.Services.ServiceModels;
 using System.Reflection;
 
 namespace BookShelves.WasmSwa.Services;

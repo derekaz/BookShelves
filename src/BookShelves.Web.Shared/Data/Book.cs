@@ -1,8 +1,9 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Presentation.ViewModels;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.Web.Shared.Data;
 
 // [JsonObject(Title = "Book")]
 public class Book : IItem, IBook
@@ -32,4 +33,33 @@ public class Book : IItem, IBook
     [JsonProperty("revision")]
     [JsonPropertyName("revision")]
     public int? Revision { get; set; } = 0;
+
+    public BookViewModel ToBookViewModel()
+    {
+        return new BookViewModel()
+        {
+            Id = Id,
+            Title = Title,
+            Author = Author,
+            LastUpdateTime = LastUpdateTime,
+            Revision = Revision,
+            //UpdateType = UpdateType,
+            //ServerId = ServerId
+        };
+    }
+
+    public static Book FromBookViewModel(BookViewModel book)
+    {
+        return new Book()
+        {
+            Id = book.Id,
+            Title = book.Title,
+            Author = book.Author,
+            LastUpdateTime = book.LastUpdateTime,
+            Revision = book.Revision,
+            //UpdateType = book.UpdateType,
+            //ServerId = book.ServerId
+        };
+    }
+
 }

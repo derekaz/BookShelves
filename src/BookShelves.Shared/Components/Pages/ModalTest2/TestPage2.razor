@@ -1,0 +1,19 @@
+﻿@page "/testpage2"
+@inject IDialogService DialogService
+
+<h3>My Isolated Dialog Page</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenDialog">
+    Open Dialog
+</MudButton>
+
+<!-- Local provider scopes the dialog exclusively to this component -->
+<MudDialogProvider />
+
+@code {
+    private async Task OpenDialog()
+    {
+        var dialog = await DialogService.ShowAsync<CustomDialog>("My Popup Dialog");
+        var result = await dialog.Result;
+    }
+}

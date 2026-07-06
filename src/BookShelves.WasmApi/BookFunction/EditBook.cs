@@ -1,6 +1,6 @@
 using BookShelves.WasmApi.DataAccess;
 using BookShelves.WasmApi.Utilities;
-using BookShelves.WebShared.Data;
+using BookShelves.Web.Shared.Data;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;

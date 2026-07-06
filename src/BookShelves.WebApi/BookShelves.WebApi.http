@@ -1,0 +1,38 @@
+@BookShelves.WebApi_HostAddress = http://localhost:5224
+@LocalTenantId = {{tenantId}}
+# http://localhost:5224
+# https://localhost:7135
+
+#POST https://microsoftonline.com{{LocalTenantId}}/oauth2/v2.0/token
+
+###
+
+# @name login
+POST https://login.microsoftonline.com/{{LocalTenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={{clientId}}
+&client_secret={{clientSecret}}
+&scope={{scope}}
+
+###
+
+@authToken = {{login.response.body.$.access_token}}
+#body.$.token
+
+GET {{BookShelves.WebApi_HostAddress}}/weatherforecast
+Authorization: Bearer {{authToken}}
+Accept: application/json
+# Test: {{authToken}}
+
+###
+
+@authToken = {{login.response.body.$.access_token}}
+#body.$.token
+
+GET {{BookShelves.WebApi_HostAddress}}/test
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+###

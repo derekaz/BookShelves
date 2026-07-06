@@ -3,19 +3,19 @@ name: BookShelves.Maui Mac Ad-Hoc CI (Dev Branches)
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      # - 'main'
-      - 'dev*'  
-    paths:
-      # - 'src/BookShelves.Droid/**'
-      # - 'BookShelves.iOS/**'
-      # - 'BookShelves.Mac/**'
-      # - 'src/BookShelves.WinUI/**'
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'  
-      - '.github/workflows/BookShelvesMac-CI-Dev-AdHoc.yml'
+  # push:
+  #   branches:
+  #     # - 'main'
+  #     - 'dev*'  
+  #   paths:
+  #     # - 'src/BookShelves.Droid/**'
+  #     # - 'BookShelves.iOS/**'
+  #     # - 'BookShelves.Mac/**'
+  #     # - 'src/BookShelves.WinUI/**'
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'  
+  #     - '.github/workflows/BookShelvesMac-CI-Dev-AdHoc.yml'
   # pull_request:
   #   types: [opened, synchronize]
   #   paths:
@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   mac-build-mac:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     env:
       PROJPATH: 'src/BookShelves.Maui'
@@ -50,12 +50,12 @@ jobs:
       CODESIGN_KEY: 'Apple Development: Derek Moore (C52LX4JJTM)'
       PACKAGE_SIGNING_KEY: '3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)'
       CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.adhoc.plist'
-      DOTNET_VERSION: 'net9.0'
+      DOTNET_VERSION: 'net10.0'
+      DOTNET_SDK_VERSION: '10.0.x'
       # DOTNET_SDK_VERSION: '9.0.305'
-      DOTNET_SDK_VERSION: '9.0.x'
       RELEASE_CONFIGURATION: 'Release'
-      XCODE_VERSION: '16.4'
-      # XCODE_VERSION: '26.0.1'
+      # XCODE_VERSION: '16.4'
+      XCODE_VERSION: '26.4.1'
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}

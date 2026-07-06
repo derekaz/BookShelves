@@ -32,12 +32,12 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
                     _ = DateTime.TryParse(lastSyncTimeString, out lastSyncTime);
                 }
 
-                
-            //    dbProvider.Set("LastSyncTime", DateTime.UtcNow.ToString("o"));
-            //    dbProvider.Set("Test", DateTime.UtcNow.ToString("o"));
-            //    dbProvider.Save();
-            //    dbProvider.Set("Test", null);
-            //    dbProvider.Save();
+
+                //    dbProvider.Set("LastSyncTime", DateTime.UtcNow.ToString("o"));
+                //    dbProvider.Set("Test", DateTime.UtcNow.ToString("o"));
+                //    dbProvider.Save();
+                //    dbProvider.Set("Test", null);
+                //    dbProvider.Save();
             }
         }
 
@@ -174,12 +174,12 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
         var urlString = $"/api/books/sync?lastSyncTime={lastSyncTime:yyyy-MM-ddThh:mm:ss.tttt}";
         var httpClient = _httpClientFactory.CreateClient("BooksApi");
         try
-        { 
+        {
             var temp = await httpClient.GetAsync(urlString, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             var data = await temp.Content.ReadAsStringAsync();
             var response = JsonSerializer.Deserialize<ApiResponse<List<RemoteBook>>>(data)
                 ?? throw new ApplicationException("Unable to parse returned object");
-            
+
             if (response.IsSuccess && response.StatusCode == System.Net.HttpStatusCode.OK && response.Data != null)
             {
                 return response.Data;
@@ -224,7 +224,7 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
                     }
                     else if (currentBook == null)
                     {
-                        currentBook = (LocalBook)_bookFactory.CreateBook();
+                        currentBook = LocalBook.FromBookViewModel(_bookFactory.CreateBook());
 
                         currentBook.Title = book.Title;
                         currentBook.Author = book.Author;
@@ -246,6 +246,6 @@ public class BooksSyncService(IHttpClientFactory httpClientFactory, IBookFactory
         finally
         {
 
-        }        
+        }
     }
 }

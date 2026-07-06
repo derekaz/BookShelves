@@ -1,0 +1,33 @@
+@page "/admin"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "AdminAccess")]
+
+<PageTitle>Admin</PageTitle>
+
+<h1>Admin Panel</h1>
+
+<p>This page is only accessible to users with the AdminAccess policy.</p>
+
+<div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">Welcome, Administrator!</h4>
+    <p>
+        You have successfully accessed the admin panel. This demonstrates that authorization policies
+        are working correctly across all platforms (Blazor Server, Blazor WASM, and MAUI).
+    </p>
+    <hr>
+    <p class="mb-0">
+        To configure users with admin access, you would typically use roles or claims in Azure Entra ID.
+    </p>
+</div>
+
+<h3>Admin Functions</h3>
+<ul>
+    <li>User Management</li>
+    <li>System Configuration</li>
+    <li>Reports and Analytics</li>
+    <li>Security Settings</li>
+</ul>
+
+@code {
+    // This page requires the AdminAccess policy
+    // Configure the policy in your Program.cs to check for specific roles or claims
+}

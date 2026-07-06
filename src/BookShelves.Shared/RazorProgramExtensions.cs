@@ -1,4 +1,4 @@
-﻿using Blazored.Modal;
+﻿//using Blazored.Modal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,15 +8,15 @@ public static class RazorProgramExtensions
 {
     public static IServiceCollection AddRazorClassLibraryServices(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddBlazoredModal();
+        //serviceCollection.AddBlazoredModal();
 
         return serviceCollection;
     }
 
     public static IServiceCollection AddRazorClassLibraryServices(this IServiceCollection serviceCollection, IConfiguration config)
     {
-		serviceCollection.AddBlazoredModal();
+        //serviceCollection.AddBlazoredModal();
 
-		return serviceCollection;
+        return serviceCollection;
     }
 }

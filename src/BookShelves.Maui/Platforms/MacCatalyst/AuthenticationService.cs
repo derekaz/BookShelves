@@ -47,8 +47,8 @@ public partial class AuthenticationService
 
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
-        if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
-        MacTokenCacheHelper.EnableSerialization(tokenCache, _dataProtector);
+        // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
+        MacTokenCacheHelper.EnableSerialization(tokenCache); // , _dataProtector);
 
         _logger.LogInformation("AuthenticationService:InitializeMsalWithCache (Mac)-RegisterCache complete");
         return Task.CompletedTask;

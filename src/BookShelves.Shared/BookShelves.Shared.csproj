@@ -1,35 +1,43 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="DataModels\**" />
+    <Content Remove="DataModels\**" />
+    <EmbeddedResource Remove="DataModels\**" />
+    <None Remove="DataModels\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.16.0" />
-    <PackageReference Include="Blazored.Modal" Version="7.3.1" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.9" />
-	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Graph" Version="5.92.0" />
-    <PackageReference Include="Microsoft.Graph.Core" Version="3.2.4" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.77.0" />
+	<PackageReference Include="Azure.Core" Version="1.60.0" />
+	<PackageReference Include="Azure.Identity" Version="1.21.0" />
+	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
+	<PackageReference Include="Microsoft.Graph" Version="6.2.0" />
+    <PackageReference Include="Microsoft.Graph.Core" Version="4.0.1" />
+    <PackageReference Include="MudBlazor" Version="9.6.0" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DataModels\" />
-    <Folder Include="Services\" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.17" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BookShelves.Shared.Data\BookShelves.Shared.Data.csproj" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,8 +47,5 @@
     <Content Update="Components\Layout\RedirectToHomePage.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
-	<Content Update="Components\Layout\LayoutFooter.razor">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	</Content>
   </ItemGroup>
 </Project>

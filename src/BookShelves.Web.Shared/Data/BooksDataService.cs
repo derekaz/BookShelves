@@ -1,21 +1,22 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using BookShelves.Shared.Data.Bases;
+﻿using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Presentation.ViewModels;
 using Microsoft.Extensions.Logging;
+using System.Net.Http.Json;
+using System.Text.Json;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.Web.Shared.Data;
 
 public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger) : IBooksDataService
 {
     private readonly HttpClient _httpClient = http;
     private readonly ILogger _logger = logger;
 
-    public async Task<IEnumerable<IBook>> GetBooksAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<BookViewModel>> GetBooksAsync(bool includeSoftDeleted = false)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<Book[]>("/api/books") ?? [];
+            return await _httpClient.GetFromJsonAsync<BookViewModel[]>("/api/books") ?? [];
         }
         catch (Exception ex)
         {
@@ -24,7 +25,7 @@ public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger)
         }
     }
 
-    public async Task<bool> CreateBookAsync(IBook book)
+    public async Task<bool> CreateBookAsync(BookViewModel book)
     {
         // var temp = await _httpClient.PostAsJsonAsync("api/books/new", book);
         // return temp.IsSuccessStatusCode;
@@ -49,7 +50,7 @@ public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger)
         }
     }
 
-    public async Task<bool> UpdateBookAsync(IBook book)
+    public async Task<bool> UpdateBookAsync(BookViewModel book)
     {
         //var temp = await _httpClient.PostAsJsonAsync("api/books/edit", book);
         //return temp.IsSuccessStatusCode;
@@ -74,7 +75,7 @@ public class BooksDataService(HttpClient http, ILogger<BooksDataService> logger)
         }
     }
 
-    public async Task<bool> DeleteBookAsync(IBook book, bool softDelete = false)
+    public async Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false)
     {
         var temp = await _httpClient.DeleteAsync($"/api/book/{book.IdValue}");
         return temp.IsSuccessStatusCode;

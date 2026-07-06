@@ -1,0 +1,49 @@
+<Project>
+  <!--
+  <PropertyGroup>
+    <BuildId>#{Build.BuildId}#</BuildId>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <SLCVersion>0.1.4</SLCVersion>
+    <SLCBuild Condition="$(BuildId.Contains('#'))">1</SLCBuild>
+    <SLCBuild Condition="!$(BuildId.Contains('#'))">$(BuildId)</SLCBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <AssemblyVersion>$(SLCVersion).$(SLCBuild)</AssemblyVersion>
+    <FileVersion>$(SLCVersion).$(SLCBuild)</FileVersion>
+  </PropertyGroup>
+  -->
+
+
+
+
+	<PropertyGroup>
+		<!-- 1. Fallbacks for Local Developer Builds -->
+		<GitVersion_MajorMinorPatch Condition="'$(GitVersion_MajorMinorPatch)' == ''">10.1.2</GitVersion_MajorMinorPatch>
+		<GitVersion_FullSemVer Condition="'$(GitVersion_FullSemVer)' == ''">10.1.2-local.997</GitVersion_FullSemVer>
+		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">10.1.2-local.998</GitVersion_InformationalVersion>
+		<GitVersion_CommitsSinceVersionSource Condition="'$(GitVersion_CommitsSinceVersionSource)' == ''">999</GitVersion_CommitsSinceVersionSource>
+
+		<!-- 2. Global Versioning (Shared by Web App, WebAPI, RCL, and MAUI) -->
+		<Version>$(GitVersion_FullSemVer)</Version>
+		<VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
+		<AssemblyVersion>$(GitVersion_MajorMinorPatch)</AssemblyVersion>
+		<FileVersion>$(GitVersion_MajorMinorPatch)</FileVersion>
+		<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+		<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+
+		<!-- 3. Dynamic Asset Shared Management -->
+		<StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
+	</PropertyGroup>
+	
+	<!-- 4. Target Scoped Property Injection for MAUI Mobile Apps Only -->
+	<!-- This prevents polluting your Web projects with mobile manifest compilation variables -->
+	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) or $(TargetFramework.Contains('-ios')) or $(TargetFramework.Contains('-maccatalyst')) or $(TargetFramework.Contains('-windows'))">
+		<!-- Visible to end-users on app stores (e.g., "1.2.0") -->
+		<ApplicationDisplayVersion>$(GitVersion_MajorMinorPatch)</ApplicationDisplayVersion>
+		<!-- Internal store tracker sequence integer (e.g., 42) -->
+		<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+	</PropertyGroup>
+</Project>

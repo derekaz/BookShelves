@@ -1,13 +1,9 @@
 ﻿using BookShelves.Shared.Data.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BookShelves.Shared.Presentation.ViewModels;
 
-namespace BookShelves.WebShared.Data;
+namespace BookShelves.Web.Shared.Data;
 
-public class BookFactory : IBookFactory
+public class BookViewModelFactory : IBookFactory
 {
-    public IBook CreateBook() => new Book();
+    public BookViewModel CreateBook() => new BookViewModel();
 }

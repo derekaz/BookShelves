@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client.Extensions.Msal;
-using BookShelves.Shared.ServiceInterfaces;
+using BookShelves.Shared.Services.ServiceInterfaces;
 
 namespace BookShelves.Maui.Services;
 

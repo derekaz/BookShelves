@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using BookShelves.Maui.Services;
+﻿using BookShelves.Maui.Services;
+using System.Runtime.InteropServices;
 
 namespace BookShelves.Maui.Platforms.Windows;
 
@@ -21,12 +21,18 @@ internal class WindowService : IWindowService
 
     public static IntPtr GetConsoleOrTerminalWindow()
     {
-        var handle = (App.Current?.Windows[0].Handler.PlatformView as MauiWinUIWindow)?.WindowHandle ?? IntPtr.Zero;
+        // var handle = (App.Current?.Windows[0].Handler.PlatformView as MauiWinUIWindow)?.WindowHandle ?? IntPtr.Zero;
+        var window = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).WindowHandle;
 
         //IntPtr consoleHandle = GetConsoleWindow();
         //IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+        // return handle;
 
-        return handle;
+        //var mauiWindow = Microsoft.Maui.Controls.Application.Current?.Windows[0];
+        //var nativeWindow = mauiWindow?.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+        //IntPtr windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+
+        return window; // Handle;
     }
 
     public Func<object> GetMainWindowHandle()

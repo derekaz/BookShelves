@@ -1,0 +1,35 @@
+services:
+  webapi:
+    image: bookshelves.webapi:10.0
+    build:
+      context: .
+      dockerfile: BookShelves.WebApi/Dockerfile
+    ports:
+      - "5001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${WEBAPI_ASPNETCORE_ENVIRONMENT:-Development}
+      - AzureAd__Authority=${WEBAPI_AZURE_AD_AUTHORITY:-https://login.microsoftonline.com/d23695ff-4843-44ec-8c6f-af2de0c2ccc8/v2.0/}
+      - AzureAd__Audience=${WEBAPI_AZURE_AD_AUDIENCE:-api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f}
+      - AzureAd__ClientId=${WEBAPI_AZURE_AD_CLIENT_ID:-a98249d2-b51b-41d6-9c2a-5dadf7cf276f}
+      - AzureAd__TenantId=${WEBAPI_AZURE_AD_TENANT_ID:-d23695ff-4843-44ec-8c6f-af2de0c2ccc8}
+
+  webapp:
+    image: bookshelves.web:10.0
+    build:
+      context: .
+      dockerfile: BookShelves.Web/BookShelves.Web/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${WEB_ASPNETCORE_ENVIRONMENT:-Development}
+      - AzureAd__Instance=${WEB_AZUREAD_INSTANCE:-https://login.microsoftonline.com/}
+      - AzureAd__ClientId=${WEB_AZUREAD_CLIENTID:-766fcf7c-7431-4553-aa75-4669fc885e34}
+      - AzureAd__TenantId=${WEB_AZUREAD_TENANTID:-d23695ff-4843-44ec-8c6f-af2de0c2ccc8}
+      - AzureAd__CallbackPath=${WEB_AZUREAD_CALLBACKPATH:-/signin-oidc}
+      - AzureAd__ClientSecret=${WEB_AZUREAD_CLIENTSECRET:-zaG8Q~uGfVvrIRcONNy2Ls.ApZxGp7o~Pm3__bk8}
+      - AzureAd__SignedOutCallbackPath=${WEB_AZUREAD_SIGNEDOUTCALLBACKPATH:-/signout-callback-oidc}
+      - WeatherApi__BaseUrl=${WEB_WEATHERAPI_BASEURL:-http://webapi:8080}
+      - WeatherApi__Scopes__0=${WEB_WEATHERAPI_SCOPES_0:-api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Weather.Get}
+      - ApiSettings__BaseUrl=${WEB_APISETTINGS_BASEURL:-http://webapi:8080}
+    depends_on:
+      - webapi

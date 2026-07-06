@@ -1,10 +1,16 @@
 ﻿@page "/weather"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = AuthorizationPolicies.Authenticated)]
+@using BookShelves.Shared.Data.Models
+@inject IWeatherForecaster WeatherForecaster
+@inject ILogger<Weather> Logger
+
+<PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (Forecasts == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -17,45 +23,83 @@ else
                 <th>Temp. (C)</th>
                 <th>Temp. (F)</th>
                 <th>Summary</th>
+                <th>Updated At</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var forecast in Forecasts)
             {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
+                    <td class="text-muted" style="font-size: 0.875rem;">
+                        @if (forecast.LastUpdated.HasValue)
+                        {
+                            @forecast.LastUpdated.Value.ToString("MM/dd/yy h:mm:ss tt")
+                        }
+                        else
+                        {
+                            <text>N/A</text>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5">Source: @Forecasts.FirstOrDefault()?.Source</td>
+            </tr>
+        </tfoot>
     </table>
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+
+#if NET10_0
+    [PersistentState]
+#endif
+    public IEnumerable<WeatherForecast>? Forecasts { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate a loading indicator
-        await Task.Delay(500);
+        Forecasts ??= await WeatherForecaster.GetWeatherForecastAsync();
 
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
     }
 
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
+    // private IEnumerable<IWeatherForecast> forecasts = new List<IWeatherForecast>();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+    //         forecasts = await DataService.GetWeatherForecastsAsync() ?? new List<IWeatherForecast>() { };
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Weather:OnInitializedAsync-Exception");
+    //     }
+
+
+        // // Simulate asynchronous loading to demonstrate a loading indicator
+        // await Task.Delay(500);
+
+        // var startDate = DateOnly.FromDateTime(DateTime.Now);
+        // var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+        // forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        // {
+        //     Date = startDate.AddDays(index),
+        //     TemperatureC = Random.Shared.Next(-20, 55),
+        //     Summary = summaries[Random.Shared.Next(summaries.Length)]
+        // }).ToArray();
+//    }
+
+    // private class WeatherForecast
+    // {
+    //     public DateOnly Date { get; set; }
+    //     public int TemperatureC { get; set; }
+    //     public string? Summary { get; set; }
+    //     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    // }
 }

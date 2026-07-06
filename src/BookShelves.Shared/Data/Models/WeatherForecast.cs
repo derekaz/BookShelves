@@ -1,0 +1,16 @@
+﻿namespace BookShelves.Shared.Data.Models;
+
+public class WeatherForecast // : IWeatherForecast
+{
+    public DateOnly Date { get; set; }
+
+    public int TemperatureC { get; set; }
+
+    public required string Summary { get; set; }
+
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+
+    public string Source { get; set; } = string.Empty;
+
+    public DateTime? LastUpdated { get; set; }
+}

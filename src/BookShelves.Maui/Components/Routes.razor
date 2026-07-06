@@ -1,0 +1,28 @@
+﻿@using BookShelves.Shared
+@using Microsoft.AspNetCore.Components.Authorization
+
+
+<ErrorBoundary>
+    <ChildContent>
+        <Router AppAssembly="typeof(MauiProgram).Assembly"
+                AdditionalAssemblies="new[] { typeof(Shared._Imports).Assembly }">
+            <Found Context="routeData">
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.Components.Layout.MainLayout)">
+                    <Authorizing>
+                        Authorizing...
+                    </Authorizing>
+                    <NotAuthorized>
+                        <BookShelves.Maui.Components.Pages.Authentication.Login />
+                    </NotAuthorized>
+                </AuthorizeRouteView>
+                <FocusOnNavigate RouteData="routeData" Selector="h1" />
+            </Found>
+        </Router>
+    </ChildContent>
+    <ErrorContent Context="exception">
+        <div class="alert alert-danger m-3">
+            <h4>An unexpected error occurred.</h4>
+            <p>@exception.Message</p>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>

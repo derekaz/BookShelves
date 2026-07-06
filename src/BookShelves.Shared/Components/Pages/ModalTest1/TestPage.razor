@@ -1,0 +1,41 @@
+﻿@page "/testpage1"
+
+<button @onclick='() => OpenEditModal(" Alice", "Administrator")'>Edit Alice</button>
+<button @onclick='() => OpenEditModal(" Bob", "Moderator" )'>Edit Bob</button>
+
+<!-- The Modal Wrapper enclosing the dynamic content -->
+<CustomModal @ref="_modalReference">
+    <UserEditForm Username="@_selectedUsername"
+                  Role="@_selectedRole"
+                  OnSaveSuccess="CloseAndRefresh" />
+</CustomModal>
+
+@code {
+    private CustomModal? _modalReference;
+
+    // State variables passed as parameters
+    private string _selectedUsername = "";
+    private string _selectedRole = "";
+
+    private async Task OpenEditModal(string username, string role)
+    {
+        // 1. Dynamically set the parameters based on context
+        _selectedUsername = username;
+        _selectedRole = role;
+
+        // 2. Open the modal container
+        if (_modalReference is not null)
+        {
+            await _modalReference.OpenAsync();
+        }
+    }
+
+    private async Task CloseAndRefresh()
+    {
+        if (_modalReference is not null)
+        {
+            await _modalReference.CloseAsync();
+        }
+        // Handle post-save UI refreshes here
+    }
+}

@@ -10,6 +10,10 @@
 *.userosscache
 *.sln.docstates
 
+# environment files
+*.env
+*.env.*
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -184,7 +188,7 @@ publish/
 *.azurePubxml
 # Note: Comment the next line if you want to checkin your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
-*.pubxml
+# *.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to

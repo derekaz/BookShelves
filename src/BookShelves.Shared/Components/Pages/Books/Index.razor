@@ -1,11 +1,8 @@
 ﻿@page "/books"
-@using Blazored.Modal
-@using Blazored.Modal.Services
-@using BookShelves.Shared
-@using BookShelves.Shared.Data.Interfaces
 @inject IBookFactory BookFactory
-@inject IBooksDataService DataService 
+@inject IBooksDataService DataService
 @inject ILogger<Index> Logger
+@inject IDialogService DialogService
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
@@ -16,7 +13,7 @@
 
 <p>@message</p>
 
-@if (books == null)
+@if (Books == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -36,7 +33,7 @@ else
 *@            </tr>
         </thead>
         <tbody>
-            @foreach (var book in books)
+            @foreach (var book in Books)
             {
                 <tr>
                     <th scope="row">@book.IdValue</th>
@@ -54,20 +51,47 @@ else
             }
         </tbody>
     </table>
+
+    <MudDialogProvider FullWidth="true"
+                       MaxWidth="MaxWidth.Medium"
+                       CloseButton="true"
+                       BackdropClick="false"
+                       Position="DialogPosition.Center"
+                       CloseOnEscapeKey="true"
+                       />
 }
 
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
 @code {
-    private IEnumerable<IBook> books = new List<IBook>();
+#if NET10_0
+    [PersistentState]
+#endif
+    public IEnumerable<BookViewModel>? Books { get; set; } // = new List<IBook>();
+
     private string message = string.Empty;
 
-    [CascadingParameter]
-    public IModalService Modal { get; set; } = default!;
+    // [CascadingParameter]
+    // public IModalService Modal { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
+            Books ??= await DataService.GetBooksAsync();
+        }
+        catch (Microsoft.Identity.Client.MsalUiRequiredException ex)
+        {
+            // ConsentHandler.HandleConsentRequiredException(ex);
+            // HandleMsalException(ex);
+        }
+        catch(NavigationException)
+        {
+            
         }
         catch (Exception ex)
         {
@@ -75,21 +99,27 @@ else
         }
     }
 
-    private async void ShowDetailAsync(IBook book, string titleText)
+    private async void ShowDetailAsync(BookViewModel book, string titleText)
     {
-        var parameters = new ModalParameters()
-            .Add(nameof(BookDetail.BookObject), book)
-            .Add(nameof(BookDetail.TitleText), titleText);
-        var options = new ModalOptions() { UseCustomLayout = true };
+        var parameters = new DialogParameters<BookDetail> { { x => x.BookObject, book }, { x => x.TitleText, titleText } };
+
+        // var parameters = new ModalParameters()
+        //     .Add(nameof(BookDetail.BookObject), book)
+        //     .Add(nameof(BookDetail.TitleText), titleText);
+        // var options = new ModalOptions() { UseCustomLayout = true };
         try
         {
-            var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
-            var result = await form.Result;
-            if (result.Confirmed)
+            // var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
+
+            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
+
+            var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
+            var result = await dialog.Result;
+            if (!result.Canceled)
             {
                 message = result?.Data?.ToString() ?? "";
 
-                books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
+                Books = await DataService.GetBooksAsync() ?? new List<BookViewModel>() { };
             }
             else
             {
@@ -112,19 +142,18 @@ else
         ShowDetailAsync(book, "New Book");
     }
 
-    private void EditAsync(IBook book)
+    private void EditAsync(BookViewModel book)
     {
         ShowDetailAsync(book, "Edit Book");
     }
 
-    private async void DeleteAsync(IBook book)
+    private async void DeleteAsync(BookViewModel book)
     {
-        var parameters = new ModalParameters()
-            .Add(nameof(BookDelete.BookObject), book);
-        var options = new ModalOptions() { UseCustomLayout = true };
-        var form = Modal.Show<BookDelete>("Book Modal", parameters, options);
-        var result = await form.Result;
-        if (result.Confirmed)
+        var parameters = new DialogParameters<BookDelete> { { x => x.BookObject, book } };
+        // var options = new DialogOptions() { UseCustomLayout = true };
+        var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters);
+        var result = await dialog.Result;
+        if (!result.Canceled)
         {
             var deleteResult = await DataService.DeleteBookAsync(book);
 
@@ -132,7 +161,7 @@ else
             {
                 message = $"'{book.Title}' deleted";
 
-                books = await DataService.GetBooksAsync() ?? new List<IBook>() { };
+                Books = await DataService.GetBooksAsync() ?? new List<BookViewModel>() { };
             }
             StateHasChanged();
         }
@@ -143,7 +172,7 @@ else
         }
     }
 
-    private IBook InitializeBookObject()
+    private BookViewModel InitializeBookObject()
     {
         return BookFactory.CreateBook();
     }

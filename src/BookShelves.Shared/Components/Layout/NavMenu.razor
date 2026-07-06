@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@inject IFormFactor FormFactor
+
 <div class="top-row ps-3 navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BookShelves</a>
@@ -15,18 +17,30 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> User Profile
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
             <NavLink class="nav-link" href="counter">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+        <AuthorizeView Policy="Authenticated">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="weather">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                </NavLink>
+            </div>
+        </AuthorizeView>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="books">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Books
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="testpage2">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> TestPage2
             </NavLink>
         </div>
         @* <div class="nav-item px-3"> *@
@@ -34,6 +48,13 @@
         @*         <span class="oi oi-list-rich" aria-hidden="true"></span> User Profile *@
         @*     </NavLink> *@
         @* </div> *@
+        <AuthorizeView Policy="AdminAccess">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Admin
+                </NavLink>
+            </div>
+        </AuthorizeView>
         <AuthorizeView Roles="Administrator">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="books">
@@ -46,43 +67,37 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> About
             </NavLink>
         </div>
-        <LayoutFooter />
     </nav>
+
+    @* Bottom section: Login + Platform Info (always anchored to bottom) *@
+    <div class="nav-bottom">
+        @* LoginDisplay - Works in both Web and MAUI *@
+        <div class="nav-item px-3">
+            <LoginDisplay />
+        </div>
+
+        @* Platform/Version Footer *@
+        <div class="nav-footer">
+            <div class="platform-info">
+                <div class="info-row">
+                    <span class="info-label">Platform:</span>
+                    <span class="info-value">@platform</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Form Factor:</span>
+                    <span class="info-value">@factor</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Version:</span>
+                    <span class="info-value">@version</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    private string factor => FormFactor.GetFormFactor();
+    private string platform => FormFactor.GetPlatform();
+    private string version => FormFactor.GetVersion();
 }
-
-<!--<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile">
-                <span class="oi oi-person" aria-hidden="true"></span> Show profile
-            </NavLink>
-        </div>
-    </nav>
-</div>
--->

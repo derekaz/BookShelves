@@ -1,7 +1,11 @@
 ﻿using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Desktop;
+
+
+
+
 //using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
-using Microsoft.Identity.Client.Desktop;
 
 namespace BookShelves.Maui.Services;
 
@@ -10,16 +14,24 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
-        var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-        {
-            Title = "BookShelves"
-        };
+        //var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+        //{
+        //    Title = "BookShelves"
+        //};
 
-        builder.WithWindowsEmbeddedBrowserSupport();
-        //builder.WithWindowsDesktopFeatures();
-        builder.WithDefaultRedirectUri();
+        //builder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
+
+        // // builder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" });
+        //builder.WithWinUI3EmbeddedBrowserSupport();
+        //builder.WithWindowsDesktopFeatures(brokerOptions);
+        // builder.WithWindowsEmbeddedBrowserSupport();
+
+        // //builder.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
+        //builder.WithDefaultRedirectUri();
+        //builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
         //builder.WithBroker(brokerOptions);
-        builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
+        //builder.WithBroker(false);
+        builder.WithWindowsEmbeddedBrowserSupport();
 
         return builder;
     }
@@ -31,7 +43,7 @@ public partial class AuthenticationService
         return builder;
     }
 
-    private partial async Task RegisterMsalCacheAsync(ITokenCache tokenCache)
+    private async partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
         // Configure storage properties for cross-platform
         // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache

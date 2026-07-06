@@ -1,9 +1,11 @@
 ﻿@using BookShelves.Shared.Components.Layout
+@code {
+    @inject NavigationManager NavigationManager
+}
 
-<CascadingBlazoredModal>
+@* <CascadingBlazoredModal> *@
     <Router AppAssembly="typeof(Routes).Assembly">
         <Found Context="routeData">
-            <!--<RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />-->
             <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
@@ -19,10 +21,14 @@
             <FocusOnNavigate RouteData="routeData" Selector="h1" />
         </Found>
         <NotFound>
+            @{
+                var requestedUrl = NavigationManager.Uri;
+            }
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(Layout.MainLayout)">
                 <p role="alert">Sorry, there's nothing at this address.</p>
+                <code>@requestedUrl</code>
             </LayoutView>
         </NotFound>
     </Router>
-</CascadingBlazoredModal>
+@* </CascadingBlazoredModal> *@
