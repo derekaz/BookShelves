@@ -11,9 +11,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG RUN_ID
-RUN echo "=== CURRENT DIRECTORY CONTENT ===" && ls -la && \
-    echo "=== RECURSIVE DIRECTORY TREE ===" && find . -maxdepth 3
-WORKDIR ./src
+WORKDIR /src
 RUN echo "=== CURRENT DIRECTORY CONTENT ===" && ls -la && \
     echo "=== RECURSIVE DIRECTORY TREE ===" && find . -maxdepth 3
 COPY ["BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj", "BookShelves.Web/BookShelves.Web/"]
@@ -22,7 +20,7 @@ COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 COPY ["BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj", "BookShelves.Web/BookShelves.Web.Client/"]
 RUN dotnet restore "./BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
 COPY . .
-WORKDIR "./src/BookShelves.Web/BookShelves.Web"
+WORKDIR "/src/BookShelves.Web/BookShelves.Web"
 RUN dotnet build "./BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
