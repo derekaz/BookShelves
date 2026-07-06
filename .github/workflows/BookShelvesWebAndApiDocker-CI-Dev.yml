@@ -94,11 +94,13 @@ jobs:
       - name: Build and Push Web API Docker Image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ${{env.API_PROJPATH}}/Dockerfile # Adjust path to your WebAPI Dockerfile
+          context: ${{ github.workspace }}
+          file: ${{env.API_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
+          no-cache: true
           build-args: |
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}
