@@ -38,7 +38,7 @@ RUN dotnet restore "BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
 COPY . .
 
 # 6. Change working directories to build the targeted app context
-WORKDIR "/src/src/BookShelves.Web/BookShelves.Web"
+WORKDIR "/src/BookShelves.Web/BookShelves.Web"
 RUN dotnet build "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 
