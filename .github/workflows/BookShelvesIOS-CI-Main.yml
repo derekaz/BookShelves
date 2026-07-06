@@ -204,7 +204,7 @@ jobs:
 
       - name: 'Upload app to TestFlight'
         if: github.event_name == 'pull_request' || github.event_name == 'push'
-        uses: apple-actions/upload-testflight-build@v3
+        uses: apple-actions/upload-testflight-build@v5
         with: 
           app-type: 'ios'
           app-path: ${{steps.findipa.outputs.ipa}}
