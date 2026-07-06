@@ -1,4 +1,4 @@
-name: Build, Version, and Push .NET Apps
+name: BookShelvesWebAndApi-Docker
 
 on:
   workflow_dispatch:
