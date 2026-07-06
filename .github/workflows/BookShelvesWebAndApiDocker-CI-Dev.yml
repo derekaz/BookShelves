@@ -8,6 +8,7 @@ on:
       - 'release/*'  
     paths:
       - 'src/BookShelves.Web/BookShelves.Web/**'
+      - 'src/BookShelves.WebApi/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'
       - '**/GitVersion.yml'
@@ -16,6 +17,7 @@ on:
     types: [opened, synchronize]
     paths:
       - 'src/BookShelves.Web/BookShelves.Web/**'
+      - 'src/BookShelves.WebApi/**'
       - 'src/BookShelves.Shared/**'
       - '**/*build.props'      
       - '**/GitVersion.yml'
