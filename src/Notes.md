@@ -3,3 +3,8 @@ Based on examples provided by Microsoft at https://github.com/dotnet/blazor-samp
 
 To build and run the web & api projects in local docker containers, run the following command from the root of the project:
 docker compose --env-file .env.development-laptop up --build -d
+
+
+
+
+https://share.google/aimode/zJtSlAOFJpXtTmhxE
