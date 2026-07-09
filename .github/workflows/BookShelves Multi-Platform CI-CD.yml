@@ -1,0 +1,69 @@
+name: BookShelves Multi-Platform CI-CD
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  push:
+    branches:
+       - 'main'
+       - 'release/**'  
+       - 'feature/**'  
+       - 'features/**'
+  release:
+    types: [published]
+
+concurrency:
+  group: bookshelves-ci-cd-${{github.ref}}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  # =================================================================
+  # STAGE 1: CORE VALIDATION & LOGICAL VERSION SYNCHRONIZATION
+  # =================================================================
+  validate:
+    name: Verify Code & Versioning
+    if: github.event_name != 'release'
+    runs-on: ubuntu-latest
+    outputs:
+      SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
+      DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Forces full history download so GitVersion can process commits correctly
+
+      - name: Install .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: '6.8.x'
+
+      - name: Execute GitVersion Calculations
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4.7.0
+
+      # Appends a clean '-beta' tag to packages built directly via merge-to-main,
+      # but preserves raw semver for production releases or features.
+      - name: Calculate Environmental Suffixes
+        id: version-logic
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}-beta" >> $GITHUB_OUTPUT
+          else
+            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Compile Solution (Debug Validation Step)
+        run: dotnet build "/src/BookShelves (Maui, Web and WebApi).slnx" -c Debug
+  

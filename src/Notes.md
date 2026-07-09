@@ -16,7 +16,7 @@ continuation of the apple chat that takes into account feature branching and how
 https://share.google/aimode/fnQYTalX6Ffaiz5j4
 
 more continuation of the chat regarding a comprehensive approace to the gha process...
-https://share.google/aimode/fnQYTalX6Ffaiz5j4
+https://share.google/aimode/O0CowtssOldPU6TOY
 
 
 

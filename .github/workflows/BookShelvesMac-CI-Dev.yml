@@ -204,7 +204,7 @@ jobs:
       - name: NuGet Restore
         run: dotnet restore ${{env.CSPROJ}}
 
-      - name: Build MAUI Mobile app
+      - name: Build MAC MAUI Mobile app
         shell: pwsh
         run: |
           #ad-hoc deployment

@@ -156,7 +156,7 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p ${{env.PUBLISH_PATH}}
 
-      - name: Publish MAUI Mobile app
+      - name: Publish iOS MAUI Mobile app
         shell: pwsh
         run: |
           dotnet `
