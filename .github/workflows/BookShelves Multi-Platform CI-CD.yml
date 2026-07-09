@@ -21,7 +21,7 @@ permissions:
 
 env:
   PROJPATH: 'src'
-  CSPROJ: 'BookShelves (Maui, Web and WebApi).slnx'
+  CSPROJ: '\"BookShelves (Maui, Web and WebApi).slnx\"'
 
 jobs:
   # =================================================================
