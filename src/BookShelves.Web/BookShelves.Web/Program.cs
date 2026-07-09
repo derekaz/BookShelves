@@ -89,7 +89,9 @@ builder.Services.AddRazorPages();
 // Define your proxy options cleanly here
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor
+    | ForwardedHeaders.XForwardedProto
+    | ForwardedHeaders.XForwardedHost
 };
 // Clear restrictions so it accepts headers from your local NGINX proxy/Docker networks
 forwardedHeadersOptions.KnownIPNetworks.Clear();
