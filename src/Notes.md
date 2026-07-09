@@ -16,8 +16,7 @@ continuation of the apple chat that takes into account feature branching and how
 https://share.google/aimode/fnQYTalX6Ffaiz5j4
 
 more continuation of the chat regarding a comprehensive approace to the gha process...
-https://share.google/aimode/O0CowtssOldPU6TOY
-
+https://share.google/aimode/rVfJ7ZMy1mcJnAeHf
 
 
 And maybe for getting the nginx endpoing to have it's own IP...something like this is suggested:  
