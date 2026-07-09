@@ -1,4 +1,5 @@
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Presentation.ViewModels;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
@@ -6,12 +7,12 @@ using BookShelves.Web.Services;
 using BookShelves.Web.Shared.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using MudBlazor.Services;
-using BookShelves.Shared.Presentation.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,19 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
+
+// Place this at the VERY top of your middleware pipeline, before Auth or Routing
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+// If the environment variable from Docker Compose is present, enforce it
+if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
+{
+    // Allows handling headers from reverse proxy containers on the internal network
+    app.UseForwardedHeaders();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
