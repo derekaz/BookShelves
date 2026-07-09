@@ -51,7 +51,9 @@ jobs:
       run:
         working-directory: ${{env.PROJPATH}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: xcode diags 1
         run: |

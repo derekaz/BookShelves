@@ -1,5 +1,6 @@
 using BookShelves.WebApi.BooksDataAccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using System.Reflection;
@@ -96,6 +97,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Place this at the VERY top of your middleware pipeline, before Auth or Routing
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+// If the environment variable from Docker Compose is present, enforce it
+if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
+{
+    // Allows handling headers from reverse proxy containers on the internal network
+    app.UseForwardedHeaders();
+}
 
 if (app.Environment.IsDevelopment())
 {

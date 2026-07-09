@@ -1,4 +1,4 @@
-name: Build, Version, and Push .NET Apps
+name: BookShelvesWebAndApi-Docker
 
 on:
   workflow_dispatch:
@@ -41,7 +41,7 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required for GitVersion to determine the version
 
