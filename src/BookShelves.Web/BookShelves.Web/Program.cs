@@ -106,7 +106,7 @@ var app = builder.Build();
 // If the environment variable from Docker Compose is present, enforce it
 if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
 {
-    Console.WriteLine("Using forwarded headers middleware because ASPNETCORE_FORWARDEDHEADERS_ENABLED is set to true");
+    Console.WriteLine("Using forwarded headers middleware because ASPNETCORE_FORWARDEDHEADERS_ENABLED is set to true!");
     // Allows handling headers from reverse proxy containers on the internal network
     app.UseForwardedHeaders(forwardedHeadersOptions);
 }
