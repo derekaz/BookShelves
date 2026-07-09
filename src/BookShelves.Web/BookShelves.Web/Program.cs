@@ -86,19 +86,29 @@ builder.Services.AddControllersWithViews()
 
 builder.Services.AddRazorPages();
 
+// Define your proxy options cleanly here
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+// Clear restrictions so it accepts headers from your local NGINX proxy/Docker networks
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+
 var app = builder.Build();
 
 // Place this at the VERY top of your middleware pipeline, before Auth or Routing
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+//app.UseForwardedHeaders(new ForwardedHeadersOptions
+//{
+//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+//});
 
 // If the environment variable from Docker Compose is present, enforce it
 if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
 {
+    Console.WriteLine("Using forwarded headers middleware because ASPNETCORE_FORWARDEDHEADERS_ENABLED is set to true");
     // Allows handling headers from reverse proxy containers on the internal network
-    app.UseForwardedHeaders();
+    app.UseForwardedHeaders(forwardedHeadersOptions);
 }
 
 // Configure the HTTP request pipeline.
