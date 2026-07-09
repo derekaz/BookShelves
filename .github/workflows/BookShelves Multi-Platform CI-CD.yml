@@ -19,6 +19,10 @@ concurrency:
 permissions:
   contents: write
 
+env:
+  PROJPATH: 'src'
+  CSPROJ: 'BookShelves (Maui, Web and WebApi).slnx'
+
 jobs:
   # =================================================================
   # STAGE 1: CORE VALIDATION & LOGICAL VERSION SYNCHRONIZATION
@@ -31,6 +35,9 @@ jobs:
       SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+    defaults:
+      run:
+        working-directory: ${{env.PROJPATH}}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -65,5 +72,5 @@ jobs:
           fi
 
       - name: Compile Solution (Debug Validation Step)
-        run: dotnet build "/src/BookShelves (Maui, Web and WebApi).slnx" -c Debug
+        run: dotnet build ${{env.CSPROJ}} -c Debug
   
