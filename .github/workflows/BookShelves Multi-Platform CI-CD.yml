@@ -71,6 +71,9 @@ jobs:
             echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install .NET Workloads
+        run: dotnet workload restore
+
       - name: Compile Solution (Debug Validation Step)
         run: dotnet build ${{env.CSPROJ}} -c Debug
   
