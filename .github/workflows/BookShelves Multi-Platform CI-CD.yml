@@ -21,7 +21,9 @@ permissions:
 
 env:
   PROJPATH: 'src'
+  WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
   WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj'
+  WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
   WEBAPI_CSPROJ: 'BookShelves.WebApi/BookShelves.WebApi.csproj'
   DOTNET_SDK_VERSION: '10.0.x'
 
@@ -81,3 +83,62 @@ jobs:
           dotnet build ${{env.WEB_CSPROJ}} -c Debug
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
   
+  # =================================================================
+  # STAGE 2: CONTAINER DEPLOYMENTS (Linux Matrix Runner)
+  # =================================================================
+  publish-docker:
+    name: Publish Containers to Private Registry
+    needs: validate
+    if: github.event_name == 'release' || github.ref_name == 'main' || startsWith(github.ref_name, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Log in to Private Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+          username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # --- WEB APPLICATION PROJECT ---
+      - name: Build and Push Web App Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
+          push: true
+          no-cache: true
+          build-args: |
+            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+          tags: |
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
+
+      # --- WEB API PROJECT ---
+      - name: Build and Push Web API Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEBAPI_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
+          push: true
+          no-cache: true
+          build-args: |
+            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+          tags: |
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}
