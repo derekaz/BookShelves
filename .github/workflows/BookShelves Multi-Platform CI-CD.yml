@@ -114,15 +114,15 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            APP_VERSION=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
-            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
-            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
-            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
-            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ validate.steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ validate.steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ validate.steps.gitversion.outputs.commitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ validate.steps.gitversion.outputs.semVer }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -133,12 +133,12 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
+            APP_VERSION=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
-            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
-            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
-            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
-            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ validate.steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ validate.steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ validate.steps.gitversion.outputs.commitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ validate.steps.gitversion.outputs.semVer }}
