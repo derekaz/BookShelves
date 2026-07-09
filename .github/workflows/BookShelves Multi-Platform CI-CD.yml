@@ -37,6 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
+      FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
+      MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
     defaults:
@@ -114,15 +117,15 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            APP_VERSION=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
+            APP_VERSION=${{ needs.validate.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
-            GitVersion_FullSemVer=${{ validate.steps.gitversion.outputs.fullSemVer }}
-            GitVersion_MajorMinorPatch=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
-            GitVersion_InformationalVersion=${{ validate.steps.gitversion.outputs.informationalVersion }}
-            GitVersion_CommitsSinceVersionSource=${{ validate.steps.gitversion.outputs.commitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ validate.steps.gitversion.outputs.semVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.SemVer }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -133,12 +136,12 @@ jobs:
           push: true
           no-cache: true
           build-args: |
-            APP_VERSION=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
+            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
             RUN_ID=${{ github.run_id }}
-            GitVersion_FullSemVer=${{ validate.steps.gitversion.outputs.fullSemVer }}
-            GitVersion_MajorMinorPatch=${{ validate.steps.gitversion.outputs.majorMinorPatch }}
-            GitVersion_InformationalVersion=${{ validate.steps.gitversion.outputs.informationalVersion }}
-            GitVersion_CommitsSinceVersionSource=${{ validate.steps.gitversion.outputs.commitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ validate.steps.gitversion.outputs.semVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.SemVer }}
