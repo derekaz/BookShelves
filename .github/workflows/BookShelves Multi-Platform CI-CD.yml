@@ -21,7 +21,7 @@ permissions:
 
 env:
   PROJPATH: 'src'
-  WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web.csproj'
+  WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj'
   WEBAPI_CSPROJ: 'BookShelves.WebApi/BookShelves.WebApi.csproj'
   DOTNET_SDK_VERSION: '10.0.x'
 
