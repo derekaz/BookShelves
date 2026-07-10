@@ -275,18 +275,23 @@ jobs:
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
       - name: Verify Xcode Simulators
+        shell: pwsh
         run: xcrun simctl list devices
 
       - name: Verify Dotnet SDKs
+        shell: pwsh
         run: dotnet --list-sdks
 
       - name: Verify Dotnet Version
+        shell: pwsh
         run: dotnet --version
 
       - name: Verify Dotnet Runtimes
+        shell: pwsh
         run: dotnet --list-runtimes
 
       - name: NuGet Restore
+        shell: pwsh
         run: dotnet restore ${{env.MAUI_CSPROJ}}
         working-directory: ${{env.MAUI_PROJPATH}}
 
@@ -304,6 +309,7 @@ jobs:
 
       # Overrides passed directly to MSBuild properties mapping to Apple variables
       - name: Build Apple Packages
+        shell: pwsh
         run: |
           dotnet `
             publish `
@@ -325,7 +331,6 @@ jobs:
             ${{env.MAUI_CSPROJ}} `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
-            -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
