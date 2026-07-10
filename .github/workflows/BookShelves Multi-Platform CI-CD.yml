@@ -132,11 +132,11 @@ jobs:
           password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # --- WEB APPLICATION PROJECT ---
       - name: Build and Push Web App Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ github.workspace }}/src
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
@@ -158,7 +158,7 @@ jobs:
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ github.workspace }}/src
           file: ${{env.WEBAPI_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
@@ -329,7 +329,7 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -c ${{env.RELEASE_CONFIGURATION}} `
-            -o ${{env.PUBLISH_PATH}} `
+            -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
             -p:EnableCodeSigning=true `
