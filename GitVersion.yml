@@ -1,5 +1,6 @@
 mode: ContinuousDelivery
-label: "{BranchName}"
+#label: "{BranchName}"
+label: alpha
 increment: Inherit
 prevent-increment:
   of-merged-branch: false
@@ -83,7 +84,8 @@ branches:
     pre-release-weight: 30000
   pull-request:
     mode: ContinuousDelivery
-    label: "PullRequest{Number}"
+    #label: "PullRequest{Number}"
+    label: pr
     increment: Inherit
     prevent-increment:
       of-merged-branch: true

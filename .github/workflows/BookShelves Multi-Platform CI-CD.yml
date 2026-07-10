@@ -36,12 +36,14 @@ jobs:
     if: github.event_name != 'release'
     runs-on: ubuntu-latest
     outputs:
-      SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
-      FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
-      MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
+      AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
+      BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
-      BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+      FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
+      MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
+      SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
     defaults:
       run:
         working-directory: ${{env.PROJPATH}}
@@ -119,10 +121,13 @@ jobs:
           build-args: |
             APP_VERSION=${{ needs.validate.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
-            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
-            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
             GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.SemVer }}
