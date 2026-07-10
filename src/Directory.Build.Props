@@ -45,9 +45,13 @@
 
 	<PropertyGroup>
 		<!-- Prevents duplicate attribute errors in all projects -->
-		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+	<!-- Allow SDK to generate assembly version attributes so Version/FileVersion
+		 properties set above are emitted into built assemblies and the produced
+		 Docker image. Previously disabled which caused assemblies to fall back
+		 to 1.0.0.0. -->
+	<GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
+	<GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+	<GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
 	</PropertyGroup>
 
 
