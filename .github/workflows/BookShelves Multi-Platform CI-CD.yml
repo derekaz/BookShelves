@@ -228,11 +228,11 @@ jobs:
         env:
           CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
         run: |
-          echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
+          echo $CERTIFICATE_BASE64 | base64 --decode > ios_cert.p12
 
       - name: Cert Info IOS 2
         run: |
-          openssl pkcs12 -in cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
+          openssl pkcs12 -in ios_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import IOS Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
@@ -244,11 +244,11 @@ jobs:
         env:
           CERTIFICATE_BASE64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
         run: |
-          echo $CERTIFICATE_BASE64 | base64 --decode > cert.p12
+          echo $CERTIFICATE_BASE64 | base64 --decode > mac_cert.p12
 
       - name: Cert Info MAC 2
         run: |
-          openssl pkcs12 -in cert.p12 -passin pass:${{secrets.MAC_COMBINED_DIST_INST_CERT_P12_PASSWORD}} -info -nokeys
+          openssl pkcs12 -in mac_cert.p12 -passin pass:${{secrets.MAC_COMBINED_DIST_INST_CERT_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
@@ -465,9 +465,9 @@ jobs:
 
       - name: Build Windows Packages
         run: |
-          dotnet publish ${{env.CSPROJ}} `
+          dotnet publish ${{env.MAUI_CSPROJ}} `
             -v minimal `
-            -f net10.0-windows10.0.19041.0 `
+            -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWSPUBLISH_PATH }} `
             --self-contained false `
