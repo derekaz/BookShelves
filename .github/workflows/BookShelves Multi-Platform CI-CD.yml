@@ -481,7 +481,11 @@ jobs:
             /p:WindowsPackageType=MSIX `
             /p:GenerateAppxPackageOnBuild=true `
             /p:AppxPackageSigningEnabled=true `
-            /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}"
+            /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
+            /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
+            /p:ApplicationVersion=${{ needs.validate.outputs.BuildNumber}} `
+            /p:Version=${{ needs.validate.outputs.FullSemVer }} `
+            /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }}
           # -v options are quiet, minimal, normal, detailed, diagnostic
 
       - name: Show project folder content

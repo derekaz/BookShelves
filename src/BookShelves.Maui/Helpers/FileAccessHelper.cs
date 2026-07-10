@@ -15,12 +15,21 @@ internal class FileAccessHelper
 
     public static string GetLocalFilePath(string subPath, bool ensurePathExists, string filename)
     {
+#if WINDOWS
+        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationSubPath, subPath);
+        if (ensurePathExists)
+        {
+            EnsureDirectoryExists(path);
+        }
+        return Path.Combine(path, filename);
+#else
         var path = Path.Combine(FileSystem.AppDataDirectory, subPath);
         if (ensurePathExists)
         {
             EnsureDirectoryExists(path);
         }
         return Path.Combine(path, filename);
+#endif
     }
 
     public static string GetLocalApplicationDataPath(string filename) =>

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
@@ -32,8 +34,20 @@ public static class MauiProgram
 
         AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
         {
-            Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-            Console.WriteLine(args.Exception.StackTrace);
+            try
+            {
+                Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+                Console.WriteLine(args.Exception.StackTrace);
+
+                // Best-effort write to a persistent crash log so very early failures are captured
+                try
+                {
+                    var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+                    File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+                }
+                catch { }
+            }
+            catch { }
         };
 
         builder
@@ -231,6 +245,52 @@ public static class MauiProgram
             var app = builder.Build();
 
             ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+            // Register global unhandled exception handlers to capture crashes when running as a packaged app.
+            try
+            {
+                var globalLogger = ApplicationLogger.CreateLogger("GlobalUnhandledException");
+
+                AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+                {
+                    try
+                    {
+                        var ex = args.ExceptionObject as Exception ?? new Exception("Non-Exception thrown to AppDomain.CurrentDomain.UnhandledException");
+                        globalLogger.LogCritical(ex, "AppDomain unhandled exception. IsTerminating={IsTerminating}", args.IsTerminating);
+                        // persist to local file for post-mortem analysis
+                        try
+                        {
+                            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+                            File.AppendAllText(crashPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\n{ex}\n\n");
+                        }
+                        catch { /* best-effort only */ }
+                    }
+                    catch { }
+                };
+
+                TaskScheduler.UnobservedTaskException += (sender, args) =>
+                {
+                    try
+                    {
+                        var ex = args.Exception ?? new AggregateException("UnobservedTaskException without Exception");
+                        globalLogger.LogCritical(ex, "Unobserved task exception");
+                        try
+                        {
+                            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+                            File.AppendAllText(crashPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\n{ex}\n\n");
+                        }
+                        catch { }
+                        args.SetObserved();
+                    }
+                    catch { }
+                };
+            }
+            catch (Exception ex)
+            {
+                // if logger factory isn't available or something else fails, fallback to console
+                Console.WriteLine("Failed to register global exception handlers: {0}", ex);
+            }
+
             app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
 
             return app;
