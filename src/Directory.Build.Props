@@ -26,6 +26,11 @@
 		<GitVersion_InformationalVersion Condition="'$(GitVersion_InformationalVersion)' == ''">10.1.2-local.998</GitVersion_InformationalVersion>
 		<GitVersion_CommitsSinceVersionSource Condition="'$(GitVersion_CommitsSinceVersionSource)' == ''">999</GitVersion_CommitsSinceVersionSource>
 
+		<!-- Backwards-compatible fallbacks for variable names used across projects -->
+		<GitVersion_SemVer Condition="'$(GitVersion_SemVer)' == ''">$(GitVersion_FullSemVer)</GitVersion_SemVer>
+		<GitVersion_AssemblySemFileVer Condition="'$(GitVersion_AssemblySemFileVer)' == ''">$(GitVersion_MajorMinorPatch)</GitVersion_AssemblySemFileVer>
+		<GitVersion_AssemblySemVer Condition="'$(GitVersion_AssemblySemVer)' == ''">$(GitVersion_MajorMinorPatch)</GitVersion_AssemblySemVer>
+
 		<!-- 2. Global Versioning (Shared by Web App, WebAPI, RCL, and MAUI) -->
 		<Version>$(GitVersion_FullSemVer)</Version>
 		<VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
@@ -37,7 +42,15 @@
 		<!-- 3. Dynamic Asset Shared Management -->
 		<StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
 	</PropertyGroup>
-	
+
+	<PropertyGroup>
+		<!-- Prevents duplicate attribute errors in all projects -->
+		<GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+	</PropertyGroup>
+
+
 	<!-- 4. Target Scoped Property Injection for MAUI Mobile Apps Only -->
 	<!-- This prevents polluting your Web projects with mobile manifest compilation variables -->
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android')) or $(TargetFramework.Contains('-ios')) or $(TargetFramework.Contains('-maccatalyst')) or $(TargetFramework.Contains('-windows'))">
