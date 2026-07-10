@@ -239,6 +239,7 @@ jobs:
         with:
           p12-file-base64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
           p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
+          keychain-password: ${{github.run_id}}
 
       - name: Cert Info MAC 1
         env:
@@ -253,8 +254,9 @@ jobs:
       - name: Import MAC Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
         with:
-          # since we already have an ios cert, reuse the same keychain
+          # since we already have an ios cert, reuse the same keychain and password
           create-keychain: false
+          keychain-password: ${{github.run_id}}
 
           # use this one for Mac app store/test flight
           p12-file-base64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
@@ -498,8 +500,8 @@ jobs:
         with:
           name: MAUI-Windows-App
           path: |
-            ${{env.PROJPATH}}\AppPackages\**\*.msix
-            ${{env.PROJPATH}}\AppPackages\**\*.msixbundle
+            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msix
+            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msixbundle
 
 #   =================================================================
 #   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
