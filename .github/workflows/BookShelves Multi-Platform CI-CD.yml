@@ -34,7 +34,7 @@ env:
   MAUI_IOS_CODESIGN_KEY: 'iOS Distribution'
   MAUI_MAC_PUBLISH_PATH: '${{ github.workspace }}/publish-output/mac'
   MAUI_MAC_ARTIFACTS_PATH: 'artifacts_mac '
-  MAUI_MAC_CODESIGN_PROVISION: BookShelves MacOS Provisioning'
+  MAUI_MAC_CODESIGN_PROVISION: 'BookShelves MacOS Provisioning'
   MAUI_MAC_CODESIGN_KEY: 'Apple Distribution: Derek Moore (TPKXH5FT2P)'
   MAUI_MAC_PACKAGE_SIGNING_KEY: '3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)'
   MAUI_MAC_CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.plist'
@@ -317,8 +317,8 @@ jobs:
             /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
             /p:MtouchUseLlvm=false `
-            /p:ApplicationDisplayVersion=${{ needs.validate.outputs.DisplayVersion }} `
-            /p:ApplicationVersion=${{ needs.validate.outputs.BuildNumber }}
+            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
             
           dotnet `
             publish `
@@ -337,8 +337,8 @@ jobs:
             -p:CodesignEntitlements="${{env.MAUI_MAC_CODESIGN_ENTITLEMENTS}}" `
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false `
-            /p:ApplicationDisplayVersion=${{ needs.validate.outputs.DisplayVersion }} `
-            /p:ApplicationVersion=${{ needs.validate.outputs.BuildNumber }}
+            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
 
       - name: Show workspace folder content
         shell: pwsh
