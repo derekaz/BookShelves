@@ -6,6 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-BookShelves.WebApi-4cd9140c-b812-435c-9ff5-6f7b5a6110d8</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+
+	<Version>$(GitVersion_SemVer)</Version>
+	<FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
+	<AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
+	<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+	<VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
+	<PackageVersion>$(GitVersion_MajorMinorPatch)</PackageVersion>
+	<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+	<ApplicationDisplayVersion>$(GitVersion_MajorMinorPatch)</ApplicationDisplayVersion>
   </PropertyGroup>
 
   <ItemGroup>
