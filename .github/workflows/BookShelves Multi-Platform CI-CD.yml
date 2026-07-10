@@ -33,11 +33,11 @@ env:
   MAUI_IOS_CODESIGN_PROVISION: 'BookShelves Test Profile'
   MAUI_IOS_CODESIGN_KEY: 'iOS Distribution'
   MAUI_MAC_PUBLISH_PATH: '${{ github.workspace }}/publish-output/mac'
-  MAUI_MAC_ARTIFACTS_PATH: 'artifacts_mac '
+  MAUI_MAC_ARTIFACTS_PATH: 'artifacts_mac'
   MAUI_MAC_CODESIGN_PROVISION: 'BookShelves MacOS Provisioning'
   MAUI_MAC_CODESIGN_KEY: 'Apple Distribution: Derek Moore (TPKXH5FT2P)'
   MAUI_MAC_PACKAGE_SIGNING_KEY: '3rd Party Mac Developer Installer: Derek Moore (TPKXH5FT2P)'
-  MAUI_MAC_CODESIGN_ENTITLEMENTS: 'Platforms\MacCatalyst\Entitlements.plist'
+  MAUI_MAC_CODESIGN_ENTITLEMENTS: 'Platforms/MacCatalyst/Entitlements.plist'
   MAUI_WINDOWS_PUBLISH_PATH: '${{ github.workspace }}/publish-output/windows'
   MAUI_WINDOWS_WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
 
