@@ -3,26 +3,26 @@ name: BookShelves.Maui Windows CI
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      - 'release/*'  
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
-    branches: 
-      - '**'
+  # push:
+  #   branches:
+  #     - 'main'
+  #     - 'release/*'  
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'      
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesWinUI-CI-Main.yml'
+  #   branches: 
+  #     - '**'
 
 jobs:
   windows-build-windows:
