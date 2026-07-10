@@ -310,7 +310,7 @@ jobs:
             ${{env.MAUI_CSPROJ}} `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
-            -p:RuntimeIdentifier=ios-arm64
+            -p:RuntimeIdentifier=ios-arm64 `
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
             /p:ArchiveOnBuild=true `
