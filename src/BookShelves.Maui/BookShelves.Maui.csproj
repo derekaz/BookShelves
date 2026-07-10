@@ -36,16 +36,18 @@
         <!-- App Identifier -->
         <ApplicationId>com.azmoore.bookshelves.maui</ApplicationId>
 
-        <!-- Versions -->
+		<!-- Standard global versioning for Windows, Web, Android -->
+		<Version>$(GitVersion_SemVer)</Version>
+		<AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
+		<FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
+		<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+
 		<!--
-		<ApplicationDisplayVersion>$(SLCVersion)</ApplicationDisplayVersion>
-		<ApplicationVersion>$(SLCBuild)</ApplicationVersion>
-		<AssemblyVersion>$(ApplicationDisplayVersion)</AssemblyVersion>
-        -->
 		<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">10.1.2.3</AssemblyVersion>
 		<PackageVersion Condition="'$(PackageVersion)' == ''">10.1.2</PackageVersion>
 		<ApplicationVersion Condition="'$(ApplicationVersion)' == ''">999</ApplicationVersion>
 		<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">10.1.2</ApplicationDisplayVersion>
+		-->
 		
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -57,8 +59,16 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <WindowsPackageType>None</WindowsPackageType>
     </PropertyGroup>
-	
-    <PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
+		<!-- Clean version without duplicate text strings for Apple Display Version -->
+		<ApplicationDisplayVersion>$(GitVersion_MajorMinorPatch)</ApplicationDisplayVersion>
+
+		<!-- Linear integer that never duplicates across layers for Apple Build Version -->
+		<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
       <CodesignKey>iOS Distribution</CodesignKey>
       <CodesignProvision>BookShelves Test Profile</CodesignProvision>
       <ProvisioningType>manual</ProvisioningType>

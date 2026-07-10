@@ -15,7 +15,7 @@ https://share.google/aimode/6mZZY0Yh1MERtRCkb
 continuation of the apple chat that takes into account feature branching and how/when to tag as well as GHA triggers for the feature branch as well as tags
 https://share.google/aimode/fnQYTalX6Ffaiz5j4
 
-more continuation of the chat regarding a comprehensive approace to the gha process...
+more continuation of the chat regarding a comprehensive approach to the gha process...
 https://share.google/aimode/rVfJ7ZMy1mcJnAeHf
 
 
