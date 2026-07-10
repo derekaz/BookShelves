@@ -248,7 +248,7 @@ jobs:
 
       - name: Cert Info MAC 2
         run: |
-          openssl pkcs12 -in mac_cert.p12 -passin pass:${{secrets.MAC_COMBINED_DIST_INST_CERT_P12_PASSWORD}} -info -nokeys
+          openssl pkcs12 -in mac_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
@@ -469,7 +469,7 @@ jobs:
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
-            -o ${{ env.MAUI_WINDOWSPUBLISH_PATH }} `
+            -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
             -p:RuntimeIdentifierOverride=win10-x64 `
             -p:InvariantGlobalization=true `
