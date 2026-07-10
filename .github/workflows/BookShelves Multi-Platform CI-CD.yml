@@ -42,6 +42,7 @@ jobs:
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
+      InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
     defaults:
