@@ -56,7 +56,7 @@ internal sealed class ServerWeatherForecaster  //IHttpClientFactory clientFactor
         }
         catch
         {
-            return null;
+            return [];
         }
 
 

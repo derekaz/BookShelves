@@ -183,11 +183,11 @@ app.MapGet("/booksdata", async ([FromServices] IBooksDataService BooksDataServic
         var xlatBooks = books.Select(b => Book.FromBookViewModel(b));
         return Results.Ok(xlatBooks);
     }
-    catch (MicrosoftIdentityWebChallengeUserException ex)
+    catch (MicrosoftIdentityWebChallengeUserException)
     {
         return Results.Unauthorized();
     }
-    catch (MsalUiRequiredException ex)
+    catch (MsalUiRequiredException)
     {
         return Results.Unauthorized();
     }
@@ -209,7 +209,7 @@ app.MapPost("/booksdata", async ([FromServices] IBooksDataService BooksDataServi
         var result = await BooksDataService.CreateBookAsync(book);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
-    catch (Exception ex)
+    catch (Exception)
     {
         return Results.StatusCode(500);
     }
@@ -224,7 +224,7 @@ app.MapDelete("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDa
         var result = await BooksDataService.DeleteBookAsync(book);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
-    catch (Exception ex)
+    catch (Exception)
     {
         return Results.StatusCode(500);
     }
@@ -240,7 +240,7 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
         var result = await BooksDataService.UpdateBookAsync(book);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
-    catch (Exception ex)
+    catch (Exception)
     {
         return Results.StatusCode(500);
     }

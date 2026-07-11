@@ -68,7 +68,7 @@ else
 </style>
 
 @code {
-#if NET10_0
+    #if NET10_0
     [PersistentState]
 #endif
     public IEnumerable<BookViewModel>? Books { get; set; } // = new List<IBook>();
@@ -91,7 +91,7 @@ else
         }
         catch(NavigationException)
         {
-            
+
         }
         catch (Exception ex)
         {
@@ -115,7 +115,11 @@ else
 
             var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
             var result = await dialog.Result;
-            if (!result.Canceled)
+            if (result == null)
+            {
+                message = "Error completing the request";
+            }
+            else if (!result.Canceled)
             {
                 message = result?.Data?.ToString() ?? "";
 
@@ -153,7 +157,11 @@ else
         // var options = new DialogOptions() { UseCustomLayout = true };
         var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters);
         var result = await dialog.Result;
-        if (!result.Canceled)
+        if (result == null)
+        {
+            message = "Error completing the request";
+        }
+        else if (!result.Canceled)
         {
             var deleteResult = await DataService.DeleteBookAsync(book);
 
@@ -163,13 +171,12 @@ else
 
                 Books = await DataService.GetBooksAsync() ?? new List<BookViewModel>() { };
             }
-            StateHasChanged();
         }
         else
         {
             message = "Delete canceled";
-            StateHasChanged();
         }
+        StateHasChanged();
     }
 
     private BookViewModel InitializeBookObject()
