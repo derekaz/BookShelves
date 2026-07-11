@@ -1,6 +1,6 @@
 ﻿@page "/authentication/login-Demo"
 @using BookShelves.Maui.Models
-@using BookShelves.Maui.Services
+// @using BookShelves.Maui.Services
 @using BookShelves.Shared.Services.ServiceInterfaces
 @* @using Microsoft.AspNetCore.Components.Authorization *@
 
@@ -44,19 +44,12 @@
 
         return;
 
-        // if (!AuthenticationService.IsAuthenticatedAsync().Result)
-        var temp = AuthStateProvider.GetAuthenticationStateAsync().Result;
-        if (temp == null || temp.User.Identity == null || temp.User.Identity.IsAuthenticated == false)
-        {
-            AuthStateProvider.LogInAsync().Wait();
-            //AuthService.LoginAsync().Wait();
-            // Navigation.NavigateTo("");
-        };
-        Navigation.NavigateTo("/");
-        // if (AuthStateProvider.LoginStatus == LoginStatus.Failed)
+        // var temp = AuthStateProvider.GetAuthenticationStateAsync().Result;
+        // if (temp == null || temp.User.Identity == null || temp.User.Identity.IsAuthenticated == false)
         // {
-        //     loginFailureHidden = false;
-        // }
+        //     AuthStateProvider.LogInAsync().Wait();
+        // };
+        // Navigation.NavigateTo("/");
     }
 
     private async Task LoginUser()

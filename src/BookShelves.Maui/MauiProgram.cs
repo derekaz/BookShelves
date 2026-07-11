@@ -25,28 +25,28 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        BookShelvesDbContext.Initialize();
+        // BookShelvesDbContext.Initialize();
 
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
 
-        AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-        {
-            try
-            {
-                Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-                Console.WriteLine(args.Exception.StackTrace);
+        //AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+        //        Console.WriteLine(args.Exception.StackTrace);
 
-                // Best-effort write to a persistent crash log so very early failures are captured
-                try
-                {
-                    var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
-                    File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
-                }
-                catch { }
-            }
-            catch { }
-        };
+        //        // Best-effort write to a persistent crash log so very early failures are captured
+        //        try
+        //        {
+        //            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+        //            File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+        //        }
+        //        catch { }
+        //    }
+        //    catch { }
+        //};
 
         builder
             .UseMauiApp<App>()
@@ -115,22 +115,6 @@ public static class MauiProgram
         var assembly = Assembly.GetExecutingAssembly();
         var appName = assembly.GetName().Name;
 
-        // set the local database path
-#if MACCATALYST
-        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-        if (File.Exists(dbPath2))
-        {
-            File.Delete(dbPath2);
-        }
-#else
-        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
-#endif
-
-#if DEBUG
-        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-#endif
-
         using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
 
@@ -187,14 +171,30 @@ public static class MauiProgram
         var bsp = builder.Services.BuildServiceProvider();
         var loggerFactory = bsp.GetRequiredService<ILoggerFactory>();
 
-        var localDbConnectionString = $"Data Source={dbPath}";
-
         Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
 
-        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
+        // builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
         builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
         {
+            // set the local database path
+#if MACCATALYST
+            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+            if (File.Exists(dbPath2))
+            {
+                File.Delete(dbPath2);
+            }
+#else
+            var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+#endif
+
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
+
+            var localDbConnectionString = $"Data Source={dbPath}";
+
             options.UseSqlite(localDbConnectionString);
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
@@ -253,11 +253,12 @@ public static class MauiProgram
                     {
                         var ex = args.ExceptionObject as Exception ?? new Exception("Non-Exception thrown to AppDomain.CurrentDomain.UnhandledException");
                         globalLogger.LogCritical(ex, "AppDomain unhandled exception. IsTerminating={IsTerminating}", args.IsTerminating);
-                        // persist to local file for post-mortem analysis
                         try
                         {
-                            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
-                            File.AppendAllText(crashPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\n{ex}\n\n");
+                            // persist to local file for post-mortem analysis
+                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unhandled-Crash-Log.txt");
+                            File.AppendAllText(crashLogPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
                         }
                         catch { /* best-effort only */ }
                     }
@@ -272,8 +273,10 @@ public static class MauiProgram
                         globalLogger.LogCritical(ex, "Unobserved task exception");
                         try
                         {
-                            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
-                            File.AppendAllText(crashPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\n{ex}\n\n");
+                            // persist to local file for post-mortem analysis
+                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unobserved-Crash-Log.txt");
+                            File.AppendAllText(crashLogPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
                         }
                         catch { }
                         args.SetObserved();

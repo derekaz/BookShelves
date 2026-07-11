@@ -84,7 +84,7 @@ else
         {
             Books ??= await DataService.GetBooksAsync();
         }
-        catch (Microsoft.Identity.Client.MsalUiRequiredException ex)
+        catch (Microsoft.Identity.Client.MsalUiRequiredException)//ex)
         {
             // ConsentHandler.HandleConsentRequiredException(ex);
             // HandleMsalException(ex);

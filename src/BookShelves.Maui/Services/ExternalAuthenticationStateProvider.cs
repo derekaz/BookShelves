@@ -28,7 +28,7 @@ public class ExternalAuthenticationStateProvider(
         {
             return await _authenticationService.GetAccessTokenAsync(scopes);
         }
-        catch (MsalUiRequiredException ex)
+        catch (MsalUiRequiredException)
         {
             // This exception means the refresh token has expired or been revoked.
             // You must force the user to re-authenticate interactively.

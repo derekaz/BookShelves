@@ -1,5 +1,4 @@
-﻿using BookShelves.Maui.Data.Extensions;
-using BookShelves.Maui.Data.Models;
+﻿using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -7,10 +6,10 @@ namespace BookShelves.Maui.Data.Services;
 
 public class BookShelvesDbContext : DbContext
 {
-    public static void Initialize()
-    {
-        SqliteProviderExtension.RegisterSqliteProvider();
-    }
+    //public static void Initialize()
+    //{
+    //    SqliteProviderExtension.RegisterSqliteProvider();
+    //}
 
     private readonly int LATEST_DATABASE_VERSION = 4;
     private readonly ILogger _logger;
