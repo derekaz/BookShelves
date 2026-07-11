@@ -1,4 +1,5 @@
-﻿using BookShelves.Maui.Data.Models;
+﻿using BookShelves.Maui.Data.Extensions;
+using BookShelves.Maui.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +9,7 @@ public class BookShelvesDbContext : DbContext
 {
     public static void Initialize()
     {
-        // SQLitePCL.Batteries_V2.Init();
+        SqliteProviderExtension.RegisterSqliteProvider();
     }
 
     private readonly int LATEST_DATABASE_VERSION = 4;
