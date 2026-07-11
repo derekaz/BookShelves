@@ -189,9 +189,9 @@ public static class MauiProgram
 
         var localDbConnectionString = $"Data Source={dbPath}";
 
-        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
-
         Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
+
+        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
         builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
         {
