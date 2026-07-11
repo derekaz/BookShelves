@@ -15,6 +15,25 @@ namespace BookShelves.Maui.WinUI
         public App()
         {
             this.InitializeComponent();
+
+            // Use the native event handler directly on this instance
+            this.UnhandledException += (sender, e) =>
+            {
+                var errorMessage = e.Message;
+                var exceptionDetails = e.Exception?.ToString() ?? "No inner exception details.";
+
+                // Write to a local text file on your Desktop since you cannot see the IDE output during a packaged run
+                try
+                {
+                    string desktopPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                    string logPath = System.IO.Path.Combine(desktopPath, "BookShelves_Crash_Log.txt");
+                    System.IO.File.WriteAllText(logPath, $"Error: {errorMessage}\n\nDetails:\n{exceptionDetails}");
+                }
+                catch
+                {
+                    // Fallback if desktop access is restricted by package permissions
+                }
+            };
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
