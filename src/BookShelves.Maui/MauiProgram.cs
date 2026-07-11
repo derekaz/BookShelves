@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
@@ -193,14 +191,14 @@ public static class MauiProgram
 
         builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
+        Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
+
         builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
         {
             options.UseSqlite(localDbConnectionString);
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
         });
-
-        BookShelves.Maui.Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
 
         //builder.Services.AddDbContext<BookShelvesDbContext>(
         //    options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
