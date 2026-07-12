@@ -52,12 +52,11 @@ jobs:
   # =================================================================
   validate:
     name: Verify Code & Versioning
-    if: github.event_name != 'release'
     runs-on: ubuntu-latest
     outputs:
       AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
       AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
-      BuildNumber: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
@@ -88,6 +87,38 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@v4.7.0
 
+      - name: Compute per-release build number
+        id: compute_per_version
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.gitversion.outputs.majorMinorPatch }}"  # e.g. 0.1.6
+          RELEASE_REMOTE="refs/remotes/origin/release/${VERSION}"
+          echo "Determining per-release build number for version=${VERSION}"
+          # Ensure remote refs are available
+          git fetch origin "+refs/heads/*:refs/remotes/origin/*" --prune || true
+
+          if git rev-parse --verify --quiet "${RELEASE_REMOTE}" >/dev/null; then
+            echo "Found release branch origin/release/${VERSION}"
+            MERGE_BASE=$(git merge-base "${RELEASE_REMOTE}" HEAD)
+            COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
+            echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
+          else
+            # Fallback: if no exact release branch exists, try to find any release branch that starts with the version
+            ALT=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin | grep -E "^release/${VERSION}($|/)" | head -n 1 || true)
+            if [ -n "${ALT}" ]; then
+              echo "Found alternate release branch: ${ALT}"
+              MERGE_BASE=$(git merge-base "refs/remotes/origin/${ALT#refs/remotes/origin/}" HEAD)
+              COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
+              echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
+            else
+              # Final fallback: use GitVersion's commitsSinceVersionSource
+              COUNT=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+              echo "No release branch found for ${VERSION}, falling back to GitVersion commitsSince=${COUNT}"
+              echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+
       # Appends a clean '-beta' tag to packages built directly via merge-to-main,
       # but preserves raw semver for production releases or features.
       - name: Calculate Environmental Suffixes
@@ -117,9 +148,9 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' || 
-      github.ref_name == 'main' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -186,9 +217,9 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' || 
-      github.ref_name == 'main' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: macos-26
+    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
     timeout-minutes: 60
     defaults:
       run:
@@ -308,7 +339,7 @@ jobs:
           mkdir -p ${{env.MAUI_MAC_PUBLISH_PATH}}
 
       # Overrides passed directly to MSBuild properties mapping to Apple variables
-      - name: Build Apple Packages
+      - name: Build Apple Package
         shell: pwsh
         run: |
           dotnet `
@@ -429,9 +460,9 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' || 
-      github.ref_name == 'main' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: windows-latest
+    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
     timeout-minutes: 45
     defaults:
       run:
