@@ -63,6 +63,7 @@ jobs:
       InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
+      EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
 
     defaults:
       run:
@@ -132,6 +133,19 @@ jobs:
             echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Compute deployment environment
+        id: compute_environment
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            ENV_NAME="production"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            ENV_NAME="staging"
+          else
+            ENV_NAME="development"
+          fi
+          echo "environmentName=${ENV_NAME}" >> $GITHUB_OUTPUT
+          echo "Deployment environment: ${ENV_NAME}"
+
       - name: Install .NET Workloads
         run: dotnet workload restore
 
@@ -150,7 +164,7 @@ jobs:
       github.event_name == 'release' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
+    environment: ${{ needs.validate.outputs.EnvironmentName }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -219,7 +233,7 @@ jobs:
       github.event_name == 'release' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: macos-26
-    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
+    environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
     defaults:
       run:
@@ -462,7 +476,7 @@ jobs:
       github.event_name == 'release' || 
       startsWith(github.ref_name, 'release/')    
     runs-on: windows-latest
-    environment: ${{ github.event_name == 'release' ? 'production' : (github.ref_name == 'main' ? 'staging' : (startsWith(github.ref_name, 'release/') || startsWith(github.ref_name, 'feature/') || startsWith(github.ref_name, 'features/') ? 'development' : 'development')) }}
+    environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45
     defaults:
       run:
