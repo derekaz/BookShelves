@@ -24,13 +24,9 @@ else
             <tr>
                 <th scope="col">Id</th>
                 <th scope="col"><div class="fw-bold mb-1">Title</div><div class="text-muted mb-0">Author</div></th>
-                @* <th scope="col">Title</th>
-                <th scope="col">Author</th> *@
                 <th scope="col">Last Update</th>
                 <th></th>
-@*                <th>Temp. (F)</th>
-                <th>Summary</th>
-*@            </tr>
+            </tr>
         </thead>
         <tbody>
             @foreach (var book in Books)
@@ -38,16 +34,12 @@ else
                 <tr>
                     <th scope="row">@book.IdValue</th>
                     <td><div class="fw-normal mb-1">@book.Title</div><div class="text-muted mb-0">@book.Author</div></td>
-                    @* <td>@book.Title</td>
-                    <td>@book.Author</td> *@
                     <td>@book.LastUpdateTime</td>
                     <td>
                         <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
                         <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(book))" value="Delete" />
                     </td>
-@*                  <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-*@                </tr>
+                </tr>
             }
         </tbody>
     </table>
@@ -68,15 +60,12 @@ else
 </style>
 
 @code {
-    #if NET10_0
+#if NET10_0
     [PersistentState]
 #endif
-    public IEnumerable<BookViewModel>? Books { get; set; } // = new List<IBook>();
+    public IEnumerable<BookViewModel>? Books { get; set; }
 
     private string message = string.Empty;
-
-    // [CascadingParameter]
-    // public IModalService Modal { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,7 +73,7 @@ else
         {
             Books ??= await DataService.GetBooksAsync();
         }
-        catch (Microsoft.Identity.Client.MsalUiRequiredException)//ex)
+        catch (Microsoft.Identity.Client.MsalUiRequiredException)
         {
             // ConsentHandler.HandleConsentRequiredException(ex);
             // HandleMsalException(ex);
@@ -103,14 +92,8 @@ else
     {
         var parameters = new DialogParameters<BookDetail> { { x => x.BookObject, book }, { x => x.TitleText, titleText } };
 
-        // var parameters = new ModalParameters()
-        //     .Add(nameof(BookDetail.BookObject), book)
-        //     .Add(nameof(BookDetail.TitleText), titleText);
-        // var options = new ModalOptions() { UseCustomLayout = true };
         try
         {
-            // var form = Modal.Show<BookDetail>("Book Modal", parameters, options);
-
             var options = new DialogOptions { BackgroundClass = "my-custom-class" };
 
             var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
@@ -154,7 +137,6 @@ else
     private async void DeleteAsync(BookViewModel book)
     {
         var parameters = new DialogParameters<BookDelete> { { x => x.BookObject, book } };
-        // var options = new DialogOptions() { UseCustomLayout = true };
         var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters);
         var result = await dialog.Result;
         if (result == null)

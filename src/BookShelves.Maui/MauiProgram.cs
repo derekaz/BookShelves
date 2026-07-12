@@ -25,8 +25,6 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        // BookShelvesDbContext.Initialize();
-
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
 
@@ -156,14 +154,14 @@ public static class MauiProgram
             client.Timeout = new TimeSpan(0, 0, 20);
         }).AddHttpMessageHandler(sp =>
         {
-            string[] scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
+            var scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
             return new MauiAuthenticationMessageHandler(
                 sp.GetRequiredService<IExternalAuthenticationStateProvider>(),
                 sp.GetRequiredService<ILogger<MauiAuthenticationMessageHandler>>(),
                 scopes);
-        }); ;
+        })
 #if DEBUG
-        // .AddTraceContentLogging();
+        // .AddTraceContentLogging()
 #endif
         ;
 
