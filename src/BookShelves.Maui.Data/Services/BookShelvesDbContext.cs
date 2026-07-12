@@ -6,11 +6,6 @@ namespace BookShelves.Maui.Data.Services;
 
 public class BookShelvesDbContext : DbContext
 {
-    public static void Initialize()
-    {
-        // SQLitePCL.Batteries_V2.Init();
-    }
-
     private readonly int LATEST_DATABASE_VERSION = 4;
     private readonly ILogger _logger;
 

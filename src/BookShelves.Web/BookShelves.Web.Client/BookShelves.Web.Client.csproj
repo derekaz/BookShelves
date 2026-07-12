@@ -8,6 +8,7 @@
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
 
+	<!--
 	<Version Condition="'$(Version)' == ''">10.1.2-local.998</Version>
 	<VersionPrefix Condition="'$(VersionPrefix)' == ''">10.1.2</VersionPrefix>
 	<FileVersion Condition="'$(FileVersion)' == ''">10.1.2.3</FileVersion>
@@ -15,6 +16,17 @@
 	<PackageVersion Condition="'$(PackageVersion)' == ''">10.1.2</PackageVersion>
 	<ApplicationVersion Condition="'$(ApplicationVersion)' == ''">999</ApplicationVersion>
 	<ApplicationDisplayVersion Condition="'$(ApplicationDisplayVersion)' == ''">10.1.2</ApplicationDisplayVersion>
+	-->
+	  
+	<Version>$(GitVersion_SemVer)</Version>
+	<FileVersion>$(GitVersion_AssemblySemFileVer)</FileVersion>
+	<AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
+	<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+	<VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
+	<PackageVersion>$(GitVersion_MajorMinorPatch)</PackageVersion>
+	<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+	<ApplicationDisplayVersion>$(GitVersion_MajorMinorPatch)</ApplicationDisplayVersion>
+
   </PropertyGroup>
 
   <ItemGroup>

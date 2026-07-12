@@ -3,26 +3,26 @@ name: BookShelves.Maui Mac CI Dev
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-       - 'main'
-       - 'release/*'  
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'  
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesMac-CI-Dev.yml'
-  pull_request:
-    types: [opened, synchronize]
-    branches: 
-      - '**'
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesMac-CI-Dev.yml'
+  # push:
+  #   branches:
+  #      - 'main'
+  #      - 'release/*'  
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'  
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesMac-CI-Dev.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   branches: 
+  #     - '**'
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'      
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesMac-CI-Dev.yml'
 
 concurrency:
   group: maui-mac-dev-${{github.ref}}
@@ -153,37 +153,37 @@ jobs:
           api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
           api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
-      - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v6
-        with:
-          bundle-id: ${{env.BUNDLE_ID}}
-          profile-type: 'MAC_APP_DEVELOPMENT'
-          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
-          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
-          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
+      # - name: Download Apple Provisioning Profiles
+      #   uses: Apple-Actions/download-provisioning-profiles@v6
+      #   with:
+      #     bundle-id: ${{env.BUNDLE_ID}}
+      #     profile-type: 'MAC_APP_DEVELOPMENT'
+      #     issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+      #     api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+      #     api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
-      - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v6
-        with:
-          bundle-id: ${{env.BUNDLE_ID}}
-          profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
-          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
-          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
-          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
+      # - name: Download Apple Provisioning Profiles
+      #   uses: Apple-Actions/download-provisioning-profiles@v6
+      #   with:
+      #     bundle-id: ${{env.BUNDLE_ID}}
+      #     profile-type: 'MAC_CATALYST_APP_DEVELOPMENT'
+      #     issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+      #     api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+      #     api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
-      - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v6
-        with:
-          bundle-id: ${{env.BUNDLE_ID}}
-          profile-type: 'MAC_APP_STORE'
-          issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
-          api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
-          api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
+      # - name: Download Apple Provisioning Profiles
+      #   uses: Apple-Actions/download-provisioning-profiles@v6
+      #   with:
+      #     bundle-id: ${{env.BUNDLE_ID}}
+      #     profile-type: 'MAC_APP_STORE'
+      #     issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
+      #     api-key-id: ${{secrets.APPLE_APPSTORE_KEY_ID}}
+      #     api-private-key: ${{secrets.APPLE_APPSTORE_PRIVATE_KEY}}
 
-      - name: Rename file 
-        run: |
-          cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
-          for file in *mobileprovision; do mv "$file" "${file/mobileprovision/provisionprofile}"; done
+      # - name: Rename file 
+      #   run: |
+      #     cd '/Users/runner/Library/MobileDevice/Provisioning Profiles'
+      #     for file in *mobileprovision; do mv "$file" "${file/mobileprovision/provisionprofile}"; done
 
       # don't have one of these types yet
       # - name: Download Apple Provisioning Profiles
@@ -204,7 +204,7 @@ jobs:
       - name: NuGet Restore
         run: dotnet restore ${{env.CSPROJ}}
 
-      - name: Build MAUI Mobile app
+      - name: Build MAC MAUI Mobile app
         shell: pwsh
         run: |
           #ad-hoc deployment

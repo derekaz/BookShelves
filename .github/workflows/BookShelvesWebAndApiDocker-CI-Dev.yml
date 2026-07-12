@@ -2,28 +2,28 @@ name: BookShelvesWebAndApi-Docker
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      - 'release/*'  
-    paths:
-      - 'src/BookShelves.Web/BookShelves.Web/**'
-      - 'src/BookShelves.WebApi/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - 'src/BookShelves.Web/BookShelves.Web/**'
-      - 'src/BookShelves.WebApi/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'      
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
-    branches: 
-      - '**'
+  # push:
+  #   branches:
+  #     - 'main'
+  #     - 'release/*'  
+  #   paths:
+  #     - 'src/BookShelves.Web/BookShelves.Web/**'
+  #     - 'src/BookShelves.WebApi/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     - 'src/BookShelves.Web/BookShelves.Web/**'
+  #     - 'src/BookShelves.WebApi/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'      
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesWebAndApiDocker-CI-Dev.yml'
+  #   branches: 
+  #     - '**'
 
 jobs:
   build-and-push:
@@ -88,6 +88,10 @@ jobs:
           build-args: |
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
+            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ steps.gitversion.outputs.semVer }}
@@ -103,6 +107,10 @@ jobs:
           build-args: |
             APP_VERSION=${{ steps.gitversion.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
+            GitVersion_FullSemVer=${{ steps.gitversion.outputs.fullSemVer }}
+            GitVersion_MajorMinorPatch=${{ steps.gitversion.outputs.majorMinorPatch }}
+            GitVersion_InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+            GitVersion_CommitsSinceVersionSource=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ steps.gitversion.outputs.semVer }}

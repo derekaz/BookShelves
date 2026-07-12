@@ -64,13 +64,12 @@ internal sealed class ServerBooksDataService
         {
             return await GetBooksDataAsync(includeSoftDeleted);
         }
-        catch (MsalUiRequiredException ex)
+        catch (MsalUiRequiredException)
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            //_consentAndConditionalAccessHandler.HandleException(ex);
             throw;
         }
     }
@@ -105,7 +104,7 @@ internal sealed class ServerBooksDataService
         {
             throw;
         }
-        catch (MicrosoftIdentityWebChallengeUserException ex)
+        catch (MicrosoftIdentityWebChallengeUserException)
         {
             throw;
         }

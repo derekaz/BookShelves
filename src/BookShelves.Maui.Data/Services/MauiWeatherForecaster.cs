@@ -18,7 +18,8 @@ public class MauiWeatherForecaster(IHttpClientFactory httpClientFactory, ILogger
         {
             var httpClient = httpClientFactory.CreateClient("WeatherApi");
 
-            var weatherUrl = "weatherforecast";
+            var weatherUrl = "api/weatherforecast";
+
             forecasts = (await httpClient.GetFromJsonAsync<WeatherForecast[]>(weatherUrl)) ?? [];
         }
         catch (HttpRequestException httpEx)

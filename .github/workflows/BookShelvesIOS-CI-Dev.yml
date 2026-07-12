@@ -3,26 +3,26 @@ name: BookShelves.Maui IOS CI Dev
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      - 'release/*'
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
-  pull_request:
-    types: [opened, synchronize]
-    branches: 
-      - '**'
-    paths:
-      - 'src/BookShelves.Maui/**'
-      - 'src/BookShelves.Shared/**'
-      - '**/*build.props'
-      - '**/GitVersion.yml'
-      - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
+  # push:
+  #   branches:
+  #     - 'main'
+  #     - 'release/*'
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   branches: 
+  #     - '**'
+  #   paths:
+  #     - 'src/BookShelves.Maui/**'
+  #     - 'src/BookShelves.Shared/**'
+  #     - '**/*build.props'
+  #     - '**/GitVersion.yml'
+  #     - '.github/workflows/BookShelvesIOS-CI-Dev.yml'
 
 concurrency:
   group: maui-ios-dev-${{github.ref}}
@@ -156,7 +156,7 @@ jobs:
           cd ${{ github.workspace }}
           mkdir -p ${{env.PUBLISH_PATH}}
 
-      - name: Publish MAUI Mobile app
+      - name: Publish iOS MAUI Mobile app
         shell: pwsh
         run: |
           dotnet `

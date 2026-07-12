@@ -21,18 +21,13 @@ internal class WindowService : IWindowService
 
     public static IntPtr GetConsoleOrTerminalWindow()
     {
-        // var handle = (App.Current?.Windows[0].Handler.PlatformView as MauiWinUIWindow)?.WindowHandle ?? IntPtr.Zero;
-        var window = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).WindowHandle;
+        var appWindow = App.Current!.Windows[0];
+        var nativeWindow = appWindow.Handler.PlatformView as MauiWinUIWindow;
+        var window = nativeWindow!.WindowHandle;
 
-        //IntPtr consoleHandle = GetConsoleWindow();
-        //IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
-        // return handle;
+        // var window = (MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView;
 
-        //var mauiWindow = Microsoft.Maui.Controls.Application.Current?.Windows[0];
-        //var nativeWindow = mauiWindow?.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
-        //IntPtr windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
-
-        return window; // Handle;
+        return window;
     }
 
     public Func<object> GetMainWindowHandle()

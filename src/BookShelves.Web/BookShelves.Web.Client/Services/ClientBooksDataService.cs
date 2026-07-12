@@ -61,7 +61,7 @@ internal sealed class ClientBooksDataService(HttpClient httpClient) : IBooksData
             exception.Redirect();
             return Array.Empty<BookViewModel>();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }

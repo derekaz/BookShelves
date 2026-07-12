@@ -25,16 +25,26 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        //  BookShelvesDbContext.Initialize();
-
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
 
-        AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-        {
-            Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-            Console.WriteLine(args.Exception.StackTrace);
-        };
+        //AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+        //{
+        //    try
+        //    {
+        //        Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+        //        Console.WriteLine(args.Exception.StackTrace);
+
+        //        // Best-effort write to a persistent crash log so very early failures are captured
+        //        try
+        //        {
+        //            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+        //            File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+        //        }
+        //        catch { }
+        //    }
+        //    catch { }
+        //};
 
         builder
             .UseMauiApp<App>()
@@ -103,22 +113,6 @@ public static class MauiProgram
         var assembly = Assembly.GetExecutingAssembly();
         var appName = assembly.GetName().Name;
 
-        // set the local database path
-#if MACCATALYST
-        var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-        var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-        if (File.Exists(dbPath2))
-        {
-            File.Delete(dbPath2);
-        }
-#else
-        var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
-#endif
-
-#if DEBUG
-        System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-#endif
-
         using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
 
@@ -160,14 +154,14 @@ public static class MauiProgram
             client.Timeout = new TimeSpan(0, 0, 20);
         }).AddHttpMessageHandler(sp =>
         {
-            string[] scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
+            var scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
             return new MauiAuthenticationMessageHandler(
                 sp.GetRequiredService<IExternalAuthenticationStateProvider>(),
                 sp.GetRequiredService<ILogger<MauiAuthenticationMessageHandler>>(),
                 scopes);
-        }); ;
+        })
 #if DEBUG
-        // .AddTraceContentLogging();
+        // .AddTraceContentLogging()
 #endif
         ;
 
@@ -175,21 +169,35 @@ public static class MauiProgram
         var bsp = builder.Services.BuildServiceProvider();
         var loggerFactory = bsp.GetRequiredService<ILoggerFactory>();
 
-        var localDbConnectionString = $"Data Source={dbPath}";
+        Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
 
-        builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
+        // builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
 
         builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
         {
+            // set the local database path
+#if MACCATALYST
+            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+            if (File.Exists(dbPath2))
+            {
+                File.Delete(dbPath2);
+            }
+#else
+            var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+#endif
+
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
+
+            var localDbConnectionString = $"Data Source={dbPath}";
+
             options.UseSqlite(localDbConnectionString);
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
         });
 
-        BookShelves.Maui.Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
-
-        //builder.Services.AddDbContext<BookShelvesDbContext>(
-        //    options => options.UseSqlite(localDbConnectionString), ServiceLifetime.Transient);
         builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
         builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
@@ -231,6 +239,55 @@ public static class MauiProgram
             var app = builder.Build();
 
             ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+            // Register global unhandled exception handlers to capture crashes when running as a packaged app.
+            try
+            {
+                var globalLogger = ApplicationLogger.CreateLogger("GlobalUnhandledException");
+
+                AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+                {
+                    try
+                    {
+                        var ex = args.ExceptionObject as Exception ?? new Exception("Non-Exception thrown to AppDomain.CurrentDomain.UnhandledException");
+                        globalLogger.LogCritical(ex, "AppDomain unhandled exception. IsTerminating={IsTerminating}", args.IsTerminating);
+                        try
+                        {
+                            // persist to local file for post-mortem analysis
+                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unhandled-Crash-Log.txt");
+                            File.AppendAllText(crashLogPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
+                        }
+                        catch { /* best-effort only */ }
+                    }
+                    catch { }
+                };
+
+                TaskScheduler.UnobservedTaskException += (sender, args) =>
+                {
+                    try
+                    {
+                        var ex = args.Exception ?? new AggregateException("UnobservedTaskException without Exception");
+                        globalLogger.LogCritical(ex, "Unobserved task exception");
+                        try
+                        {
+                            // persist to local file for post-mortem analysis
+                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unobserved-Crash-Log.txt");
+                            File.AppendAllText(crashLogPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
+                        }
+                        catch { }
+                        args.SetObserved();
+                    }
+                    catch { }
+                };
+            }
+            catch (Exception ex)
+            {
+                // if logger factory isn't available or something else fails, fallback to console
+                Console.WriteLine("Failed to register global exception handlers: {0}", ex);
+            }
+
             app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
 
             return app;

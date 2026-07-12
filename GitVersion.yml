@@ -1,5 +1,6 @@
 mode: ContinuousDelivery
 label: "{BranchName}"
+#label: alpha
 increment: Inherit
 prevent-increment:
   of-merged-branch: false
@@ -68,9 +69,10 @@ branches:
     is-main-branch: false
     pre-release-weight: 30000
   feature:
-    mode: ManualDeployment
+    mode: ContinuousDelivery
+    #mode: ManualDeployment
     label: "{BranchName}"
-    increment: Inherit
+    increment: Minor
     prevent-increment:
       when-current-commit-tagged: false
     track-merge-message: true
@@ -80,11 +82,12 @@ branches:
       - release
     is-source-branch-for: []
     is-main-branch: false
-    pre-release-weight: 30000
+    pre-release-weight: 20000
   pull-request:
     mode: ContinuousDelivery
     label: "PullRequest{Number}"
-    increment: Inherit
+    #label: pr
+    increment: None
     prevent-increment:
       of-merged-branch: true
       when-current-commit-tagged: false
@@ -95,7 +98,7 @@ branches:
       - release
       - feature
     is-source-branch-for: []
-    pre-release-weight: 30000
+    pre-release-weight: 10000
   unknown:
     mode: ManualDeployment
     label: "{BranchName}"

@@ -11,6 +11,14 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG RUN_ID
+ARG APP_VERSION
+ARG GitVersion_FullSemVer
+ARG GitVersion_MajorMinorPatch
+ARG GitVersion_InformationalVersion
+ARG GitVersion_CommitsSinceVersionSource
+ARG GitVersion_AssemblySemFileVer
+ARG GitVersion_AssemblySemVer
+ARG GitVersion_SemVer
 # Set our workspace inside the container
 WORKDIR /src
 
@@ -42,7 +50,16 @@ RUN dotnet build "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish \
+	/p:UseAppHost=false \
+	/p:GitVersion_FullSemVer="$GitVersion_FullSemVer" \
+	/p:GitVersion_MajorMinorPatch="$GitVersion_MajorMinorPatch" \
+	/p:GitVersion_InformationalVersion="$GitVersion_InformationalVersion" \
+	/p:GitVersion_CommitsSinceVersionSource="$GitVersion_CommitsSinceVersionSource" \
+	/p:GitVersion_AssemblySemFileVer="$GitVersion_AssemblySemFileVer" \
+	/p:GitVersion_AssemblySemVer="$GitVersion_AssemblySemVer" \
+	/p:GitVersion_SemVer="$GitVersion_SemVer" \
+	/p:ApplicationVersion="$APP_VERSION"
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
