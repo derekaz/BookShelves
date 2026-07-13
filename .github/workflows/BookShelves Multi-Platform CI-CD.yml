@@ -57,6 +57,7 @@ jobs:
       AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
       AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
       BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
+      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
@@ -93,10 +94,17 @@ jobs:
         run: |
           WEIGHTED=${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
           RUN_NUM=${{ github.run_number }}
-          # Append run number to ensure uniqueness across builds of same commit
+          # For iOS/Mac: append run number to ensure uniqueness across builds of same commit
           BUILD_NUM="${WEIGHTED}$(printf '%04d' $RUN_NUM)"
           echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
-          echo "Using weightedPreReleaseNumber: ${WEIGHTED}, run: ${RUN_NUM} ? ${BUILD_NUM}"
+
+          # For Windows MSIX: keep build number within 0-65535 constraint
+          # Use modulo to constrain while maintaining relative ordering
+          WINDOWS_BUILD=$((($WEIGHTED % 65536) + $RUN_NUM))
+          # If result exceeds 65535, wrap it
+          WINDOWS_BUILD=$(($WINDOWS_BUILD % 65536))
+          echo "windowsBuildNumber=${WINDOWS_BUILD}" >> $GITHUB_OUTPUT
+          echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD}"
 
 
       - name: Compute deployment environment
@@ -500,7 +508,7 @@ jobs:
             /p:AppxPackageSigningEnabled=true `
             /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
             /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
-            /p:ApplicationVersion=${{ needs.validate.outputs.BuildNumber}} `
+            /p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
             /p:Version=${{ needs.validate.outputs.FullSemVer }} `
             /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }}
           # -v options are quiet, minimal, normal, detailed, diagnostic
