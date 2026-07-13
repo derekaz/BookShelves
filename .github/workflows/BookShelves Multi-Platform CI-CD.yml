@@ -91,8 +91,12 @@ jobs:
       - name: Compute per-release build number
         id: compute_per_version
         run: |
-          echo "buildNumber=${{ steps.gitversion.outputs.weightedPreReleaseNumber }}" >> $GITHUB_OUTPUT
-          echo "Using GitVersion weightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
+          WEIGHTED=${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
+          RUN_NUM=${{ github.run_number }}
+          # Append run number to ensure uniqueness across builds of same commit
+          BUILD_NUM="${WEIGHTED}$(printf '%04d' $RUN_NUM)"
+          echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "Using weightedPreReleaseNumber: ${WEIGHTED}, run: ${RUN_NUM} ? ${BUILD_NUM}"
 
 
       - name: Compute deployment environment
