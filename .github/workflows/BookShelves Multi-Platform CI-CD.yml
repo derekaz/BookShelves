@@ -57,12 +57,13 @@ jobs:
       AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
       AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
       BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
+      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
-      SemVer: ${{ steps.version-logic.outputs.FINAL_SEMVER }}
+      SemVer: ${{ steps.gitversion.outputs.semVer }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
 
     defaults:
@@ -91,56 +92,20 @@ jobs:
       - name: Compute per-release build number
         id: compute_per_version
         run: |
-          set -euo pipefail
-          VERSION="${{ steps.gitversion.outputs.majorMinorPatch }}"  # e.g. 0.1.6
-          RELEASE_REMOTE="refs/remotes/origin/release/${VERSION}"
-          echo "Determining per-release build number for version=${VERSION}"
-          # Ensure remote refs are available
-          git fetch origin "+refs/heads/*:refs/remotes/origin/*" --prune || true
+          WEIGHTED=${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
+          RUN_NUM=${{ github.run_number }}
+          # For iOS/Mac: append run number to ensure uniqueness across builds of same commit
+          BUILD_NUM="${WEIGHTED}$(printf '%04d' $RUN_NUM)"
+          echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
 
-          if git rev-parse --verify --quiet "${RELEASE_REMOTE}" >/dev/null; then
-            echo "Found release branch origin/release/${VERSION}"
-            MERGE_BASE=$(git merge-base "${RELEASE_REMOTE}" HEAD)
-            COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
-            if [ "${COUNT}" -eq 0 ]; then
-              # If we're on the release branch HEAD==MERGE_BASE so fall back to GitVersion value
-              COUNT=${commitsSinceVersionSource:-${{ steps.gitversion.outputs.commitsSinceVersionSource }}}
-              echo "Computed COUNT was 0; falling back to GitVersion commitsSinceVersionSource=${COUNT}"
-            fi
-            echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
-          else
-            # Fallback: if no exact release branch exists, try to find any release branch that starts with the version
-            ALT=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin | grep -E "^release/${VERSION}($|/)" | head -n 1 || true)
-            if [ -n "${ALT}" ]; then
-              echo "Found alternate release branch: ${ALT}"
-              MERGE_BASE=$(git merge-base "refs/remotes/origin/${ALT#refs/remotes/origin/}" HEAD)
-              COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
-              if [ "${COUNT}" -eq 0 ]; then
-                COUNT=${commitsSinceVersionSource:-${{ steps.gitversion.outputs.commitsSinceVersionSource }}}
-                echo "Computed COUNT was 0 for alternate branch; falling back to GitVersion commitsSinceVersionSource=${COUNT}"
-              fi
-              echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
-            else
-              # Final fallback: use GitVersion's commitsSinceVersionSource
-              COUNT=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
-              echo "No release branch found for ${VERSION}, falling back to GitVersion commitsSince=${COUNT}"
-              echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
-            fi
-          fi
+          # For Windows MSIX: keep build number within 0-65535 constraint
+          # Use modulo to constrain while maintaining relative ordering
+          WINDOWS_BUILD=$((($WEIGHTED % 65536) + $RUN_NUM))
+          # If result exceeds 65535, wrap it
+          WINDOWS_BUILD=$(($WINDOWS_BUILD % 65536))
+          echo "windowsBuildNumber=${WINDOWS_BUILD}" >> $GITHUB_OUTPUT
+          echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD}"
 
-
-      # Appends a clean '-beta' tag to packages built directly via merge-to-main,
-      # but preserves raw semver for production releases or features.
-      - name: Calculate Environmental Suffixes
-        id: version-logic
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "main" ]; then
-            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}-beta" >> $GITHUB_OUTPUT
-          else
-            echo "FINAL_SEMVER=${{ steps.gitversion.outputs.semVer }}" >> $GITHUB_OUTPUT
-          fi
 
       - name: Compute deployment environment
         id: compute_environment
@@ -210,8 +175,8 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.SemVer }}
+            ${{ github.event_name == 'release' && !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -232,8 +197,8 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:latest
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.SemVer }}
+            ${{ github.event_name == 'release' && !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
@@ -543,7 +508,7 @@ jobs:
             /p:AppxPackageSigningEnabled=true `
             /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
             /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
-            /p:ApplicationVersion=${{ needs.validate.outputs.BuildNumber}} `
+            /p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
             /p:Version=${{ needs.validate.outputs.FullSemVer }} `
             /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }}
           # -v options are quiet, minimal, normal, detailed, diagnostic
