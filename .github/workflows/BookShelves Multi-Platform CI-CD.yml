@@ -102,6 +102,11 @@ jobs:
             echo "Found release branch origin/release/${VERSION}"
             MERGE_BASE=$(git merge-base "${RELEASE_REMOTE}" HEAD)
             COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
+            if [ "${COUNT}" -eq 0 ]; then
+              # If we're on the release branch HEAD==MERGE_BASE so fall back to GitVersion value
+              COUNT=${commitsSinceVersionSource:-${{ steps.gitversion.outputs.commitsSinceVersionSource }}}
+              echo "Computed COUNT was 0; falling back to GitVersion commitsSinceVersionSource=${COUNT}"
+            fi
             echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
           else
             # Fallback: if no exact release branch exists, try to find any release branch that starts with the version
@@ -110,6 +115,10 @@ jobs:
               echo "Found alternate release branch: ${ALT}"
               MERGE_BASE=$(git merge-base "refs/remotes/origin/${ALT#refs/remotes/origin/}" HEAD)
               COUNT=$(git rev-list --count "${MERGE_BASE}"..HEAD)
+              if [ "${COUNT}" -eq 0 ]; then
+                COUNT=${commitsSinceVersionSource:-${{ steps.gitversion.outputs.commitsSinceVersionSource }}}
+                echo "Computed COUNT was 0 for alternate branch; falling back to GitVersion commitsSinceVersionSource=${COUNT}"
+              fi
               echo "buildNumber=${COUNT}" >> $GITHUB_OUTPUT
             else
               # Final fallback: use GitVersion's commitsSinceVersionSource
@@ -168,6 +177,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
       - name: Log in to Private Registry
         uses: docker/login-action@v4
@@ -240,7 +252,9 @@ jobs:
         working-directory: ${{env.MAUI_PROJPATH}}
     steps:
       - uses: actions/checkout@v7
-        with: { fetch-depth: 0 }
+        with: 
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
       - name: xcode diags 1
         run: |
@@ -484,7 +498,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with: 
-          { fetch-depth: 0 }
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5

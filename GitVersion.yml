@@ -52,7 +52,7 @@ branches:
     pre-release-weight: 55000
   release:
     mode: ManualDeployment
-    label: beta
+    label: dev-release
     increment: Patch
     prevent-increment:
       of-merged-branch: true
