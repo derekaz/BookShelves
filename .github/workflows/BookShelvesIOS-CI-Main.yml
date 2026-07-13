@@ -129,7 +129,7 @@ jobs:
       #     echo "${{ secrets.APPLE_APPSTORE_PRIVATE_KEY }}" | sed 's/./& /g'
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v4
+        uses: Apple-Actions/download-provisioning-profiles@v6
         with:
           bundle-id: ${{env.BUNDLE_ID}}
           issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
