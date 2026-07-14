@@ -1,4 +1,5 @@
 using BookShelves.WebApi.BooksDataAccess;
+using CommunityToolkit.Datasync.Server;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
@@ -6,8 +7,6 @@ using Microsoft.Identity.Web;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -95,6 +94,9 @@ builder.Services.AddTransient(x =>
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddDatasyncServices();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

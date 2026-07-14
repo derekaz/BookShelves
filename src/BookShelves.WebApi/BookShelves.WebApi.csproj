@@ -26,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="10.1.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.EntityFrameworkCore" Version="10.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" NoWarn="NU1605" />
     <!--<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.8" NoWarn="NU1605" />-->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
