@@ -10,11 +10,6 @@ namespace BookShelves.WebApi.Controllers;
 [Route("[controller]")]
 public class BooksController(ILogger<BooksController> logger, BookRepository booksData) : Controller
 {
-    //public IActionResult Index()
-    //{
-    //    return View();
-    //}
-
     [HttpGet]
     [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.Read" })]
     public async Task<IResult> ReadBooks()

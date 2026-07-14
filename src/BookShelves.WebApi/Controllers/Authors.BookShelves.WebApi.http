@@ -1,0 +1,36 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@Server.SingleContainer_HostAddress = https://localhost:7135
+# http://localhost:5224
+# https://localhost:7135
+
+POST {{Server.SingleContainer_HostAddress}}/AuthorItem
+Content-Type: application/json
+
+{
+  "id": "2",
+  "name": "Second Author",
+  "bio": "This is the biography of the second author."
+}
+
+###
+
+GET {{Server.SingleContainer_HostAddress}}/AuthorItem
+Accept: application/json
+
+###
+
+POST {{Server.SingleContainer_HostAddress}}/AuthorItem
+Content-Type: application/json
+
+{
+  "id": "1",
+  "name": "First Author",
+  "bio": "This is the biography of the first author."
+}
+
+###
+
+GET {{Server.SingleContainer_HostAddress}}/AuthorItem
+Accept: application/json
+
+###

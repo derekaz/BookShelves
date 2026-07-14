@@ -1,12 +1,12 @@
-﻿using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+﻿using CommunityToolkit.Datasync.Server.CosmosDb;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookShelves.WebApi.AuthorsDataAccess;
 
-public class AuthorItem : EntityTableData
+public class AuthorItem : CosmosTableData<AuthorItem>
 {
-    [Required, MinLength(1)]
-    public string Title { get; set; } = string.Empty;
+    [Required, MinLength(1)]    
+    public string Name { get; set; } = string.Empty;
 
-    public string? ListId { get; set; }
+    public string? Bio { get; set; }
 }
