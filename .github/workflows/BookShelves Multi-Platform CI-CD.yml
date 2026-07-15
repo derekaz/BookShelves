@@ -20,7 +20,7 @@ permissions:
   contents: write
 
 env:
-  PROJPATH: 'src'
+  PROJPATH: '.'
   WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
   WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
   WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
