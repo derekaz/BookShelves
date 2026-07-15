@@ -21,6 +21,7 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
     }
 
     [HttpGet("{id}")]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.Read" })]
     public async Task<IResult> GetBook(string id)
     {
         var data = await booksData.GetAsync(id);
@@ -28,8 +29,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpPost("new")]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     public async Task<IResult> CreateBook(Book book)
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(CreateBook)}");
@@ -48,8 +49,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return TypedResults.Created($"/books/{book.Id}", book);
     }
 
-    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpPut("edit/{id}")]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     public async Task<IResult> EditBook(string id, Book inputBook)
     {
         await booksData.UpdateAsync(id, inputBook);
@@ -59,8 +60,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     [HttpDelete("delete/{id}")]
+    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
     public async Task<IResult> DeleteBook(string id)
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(DeleteBook)} with id:{id}");
