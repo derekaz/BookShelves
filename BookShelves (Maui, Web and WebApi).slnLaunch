@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Maui and WebApi",
+    "Projects": [
+      {
+        "Path": "src\\BookShelves.Maui\\BookShelves.Maui.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.WebApi\\BookShelves.WebApi.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
