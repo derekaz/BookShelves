@@ -18,11 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="http-client.env.json" />
+    <Content Remove="http-client.env.private.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="http-client.env.json" />
+    <None Include="http-client.env.private.json" />
   </ItemGroup>
 
   <ItemGroup>
