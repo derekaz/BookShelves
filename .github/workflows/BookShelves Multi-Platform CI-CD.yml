@@ -22,11 +22,11 @@ permissions:
 env:
   PROJPATH: '.'
   WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
-  WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
+  WEB_CSPROJ: 'src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
   WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
-  WEBAPI_CSPROJ: 'BookShelves.WebApi/BookShelves.WebApi.csproj' #this includes the parent folder due to it being a dockerfile build
+  WEBAPI_CSPROJ: 'src/BookShelves.WebApi/BookShelves.WebApi.csproj' #this includes the parent folder due to it being a dockerfile build
   MAUI_PROJPATH: 'src/BookShelves.Maui'
-  MAUI_CSPROJ: 'BookShelves.Maui.csproj'
+  MAUI_CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
   MAUI_IOS_PUBLISH_PATH: '${{ github.workspace }}/publish-output/ios'
   MAUI_IOS_ARTIFACTS_PATH: 'artifacts_ios'
   MAUI_IOS_MAC_BUNDLE_ID: 'com.azmoore.bookshelves.maui'
