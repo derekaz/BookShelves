@@ -1,50 +1,48 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
-@Server.SingleContainer_HostAddress = https://localhost:7135
-# http://localhost:5224
-# https://localhost:7135
+
+@HostAddress = https://localhost:7135
+
+# Azure AD / Entra ID values
+@tenantId = paste-tenant-id-here
+@clientId = paste-client-id-here
+@clientSecret = paste-client-secret-here
+
+# For client credentials flow, use the API app id URI with /.default
+# Example: api://<your-api-app-id>/.default
+@tokenScope = paste-api-scope-here
 
 ###
 
-# @name interactiveUserAuth
-# STEP 1: Click the 'Send Request' link. It will prompt an interactive web window to sign in.
-GET https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/authorize?client_id={{id}}&response_type=code&redirect_uri=https://pstmn.io?scope={{scope}}&state=12345 HTTP/1.1
-
-###
-GET https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/authorize
-    ?client_id={{id}}
-    &response_type=code
-    &redirect_uri=https://pstmn.io
-    &response_mode=query
-    &scope={{scope}}
-    &state=12345
+# Optional baseline check: should return 401 without a token
+GET {{HostAddress}}/AuthorItem
+Accept: application/json
 
 ###
 
-# Copy the string parameter labeled '?code=' from the resulting browser URL and paste it here:
-@userAuthorizationCode = paste_the_code_here
-
-###
-
-# @name login
-POST https://login.microsoftonline.com/{{tenant}}/oauth2/v2.0/token HTTP/1.1
+# Get access token (client credentials flow)
+# @name tokenRequest
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&client_id={{id}}&client_secret={{secret}}&scope={{scope}}
+grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecret}}&scope={{tokenScope}}
 
 ###
 
-@authToken = {{login.response.body.*}}
+@authToken = {{tokenRequest.response.body.$.access_token}}
 
 ###
 
-GET {{Server.SingleContainer_HostAddress}}/AuthorItem
+# Authorized read
+GET {{HostAddress}}/AuthorItem
 Accept: application/json
 Authorization: Bearer {{authToken}}
 
 ###
 
-POST {{Server.SingleContainer_HostAddress}}/AuthorItem
+# Authorized write
+POST {{HostAddress}}/AuthorItem
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
   "id": "2",
@@ -54,8 +52,9 @@ Content-Type: application/json
 
 ###
 
-POST {{Server.SingleContainer_HostAddress}}/AuthorItem
+POST {{HostAddress}}/AuthorItem
 Content-Type: application/json
+Authorization: Bearer {{authToken}}
 
 {
   "id": "1",
@@ -65,5 +64,6 @@ Content-Type: application/json
 
 ###
 
-GET {{Server.SingleContainer_HostAddress}}/AuthorItem
+GET {{HostAddress}}/AuthorItem
 Accept: application/json
+Authorization: Bearer {{authToken}}
