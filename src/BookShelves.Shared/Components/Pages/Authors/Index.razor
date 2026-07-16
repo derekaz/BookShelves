@@ -1,0 +1,168 @@
+﻿@page "/authors"
+@inject IAuthorItemFactory AuthorItemFactory
+@inject IAuthorItemDataService DataService
+@inject ILogger<Index> Logger
+@inject IDialogService DialogService
+@attribute [Authorize(Roles = "Administrator")]
+
+<h1>Authors</h1>
+
+<div>
+    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
+</div>
+
+<p>@message</p>
+
+@if (Authors == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col"><div class="fw-bold mb-1">Name</div><div class="text-muted mb-0">Biography</div></th>
+                <th scope="col">Last Update</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in Authors)
+            {
+                <tr>
+                    <th scope="row">@author.IdValue</th>
+                    <td><div class="fw-normal mb-1">@author.Name</div><div class="text-muted mb-0">@author.Biography</div></td>
+                    <td>@author.LastUpdateTime</td>
+                    <td>
+                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(author))" value="Edit" />
+                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(author))" value="Delete" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <MudDialogProvider FullWidth="true"
+                       MaxWidth="MaxWidth.Medium"
+                       CloseButton="true"
+                       BackdropClick="false"
+                       Position="DialogPosition.Center"
+                       CloseOnEscapeKey="true"
+                       />
+}
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+#if NET10_0
+    [PersistentState]
+#endif
+    public IEnumerable<AuthorItemViewModel>? Authors { get; set; }
+
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Authors ??= await DataService.GetAuthorsAsync();
+        }
+        catch (Microsoft.Identity.Client.MsalUiRequiredException)
+        {
+            // ConsentHandler.HandleConsentRequiredException(ex);
+            // HandleMsalException(ex);
+        }
+        catch(NavigationException)
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
+        }
+    }
+
+    private async void ShowDetailAsync(AuthorItemViewModel author, string titleText)
+    {
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
+
+        try
+        {
+            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
+
+            var dialog = await DialogService.ShowAsync<AuthorDetail>("Book Details", parameters, options);
+            var result = await dialog.Result;
+            if (result == null)
+            {
+                message = "Error completing the request";
+            }
+            else if (!result.Canceled)
+            {
+                message = result?.Data?.ToString() ?? "";
+
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+            }
+            else
+            {
+                if (String.IsNullOrEmpty(author.IdValue))
+                    message = "Add canceled";
+                else
+                    message = "Edit canceled";
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:ShowDetailAsync-Exception");
+        }
+    }
+
+    private void AddAsync()
+    {
+        var author = InitializeAuthorObject();
+        ShowDetailAsync(author, "New Author");
+    }
+
+    private void EditAsync(AuthorItemViewModel author)
+    {
+        ShowDetailAsync(author, "Edit Author");
+    }
+
+    private async void DeleteAsync(AuthorItemViewModel author)
+    {
+        var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
+        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
+        var result = await dialog.Result;
+        if (result == null)
+        {
+            message = "Error completing the request";
+        }
+        else if (!result.Canceled)
+        {
+            var deleteResult = await DataService.DeleteAuthorAsync(author);
+
+            if (deleteResult)
+            {
+                message = $"'{author.Name}' deleted";
+
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+            }
+        }
+        else
+        {
+            message = "Delete canceled";
+        }
+        StateHasChanged();
+    }
+
+    private AuthorItemViewModel InitializeAuthorObject()
+    {
+        return AuthorItemFactory.CreateAuthor();
+    }
+}

@@ -1,0 +1,68 @@
+﻿@using BookShelves.Shared.Data.Interfaces
+@inject IAuthorItemDataService DataService
+
+<MudDialog>
+    <TitleContent>@TitleText</TitleContent>
+    <DialogContent>
+        <EditForm Model="@AuthorObject">
+            <div class="form-group">
+                <label for="Name" class="control-label">Name</label>
+                <InputText id="name" for="Name" class="form-control" @bind-Value="@AuthorObject!.Name" />
+            </div>
+            <div class="form-group">
+                <label for="Biography" class="control-label">Biography</label>
+                <InputText for="Biography" class="form-control" @bind-Value="@AuthorObject.Biography" />
+            </div>
+            <div class="form-group">
+                <label for="LastUpdateTime" class="control-label">Last Update</label>
+                <div class="form-control">
+                    @AuthorObject.LastUpdateTime
+                </div>
+                @* <InputText for="LastUpdateTime" class="form-control" @bind-Value="@AuthorObject.LastUpdateTime" /> *@
+            </div>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <button type="button" @onclick="SubmitForm">Submit</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+    </DialogActions>
+</MudDialog>
+
+@code 
+{
+    [CascadingParameter]
+    IMudDialogInstance? MudDialog { get; set; } // = default!;
+
+    [Parameter]
+    public AuthorItemViewModel? AuthorObject { get; set; }
+
+    [Parameter]
+    public string TitleText { get; set; } = "Authors";
+
+    string message = string.Empty;
+
+    private async Task SubmitForm()
+    {
+        if (String.IsNullOrEmpty(AuthorObject!.IdValue) || AuthorObject!.IdValue == "0")
+        {
+            var result = await DataService.CreateAuthorAsync(AuthorObject);
+            if (result)
+            {
+                string message = $"'{AuthorObject.Name}' has been added.";
+                MudDialog?.Close(DialogResult.Ok(message));
+            }
+        }
+        else
+        {
+            var result = await DataService.UpdateAuthorAsync(AuthorObject);
+            if (result)
+            {
+                string message = $"'{AuthorObject.Name}' has been updated.";
+                MudDialog?.Close(DialogResult.Ok(message));
+            }
+        }
+    }
+
+    private void Close() => MudDialog?.Close(DialogResult.Cancel());
+    private void Cancel() => MudDialog?.Cancel();
+}

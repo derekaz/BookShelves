@@ -2,7 +2,7 @@
 
 namespace BookShelves.Shared.Data.Interfaces;
 
-public interface IAuthorItemFactory
+public interface IBookFactory
 {
-    AuthorItemViewModel CreateAuthor();
+    BookViewModel CreateBook();
 }
