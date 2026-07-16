@@ -319,6 +319,7 @@ public static class MauiProgram
             }
 
             app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
+            app.Services.GetRequiredService<AuthorDbContextInitializer>().Initialize();
 
             return app;
         }
