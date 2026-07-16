@@ -25,29 +25,20 @@
     <PackageReference Include="CommunityToolkit.Datasync.Client" Version="10.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.9" />
     <PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" />
-	<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+	  <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-android'))">
-	<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
-	<PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
+	  <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
+	  <PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-	<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.3" />
+  	<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.3" />
   </ItemGroup>
-
-	<!--<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />-->
-    <!--<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />-->
-    <!--
-	<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.2" PrivateAssets="None" GeneratePathProperty="true" Condition="'$(TargetFramework)'=='net9.0-maccatalyst'" />
-	<NativeReference Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)/runtimes/osx-x64/native/libe_sqlite3.dylib" Condition="'$(TargetFramework)'=='net9.0-maccatalyst'">
-	  <Kind>Dynamic</Kind>
-	  <SmartLink>False</SmartLink>
-	</NativeReference>-->
 
   <ItemGroup>
     <ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
   </ItemGroup>
-
 </Project>

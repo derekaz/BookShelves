@@ -207,6 +207,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         // try to utilize the offline sync service
+        builder.Services.AddScoped<AuthorDbContextInitializer>();
         builder.Services.AddScoped<IDbInitializer, AuthorDbContextInitializer>();
         builder.Services.AddDbContextFactory<AuthorDbContext>(options =>
         {
