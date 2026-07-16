@@ -1,6 +1,7 @@
 ﻿using BookShelves.Maui.Data.Infrastructure;
 using BookShelves.Maui.Data.Models;
 using BookShelves.Maui.Data.Services;
+using BookShelves.Maui.Data.SyncTest;
 using BookShelves.Maui.Handlers;
 using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
@@ -204,6 +205,35 @@ public static class MauiProgram
         builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
+
+        // try to utilize the offline sync service
+        builder.Services.AddScoped<IDbInitializer, AuthorDbContextInitializer>();
+        builder.Services.AddDbContextFactory<AuthorDbContext>(options =>
+        {
+            // set the local database path
+#if MACCATALYST
+            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+            if (File.Exists(dbPath2))
+            {
+                File.Delete(dbPath2);
+            }
+#else
+            var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+#endif
+
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+#endif
+
+            var localDbConnectionString = $"Data Source={dbPath}";
+
+            options.UseSqlite(localDbConnectionString);
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+        });
+        // builder.Services.AddDbContext<AuthorDbContext>(options => options.UseSqlite(localDbConnectionString));
+
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
