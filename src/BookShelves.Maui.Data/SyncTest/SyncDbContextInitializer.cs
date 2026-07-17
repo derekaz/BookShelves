@@ -5,7 +5,7 @@
 /// the database. However, you may want to use migrations.
 /// </summary>
 /// <param name="context">The context for the database.</param>
-public class AuthorDbContextInitializer(AuthorDbContext context) : IDbInitializer
+public class SyncDbContextInitializer(SyncDbContext context) : IDbInitializer
 {
     /// <inheritdoc />
     public void Initialize()

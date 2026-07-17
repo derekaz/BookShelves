@@ -1,12 +1,11 @@
-﻿using BookShelves.Shared.Data.Interfaces;
-using BookShelves.Shared.Presentation.ViewModels;
+﻿using BookShelves.Shared.Presentation.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookShelves.Maui.Data.Models;
 
 [Table(Constants.AuthorTable), PrimaryKey(nameof(Id))]
-public class LocalAuthor : IAuthor
+public class LocalAuthor // : IAuthor
 {
     public LocalAuthor() { }
 

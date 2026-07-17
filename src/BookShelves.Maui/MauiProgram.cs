@@ -207,9 +207,9 @@ public static class MauiProgram
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         // try to utilize the offline sync service
-        builder.Services.AddScoped<AuthorDbContextInitializer>();
-        builder.Services.AddScoped<IDbInitializer, AuthorDbContextInitializer>();
-        builder.Services.AddDbContextFactory<AuthorDbContext>(options =>
+        builder.Services.AddScoped<SyncDbContextInitializer>();
+        builder.Services.AddScoped<IDbInitializer, SyncDbContextInitializer>();
+        builder.Services.AddDbContextFactory<SyncDbContext>(options =>
         {
             // set the local database path
 #if MACCATALYST
@@ -220,7 +220,8 @@ public static class MauiProgram
                 File.Delete(dbPath2);
             }
 #else
-            var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
+            // var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
+            var dbPath = FileAccessHelper.GetLocalFilePath("BookShelvesSyncTest.db");
 #endif
 
 #if DEBUG
@@ -320,7 +321,7 @@ public static class MauiProgram
             }
 
             app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
-            app.Services.GetRequiredService<AuthorDbContextInitializer>().Initialize();
+            app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
 
             return app;
         }

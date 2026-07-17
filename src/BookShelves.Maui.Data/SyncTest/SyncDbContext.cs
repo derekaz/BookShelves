@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BookShelves.Maui.Data.SyncTest;
 
 #if OFFLINE_SYNC_ENABLED
-public class AuthorDbContext(DbContextOptions<AuthorDbContext> options) : OfflineDbContext(options)
+public class SyncDbContext(DbContextOptions<SyncDbContext> options) : OfflineDbContext(options)
 #else
 public class AuthorDbContext(DbContextOptions<AuthorDbContext> options) : DbContext(options)
 #endif
