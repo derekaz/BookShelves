@@ -12,7 +12,7 @@ public class AuthorItemViewModel
 
     public string? Biography { get; set; } = string.Empty;
 
-    public DateTime? LastUpdateTime { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset? LastUpdateTime { get; set; } = DateTime.UtcNow;
 
     public int? Revision { get; set; } = 0;
 }

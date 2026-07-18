@@ -7,9 +7,9 @@ namespace BookShelves.WebApi.Controllers
 {
     [Authorize]
     [Route("[controller]")]
-    public class AuthorItemController : TableController<AuthorItem>
+    public class AuthorsController : TableController<AuthorItem>
     {
-        public AuthorItemController(IRepository<AuthorItem> repository, IHttpContextAccessor accessor) : base(repository)
+        public AuthorsController(IRepository<AuthorItem> repository, IHttpContextAccessor accessor) : base(repository)
         {
             AccessControlProvider = new AuthorsAccessControlProvider(accessor);
 

@@ -199,12 +199,15 @@ public static class MauiProgram
             options.EnableDetailedErrors();
         });
 
-        builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddTransient<IUnitOfWork<BookShelvesDbContext>, UnitOfWork<BookShelvesDbContext>>();
         builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
-        builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
+
+        builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
+        builder.Services.AddTransient<IRepository<AuthorItem>, GenericRepository<SyncDbContext, AuthorItem>>(); // Register specific repositories if needed
+        builder.Services.AddTransient<IAuthorItemDataService, AuthorItemDataService>();
 
         // try to utilize the offline sync service
         builder.Services.AddScoped<SyncDbContextInitializer>();
@@ -238,6 +241,8 @@ public static class MauiProgram
 
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+
+        builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         //builder.Services.AddHttpLogging(logging =>
         //{

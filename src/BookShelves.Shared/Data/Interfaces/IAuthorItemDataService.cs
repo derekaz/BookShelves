@@ -11,4 +11,6 @@ public interface IAuthorItemDataService //<T> where T : IBook
     Task<bool> UpdateAuthorAsync(AuthorItemViewModel author);
 
     Task<bool> DeleteAuthorAsync(AuthorItemViewModel author, bool softDelete = false);
+
+    Task ServerSyncAsync();
 }

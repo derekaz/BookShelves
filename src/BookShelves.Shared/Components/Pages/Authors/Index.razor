@@ -1,5 +1,5 @@
 ﻿@page "/authors"
-@inject IAuthorItemFactory AuthorItemFactory
+@* @inject IAuthorItemFactory AuthorItemFactory *@
 @inject IAuthorItemDataService DataService
 @inject ILogger<Index> Logger
 @inject IDialogService DialogService
@@ -9,6 +9,9 @@
 
 <div>
     <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
+</div>
+<div>
+    <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary">Server Sync</button>
 </div>
 
 <p>@message</p>
@@ -60,7 +63,7 @@ else
 </style>
 
 @code {
-#if NET10_0
+    #if NET10_0
     [PersistentState]
 #endif
     public IEnumerable<AuthorItemViewModel>? Authors { get; set; }
@@ -123,6 +126,11 @@ else
         }
     }
 
+    private async void ServerSyncAsync()
+    {
+        await DataService.ServerSyncAsync();
+    }
+
     private void AddAsync()
     {
         var author = InitializeAuthorObject();
@@ -163,6 +171,6 @@ else
 
     private AuthorItemViewModel InitializeAuthorObject()
     {
-        return AuthorItemFactory.CreateAuthor();
+        return new AuthorItemViewModel();
     }
 }

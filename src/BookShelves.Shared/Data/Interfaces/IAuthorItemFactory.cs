@@ -1,8 +1,8 @@
-﻿using BookShelves.Shared.Presentation.ViewModels;
+﻿//using BookShelves.Shared.Presentation.ViewModels;
 
-namespace BookShelves.Shared.Data.Interfaces;
+//namespace BookShelves.Shared.Data.Interfaces;
 
-public interface IBookFactory
-{
-    BookViewModel CreateBook();
-}
+//public interface IBookFactory
+//{
+//    BookViewModel CreateBook();
+//}
