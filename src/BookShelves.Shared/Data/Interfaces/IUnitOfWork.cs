@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace BookShelves.Shared.Data.Interfaces;
+﻿namespace BookShelves.Shared.Data.Interfaces;
 
 //public interface IUnitOfWork<TLocalBook> : IDisposable
 //    where TLocalBook : class, IBook
@@ -10,8 +8,7 @@ namespace BookShelves.Shared.Data.Interfaces;
 //    Task<int> CompleteAsync();
 //}
 
-public interface IUnitOfWork<TContext> : IAsyncDisposable
-    where TContext : DbContext
+public interface IUnitOfWork : IAsyncDisposable
 {
     IRepository<T> GetRepository<T>() where T : class;
     Task<int> SaveChangesAsync();

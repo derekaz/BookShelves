@@ -13,7 +13,6 @@
 # environment files
 *.env
 *.env.*
-*.env.private.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

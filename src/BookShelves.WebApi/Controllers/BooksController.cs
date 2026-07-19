@@ -10,6 +10,11 @@ namespace BookShelves.WebApi.Controllers;
 [Route("[controller]")]
 public class BooksController(ILogger<BooksController> logger, BookRepository booksData) : Controller
 {
+    //public IActionResult Index()
+    //{
+    //    return View();
+    //}
+
     [HttpGet]
     [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.Read" })]
     public async Task<IResult> ReadBooks()
@@ -21,7 +26,6 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
     }
 
     [HttpGet("{id}")]
-    [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.Read" })]
     public async Task<IResult> GetBook(string id)
     {
         var data = await booksData.GetAsync(id);
@@ -29,8 +33,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [HttpPost("new")]
     [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
+    [HttpPost("new")]
     public async Task<IResult> CreateBook(Book book)
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(CreateBook)}");
@@ -49,8 +53,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return TypedResults.Created($"/books/{book.Id}", book);
     }
 
-    [HttpPut("edit/{id}")]
     [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
+    [HttpPut("edit/{id}")]
     public async Task<IResult> EditBook(string id, Book inputBook)
     {
         await booksData.UpdateAsync(id, inputBook);
@@ -60,8 +64,8 @@ public class BooksController(ILogger<BooksController> logger, BookRepository boo
         return (data != null) ? TypedResults.Ok(data) : TypedResults.NotFound();
     }
 
-    [HttpDelete("delete/{id}")]
     [RequiredScopeOrAppPermission(AcceptedScope = new[] { "Books.ReadWrite" })]
+    [HttpDelete("delete/{id}")]
     public async Task<IResult> DeleteBook(string id)
     {
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(DeleteBook)} with id:{id}");

@@ -18,9 +18,6 @@ https://share.google/aimode/fnQYTalX6Ffaiz5j4
 more continuation of the chat regarding a comprehensive approach to the gha process...
 https://share.google/aimode/rVfJ7ZMy1mcJnAeHf
 
-DataSync is a Microsoft project that provides a set of libraries and tools for building data synchronization solutions. It allows developers to synchronize data between different platforms, such as mobile devices, web applications, and cloud services. DataSync can be used to keep data consistent across multiple devices and platforms, enabling offline access and real-time updates.
-https://github.com/CommunityToolkit/Datasync
-
 
 And maybe for getting the nginx endpoing to have it's own IP...something like this is suggested:  
     Might be able to use the already created network for the qnap_lan side (due to already having CADDY running this way)...investigate

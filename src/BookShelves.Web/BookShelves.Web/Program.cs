@@ -70,7 +70,6 @@ builder.Services.AddScoped<IBook, BookShelves.Web.Shared.Data.Book>();
 builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
 builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
 builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
-builder.Services.AddScoped<IAuthorItemDataService, ServerAuthorsDataService>();
 
 //builder.Services.AddHttpClient("ExternalApi",
 //      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
@@ -81,8 +80,6 @@ builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, ServerVersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-
-builder.Services.AddScoped<BearerTokenHandler>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -241,77 +238,6 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
         // Ensure the id from route is set on the incoming book model
         book.Id = id;
         var result = await BooksDataService.UpdateBookAsync(book);
-        return result ? Results.Ok() : Results.StatusCode(500);
-    }
-    catch (Exception)
-    {
-        return Results.StatusCode(500);
-    }
-}).RequireAuthorization();
-
-app.MapGet("/authorsdata", async ([FromServices] IAuthorItemDataService AuthorsDataService, HttpContext context) =>
-{
-    try
-    {
-        var authors = await AuthorsDataService.GetAuthorsAsync();
-        var xlatAuthors = authors.Select(a => Author.FromAuthorItemViewModel(a));
-        return Results.Ok(xlatAuthors);
-    }
-    catch (MicrosoftIdentityWebChallengeUserException)
-    {
-        return Results.Unauthorized();
-    }
-    catch (MsalUiRequiredException)
-    {
-        return Results.Unauthorized();
-    }
-    catch (Exception ex)
-    {
-        if (ex.InnerException?.Message.Contains("MsalUiRequiredException") == true)
-        {
-            return Results.Unauthorized();
-        }
-        return Results.InternalServerError();
-    }
-}).RequireAuthorization();
-
-// POST endpoint to create an author via the server-side IAuthorItemDataService implementation
-app.MapPost("/authorsdata", async ([FromServices] IAuthorItemDataService AuthorsDataService, AuthorItemViewModel author) =>
-{
-    try
-    {
-        var result = await AuthorsDataService.CreateAuthorAsync(author);
-        return result ? Results.Ok() : Results.StatusCode(500);
-    }
-    catch (Exception)
-    {
-        return Results.StatusCode(500);
-    }
-}).RequireAuthorization();
-
-// DELETE endpoint to delete an author via the server-side IAuthorItemDataService implementation
-app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorItemDataService AuthorsDataService, string id) =>
-{
-    try
-    {
-        var author = new AuthorItemViewModel { Id = id };
-        var result = await AuthorsDataService.DeleteAuthorAsync(author);
-        return result ? Results.Ok() : Results.StatusCode(500);
-    }
-    catch (Exception)
-    {
-        return Results.StatusCode(500);
-    }
-}).RequireAuthorization();
-
-// PUT endpoint to update an author via the server-side IAuthorItemDataService implementation
-app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorItemDataService AuthorsDataService, string id, AuthorItemViewModel author) =>
-{
-    try
-    {
-        // Ensure the id from route is set on the incoming author model
-        author.Id = id;
-        var result = await AuthorsDataService.UpdateAuthorAsync(author);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
     catch (Exception)

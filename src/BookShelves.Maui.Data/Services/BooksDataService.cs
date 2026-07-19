@@ -18,7 +18,7 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
         newBook.UpdateType = "C";
         newBook.LastUpdateTime = DateTime.UtcNow;
 
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         await repo.AddAsync(newBook);
         return await uow.SaveChangesAsync() > 0;
@@ -26,7 +26,7 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
 
     public async Task<bool> CreateBookFromSyncAsync(LocalBook book)
     {
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         await repo.AddAsync(book);
         return await uow.SaveChangesAsync() > 0;
@@ -39,7 +39,7 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
         localBook.UpdateType = "C";
         localBook.LastUpdateTime = DateTime.UtcNow;
 
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         await repo.UpdateAsync(localBook);
 
@@ -50,7 +50,7 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
 
     public async Task<bool> UpdateBookFromSyncAsync(LocalBook newBook)
     {
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         await repo.AddAsync(newBook);
         return await uow.SaveChangesAsync() > 0;
@@ -66,13 +66,13 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
             localBook.UpdateType = "D";
             localBook.LastUpdateTime = DateTime.UtcNow;
 
-            await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+            await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork>();
             var repo1 = uow1.GetRepository<LocalBook>();
             await repo1.UpdateAsync(localBook);
             return await uow1.SaveChangesAsync() > 0;
         }
 
-        await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo2 = uow2.GetRepository<LocalBook>();
         await repo2.DeleteAsync(localBook);
         return await uow2.SaveChangesAsync() > 0;
@@ -87,12 +87,12 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
     {
         if (includeSoftDeleted)
         {
-            await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+            await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork>();
             var repo1 = uow1.GetRepository<LocalBook>();
             return (await repo1.GetAllAsync()).Select(b => b.ToBookViewModel());
         }
 
-        await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo2 = uow2.GetRepository<LocalBook>();
 
         var localBooks = await repo2.FindAsync(b => b.UpdateType != "D");
@@ -102,14 +102,14 @@ public class BooksDataService(IServiceProvider serviceProvider) : IBooksDataServ
 
     public async Task<LocalBook?> GetBookWithServerIdAsync(int serverId)
     {
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         return await repo.FindAsync(b => b.ServerId == serverId).ContinueWith(t => t.Result.FirstOrDefault());
     }
 
     public async Task<IEnumerable<LocalBook>> GetChangedBooksAsync()
     {
-        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<BookShelvesDbContext>>();
+        await using var uow = serviceProvider.GetRequiredService<IUnitOfWork>();
         var repo = uow.GetRepository<LocalBook>();
         return await repo.FindAsync(changedBooks);
     }

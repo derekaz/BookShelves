@@ -1,7 +1,6 @@
 ﻿using BookShelves.Maui.Data.Infrastructure;
 using BookShelves.Maui.Data.Models;
 using BookShelves.Maui.Data.Services;
-using BookShelves.Maui.Data.SyncTest;
 using BookShelves.Maui.Handlers;
 using BookShelves.Maui.Helpers;
 using BookShelves.Maui.Services;
@@ -148,7 +147,6 @@ public static class MauiProgram
             client.BaseAddress = new Uri("http://localhost:7071");
             client.Timeout = new TimeSpan(0, 0, 20);
         });
-
         builder.Services.AddHttpClient("WeatherApi", client =>
         {
             string baseUrl = builder.Configuration.GetSection("WeatherApi:BaseUrl").Get<string>() ?? string.Empty;
@@ -166,24 +164,6 @@ public static class MauiProgram
         // .AddTraceContentLogging()
 #endif
         ;
-        builder.Services.AddHttpClient("SyncApi", client =>
-        {
-            string baseUrl = builder.Configuration.GetSection("SyncApi:BaseUrl").Get<string>() ?? string.Empty;
-            client.BaseAddress = new Uri(baseUrl);
-            client.Timeout = new TimeSpan(0, 0, 20);
-        })
-        .AddHttpMessageHandler(_ =>
-        {
-            return new LoggingHandler();
-        })
-        .AddHttpMessageHandler(sp =>
-        {
-            var scopes = builder.Configuration.GetSection("SyncApi:Scopes").Get<string[]>() ?? [];
-            return new MauiAuthenticationMessageHandler(
-                sp.GetRequiredService<IExternalAuthenticationStateProvider>(),
-                sp.GetRequiredService<ILogger<MauiAuthenticationMessageHandler>>(),
-                scopes);
-        });
 
         // Configure DbContext
         var bsp = builder.Services.BuildServiceProvider();
@@ -218,50 +198,14 @@ public static class MauiProgram
             options.EnableDetailedErrors();
         });
 
-        builder.Services.AddTransient<IUnitOfWork<BookShelvesDbContext>, UnitOfWork<BookShelvesDbContext>>();
+        builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
         builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IBooksDataService, BooksDataService>();
         builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
         builder.Services.AddTransient<IBook, LocalBook>();
-
-        builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
-        builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>(); // Register specific repositories if needed
-        builder.Services.AddTransient<IAuthorItemDataService, AuthorItemDataService>();
-
-        // try to utilize the offline sync service
-        builder.Services.AddScoped<SyncDbContextInitializer>();
-        builder.Services.AddScoped<IDbInitializer, SyncDbContextInitializer>();
-        builder.Services.AddDbContextFactory<SyncDbContext>(options =>
-        {
-            // set the local database path
-#if MACCATALYST
-            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-            if (File.Exists(dbPath2))
-            {
-                File.Delete(dbPath2);
-            }
-#else
-            // var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
-            var dbPath = FileAccessHelper.GetLocalFilePath("BookShelvesSyncTest.db");
-#endif
-
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-#endif
-
-            var localDbConnectionString = $"Data Source={dbPath}";
-
-            options.UseSqlite(localDbConnectionString);
-            options.EnableSensitiveDataLogging();
-            options.EnableDetailedErrors();
-        });
-        // builder.Services.AddDbContext<AuthorDbContext>(options => options.UseSqlite(localDbConnectionString));
-
+        builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
-
-        builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 
         //builder.Services.AddHttpLogging(logging =>
         //{
@@ -345,7 +289,6 @@ public static class MauiProgram
             }
 
             app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
-            app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
 
             return app;
         }
