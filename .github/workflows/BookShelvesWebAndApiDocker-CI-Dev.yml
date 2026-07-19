@@ -79,7 +79,7 @@ jobs:
 
       # --- WEB APPLICATION PROJECT ---
       - name: Build and Push Web App Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ github.workspace }}/src
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
@@ -98,7 +98,7 @@ jobs:
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ${{ github.workspace }}/src
           file: ${{env.API_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
