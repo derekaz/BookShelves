@@ -1,17 +1,16 @@
-﻿using BookShelves.Maui.Data.Services;
-using BookShelves.Shared.Data.Bases;
+﻿using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShelves.Maui.Data.Infrastructure;
 
 // DataAccess/UnitOfWork.cs
-public class UnitOfWork : IUnitOfWork // (IDbContextFactory<BookShelvesDbContext> dbFactory, BookShelvesDbContext context) : IUnitOfWork<LocalBook>
+public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext // (IDbContextFactory<BookShelvesDbContext> dbFactory, BookShelvesDbContext context) : IUnitOfWork<LocalBook>
 {
-    private readonly BookShelvesDbContext _context; // = _dbFactory.CreateDbContextAsync().Result; // context;
+    private readonly TContext _context; // = _dbFactory.CreateDbContextAsync().Result; // context;
     private readonly Dictionary<Type, object> _repositories = new();
 
-    public UnitOfWork(IDbContextFactory<BookShelvesDbContext> contextFactory)
+    public UnitOfWork(IDbContextFactory<TContext> contextFactory)
     {
         _context = contextFactory.CreateDbContext();
     }
@@ -21,7 +20,7 @@ public class UnitOfWork : IUnitOfWork // (IDbContextFactory<BookShelvesDbContext
         var type = typeof(T);
         if (!_repositories.ContainsKey(type))
         {
-            _repositories[type] = new GenericRepository<BookShelvesDbContext, T>(_context);
+            _repositories[type] = new GenericRepository<TContext, T>(_context);
         }
         return (IRepository<T>)_repositories[type];
     }

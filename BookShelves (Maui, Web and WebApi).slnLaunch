@@ -1,0 +1,36 @@
+[
+  {
+    "Name": "Maui, Web and WebApi",
+    "Projects": [
+      {
+        "Path": "src\\BookShelves.Maui\\BookShelves.Maui.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.WebApi\\BookShelves.WebApi.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.Web\\BookShelves.Web\\BookShelves.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.Web\\BookShelves.Web.Client\\BookShelves.Web.Client.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Web and WebApi",
+    "Projects": [
+      {
+        "Path": "src\\BookShelves.Web\\BookShelves.Web\\BookShelves.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.WebApi\\BookShelves.WebApi.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

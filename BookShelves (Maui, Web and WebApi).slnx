@@ -1,0 +1,13 @@
+<Solution><Folder Name="/Solution Items/">  <File Path=".editorconfig" /><File Path="GitVersion.yml" /><File Path="src/.env.development-laptop" /><File Path="src/.env.production" /><File Path="src/Directory.Build.Props" /><File Path="src/docker-compose.yml" /><File Path="src/global.json" /><File Path="src/Notes.md" /></Folder>
+  <Project Path="src/BookShelves.Maui.MigrationHost/BookShelves.Maui.MigrationHost.csproj" Id="5e62b617-4862-409d-b8c2-44a24ad70281" />
+  <Project Path="src/BookShelves.Maui.Data/BookShelves.Maui.Data.csproj" />
+  <Project Path="src/BookShelves.Maui/BookShelves.Maui.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="src/BookShelves.Shared/BookShelves.Shared.csproj" />
+  <Project Path="src/BookShelves.Web.Shared/BookShelves.Web.Shared.csproj" />
+  <Project Path="src/BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj" />
+  <Project Path="src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj" />
+  <Project Path="src/BookShelves.WebApi/BookShelves.WebApi.csproj" />
+  <Project Path="test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj" />
+</Solution>

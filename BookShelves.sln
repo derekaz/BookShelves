@@ -3,32 +3,32 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web", "BookShelves.Web\BookShelves.Web\BookShelves.Web.csproj", "{C9DB1DB3-94C2-4205-A3A4-43BF8B5E2DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web", "src\BookShelves.Web\BookShelves.Web\BookShelves.Web.csproj", "{C9DB1DB3-94C2-4205-A3A4-43BF8B5E2DB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared", "BookShelves.Shared\BookShelves.Shared.csproj", "{B1DC0135-C075-43AC-B129-AF433A8220BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Shared", "src\BookShelves.Shared\BookShelves.Shared.csproj", "{B1DC0135-C075-43AC-B129-AF433A8220BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmSwa", "BookShelves.WasmSWA\BookShelves.WasmSwa.csproj", "{44A23565-6CD5-4B28-9B50-DE5200DEA0B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmSwa", "src\BookShelves.WasmSWA\BookShelves.WasmSwa.csproj", "{44A23565-6CD5-4B28-9B50-DE5200DEA0B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmApi", "BookShelves.WasmApi\BookShelves.WasmApi.csproj", "{F5A1E18F-EF6D-4AEF-A096-C1B994531543}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.WasmApi", "src\BookShelves.WasmApi\BookShelves.WasmApi.csproj", "{F5A1E18F-EF6D-4AEF-A096-C1B994531543}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web.Shared", "BookShelves.Web.Shared\BookShelves.Web.Shared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Web.Shared", "src\BookShelves.Web.Shared\BookShelves.Web.Shared.csproj", "{9091B714-E5B0-47EC-87B4-3E009CE11861}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "BookShelves.Maui\BookShelves.Maui.csproj", "{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui", "src\BookShelves.Maui\BookShelves.Maui.csproj", "{0FC0F3B4-48EA-4869-B1C3-D5E9C4721D83}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui.Data", "BookShelves.Maui.Data\BookShelves.Maui.Data.csproj", "{258E40D8-EB33-4113-9652-1E6A68628EA1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookShelves.Maui.Data", "src\BookShelves.Maui.Data\BookShelves.Maui.Data.csproj", "{258E40D8-EB33-4113-9652-1E6A68628EA1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D0D99C1E-5968-490D-89C0-CFE60CD98AE9}"
 	ProjectSection(SolutionItems) = preProject
-		Directory.Build.Props = Directory.Build.Props
-		docker-compose.yml = docker-compose.yml
-		..\GitVersion.yml = ..\GitVersion.yml
-		global.json = global.json
-		Notes.md = Notes.md
+		src\Directory.Build.Props = src\Directory.Build.Props
+		src\docker-compose.yml = src\docker-compose.yml
+		GitVersion.yml = GitVersion.yml
+		src\global.json = src\global.json
+		src\Notes.md = src\Notes.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.WebApi", "BookShelves.WebApi\BookShelves.WebApi.csproj", "{061DAAD6-6DBB-40E9-A967-B940F7586CF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.WebApi", "src\BookShelves.WebApi\BookShelves.WebApi.csproj", "{061DAAD6-6DBB-40E9-A967-B940F7586CF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Web.Client", "BookShelves.Web\BookShelves.Web.Client\BookShelves.Web.Client.csproj", "{DB41239F-9456-0EDD-F374-D9E52415BF66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookShelves.Web.Client", "src\BookShelves.Web\BookShelves.Web.Client\BookShelves.Web.Client.csproj", "{DB41239F-9456-0EDD-F374-D9E52415BF66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
