@@ -317,7 +317,8 @@ jobs:
       - name: NuGet Restore
         shell: pwsh
         run: dotnet restore ${{env.MAUI_CSPROJ}}
-        working-directory: ${{env.MAUI_PROJPATH}}
+        # working-directory: ${{env.MAUI_PROJPATH}}
+        working-directory: ${{env.PROJPATH}}
 
       - name: Create IOS publish folder
         shell: pwsh
@@ -334,6 +335,7 @@ jobs:
       # Overrides passed directly to MSBuild properties mapping to Apple variables
       - name: Build Apple Package
         shell: pwsh
+        working-directory: ${{env.PROJPATH}}
         run: |
           dotnet `
             publish `
@@ -493,6 +495,7 @@ jobs:
           mkdir -p ${{ env.MAUI_WINDOWS_PUBLISH_PATH }}
 
       - name: Build Windows Packages
+        working-directory: ${{env.PROJPATH}}
         run: |
           dotnet publish ${{env.MAUI_CSPROJ}} `
             -v minimal `
