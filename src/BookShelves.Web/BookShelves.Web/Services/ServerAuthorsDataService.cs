@@ -35,22 +35,30 @@ internal sealed class ServerAuthorsDataService
     {
         var newAuthor = new BookShelves.Web.Shared.Data.Author
         {
-            Id = Guid.CreateVersion7().ToString(),
+            // Id = Guid.CreateVersion7().ToString(),
             Name = author.Name,
             Bio = author.Biography,
             // UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow,
         };
 
         var httpClient = GetClientFactory().CreateClient();
-        var tableEndpoint = new Uri("/authors/new", UriKind.Relative);
+        var tableEndpoint = new Uri("/authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
-        var result = await authorsClient.AddAsync(newAuthor);
-
-        if (result.IsSuccessful && result.HasValue)
+        try
         {
-            return true;
-            // return result.Value!;
+            var result = await authorsClient.AddAsync(newAuthor);
+
+            if (result.IsSuccessful && result.HasValue)
+            {
+                return true;
+                // return result.Value!;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception as needed
+            throw new InvalidOperationException("Error creating author.", ex);
         }
 
         return false;
@@ -109,15 +117,17 @@ internal sealed class ServerAuthorsDataService
             var tableEndpoint = new Uri("/authors", UriKind.Relative);
             var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
-            var authors = await authorsClient.Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
+            var authors = await authorsClient.ToListAsync(); //  .Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
 
-            return authors.Select(a => new AuthorItemViewModel
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Biography = a.Bio,
-                LastUpdateTime = a.UpdatedAt,
-            });
+            return authors.Select(a => a.ToAuthorItemViewModel());
+
+            //new AuthorItemViewModel
+            //{
+            //    Id = a.Id,
+            //    Name = a.Name,
+            //    Biography = a.Bio,
+            //    LastUpdateTime = a.UpdatedAt,
+            //});
 
             //HttpContext? context = _contextAccessor.HttpContext;
             //var curUser = context?.User;
@@ -168,63 +178,105 @@ internal sealed class ServerAuthorsDataService
 
     public async Task<bool> UpdateAuthorAsync(AuthorItemViewModel author)
     {
-        HttpContext? context = _contextAccessor.HttpContext;
-        var curUser = context?.User;
+        //HttpContext? context = _contextAccessor.HttpContext;
+        //var curUser = context?.User;
+
+        if (author.Id == null)
+        {
+            throw new ArgumentNullException(nameof(author.Id), "Author ID cannot be null.");
+        }
 
         var newAuthor = new BookShelves.Web.Shared.Data.Author
         {
             Id = author.Id,
             Name = author.Name,
             Bio = author.Biography,
-            UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow,
+            // UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow,
         };
 
-        var response = await _downstreamApi.CallApiForUserAsync("BooksApi",
-            options =>
-            {
-                options.RelativePath = $"/authors/edit/{author.Id}";
-                options.HttpMethod = "put";
-                options.ContentType = "application/json";
-            }, curUser, JsonContent.Create(newAuthor));
+        var httpClient = GetClientFactory().CreateClient();
+        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
-        response.EnsureSuccessStatusCode();
+        var result = await authorsClient.ReplaceAsync(newAuthor);
 
-        var updatedAuthor = await response.Content.ReadFromJsonAsync<Author>();
+        if (result.IsSuccessful && result.HasValue)
+        {
+            return true;
+            // return result.Value!;
+        }
 
-        return updatedAuthor != null;
+        return false;
+
+        //var response = await _downstreamApi.CallApiForUserAsync("BooksApi",
+        //    options =>
+        //    {
+        //        options.RelativePath = $"/authors/edit/{author.Id}";
+        //        options.HttpMethod = "put";
+        //        options.ContentType = "application/json";
+        //    }, curUser, JsonContent.Create(newAuthor));
+
+        //response.EnsureSuccessStatusCode();
+
+        //var updatedAuthor = await response.Content.ReadFromJsonAsync<Author>();
+
+        //return updatedAuthor != null;
     }
 
     public async Task<bool> DeleteAuthorAsync(AuthorItemViewModel author, bool softDelete = false)
     {
-        try
+        var httpClient = GetClientFactory().CreateClient();
+        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
+
+        // If softDelete is requested, you could implement a different downstream call
+        // For now, call the BooksApi delete endpoint which removes the record by id
+        if (author.Id == null)
         {
-            HttpContext? context = _contextAccessor.HttpContext;
-            var curUser = context?.User;
-
-            // If softDelete is requested, you could implement a different downstream call
-            // For now, call the BooksApi delete endpoint which removes the record by id
-            var id = author.Id;
-
-            using var response = await _downstreamApi.CallApiForUserAsync(
-                "BooksApi",
-                options =>
-                {
-                    options.RelativePath = $"authors/delete/{id}";
-                    options.HttpMethod = "delete";
-                }, curUser);
-
-            response.EnsureSuccessStatusCode();
-
-            return response.IsSuccessStatusCode;
+            throw new ArgumentNullException(nameof(author.Id), "Author ID cannot be null.");
         }
-        catch (MsalUiRequiredException)
+
+        var id = author.Id;
+
+        var result = await authorsClient.RemoveAsync(id, new DatasyncServiceOptions());
+
+        if (result.IsSuccessful)
         {
-            throw;
+            return true;
+            // return result.Value!;
         }
-        catch (Exception)
-        {
-            throw;
-        }
+
+        return false;
+
+        //try
+        //{
+        //    HttpContext? context = _contextAccessor.HttpContext;
+        //    var curUser = context?.User;
+
+        //    // If softDelete is requested, you could implement a different downstream call
+        //    // For now, call the BooksApi delete endpoint which removes the record by id
+        //    var id = author.Id;
+
+        //    using var response = await _downstreamApi.CallApiForUserAsync(
+        //        "BooksApi",
+        //        options =>
+        //        {
+        //            options.RelativePath = $"authors/delete/{id}";
+        //            options.HttpMethod = "delete";
+        //        }, curUser);
+
+        //    response.EnsureSuccessStatusCode();
+
+        //    return response.IsSuccessStatusCode;
+        //}
+        //catch (MsalUiRequiredException)
+        //{
+        //    throw;
+        //}
+        //catch (Exception)
+        //{
+        //    throw;
+        //}
     }
 
     public Task ServerSyncAsync()

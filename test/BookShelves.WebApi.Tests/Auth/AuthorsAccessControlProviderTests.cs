@@ -14,7 +14,7 @@ public sealed class AuthorsAccessControlProviderTests
 
         var predicate = provider.GetDataView().Compile();
 
-        Assert.False(predicate(new AuthorItem { Name = "Any author" }));
+        Assert.False(predicate(new Author { Name = "Any author" }));
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public sealed class AuthorsAccessControlProviderTests
 
         var predicate = provider.GetDataView().Compile();
 
-        Assert.True(predicate(new AuthorItem { Name = "Any author" }));
+        Assert.True(predicate(new Author { Name = "Any author" }));
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public sealed class AuthorsAccessControlProviderTests
     {
         var provider = CreateProvider("test-user");
 
-        var allowed = await provider.IsAuthorizedAsync(operation, new AuthorItem { Name = "Any author" });
+        var allowed = await provider.IsAuthorizedAsync(operation, new Author { Name = "Any author" });
 
         Assert.True(allowed);
     }

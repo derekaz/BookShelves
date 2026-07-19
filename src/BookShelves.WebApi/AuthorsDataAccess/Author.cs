@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BookShelves.WebApi.AuthorsDataAccess;
 
-public class AuthorItem : CosmosTableData<AuthorItem>
+public class Author : CosmosTableData<Author>
 {
     [Required, MinLength(1)]    
     public string Name { get; set; } = string.Empty;

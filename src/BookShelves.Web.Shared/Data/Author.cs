@@ -34,7 +34,7 @@ public class Author : DatasyncDto
             Id = author.Id ?? string.Empty,
             Name = author.Name,
             Bio = author.Biography,
-            UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow
+            // UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow
         };
     }
 }

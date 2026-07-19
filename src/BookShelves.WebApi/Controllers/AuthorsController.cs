@@ -7,15 +7,17 @@ namespace BookShelves.WebApi.Controllers
 {
     [Authorize]
     [Route("[controller]")]
-    public class AuthorsController : TableController<AuthorItem>
+    [TypeFilter(typeof(DatasyncDebugExceptionFilter), Order = int.MinValue)]
+    public class AuthorsController : TableController<Author>
     {
-        public AuthorsController(IRepository<AuthorItem> repository, IHttpContextAccessor accessor) : base(repository)
+        public AuthorsController(IRepository<Author> repository, IHttpContextAccessor accessor, ILogger<AuthorsController> logger) : base(repository)
         {
             AccessControlProvider = new AuthorsAccessControlProvider(accessor);
+            Logger = logger;
 
             Options = new TableControllerOptions
             {
-                UnsafeEntityLogging = false
+                UnsafeEntityLogging = true
             };
         }
     }

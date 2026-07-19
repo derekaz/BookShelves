@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace BookShelves.WebApi.AuthorsDataAccess
 {
-    public class AuthorsAccessControlProvider : AccessControlProvider<AuthorItem>
+    public class AuthorsAccessControlProvider : AccessControlProvider<Author>
     {
         private readonly IHttpContextAccessor _accessor;
 
@@ -11,14 +11,15 @@ namespace BookShelves.WebApi.AuthorsDataAccess
 
         private string? UserId => _accessor.HttpContext?.User?.Identity?.Name;
 
-        public override Expression<Func<AuthorItem, bool>> GetDataView()
+        public override Expression<Func<Author, bool>> GetDataView()
         {
-            return (UserId == null)
-                ? _ => false
-                : _ => true;   // model => model.UserId == UserId;
+            return _ => true;
+            //return (UserId == null)
+            //    ? _ => false
+            //    : _ => true;   // model => model.UserId == UserId;
         }
 
-        public override ValueTask<bool> IsAuthorizedAsync(TableOperation operation, AuthorItem? entity, CancellationToken cancellationToken = default)
+        public override ValueTask<bool> IsAuthorizedAsync(TableOperation operation, Author? entity, CancellationToken cancellationToken = default)
         {
             return base.IsAuthorizedAsync(operation, entity, cancellationToken);
         }

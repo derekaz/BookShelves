@@ -34,15 +34,15 @@ public sealed class AuthorItemWebApiFactory : WebApplicationFactory<Program>
                 options.DefaultScheme = TestAuthHandler.SchemeName;
             }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
 
-            services.AddSingleton<IRepository<AuthorItem>>(AuthorItemRepositoryProxy.Create());
+            services.AddSingleton<IRepository<Author>>(AuthorItemRepositoryProxy.Create());
         });
     }
 
     private class AuthorItemRepositoryProxy : DispatchProxy
     {
-        public static IRepository<AuthorItem> Create()
+        public static IRepository<Author> Create()
         {
-            return DispatchProxy.Create<IRepository<AuthorItem>, AuthorItemRepositoryProxy>();
+            return DispatchProxy.Create<IRepository<Author>, AuthorItemRepositoryProxy>();
         }
 
         protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
@@ -99,29 +99,29 @@ public sealed class AuthorItemWebApiFactory : WebApplicationFactory<Program>
 
         private static object? CreateGenericResult(Type type)
         {
-            if (type == typeof(IQueryable<AuthorItem>))
+            if (type == typeof(IQueryable<Author>))
             {
-                return Array.Empty<AuthorItem>().AsQueryable();
+                return Array.Empty<Author>().AsQueryable();
             }
 
-            if (type == typeof(IEnumerable<AuthorItem>))
+            if (type == typeof(IEnumerable<Author>))
             {
-                return Array.Empty<AuthorItem>();
+                return Array.Empty<Author>();
             }
 
-            if (type == typeof(List<AuthorItem>))
+            if (type == typeof(List<Author>))
             {
-                return new List<AuthorItem>();
+                return new List<Author>();
             }
 
             if (typeof(IQueryable).IsAssignableFrom(type))
             {
-                return Array.Empty<AuthorItem>().AsQueryable();
+                return Array.Empty<Author>().AsQueryable();
             }
 
             if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
             {
-                return Array.Empty<AuthorItem>();
+                return Array.Empty<Author>();
             }
 
             if (type.IsValueType)

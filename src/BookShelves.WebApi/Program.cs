@@ -13,6 +13,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddConsole();
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -90,13 +92,12 @@ CosmosClient cosmosClient = new CosmosClient(connectionString,
             },
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull | JsonIgnoreCondition.WhenWritingDefault,
-            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
-            ReferenceHandler = ReferenceHandler.Preserve
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
         }
     });
 
 builder.Services.AddSingleton(cosmosClient);
-builder.Services.AddSingleton<ICosmosTableOptions<AuthorItem>>(new CosmosSharedTableOptions<AuthorItem>("azmoore-westus2-db1", "azmoore-books-westus2-dbc1"));
+builder.Services.AddSingleton<ICosmosTableOptions<Author>>(new CosmosSharedTableOptions<Author>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(CosmosTableRepository<>));
 
 builder.Services.AddTransient(x =>

@@ -18,7 +18,7 @@ public abstract class DatasyncDto
     /// A string representing the unique ID of the todo item. This is typically a GUID
     /// converted to string format for compatibility with datasync operations.
     /// </value>
-    public string Id { get; set; } = string.Empty;
+    public string Id { get; set; } = Guid.CreateVersion7().ToString();
 
     /// <summary>
     /// Gets or sets the date and time when the todo item was created.
@@ -31,7 +31,7 @@ public abstract class DatasyncDto
     /// This property is automatically managed by the datasync framework and should not
     /// be manually modified in most scenarios.
     /// </remarks>
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the todo item was last updated.
@@ -44,7 +44,7 @@ public abstract class DatasyncDto
     /// This property is automatically updated by the datasync framework whenever
     /// the entity is modified and should not be manually set in most scenarios.
     /// </remarks>
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the version identifier used for optimistic concurrency control.
@@ -57,7 +57,7 @@ public abstract class DatasyncDto
     /// This property is managed by the datasync framework to handle concurrent updates
     /// and ensure data consistency. It should not be manually modified.
     /// </remarks>
-    public string Version { get; set; } = string.Empty;
+    public string? Version { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the todo item has been soft-deleted.
