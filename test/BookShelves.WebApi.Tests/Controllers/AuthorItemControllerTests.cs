@@ -17,7 +17,7 @@ public sealed class AuthorItemControllerTests : IClassFixture<AuthorItemWebApiFa
     {
         using var client = factory.CreateClient();
 
-        using var response = await client.GetAsync("/AuthorItem");
+        using var response = await client.GetAsync("/Authors");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -28,7 +28,7 @@ public sealed class AuthorItemControllerTests : IClassFixture<AuthorItemWebApiFa
         using var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add("Authorization", "Bearer test-token");
 
-        using var response = await client.GetAsync("/AuthorItem");
+        using var response = await client.GetAsync("/Authors");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
