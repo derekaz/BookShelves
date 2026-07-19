@@ -12,34 +12,39 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
 
     public async Task<bool> CreateAuthorAsync(AuthorItemViewModel author)
     {
-        var newAuthor = AuthorItem.FromAuthorItemViewModel(author);
+        var newAuthor = Author.FromAuthorItemViewModel(author);
+        if (string.IsNullOrEmpty(newAuthor.Id))
+        {
+            newAuthor.Id = Guid.CreateVersion7().ToString();
+        }
+
         //newAuthor.Revision = author.Revision + 1;
         //newAuthor.UpdateType = "C";
         newAuthor.UpdatedAt = DateTime.UtcNow;
 
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo = uow.GetRepository<AuthorItem>();
+        var repo = uow.GetRepository<Author>();
         await repo.AddAsync(newAuthor);
         return await uow.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> CreateAuthorFromSyncAsync(AuthorItem author)
+    public async Task<bool> CreateAuthorFromSyncAsync(Author author)
     {
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo = uow.GetRepository<AuthorItem>();
+        var repo = uow.GetRepository<Author>();
         await repo.AddAsync(author);
         return await uow.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> UpdateAuthorAsync(AuthorItemViewModel author)
     {
-        var localAuthor = AuthorItem.FromAuthorItemViewModel(author);
+        var localAuthor = Author.FromAuthorItemViewModel(author);
         //localAuthor.Revision = author.Revision + 1;
         //localAuthor.UpdateType = "C";
         localAuthor.UpdatedAt = DateTime.UtcNow;
 
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo = uow.GetRepository<AuthorItem>();
+        var repo = uow.GetRepository<Author>();
         await repo.UpdateAsync(localAuthor);
 
         var result = await uow.SaveChangesAsync();
@@ -47,17 +52,17 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
         return result > 0;
     }
 
-    public async Task<bool> UpdateAuthorFromSyncAsync(AuthorItem newAuthor)
+    public async Task<bool> UpdateAuthorFromSyncAsync(Author newAuthor)
     {
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo = uow.GetRepository<AuthorItem>();
+        var repo = uow.GetRepository<Author>();
         await repo.AddAsync(newAuthor);
         return await uow.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> DeleteAuthorAsync(AuthorItemViewModel author, bool softDelete = false)
     {
-        var localAuthor = AuthorItem.FromAuthorItemViewModel(author);
+        var localAuthor = Author.FromAuthorItemViewModel(author);
 
         if (softDelete)
         {
@@ -66,13 +71,13 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
             localAuthor.UpdatedAt = DateTime.UtcNow;
 
             await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-            var repo1 = uow1.GetRepository<AuthorItem>();
+            var repo1 = uow1.GetRepository<Author>();
             await repo1.UpdateAsync(localAuthor);
             return await uow1.SaveChangesAsync() > 0;
         }
 
         await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo2 = uow2.GetRepository<AuthorItem>();
+        var repo2 = uow2.GetRepository<Author>();
         await repo2.DeleteAsync(localAuthor);
         return await uow2.SaveChangesAsync() > 0;
     }
@@ -87,12 +92,12 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
         if (includeSoftDeleted)
         {
             await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-            var repo1 = uow1.GetRepository<AuthorItem>();
+            var repo1 = uow1.GetRepository<Author>();
             return (await repo1.GetAllAsync()).Select(b => b.ToAuthorItemViewModel());
         }
 
         await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-        var repo2 = uow2.GetRepository<AuthorItem>();
+        var repo2 = uow2.GetRepository<Author>();
 
         // var localAuthors = await repo2.FindAsync(b => b.UpdateType != "D");
         var localAuthors = await repo2.GetAllAsync();

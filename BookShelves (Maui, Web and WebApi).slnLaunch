@@ -13,6 +13,10 @@
       {
         "Path": "src\\BookShelves.Web\\BookShelves.Web\\BookShelves.Web.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.Web\\BookShelves.Web.Client\\BookShelves.Web.Client.csproj",
+        "Action": "Start"
       }
     ]
   },

@@ -3,7 +3,7 @@ using BookShelves.Shared.Presentation.ViewModels;
 
 namespace BookShelves.Maui.Data.SyncTest;
 
-public class AuthorItem : OfflineClientEntity
+public class Author : OfflineClientEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? Bio { get; set; }
@@ -13,7 +13,7 @@ public class AuthorItem : OfflineClientEntity
     {
         return new AuthorItemViewModel()
         {
-            Id = Id.ToString() ?? string.Empty,
+            Id = Id,
             Name = Name,
             Biography = Bio,
             LastUpdateTime = UpdatedAt,
@@ -21,25 +21,25 @@ public class AuthorItem : OfflineClientEntity
         };
     }
 
-    public static AuthorItem FromAuthorItemViewModel(AuthorItemViewModel author)
+    public static Author FromAuthorItemViewModel(AuthorItemViewModel author)
     {
-        int temp;
+        //string temp;
 
-        if (author.Id == "")
-        {
-            temp = 0;
-        }
-        else
-        {
-            if (!int.TryParse(author.Id, out temp))
-            {
-                throw new ArgumentException("Invalid Id value. Cannot convert to int.", nameof(author.Id));
-            }
-        }
+        //if (author.Id == "")
+        //{
+        //    temp = "";
+        //}
+        //else
+        //{
+        //    if (!string.TryParse(author.Id, out temp))
+        //    {
+        //        throw new ArgumentException("Invalid Id value. Cannot convert to int.", nameof(author.Id));
+        //    }
+        //}
 
-        return new AuthorItem()
+        return new Author()
         {
-            Id = temp.ToString(),
+            Id = author.Id ?? string.Empty, // temp.ToString(),
             Name = author.Name ?? string.Empty,
             Bio = author.Biography,
             UpdatedAt = author.LastUpdateTime,

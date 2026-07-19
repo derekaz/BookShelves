@@ -148,6 +148,7 @@ public static class MauiProgram
             client.BaseAddress = new Uri("http://localhost:7071");
             client.Timeout = new TimeSpan(0, 0, 20);
         });
+
         builder.Services.AddHttpClient("WeatherApi", client =>
         {
             string baseUrl = builder.Configuration.GetSection("WeatherApi:BaseUrl").Get<string>() ?? string.Empty;
@@ -165,6 +166,24 @@ public static class MauiProgram
         // .AddTraceContentLogging()
 #endif
         ;
+        builder.Services.AddHttpClient("SyncApi", client =>
+        {
+            string baseUrl = builder.Configuration.GetSection("SyncApi:BaseUrl").Get<string>() ?? string.Empty;
+            client.BaseAddress = new Uri(baseUrl);
+            client.Timeout = new TimeSpan(0, 0, 20);
+        })
+        .AddHttpMessageHandler(_ =>
+        {
+            return new LoggingHandler();
+        })
+        .AddHttpMessageHandler(sp =>
+        {
+            var scopes = builder.Configuration.GetSection("SyncApi:Scopes").Get<string[]>() ?? [];
+            return new MauiAuthenticationMessageHandler(
+                sp.GetRequiredService<IExternalAuthenticationStateProvider>(),
+                sp.GetRequiredService<ILogger<MauiAuthenticationMessageHandler>>(),
+                scopes);
+        });
 
         // Configure DbContext
         var bsp = builder.Services.BuildServiceProvider();
@@ -206,7 +225,7 @@ public static class MauiProgram
         builder.Services.AddTransient<IBook, LocalBook>();
 
         builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
-        builder.Services.AddTransient<IRepository<AuthorItem>, GenericRepository<SyncDbContext, AuthorItem>>(); // Register specific repositories if needed
+        builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>(); // Register specific repositories if needed
         builder.Services.AddTransient<IAuthorItemDataService, AuthorItemDataService>();
 
         // try to utilize the offline sync service
