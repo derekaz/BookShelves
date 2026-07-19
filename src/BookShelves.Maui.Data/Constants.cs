@@ -2,7 +2,6 @@
 {
     public const string LocalDbFile = "bookshelves.db";
     public const string BookTable = "Books";
-    public const string AuthorTable = "Authors";
     public const string ConfigurationSettingTable = "ConfigurationSettings";
 
     //public const string CreateBookTableStatement = $"CREATE TABLE IF NOT EXISTS {BookTable} (Id INTEGER PRIMARY KEY AUTOINCREMENT, Title VARCHAR(255), Author VARCHAR(255));";

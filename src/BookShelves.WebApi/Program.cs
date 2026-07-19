@@ -1,19 +1,13 @@
-using BookShelves.WebApi.AuthorsDataAccess;
 using BookShelves.WebApi.BooksDataAccess;
-using CommunityToolkit.Datasync.Server;
-using CommunityToolkit.Datasync.Server.Abstractions.Json;
-using CommunityToolkit.Datasync.Server.CosmosDb;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddConsole();
+builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -74,32 +68,6 @@ builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
 //    });
 //});
 
-string connectionString = builder.Configuration.GetConnectionString("CosmosDBConnectionString")
-    ?? throw new ApplicationException("CosmosDBConnectionString is not set");
-
-CosmosClient cosmosClient = new CosmosClient(connectionString,
-    new CosmosClientOptions()
-    {
-        UseSystemTextJsonSerializerWithOptions = new()
-        {
-            Converters =
-            {
-                new JsonStringEnumConverter(),
-                new DateTimeOffsetConverter(),
-                new DateTimeConverter(),
-                new TimeOnlyConverter(),
-                new SpatialGeoJsonConverter()
-            },
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull | JsonIgnoreCondition.WhenWritingDefault,
-            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
-        }
-    });
-
-builder.Services.AddSingleton(cosmosClient);
-builder.Services.AddSingleton<ICosmosTableOptions<Author>>(new CosmosSharedTableOptions<Author>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
-builder.Services.AddSingleton(typeof(IRepository<>), typeof(CosmosTableRepository<>));
-
 builder.Services.AddTransient(x =>
 {
     IConfiguration? configuration = x.GetService<IConfiguration>();
@@ -112,12 +80,21 @@ builder.Services.AddTransient(x =>
     );
 });
 
+//builder.Services.AddTransient(x =>
+//{
+//    IConfiguration? configuration = x.GetService<IConfiguration>();
+
+//    return new UniqueIdRepository(
+//        x.GetRequiredService<ILogger<UniqueIdRepository>>(),
+//        new CosmosClient(configuration!["CosmosDBConnectionString"]),
+//        "azmoore-westus2-db1",
+//        "azmoore-books-westus2-dbc1"
+//    );
+//});
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddOpenApi();
-
-builder.Services.AddDatasyncServices();
-builder.Services.AddControllers();
 
 var app = builder.Build();
 

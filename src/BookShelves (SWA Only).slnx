@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BookShelves.Shared/BookShelves.Shared.csproj" />
+  <Project Path="BookShelves.WasmApi/BookShelves.WasmApi.csproj" />
+  <Project Path="BookShelves.WasmSwa/BookShelves.WasmSwa.csproj" />
+  <Project Path="BookShelves.Web.Shared/BookShelves.Web.Shared.csproj" />
+</Solution>
