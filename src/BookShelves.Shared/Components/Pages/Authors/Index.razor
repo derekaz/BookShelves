@@ -1,8 +1,9 @@
 ﻿@page "/authors"
-@* @inject IAuthorItemFactory AuthorItemFactory *@
+@implements IDisposable
 @inject IAuthorItemDataService DataService
 @inject ILogger<Index> Logger
 @inject IDialogService DialogService
+@inject ISyncProgressService SyncProgressService
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Authors</h1>
@@ -74,6 +75,9 @@ else
     {
         try
         {
+            // subscribe to sync progress
+            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
+
             Authors ??= await DataService.GetAuthorsAsync();
         }
         catch (Microsoft.Identity.Client.MsalUiRequiredException)
@@ -89,6 +93,49 @@ else
         {
             Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
         }
+    }
+
+    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
+    {
+        try
+        {
+            // Try to marshal to native/main thread if available (MAUI runtime). If not, fall back to Blazor's InvokeAsync.
+            var mainThreadType = Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui.Essentials")
+                                 ?? Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui");
+
+            Action update = () => {
+                message = BuildMessage(e);
+                InvokeAsync(StateHasChanged);
+            };
+
+            if (mainThreadType != null)
+            {
+                var begin = mainThreadType.GetMethod("BeginInvokeOnMainThread", new Type[] { typeof(Action) });
+                if (begin != null)
+                {
+                    begin.Invoke(null, new object[] { update });
+                    return;
+                }
+            }
+
+            // fallback
+            _ = InvokeAsync(update);
+        }
+        catch
+        {
+            // best-effort only
+        }
+    }
+
+    private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    {
+        if (e == null) return string.Empty;
+        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        {
+            var pct = (int)(100.0 * e.Current.Value / Math.Max(1, e.Total.Value));
+            return $"{e.Stage ?? "Sync"}: {e.Message} ({e.Current}/{e.Total}) {pct}%";
+        }
+        return $"{e.Stage ?? "Sync"}: {e.Message}";
     }
 
     private async void ShowDetailAsync(AuthorItemViewModel author, string titleText)
@@ -128,7 +175,31 @@ else
 
     private async void ServerSyncAsync()
     {
-        await DataService.ServerSyncAsync();
+        try
+        {
+            Logger.LogTrace("Starting Sync");
+            message = "Starting sync...";
+            StateHasChanged();
+
+            await DataService.ServerSyncAsync();
+            Logger.LogTrace("Completed Sync");
+
+            message = "Sync complete";
+
+            // refresh authors after sync
+            Logger.LogTrace("Starting Refresh");
+            Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+            Logger.LogTrace("Completed Refresh");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "ServerSyncAsync failed");
+            message = $"Sync failed: {ex.Message}";
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     private void AddAsync()
@@ -172,5 +243,10 @@ else
     private AuthorItemViewModel InitializeAuthorObject()
     {
         return new AuthorItemViewModel();
+    }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
     }
 }

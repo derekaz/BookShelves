@@ -7,9 +7,6 @@ namespace BookShelves.Maui.Data.Services;
 
 public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorItemDataService
 {
-    //private readonly Expression<Func<AuthorItem, bool>> changedAuthors = p =>
-    //    p.UpdateType == "C" || p.UpdateType == "U" || p.UpdateType == "D";
-
     public async Task<bool> CreateAuthorAsync(AuthorItemViewModel author)
     {
         var newAuthor = Author.FromAuthorItemViewModel(author);
@@ -18,8 +15,6 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
             newAuthor.Id = Guid.CreateVersion7().ToString();
         }
 
-        //newAuthor.Revision = author.Revision + 1;
-        //newAuthor.UpdateType = "C";
         newAuthor.UpdatedAt = DateTime.UtcNow;
 
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
@@ -39,8 +34,6 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
     public async Task<bool> UpdateAuthorAsync(AuthorItemViewModel author)
     {
         var localAuthor = Author.FromAuthorItemViewModel(author);
-        //localAuthor.Revision = author.Revision + 1;
-        //localAuthor.UpdateType = "C";
         localAuthor.UpdatedAt = DateTime.UtcNow;
 
         await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
@@ -66,8 +59,6 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
 
         if (softDelete)
         {
-            //localAuthor.Revision = author.Revision + 1;
-            //localAuthor.UpdateType = "D";
             localAuthor.UpdatedAt = DateTime.UtcNow;
 
             await using var uow1 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
@@ -82,11 +73,6 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
         return await uow2.SaveChangesAsync() > 0;
     }
 
-    //public async Task<IEnumerable<LocalAuthor>> GetAllEntitiesAsync()
-    //{
-    //    return await _unitOfWork.LocalBooks.GetAllAsync();
-    //}
-
     public async Task<IEnumerable<AuthorItemViewModel>> GetAuthorsAsync(bool includeSoftDeleted = false)
     {
         if (includeSoftDeleted)
@@ -99,28 +85,13 @@ public class AuthorItemDataService(IServiceProvider serviceProvider) : IAuthorIt
         await using var uow2 = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
         var repo2 = uow2.GetRepository<Author>();
 
-        // var localAuthors = await repo2.FindAsync(b => b.UpdateType != "D");
         var localAuthors = await repo2.GetAllAsync();
         return localAuthors.Select(b => b.ToAuthorItemViewModel());
     }
 
-    //public async Task<AuthorItem?> GetAuthorWithServerIdAsync(int serverId)
-    //{
-    //    await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-    //    var repo = uow.GetRepository<AuthorItem>();
-    //    return await repo.FindAsync(b => b.ServerId == serverId).ContinueWith(t => t.Result.FirstOrDefault());
-    //}
-
-    //public async Task<IEnumerable<AuthorItem>> GetChangedAuthorsAsync()
-    //{
-    //    await using var uow = serviceProvider.GetRequiredService<IUnitOfWork<SyncDbContext>>();
-    //    var repo = uow.GetRepository<AuthorItem>();
-    //    return await repo.FindAsync(changedAuthors);
-    //}
-
     public async Task ServerSyncAsync()
     {
-        await using var uow1 = serviceProvider.GetRequiredService<SyncDbContext>();
-        await uow1.SynchronizeAsync();
+        await using var uow = serviceProvider.GetRequiredService<ISyncUnitOfWork<SyncDbContext>>();
+        await uow.SynchronizeAsync();
     }
 }
