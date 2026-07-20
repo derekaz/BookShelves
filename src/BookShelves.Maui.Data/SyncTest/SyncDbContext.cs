@@ -7,33 +7,34 @@ using Microsoft.Extensions.Logging;
 namespace BookShelves.Maui.Data.SyncTest;
 
 #if OFFLINE_SYNC_ENABLED
-public class SyncDbContext(DbContextOptions<SyncDbContext> options, ILogger<SyncDbContext> logger, IHttpClientFactory httpClientFactory) : OfflineDbContext(options)
+public class SyncDbContext : OfflineDbContext
 #else
-public class SyncDbContext(DbContextOptions<SyncDbContext> options, ILogger<SyncDbContext> logger, IHttpClientFactory httpClientFactory) : DbContext(options)
+public class SyncDbContext : DbContext
 #endif
 {
+    private readonly ILogger<SyncDbContext> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public SyncDbContext(DbContextOptions<SyncDbContext> options, ILogger<SyncDbContext> logger, IHttpClientFactory httpClientFactory)
+        : base(options)
+    {
+        _logger = logger;
+        _httpClientFactory = httpClientFactory;
+    }
+
     public DbSet<Author> AuthorItems => Set<Author>();
 
 #if OFFLINE_SYNC_ENABLED
     protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
     {
         // Resolve your pre-configured client here
-        var httpClient = httpClientFactory.CreateClient("SyncApi");
+        var httpClient = _httpClientFactory.CreateClient("SyncApi");
 
-        // When using UseHttpClient(), the endpoint is relative to the HttpClient's BaseAddress
-        // BaseAddress (from config): https://localhost:7135
-        // Endpoint (relative): Authors
-        // Final URL: https://localhost:7135/Authors
         optionsBuilder.Entity<Author>(cfg =>
         {
-            // Use relative endpoint (without leading slash) that will be appended to BaseAddress
             cfg.Endpoint = new Uri("Authors", UriKind.Relative);
-
-            // Optional: Add query filters
-            // cfg.Query.Where(x => x.IsDeleted != true);
         });
 
-        // Use the pre-configured HttpClient from the factory
         _ = optionsBuilder.UseHttpClient(httpClient);
     }
 #endif
@@ -41,17 +42,21 @@ public class SyncDbContext(DbContextOptions<SyncDbContext> options, ILogger<Sync
     public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
 #if OFFLINE_SYNC_ENABLED
+        _logger.LogTrace("Starting synchronization...");
+        _logger.LogTrace("Pushing local changes to the server...");
         PushResult pushResult = await this.PushAsync(cancellationToken);
         if (!pushResult.IsSuccessful)
         {
             throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
         }
 
+        _logger.LogTrace("Pulling remote changes from the server...");
         PullResult pullResult = await this.PullAsync(cancellationToken);
         if (!pullResult.IsSuccessful)
         {
             throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
         }
+        _logger.LogTrace("Completed synchronization...");
 #endif
     }
 }
