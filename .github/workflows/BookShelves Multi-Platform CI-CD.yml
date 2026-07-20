@@ -240,6 +240,7 @@ jobs:
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
     
+    
       - name: Cert Info IOS 1
         env:
           CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
@@ -300,11 +301,13 @@ jobs:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
 
       - name: Restore Workloads
+        # run: dotnet workload restore
         shell: pwsh
         run: |
-          dotnet workload restore
+          dotnet workload install maui
           dotnet workload install wasm-tools
-        working-directory: ${{env.PROJPATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
+
 
       - name: Verify Dotnet SDKs
         shell: pwsh
