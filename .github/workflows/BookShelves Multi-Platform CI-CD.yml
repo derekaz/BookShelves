@@ -246,8 +246,12 @@ jobs:
 
       - name: Restore Workloads
         # run: dotnet workload restore
-        run: dotnet workload install maui
+        shell: pwsh
+        run: |
+          dotnet workload install maui `
+          dotnet workload install wasm-tools
         working-directory: ${{env.MAUI_PROJPATH}}
+
 
       - name: Cert Info IOS 1
         env:
