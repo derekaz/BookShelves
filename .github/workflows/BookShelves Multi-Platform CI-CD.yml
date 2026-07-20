@@ -305,7 +305,7 @@ jobs:
         shell: pwsh
         run: |
           dotnet workload install maui
-          dotnet workload install wasm-tools
+          dotnet workload install wasm-tools --skip-manifest-update
         working-directory: ${{env.MAUI_PROJPATH}}
 
 
