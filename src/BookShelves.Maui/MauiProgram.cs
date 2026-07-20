@@ -11,6 +11,7 @@ using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
+using BookShelves.Shared.Services;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -143,7 +144,13 @@ public static class MauiProgram
 
         // sync progress notifier used by UI to present synchronization status
         builder.Services.AddSingleton<ISyncProgressService, SyncProgressService>();
-        builder.Services.AddTransient<ISyncUnitOfWork<SyncDbContext>, SyncUnitOfWork<SyncDbContext>>();
+        builder.Services.AddTransient<ISyncUnitOfWork<SyncDbContext>>(sp =>
+        {
+            var uow = new SyncUnitOfWork<SyncDbContext>(
+                sp.GetRequiredService<IDbContextFactory<SyncDbContext>>());
+            uow.SyncProgressService = sp.GetRequiredService<ISyncProgressService>();
+            return uow;
+        });
 
         builder.Services.AddHttpClient();
         builder.Services.AddHttpClient("BooksApi", client =>

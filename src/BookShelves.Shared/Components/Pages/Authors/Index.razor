@@ -322,4 +322,9 @@ else
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
     }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+    }
 }
