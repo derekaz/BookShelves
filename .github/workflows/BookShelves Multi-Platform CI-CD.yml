@@ -301,11 +301,10 @@ jobs:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
 
       - name: Restore Workloads
-        # run: dotnet workload restore
         shell: pwsh
         run: |
-          dotnet workload install maui
-          dotnet workload install wasm-tools --skip-manifest-update
+          dotnet workload restore
+          dotnet workload install wasm-tools
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Verify Dotnet SDKs
