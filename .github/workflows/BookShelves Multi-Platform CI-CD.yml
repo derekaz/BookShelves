@@ -245,7 +245,8 @@ jobs:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
 
       - name: Restore Workloads
-        run: dotnet workload restore
+        # run: dotnet workload restore
+        run: dotnet workload install maui
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Cert Info IOS 1
@@ -317,6 +318,7 @@ jobs:
       - name: NuGet Restore
         shell: pwsh
         run: dotnet restore ${{env.MAUI_CSPROJ}}
+
         # working-directory: ${{env.MAUI_PROJPATH}}
         working-directory: ${{env.PROJPATH}}
 
