@@ -308,7 +308,6 @@ jobs:
           dotnet workload install wasm-tools --skip-manifest-update
         working-directory: ${{env.MAUI_PROJPATH}}
 
-
       - name: Verify Dotnet SDKs
         shell: pwsh
         run: dotnet --list-sdks
