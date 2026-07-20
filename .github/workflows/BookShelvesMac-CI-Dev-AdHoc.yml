@@ -98,7 +98,7 @@ jobs:
             echo "ASSEMBLY_BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
           # include-prerelease: true
