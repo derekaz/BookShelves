@@ -305,7 +305,7 @@ jobs:
         run: |
           dotnet workload restore
           dotnet workload install wasm-tools
-        working-directory: ${{env.MAUI_PROJPATH}}
+        working-directory: ${{env.PROJPATH}}
 
       - name: Verify Dotnet SDKs
         shell: pwsh
