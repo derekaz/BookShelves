@@ -322,6 +322,7 @@ jobs:
       - name: NuGet Restore
         shell: pwsh
         run: dotnet restore ${{env.MAUI_CSPROJ}}
+
         # working-directory: ${{env.MAUI_PROJPATH}}
         working-directory: ${{env.PROJPATH}}
 
