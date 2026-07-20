@@ -248,7 +248,7 @@ jobs:
         # run: dotnet workload restore
         shell: pwsh
         run: |
-          dotnet workload install maui `
+          dotnet workload install maui
           dotnet workload install wasm-tools
         working-directory: ${{env.MAUI_PROJPATH}}
 
