@@ -1,91 +1,97 @@
+using BookShelves.Maui.Data.SyncTest;
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services;
+using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
 
 namespace BookShelves.Maui.Data.Infrastructure;
 
 public class SyncUnitOfWork<TContext> : UnitOfWork<TContext>, ISyncUnitOfWork<TContext>
-    where TContext : DbContext
+    where TContext : SyncDbContext
 {
-    private readonly TContext _context;
+    private readonly ISyncProgressService _syncProgressService;
+    private readonly ILogger<SyncUnitOfWork<TContext>> _logger;
 
-    public ISyncProgressService? SyncProgressService { get; set; }
-
-    public SyncUnitOfWork(IDbContextFactory<TContext> contextFactory)
+    public SyncUnitOfWork(IDbContextFactory<TContext> contextFactory, ISyncProgressService syncProgressService, ILogger<SyncUnitOfWork<TContext>> logger)
         : base(contextFactory)
     {
-        _context = contextFactory.CreateDbContext();
+        _syncProgressService = syncProgressService;
+        _logger = logger;
     }
 
     public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
-        var syncMethod = typeof(TContext).GetMethod("SynchronizeAsync", new[] { typeof(CancellationToken) });
-        if (syncMethod == null)
-            throw new InvalidOperationException($"{typeof(TContext).Name} does not have a SynchronizeAsync method");
-
-        var eventInfo = typeof(TContext).GetEvent("SynchronizationProgress");
-        Delegate? handler = null;
-
-        if (eventInfo != null && SyncProgressService != null)
-        {
-            Action<object, object> forwarder = (s, a) =>
-            {
-                try
-                {
-                    var msg = ExtractMessage(a);
-                    SyncProgressService.Report(new SyncProgressEventArgs { Message = msg });
-                }
-                catch { }
-            };
-
-            try
-            {
-                handler = CreateEventHandler(forwarder, eventInfo.EventHandlerType);
-                eventInfo.AddEventHandler(_context, handler);
-            }
-            catch { }
-        }
+        Context.SynchronizationProgress += OnSynchronizationProgress;
 
         try
         {
-            await (Task)syncMethod.Invoke(_context, new object[] { cancellationToken })!;
+            _syncProgressService.ReportStage(SyncStage.Started, "Synchronization started");
+
+            await Context.SynchronizeAsync(cancellationToken);
+
+            _syncProgressService.ReportStage(SyncStage.Completed, "Synchronization complete");
+        }
+        catch (Exception ex)
+        {
+            _syncProgressService.ReportStage(SyncStage.Failed, $"Synchronization failed: {ex.Message}");
+            throw;
         }
         finally
         {
-            if (eventInfo != null && handler != null)
-            {
-                try { eventInfo.RemoveEventHandler(_context, handler); } catch { }
-            }
+            Context.SynchronizationProgress -= OnSynchronizationProgress;
         }
     }
 
-    private static string ExtractMessage(object? eventArgs)
+    private void OnSynchronizationProgress(object? sender, SynchronizationEventArgs args)
     {
-        if (eventArgs == null) return string.Empty;
-        var msgProp = eventArgs.GetType().GetProperty("Message");
-        return msgProp?.GetValue(eventArgs)?.ToString() ?? eventArgs.ToString() ?? string.Empty;
+        _logger.LogTrace(
+            "Sync progress event: {EventType} ({ItemsProcessed}/{ItemsTotal})",
+            args.EventType,
+            args.ItemsProcessed,
+            args.ItemsTotal);
+
+        var syncStage = args.EventType switch
+        {
+            SynchronizationEventType.PushStarted or
+            SynchronizationEventType.PushItem or
+            SynchronizationEventType.PushEnded => SyncStage.Pushing,
+
+            SynchronizationEventType.PullStarted or
+            SynchronizationEventType.ItemsFetched or
+            SynchronizationEventType.PullEnded => SyncStage.Pulling,
+
+            SynchronizationEventType.ItemsCommitted => SyncStage.Processing,
+            SynchronizationEventType.LocalException => SyncStage.Failed,
+            _ => SyncStage.None
+        };
+
+        var message = args.EventType switch
+        {
+            SynchronizationEventType.PushStarted => "Pushing local changes",
+            SynchronizationEventType.PushItem => "Pushing item",
+            SynchronizationEventType.PushEnded => "Finished pushing local changes",
+            SynchronizationEventType.PullStarted => "Pulling remote changes",
+            SynchronizationEventType.ItemsFetched => "Fetched remote changes",
+            SynchronizationEventType.ItemsCommitted => "Committing pulled changes",
+            SynchronizationEventType.PullEnded => "Finished pulling remote changes",
+            SynchronizationEventType.LocalException => $"Synchronization failed: {args.Exception?.Message}",
+            _ => args.EventType.ToString()
+        };
+
+        var eventArgs = new SyncProgressEventArgs
+        {
+            Stage = args.EventType.ToString(),
+            Message = message,
+            Current = ConvertToInt(args.ItemsProcessed),
+            Total = ConvertToInt(args.ItemsTotal),
+            SyncStage = syncStage,
+            TotalSteps = 3
+        };
+
+        _syncProgressService.Report(eventArgs);
     }
 
-    private static Delegate CreateEventHandler(Action<object, object> forwarder, Type? handlerType)
-    {
-        if (handlerType == null)
-            throw new ArgumentNullException(nameof(handlerType));
-
-        var invoke = handlerType.GetMethod("Invoke");
-        var parameters = invoke!.GetParameters();
-        if (parameters.Length != 2)
-            throw new InvalidOperationException("Unexpected event handler signature");
-
-        var paramExprs = parameters.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
-        var forwardConst = Expression.Constant(forwarder);
-        var forwardInvoke = typeof(Action<object, object>).GetMethod("Invoke")!;
-
-        var call = Expression.Call(forwardConst, forwardInvoke,
-            Expression.Convert(paramExprs[0], typeof(object)),
-            Expression.Convert(paramExprs[1], typeof(object)));
-
-        var lambda = Expression.Lambda(handlerType, call, paramExprs);
-        return lambda.Compile();
-    }
+    private static int? ConvertToInt(long value)
+        => value >= int.MinValue && value <= int.MaxValue ? (int)value : null;
 }

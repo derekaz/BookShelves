@@ -70,7 +70,7 @@ public static class MauiProgram
             logging.AddConsole();
 #if DEBUG
             logging.AddDebug();
-            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 #endif
         });
 
@@ -143,13 +143,7 @@ public static class MauiProgram
 
         // sync progress notifier used by UI to present synchronization status
         builder.Services.AddSingleton<ISyncProgressService, SyncProgressService>();
-        builder.Services.AddTransient<ISyncUnitOfWork<SyncDbContext>>(sp =>
-        {
-            var uow = new SyncUnitOfWork<SyncDbContext>(
-                sp.GetRequiredService<IDbContextFactory<SyncDbContext>>());
-            uow.SyncProgressService = sp.GetRequiredService<ISyncProgressService>();
-            return uow;
-        });
+        builder.Services.AddTransient<ISyncUnitOfWork<SyncDbContext>, SyncUnitOfWork<SyncDbContext>>();
 
         builder.Services.AddHttpClient();
         builder.Services.AddHttpClient("BooksApi", client =>
