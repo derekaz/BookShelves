@@ -83,6 +83,7 @@ builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvide
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
 builder.Services.AddScoped<BearerTokenHandler>();
+builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
