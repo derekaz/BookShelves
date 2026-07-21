@@ -7,12 +7,12 @@ namespace BookShelves.Maui.Data.Infrastructure;
 // DataAccess/UnitOfWork.cs
 public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbContext // (IDbContextFactory<BookShelvesDbContext> dbFactory, BookShelvesDbContext context) : IUnitOfWork<LocalBook>
 {
-    private readonly TContext _context; // = _dbFactory.CreateDbContextAsync().Result; // context;
+    protected TContext Context { get; }
     private readonly Dictionary<Type, object> _repositories = new();
 
     public UnitOfWork(IDbContextFactory<TContext> contextFactory)
     {
-        _context = contextFactory.CreateDbContext();
+        Context = contextFactory.CreateDbContext();
     }
 
     public IRepository<T> GetRepository<T>() where T : class
@@ -20,7 +20,7 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
         var type = typeof(T);
         if (!_repositories.ContainsKey(type))
         {
-            _repositories[type] = new GenericRepository<TContext, T>(_context);
+            _repositories[type] = new GenericRepository<TContext, T>(Context);
         }
         return (IRepository<T>)_repositories[type];
     }
@@ -51,7 +51,7 @@ public class UnitOfWork<TContext> : IUnitOfWork<TContext> where TContext : DbCon
     //public IRepository<LocalBook> LocalBooks => _localBooks ??= new GenericRepository<BookShelvesDbContext, LocalBook>(_context ?? EnsureContext());
     // Initialize other repositories similarly
 
-    public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
+    public async Task<int> SaveChangesAsync() => await Context.SaveChangesAsync();
 
-    public async ValueTask DisposeAsync() => _context.Dispose();
+    public async ValueTask DisposeAsync() => await Context.DisposeAsync();
 }

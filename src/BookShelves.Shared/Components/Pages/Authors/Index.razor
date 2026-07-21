@@ -12,8 +12,25 @@
     <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
 </div>
 <div>
-    <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary">Server Sync</button>
+    <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary" disabled="@isSyncing">Server Sync</button>
 </div>
+
+<!-- Sync Progress Display -->
+@if (isSyncing)
+{
+    <div class="sync-progress-container alert alert-info" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
+            <span class="badge bg-info">@progressPercentage%</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                @progressPercentage%
+            </div>
+        </div>
+        <small class="text-muted d-block mt-2">@syncMessage</small>
+    </div>
+}
 
 <p>@message</p>
 
@@ -70,6 +87,12 @@ else
     public IEnumerable<AuthorItemViewModel>? Authors { get; set; }
 
     private string message = string.Empty;
+    private bool isSyncing = false;
+    private int currentStep = 0;
+    private int totalSteps = 3;
+    private int progressPercentage = 0;
+    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
+    private string syncMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -104,6 +127,21 @@ else
                                  ?? Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui");
 
             Action update = () => {
+                // Update new step-tracking properties
+                currentStep = e.CurrentStep;
+                totalSteps = e.TotalSteps;
+                progressPercentage = e.ProgressPercentage;
+                syncStage = e.SyncStage;
+                syncMessage = BuildSyncMessage(e);
+                isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started 
+                    or BookShelves.Shared.Services.SyncStage.Pushing 
+                    or BookShelves.Shared.Services.SyncStage.Pulling 
+                    or BookShelves.Shared.Services.SyncStage.Processing;
+
+                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}, IsSyncing: {IsSyncing}",
+                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage, isSyncing);
+
+                // Keep the legacy message format for compatibility
                 message = BuildMessage(e);
                 InvokeAsync(StateHasChanged);
             };
@@ -125,6 +163,32 @@ else
         {
             // best-effort only
         }
+    }
+
+    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    {
+        if (e == null) return string.Empty;
+
+        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        {
+            return $"{e.Message} ({e.Current}/{e.Total})";
+        }
+
+        return e.Message ?? string.Empty;
+    }
+
+    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
+    {
+        return stage switch
+        {
+            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
+            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
+            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
+            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
+            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
+            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
+            _ => "Synchronizing..."
+        };
     }
 
     private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)

@@ -1,16 +1,10 @@
-﻿#define OFFLINE_SYNC_ENABLED
-
-using CommunityToolkit.Datasync.Client.Offline;
+﻿using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BookShelves.Maui.Data.SyncTest;
 
-#if OFFLINE_SYNC_ENABLED
 public class SyncDbContext : OfflineDbContext
-#else
-public class SyncDbContext : DbContext
-#endif
 {
     private readonly ILogger<SyncDbContext> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -24,7 +18,6 @@ public class SyncDbContext : DbContext
 
     public DbSet<Author> AuthorItems => Set<Author>();
 
-#if OFFLINE_SYNC_ENABLED
     protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
     {
         // Resolve your pre-configured client here
@@ -37,11 +30,9 @@ public class SyncDbContext : DbContext
 
         _ = optionsBuilder.UseHttpClient(httpClient);
     }
-#endif
 
     public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
-#if OFFLINE_SYNC_ENABLED
         _logger.LogTrace("Starting synchronization...");
         _logger.LogTrace("Pushing local changes to the server...");
         PushResult pushResult = await this.PushAsync(cancellationToken);
@@ -57,6 +48,5 @@ public class SyncDbContext : DbContext
             throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
         }
         _logger.LogTrace("Completed synchronization...");
-#endif
     }
 }
