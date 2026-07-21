@@ -36,6 +36,23 @@
     </div>
 }
 
+<!-- Sync Progress Display -->
+@if (isSyncing)
+{
+    <div class="sync-progress-container alert alert-info" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
+            <span class="badge bg-info">@progressPercentage%</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                @progressPercentage%
+            </div>
+        </div>
+        <small class="text-muted d-block mt-2">@syncMessage</small>
+    </div>
+}
+
 <p>@message</p>
 
 @if (Authors == null)

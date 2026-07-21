@@ -46,6 +46,19 @@ public class SyncProgressService : ISyncProgressService
         {
             // best-effort only
         }
+
+        public void ReportStage(SyncStage stage, string message, int? current = null, int? total = null)
+        {
+            Report(new SyncProgressEventArgs
+            {
+                SyncStage = stage,
+                Stage = stage.ToString(),
+                Message = message,
+                Current = current,
+                Total = total,
+                TotalSteps = 3
+            });
+        }
     }
 
     public void ReportStage(SyncStage stage, string message, int? current = null, int? total = null)
