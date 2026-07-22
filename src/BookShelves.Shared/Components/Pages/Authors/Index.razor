@@ -12,9 +12,12 @@
 <div>
     <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
 </div>
-<div>
-    <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary" disabled="@isSyncing">Server Sync</button>
-</div>
+@if (IsSyncSupported())
+{
+    <div>
+        <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary" disabled="@isSyncing">Server Sync</button>
+    </div>
+}
 
 <!-- Sync Progress Display -->
 @if (isSyncing)
@@ -117,6 +120,11 @@ else
         {
             Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
         }
+    }
+
+    private bool IsSyncSupported()
+    {
+        return SyncDataService.SupportsSync;
     }
 
     private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)

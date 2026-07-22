@@ -1,9 +1,8 @@
-namespace BookShelves.Shared.Services.ServiceInterfaces
+namespace BookShelves.Shared.Services.ServiceInterfaces;
+
+public interface ISyncProgressService
 {
-    public interface ISyncProgressService
-    {
-        event EventHandler<SyncProgressEventArgs>? ProgressChanged;
-        void Report(SyncProgressEventArgs args);
-        void ReportStage(SyncStage stage, string message, int? current = null, int? total = null);
-    }
+    event EventHandler<SyncProgressEventArgs>? ProgressChanged;
+    void Report(SyncProgressEventArgs args);
+    void ReportStage(SyncStage stage, string message, int? current = null, int? total = null);
 }
