@@ -1,12 +1,12 @@
-﻿using BookShelves.Shared.Data.Interfaces;
+﻿//using BookShelves.Shared.Data.Interfaces;
 
-namespace BookShelves.WasmSwa.Services
-{
-    public class BooksSyncService : IBooksSyncService
-    {
-        public Task BeginSyncAsync()
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
+//namespace BookShelves.WasmSwa.Services
+//{
+//    public class BooksSyncService : IBooksSyncService
+//    {
+//        public Task BeginSyncAsync()
+//        {
+//            throw new NotImplementedException();
+//        }
+//    }
+//}
