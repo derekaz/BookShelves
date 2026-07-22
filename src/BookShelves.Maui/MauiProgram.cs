@@ -266,7 +266,7 @@ public static class MauiProgram
         // builder.Services.AddDbContext<AuthorDbContext>(options => options.UseSqlite(localDbConnectionString));
 
 
-        builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+        // builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
         builder.Services.AddTransient<IWeatherForecaster, MauiWeatherForecaster>();
 

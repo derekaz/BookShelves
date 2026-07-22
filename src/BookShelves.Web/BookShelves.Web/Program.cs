@@ -76,7 +76,7 @@ builder.Services.AddScoped<IAuthorDataService, ServerAuthorsDataService>();
 builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, ServerVersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
-builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+// builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 builder.Services.AddTransient<ISyncDataService, ServerSyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 

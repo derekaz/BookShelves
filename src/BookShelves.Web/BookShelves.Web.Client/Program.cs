@@ -22,7 +22,7 @@ builder.Services.AddAuthenticationStateDeserialization();
 builder.Services.AddScoped<IAuthenticationUIProvider, ClientAuthenticationUIProvider>();
 builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
 builder.Services.AddScoped<IVersionService, ClientVersionService>();
-builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
+// builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
 builder.Services.AddScoped<ISyncDataService, ClientSyncDataService>();
 builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();

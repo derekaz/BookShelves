@@ -2,5 +2,7 @@
 
 public interface ISyncDataService
 {
+    bool SupportsSync { get; }
+
     Task ServerSyncAsync();
 }

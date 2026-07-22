@@ -1,6 +1,6 @@
-﻿namespace BookShelves.Shared.Data.Interfaces;
+﻿//namespace BookShelves.Shared.Data.Interfaces;
 
-public interface IBooksSyncService
-{
-    Task BeginSyncAsync();
-}
+//public interface IBooksSyncService
+//{
+//    Task BeginSyncAsync();
+//}
