@@ -37,7 +37,7 @@
     IMudDialogInstance? MudDialog { get; set; } // = default!;
 
     [Parameter]
-    public AuthorItemViewModel? AuthorObject { get; set; }
+    public AuthorViewModel? AuthorObject { get; set; }
 
     private void Ok() => MudDialog? .Close(DialogResult.Ok(AuthorObject?.IdValue));
     private void Close() => MudDialog?.Close(DialogResult.Cancel());

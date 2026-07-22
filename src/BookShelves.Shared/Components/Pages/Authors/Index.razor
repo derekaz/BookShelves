@@ -1,8 +1,9 @@
 ﻿@page "/authors"
 @implements IDisposable
-@inject IAuthorItemDataService DataService
-@inject ILogger<Index> Logger
+@inject IAuthorDataService DataService
 @inject IDialogService DialogService
+@inject ILogger<Index> Logger
+@inject ISyncDataService SyncDataService
 @inject ISyncProgressService SyncProgressService
 @attribute [Authorize(Roles = "Administrator")]
 
@@ -84,7 +85,7 @@ else
     #if NET10_0
     [PersistentState]
 #endif
-    public IEnumerable<AuthorItemViewModel>? Authors { get; set; }
+    public IEnumerable<AuthorViewModel>? Authors { get; set; }
 
     private string message = string.Empty;
     private bool isSyncing = false;
@@ -202,7 +203,7 @@ else
         return $"{e.Stage ?? "Sync"}: {e.Message}";
     }
 
-    private async void ShowDetailAsync(AuthorItemViewModel author, string titleText)
+    private async void ShowDetailAsync(AuthorViewModel author, string titleText)
     {
         var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
 
@@ -220,7 +221,7 @@ else
             {
                 message = result?.Data?.ToString() ?? "";
 
-                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
             }
             else
             {
@@ -245,14 +246,14 @@ else
             message = "Starting sync...";
             StateHasChanged();
 
-            await DataService.ServerSyncAsync();
+            await SyncDataService.ServerSyncAsync();
             Logger.LogTrace("Completed Sync");
 
             message = "Sync complete";
 
             // refresh authors after sync
             Logger.LogTrace("Starting Refresh");
-            Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+            Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
             Logger.LogTrace("Completed Refresh");
         }
         catch (Exception ex)
@@ -272,12 +273,12 @@ else
         ShowDetailAsync(author, "New Author");
     }
 
-    private void EditAsync(AuthorItemViewModel author)
+    private void EditAsync(AuthorViewModel author)
     {
         ShowDetailAsync(author, "Edit Author");
     }
 
-    private async void DeleteAsync(AuthorItemViewModel author)
+    private async void DeleteAsync(AuthorViewModel author)
     {
         var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
         var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
@@ -294,7 +295,7 @@ else
             {
                 message = $"'{author.Name}' deleted";
 
-                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorItemViewModel>() { };
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
             }
         }
         else
@@ -304,9 +305,9 @@ else
         StateHasChanged();
     }
 
-    private AuthorItemViewModel InitializeAuthorObject()
+    private AuthorViewModel InitializeAuthorObject()
     {
-        return new AuthorItemViewModel();
+        return new AuthorViewModel();
     }
 
     public void Dispose()

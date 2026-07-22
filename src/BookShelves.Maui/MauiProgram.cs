@@ -8,9 +8,9 @@ using BookShelves.Maui.Services;
 using BookShelves.Shared;
 using BookShelves.Shared.Data.Bases;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
-using BookShelves.Shared.Services;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -231,7 +231,9 @@ public static class MauiProgram
 
         builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
         builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>(); // Register specific repositories if needed
-        builder.Services.AddTransient<IAuthorItemDataService, AuthorItemDataService>();
+        builder.Services.AddTransient<IAuthorDataService, MauiAuthorDataService>();
+
+        builder.Services.AddTransient<ISyncDataService, MauiSyncDataService>();
 
         // try to utilize the offline sync service
         builder.Services.AddScoped<SyncDbContextInitializer>();

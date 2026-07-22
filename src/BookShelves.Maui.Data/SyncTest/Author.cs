@@ -9,44 +9,25 @@ public class Author : OfflineClientEntity
     public string? Bio { get; set; }
 
 
-    public AuthorItemViewModel ToAuthorItemViewModel()
+    public AuthorViewModel ToAuthorViewModel()
     {
-        return new AuthorItemViewModel()
+        return new AuthorViewModel()
         {
             Id = Id,
             Name = Name,
             Biography = Bio,
             LastUpdateTime = UpdatedAt,
-            // Revision = Revision,
         };
     }
 
-    public static Author FromAuthorItemViewModel(AuthorItemViewModel author)
+    public static Author FromAuthorViewModel(AuthorViewModel author, bool setNewId)
     {
-        //string temp;
-
-        //if (author.Id == "")
-        //{
-        //    temp = "";
-        //}
-        //else
-        //{
-        //    if (!string.TryParse(author.Id, out temp))
-        //    {
-        //        throw new ArgumentException("Invalid Id value. Cannot convert to int.", nameof(author.Id));
-        //    }
-        //}
-
         return new Author()
         {
-            Id = author.Id ?? string.Empty, // temp.ToString(),
+            Id = string.IsNullOrEmpty(author.Id) ? (setNewId ? Guid.CreateVersion7().ToString() : string.Empty) : author.Id,
             Name = author.Name ?? string.Empty,
             Bio = author.Biography,
             UpdatedAt = author.LastUpdateTime,
-            //Revision = author.Revision,
-            //UpdateType = book.UpdateType,
-            //ServerId = book.ServerId
         };
     }
-
 }

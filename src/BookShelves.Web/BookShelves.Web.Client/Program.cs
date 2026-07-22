@@ -1,4 +1,5 @@
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Client.Services;
@@ -23,6 +24,9 @@ builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
 builder.Services.AddScoped<IVersionService, ClientVersionService>();
 builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
+builder.Services.AddScoped<ISyncDataService, ClientSyncDataService>();
+builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
+
 builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
@@ -37,7 +41,7 @@ builder.Services.AddHttpClient<IBooksDataService, ClientBooksDataService>(httpCl
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 }).AddHttpMessageHandler<BlazorAuthorizationHandler>();
 
-builder.Services.AddHttpClient<IAuthorItemDataService, ClientAuthorsDataService>(httpClient =>
+builder.Services.AddHttpClient<IAuthorDataService, ClientAuthorsDataService>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 }).AddHttpMessageHandler<BlazorAuthorizationHandler>();
