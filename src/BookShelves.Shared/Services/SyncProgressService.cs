@@ -46,10 +46,6 @@ public class SyncProgressService : ISyncProgressService
         {
             // best-effort only
         }
-        catch
-        {
-            // best-effort only
-        }
     }
 
     public void ReportStage(SyncStage stage, string message, int? current = null, int? total = null)
