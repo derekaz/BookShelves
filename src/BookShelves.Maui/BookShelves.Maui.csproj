@@ -114,8 +114,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="AppPackages\**" />
+	  <AndroidResource Remove="BundleArtifacts\**" />
+	  <Compile Remove="AppPackages\**" />
+	  <Compile Remove="BundleArtifacts\**" />
+	  <Content Remove="AppPackages\**" />
+	  <Content Remove="BundleArtifacts\**" />
+	  <EmbeddedResource Remove="AppPackages\**" />
+	  <EmbeddedResource Remove="BundleArtifacts\**" />
+	  <MauiXaml Remove="AppPackages\**" />
+	  <MauiXaml Remove="BundleArtifacts\**" />
+	  <None Remove="AppPackages\**" />
+	  <None Remove="BundleArtifacts\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Remove="appSettings.Development.json" />
 		<Content Remove="appSettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="windows.binlog" />
 	</ItemGroup>
 
 	<!--<ItemGroup>
@@ -137,37 +156,37 @@
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.3" />
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.3" />
 		<PackageReference Include="Azure.Identity" Version="1.21.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="14.2.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="14.2.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.10" />
-		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" />
+		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.10" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.10" />
 		<PackageReference Include="Microsoft.Graph" Version="6.2.0" />
-		<PackageReference Include="Microsoft.Identity.Client" Version="4.85.2" />
-		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.1" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.86.1" />
+		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.20.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.80" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.80" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.10" />
-		<PackageReference Include="MudBlazor" Version="9.6.0" />
+		<PackageReference Include="MudBlazor" Version="9.7.0" />
 		<!--<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />-->
 		<PackageReference Include="Polly" Version="8.7.0" />
 		<PackageReference Include="System.Drawing.Common" Version="10.0.10" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.85.2" />
-		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.85.2" />
+		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.86.1" />
+		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.86.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-android'))">
-		<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
+		<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.4" />
 		<PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-		<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.3" />
+		<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

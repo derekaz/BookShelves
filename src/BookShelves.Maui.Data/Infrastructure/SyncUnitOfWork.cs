@@ -1,6 +1,7 @@
 using BookShelves.Maui.Data.SyncTest;
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services;
+using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

@@ -16,9 +16,9 @@ public class Author : DatasyncDto
 
     //public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public AuthorItemViewModel ToAuthorItemViewModel()
+    public AuthorViewModel ToAuthorItemViewModel()
     {
-        return new AuthorItemViewModel()
+        return new AuthorViewModel()
         {
             Id = Id,
             Name = Name,
@@ -27,7 +27,7 @@ public class Author : DatasyncDto
         };
     }
 
-    public static Author FromAuthorItemViewModel(AuthorItemViewModel author)
+    public static Author FromAuthorItemViewModel(AuthorViewModel author)
     {
         return new Author()
         {

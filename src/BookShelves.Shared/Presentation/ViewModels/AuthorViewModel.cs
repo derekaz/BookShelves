@@ -1,6 +1,6 @@
 ﻿namespace BookShelves.Shared.Presentation.ViewModels;
 
-public class AuthorItemViewModel
+public class AuthorViewModel
 {
     public const string AUTHORITEM_UNIQUEID_RECORD_ID = "**UNIQUEID**";
 

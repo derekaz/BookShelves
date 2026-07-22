@@ -1,5 +1,6 @@
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Presentation.ViewModels;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
@@ -66,21 +67,18 @@ builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddMicrosoftGraphClient("https://graph.microsoft.com/User.Read");
 
-builder.Services.AddScoped<IBook, BookShelves.Web.Shared.Data.Book>();
+builder.Services.AddScoped<IBook, Book>();
 builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
 builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
 builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
-builder.Services.AddScoped<IAuthorItemDataService, ServerAuthorsDataService>();
-
-//builder.Services.AddHttpClient("ExternalApi",
-//      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
-//          throw new Exception("Missing base address!")))
-//      .AddHttpMessageHandler<TokenHandler>();
+builder.Services.AddScoped<IAuthorDataService, ServerAuthorsDataService>();
 
 builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, ServerVersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
 builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+builder.Services.AddTransient<ISyncDataService, ServerSyncDataService>();
+builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 
 builder.Services.AddScoped<BearerTokenHandler>();
 builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
@@ -250,7 +248,7 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
     }
 }).RequireAuthorization();
 
-app.MapGet("/authorsdata", async ([FromServices] IAuthorItemDataService AuthorsDataService, HttpContext context) =>
+app.MapGet("/authorsdata", async ([FromServices] IAuthorDataService AuthorsDataService, HttpContext context) =>
 {
     try
     {
@@ -276,8 +274,8 @@ app.MapGet("/authorsdata", async ([FromServices] IAuthorItemDataService AuthorsD
     }
 }).RequireAuthorization();
 
-// POST endpoint to create an author via the server-side IAuthorItemDataService implementation
-app.MapPost("/authorsdata", async ([FromServices] IAuthorItemDataService AuthorsDataService, AuthorItemViewModel author) =>
+// POST endpoint to create an author via the server-side IAuthorDataService implementation
+app.MapPost("/authorsdata", async ([FromServices] IAuthorDataService AuthorsDataService, AuthorViewModel author) =>
 {
     try
     {
@@ -290,12 +288,12 @@ app.MapPost("/authorsdata", async ([FromServices] IAuthorItemDataService Authors
     }
 }).RequireAuthorization();
 
-// DELETE endpoint to delete an author via the server-side IAuthorItemDataService implementation
-app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorItemDataService AuthorsDataService, string id) =>
+// DELETE endpoint to delete an author via the server-side IAuthorDataService implementation
+app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorDataService AuthorsDataService, string id) =>
 {
     try
     {
-        var author = new AuthorItemViewModel { Id = id };
+        var author = new AuthorViewModel { Id = id };
         var result = await AuthorsDataService.DeleteAuthorAsync(author);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
@@ -305,8 +303,8 @@ app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorItemDataService 
     }
 }).RequireAuthorization();
 
-// PUT endpoint to update an author via the server-side IAuthorItemDataService implementation
-app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorItemDataService AuthorsDataService, string id, AuthorItemViewModel author) =>
+// PUT endpoint to update an author via the server-side IAuthorDataService implementation
+app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorDataService AuthorsDataService, string id, AuthorViewModel author) =>
 {
     try
     {

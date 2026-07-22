@@ -9,10 +9,10 @@ using Microsoft.Identity.Web.Resource;
 namespace BookShelves.Web.Services;
 
 internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory authorsClientFactory)
-        : IAuthorItemDataService
+        : IAuthorDataService
 {
 
-    public async Task<bool> CreateAuthorAsync(AuthorItemViewModel author)
+    public async Task<bool> CreateAuthorAsync(AuthorViewModel author)
     {
         var newAuthor = new Author
         {
@@ -44,7 +44,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
 
     [AuthorizeForScopes(ScopeKeySection = "BooksApi:Scopes")]
     [RequiredScope(RequiredScopesConfigurationKey = "BooksApi:Scopes")]
-    public async Task<IEnumerable<AuthorItemViewModel>> GetAuthorsAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<AuthorViewModel>> GetAuthorsAsync(bool includeSoftDeleted = false)
     {
         try
         {
@@ -60,7 +60,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         }
     }
 
-    public async Task<IEnumerable<AuthorItemViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
+    public async Task<IEnumerable<AuthorViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
     {
         try
         {
@@ -82,17 +82,12 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         }
     }
 
-    public async Task<bool> UpdateAuthorAsync(AuthorItemViewModel author)
+    public async Task<bool> UpdateAuthorAsync(AuthorViewModel author)
     {
         ArgumentNullException.ThrowIfNull(author);
         ArgumentException.ThrowIfNullOrWhiteSpace(author.Id, nameof(author));
 
-        var newAuthor = new Author
-        {
-            Id = author.Id,
-            Name = author.Name,
-            Bio = author.Biography,
-        };
+        var newAuthor = Author.FromAuthorItemViewModel(author);
 
         var httpClient = authorsClientFactory.CreateClient();
         var tableEndpoint = new Uri("/authors", UriKind.Relative);
@@ -108,14 +103,12 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         return false;
     }
 
-    public async Task<bool> DeleteAuthorAsync(AuthorItemViewModel author, bool softDelete = false)
+    public async Task<bool> DeleteAuthorAsync(AuthorViewModel author)
     {
         var httpClient = authorsClientFactory.CreateClient();
         var tableEndpoint = new Uri("/authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
-        // If softDelete is requested, you could implement a different downstream call
-        // For now, call the BooksApi delete endpoint which removes the record by id
         ArgumentNullException.ThrowIfNull(author);
         ArgumentException.ThrowIfNullOrWhiteSpace(author.Id, nameof(author));
 
@@ -129,10 +122,5 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         }
 
         return false;
-    }
-
-    public Task ServerSyncAsync()
-    {
-        throw new NotImplementedException();
     }
 }

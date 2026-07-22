@@ -1,55 +1,7 @@
-using System;
+using BookShelves.Shared.Services.ServiceInterfaces;
 
 namespace BookShelves.Shared.Services
 {
-    /// <summary>
-    /// Defines the stages of the synchronization process
-    /// </summary>
-    public enum SyncStage
-    {
-        None = 0,
-        Started = 1,
-        Pushing = 2,           // Step 1: Pushing local changes to server
-        Pulling = 3,           // Step 2: Pulling remote changes
-        Processing = 4,        // Step 3: Processing/merging changes
-        Completed = 5,
-        Failed = 6
-    }
-
-    public class SyncProgressEventArgs : EventArgs
-    {
-        public string? Message { get; set; }
-        public int? Current { get; set; }
-        public int? Total { get; set; }
-        public string? Stage { get; set; }
-
-        /// <summary>
-        /// The current sync stage (enum-based)
-        /// </summary>
-        public SyncStage SyncStage { get; set; } = SyncStage.None;
-
-        /// <summary>
-        /// Overall step number in the sync process (e.g., 1, 2, 3)
-        /// </summary>
-        public int CurrentStep { get; set; }
-
-        /// <summary>
-        /// Total number of steps in the sync process
-        /// </summary>
-        public int TotalSteps { get; set; } = 3;
-
-        /// <summary>
-        /// Overall progress percentage (0-100)
-        /// </summary>
-        public int ProgressPercentage { get; set; }
-    }
-
-    public interface ISyncProgressService
-    {
-        event EventHandler<SyncProgressEventArgs>? ProgressChanged;
-        void Report(SyncProgressEventArgs args);
-        void ReportStage(SyncStage stage, string message, int? current = null, int? total = null);
-    }
 
     public class SyncProgressService : ISyncProgressService
     {

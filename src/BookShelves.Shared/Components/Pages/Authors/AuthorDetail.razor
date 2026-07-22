@@ -1,5 +1,5 @@
 ﻿@using BookShelves.Shared.Data.Interfaces
-@inject IAuthorItemDataService DataService
+@inject IAuthorDataService DataService
 
 <MudDialog>
     <TitleContent>@TitleText</TitleContent>
@@ -34,7 +34,7 @@
     IMudDialogInstance? MudDialog { get; set; } // = default!;
 
     [Parameter]
-    public AuthorItemViewModel? AuthorObject { get; set; }
+    public AuthorViewModel? AuthorObject { get; set; }
 
     [Parameter]
     public string TitleText { get; set; } = "Authors";
