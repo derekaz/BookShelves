@@ -11,7 +11,6 @@ using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
-using BookShelves.Shared.Services;
 using CommunityToolkit.Maui;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
