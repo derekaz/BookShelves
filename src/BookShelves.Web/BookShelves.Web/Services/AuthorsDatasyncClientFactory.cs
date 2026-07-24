@@ -14,7 +14,15 @@ internal sealed class AuthorsDatasyncClientFactory
         var endpoint = configuration["BooksApi:BaseUrl"]
             ?? throw new InvalidOperationException("Missing BooksApi:BaseUrl configuration for Datasync client.");
 
-        _logger.LogTrace("[DATASYNC DEBUG] Creating AuthorsDatasyncClientFactory with endpoint: {Endpoint}", endpoint);
+        if (!endpoint.EndsWith("/"))
+        {
+            endpoint += "/";
+        }
+
+        // 1. Force the combined endpoint to include the /api/ prefix at construction time
+        var fullApiUri = new Uri(new Uri(endpoint), "api/");
+
+        _logger.LogTrace("[DATASYNC DEBUG] Creating AuthorsDatasyncClientFactory with endpoint: {fullApiUri}", fullApiUri);
 
         var customHandler = new HttpClientHandler
         {
@@ -28,7 +36,7 @@ internal sealed class AuthorsDatasyncClientFactory
 
         HttpClientOptions options = new()
         {
-            Endpoint = new Uri(endpoint),
+            Endpoint = fullApiUri,
             HttpPipeline =
             [
                 bearerTokenHandler,
