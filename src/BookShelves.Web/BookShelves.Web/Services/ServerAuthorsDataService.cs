@@ -8,7 +8,7 @@ using Microsoft.Identity.Web.Resource;
 
 namespace BookShelves.Web.Services;
 
-internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory authorsClientFactory)
+internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory authorsClientFactory, ILogger<ServerAuthorsDataService> logger)
         : IAuthorDataService
 {
 
@@ -54,8 +54,9 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError($"An error occurred while retrieving authors. {ex.Message}  Exception:{ex}");
             throw;
         }
     }
