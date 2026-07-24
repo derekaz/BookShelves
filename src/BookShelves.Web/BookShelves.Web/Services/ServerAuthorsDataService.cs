@@ -21,7 +21,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         };
 
         var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var tableEndpoint = new Uri("authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         try
@@ -64,7 +64,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
     public async Task<IEnumerable<AuthorViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
     {
         var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("tables/authors", UriKind.Relative);
+        var tableEndpoint = new Uri("authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         try
@@ -97,7 +97,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         var newAuthor = Author.FromAuthorItemViewModel(author);
 
         var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var tableEndpoint = new Uri("authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         var result = await authorsClient.ReplaceAsync(newAuthor);
@@ -113,7 +113,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
     public async Task<bool> DeleteAuthorAsync(AuthorViewModel author)
     {
         var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var tableEndpoint = new Uri("authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         ArgumentNullException.ThrowIfNull(author);

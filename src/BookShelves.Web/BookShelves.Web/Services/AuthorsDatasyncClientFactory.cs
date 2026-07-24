@@ -19,8 +19,8 @@ internal sealed class AuthorsDatasyncClientFactory
             endpoint += "/";
         }
 
-        // 1. Force the combined endpoint to include the /api/ prefix at construction time
-        var fullApiUri = new Uri(new Uri(endpoint), "api/");
+        // 1. Force the combined endpoint to include the /api/tables prefix at construction time
+        var fullApiUri = new Uri(new Uri(endpoint), "api/tables/");
 
         _logger.LogTrace("[DATASYNC DEBUG] Creating AuthorsDatasyncClientFactory with endpoint: {fullApiUri}", fullApiUri);
 
