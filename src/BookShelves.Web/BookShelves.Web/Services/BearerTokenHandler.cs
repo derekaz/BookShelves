@@ -5,10 +5,12 @@ namespace BookShelves.Web.Services;
 public class BearerTokenHandler : DelegatingHandler
 {
     private readonly ITokenAcquisition _tokenService; // Inject your token acquisition service here
+    private readonly ILogger<BearerTokenHandler> _logger;
 
-    public BearerTokenHandler(ITokenAcquisition tokenService)
+    public BearerTokenHandler(ITokenAcquisition tokenService, ILogger<BearerTokenHandler> logger)
     {
         _tokenService = tokenService;
+        _logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -26,6 +28,18 @@ public class BearerTokenHandler : DelegatingHandler
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request URL: {request.RequestUri}");
+
+        var response = await base.SendAsync(request, cancellationToken);
+
+        _logger.LogTrace($"[DATASYNC DEBUG] Response Status Code: {response.StatusCode}");
+
+        if (!response.IsSuccessStatusCode && response.Content != null)
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content}");
+        }
+
+        return response;
     }
 }
