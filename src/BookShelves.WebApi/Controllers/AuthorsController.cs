@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookShelves.WebApi.Controllers
 {
     [Authorize]
-    [Route("[controller]")]
+    [Route("tables/[controller]")]
     [TypeFilter(typeof(DatasyncDebugExceptionFilter), Order = int.MinValue)]
     public class AuthorsController : TableController<Author>
     {
