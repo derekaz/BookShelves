@@ -76,7 +76,6 @@ builder.Services.AddScoped<IAuthorDataService, ServerAuthorsDataService>();
 builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
 builder.Services.AddScoped<IVersionService, ServerVersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
-// builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 builder.Services.AddTransient<ISyncDataService, ServerSyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 
@@ -100,12 +99,6 @@ forwardedHeadersOptions.KnownIPNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 
 var app = builder.Build();
-
-// Place this at the VERY top of your middleware pipeline, before Auth or Routing
-//app.UseForwardedHeaders(new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-//});
 
 // If the environment variable from Docker Compose is present, enforce it
 if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
