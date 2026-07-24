@@ -64,7 +64,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
     public async Task<IEnumerable<AuthorViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
     {
         var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("/tables/authors", UriKind.Relative);
+        var tableEndpoint = new Uri("tables/authors", UriKind.Relative);
         var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         try
