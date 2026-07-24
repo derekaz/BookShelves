@@ -34,8 +34,10 @@ public class BearerTokenHandler : DelegatingHandler
 
         _logger.LogTrace($"[DATASYNC DEBUG] Response Status Code: {response.StatusCode}");
 
-        if (!response.IsSuccessStatusCode && response.Content != null)
+        //if (!response.IsSuccessStatusCode && response.Content != null)
+        if (response.Content != null)
         {
+            _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request URL: {request.RequestUri}");
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
             _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content}");
         }
