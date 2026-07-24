@@ -84,7 +84,7 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         }
         catch (Exception ex)
         {
-            logger.LogError($"An error occurred while retrieving authors. {ex.Message}  Exception:{ex}; httpClient:{httpClient}; authorsClient:{authorsClient}");
+            logger.LogError($"An error occurred while retrieving authors. {ex.Message}  Exception:{ex};  httpClient.BaseAddress:{httpClient.BaseAddress}");
             throw;
         }
     }
