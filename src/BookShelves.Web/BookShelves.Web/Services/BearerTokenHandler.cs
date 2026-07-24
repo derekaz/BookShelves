@@ -40,7 +40,7 @@ public class BearerTokenHandler : DelegatingHandler
         {
             _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request URL: {request.RequestUri}");
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content.Substring(0, 1000)}");
+            _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content}");
         }
 
         return response;
