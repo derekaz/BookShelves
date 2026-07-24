@@ -27,12 +27,6 @@ builder.Services.AddScoped<IVersionService, ClientVersionService>();
 builder.Services.AddScoped<ISyncDataService, ClientSyncDataService>();
 builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
 
-builder.Services.AddScoped<ISyncDataService, ClientSyncDataService>();
-builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
-
-builder.Services.AddScoped<ISyncDataService, ClientSyncDataService>();
-builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
-
 builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);

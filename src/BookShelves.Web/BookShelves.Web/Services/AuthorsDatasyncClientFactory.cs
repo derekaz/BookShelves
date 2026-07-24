@@ -11,12 +11,23 @@ internal sealed class AuthorsDatasyncClientFactory
         var endpoint = configuration["BooksApi:BaseUrl"]
             ?? throw new InvalidOperationException("Missing BooksApi:BaseUrl configuration for Datasync client.");
 
+        var customHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                // Allow the connection if the cert is completely valid OR if it just has a name mismatch
+                return errors == System.Net.Security.SslPolicyErrors.None ||
+                       errors == System.Net.Security.SslPolicyErrors.RemoteCertificateNameMismatch;
+            }
+        };
+
         HttpClientOptions options = new()
         {
             Endpoint = new Uri(endpoint),
             HttpPipeline =
             [
-                bearerTokenHandler
+                bearerTokenHandler,
+                customHandler
             ],
             Timeout = TimeSpan.FromSeconds(120)
         };
