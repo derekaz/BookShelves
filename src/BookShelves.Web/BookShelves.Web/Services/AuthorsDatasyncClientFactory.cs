@@ -5,11 +5,16 @@ namespace BookShelves.Web.Services;
 internal sealed class AuthorsDatasyncClientFactory
 {
     private readonly HttpClientFactory _factory;
+    private readonly ILogger<AuthorsDatasyncClientFactory> _logger;
 
-    public AuthorsDatasyncClientFactory(IConfiguration configuration, BearerTokenHandler bearerTokenHandler)
+    public AuthorsDatasyncClientFactory(IConfiguration configuration, BearerTokenHandler bearerTokenHandler, ILogger<AuthorsDatasyncClientFactory> logger)
     {
+        _logger = logger;
+
         var endpoint = configuration["BooksApi:BaseUrl"]
             ?? throw new InvalidOperationException("Missing BooksApi:BaseUrl configuration for Datasync client.");
+
+        _logger.LogTrace("[DATASYNC DEBUG] Creating AuthorsDatasyncClientFactory with endpoint: {Endpoint}", endpoint);
 
         var customHandler = new HttpClientHandler
         {
