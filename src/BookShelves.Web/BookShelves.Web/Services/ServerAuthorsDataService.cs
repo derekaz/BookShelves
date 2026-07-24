@@ -63,11 +63,12 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
 
     public async Task<IEnumerable<AuthorViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
     {
+        var httpClient = authorsClientFactory.CreateClient();
+        var tableEndpoint = new Uri("/authors", UriKind.Relative);
+        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
+
         try
         {
-            var httpClient = authorsClientFactory.CreateClient();
-            var tableEndpoint = new Uri("/authors", UriKind.Relative);
-            var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
             var authors = await authorsClient.ToListAsync(); //  .Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
 
@@ -79,6 +80,11 @@ internal sealed class ServerAuthorsDataService(AuthorsDatasyncClientFactory auth
         }
         catch (MicrosoftIdentityWebChallengeUserException)
         {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"An error occurred while retrieving authors. {ex.Message}  Exception:{ex}; httpClient:{httpClient}; authorsClient:{authorsClient}");
             throw;
         }
     }
