@@ -26,6 +26,7 @@ public class BearerTokenHandler : DelegatingHandler
         {
             // Set the Authorization header directly
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request BearerToken: {token}");
         }
 
         _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request URL: {request.RequestUri}");
@@ -39,7 +40,7 @@ public class BearerTokenHandler : DelegatingHandler
         {
             _logger.LogTrace($"[DATASYNC DEBUG] Outgoing Request URL: {request.RequestUri}");
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content}");
+            _logger.LogTrace($"[DATASYNC DEBUG] Response Body Content:\n{content.Substring(0, 1000)}");
         }
 
         return response;
