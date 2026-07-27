@@ -5,17 +5,16 @@ using Microsoft.Identity.Abstractions;
 
 namespace BookShelves.Web.Services.Server;
 
-internal sealed class WeatherForecasterService  //IHttpClientFactory clientFactory)
+internal sealed class WeatherForecasterService
     : IWeatherForecasterService
 {
     private readonly IDownstreamApi _downstreamApi;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly AuthenticationStateProvider _authenticationStateProvider;
 
-    public WeatherForecasterService(//HttpClient? httpClient, 
+    public WeatherForecasterService(
         IDownstreamApi downstreamApi, IHttpContextAccessor httpContextAccessor, AuthenticationStateProvider authenticationStateProvider)
     {
-        //_httpClient = httpClient;
         _downstreamApi = downstreamApi;
         _contextAccessor = httpContextAccessor;
         _authenticationStateProvider = authenticationStateProvider;
@@ -32,9 +31,6 @@ internal sealed class WeatherForecasterService  //IHttpClientFactory clientFacto
             //var curUser = authState.User;
             //var loginHint = user.GetObjectId(); // or user.GetUpn()
 
-            //using var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast");
-
-            //var client = 
             using var response = await _downstreamApi.CallApiForUserAsync("WeatherApi",
                 options =>
                 {
@@ -50,26 +46,10 @@ internal sealed class WeatherForecasterService  //IHttpClientFactory clientFacto
                 forecast.Source = "(via ServerWeatherForecaster) " + forecast.Source;
             }
             return forecasts;
-
-            // return await _downstreamApi.GetForUserAsync<WeatherForecast[]>("WeatherApi");
-            //return await _httpClient.GetFromJsonAsync<WeatherForecast[]>("weatherforecast");
         }
         catch
         {
             return [];
         }
-
-
-
-
-
-        //using var request = new HttpRequestMessage(HttpMethod.Get, "/weatherforecast");
-        //var client = clientFactory.CreateClient("ExternalApi");
-        //using var response = await client.SendAsync(request);
-        //response.EnsureSuccessStatusCode();
-
-        //var temp = await response.Content.ReadFromJsonAsync<WeatherForecast[]>();
-        //var result = temp ?? throw new IOException("No weather forecast!"); //.Cast<IWeatherForecast>();
-        //return result ?? throw new IOException("No weather forecast!");
     }
 }
