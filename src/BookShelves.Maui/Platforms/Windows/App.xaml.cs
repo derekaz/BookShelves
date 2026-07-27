@@ -22,16 +22,15 @@ namespace BookShelves.Maui.WinUI
                 var errorMessage = e.Message;
                 var exceptionDetails = e.Exception?.ToString() ?? "No inner exception details.";
 
-                // Write to a local text file on your Desktop since you cannot see the IDE output during a packaged run
+                // Write to a local text file in Documents/AZMoore/BookShelves/logs
                 try
                 {
-                    string desktopPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                    string logPath = System.IO.Path.Combine(desktopPath, "BookShelves_Crash_Log.txt");
-                    System.IO.File.WriteAllText(logPath, $"Error: {errorMessage}\n\nDetails:\n{exceptionDetails}");
+                    string logPath = global::BookShelves.Maui.Helpers.FileAccessHelper.GetLogFilePath("BookShelves_Crash_Log.txt");
+                    System.IO.File.AppendAllText(logPath, $"=== WinUI UnhandledException ({System.DateTime.UtcNow:O}) ===\nError: {errorMessage}\n\nDetails:\n{exceptionDetails}\n\n");
                 }
                 catch
                 {
-                    // Fallback if desktop access is restricted by package permissions
+                    // Fallback if file access is restricted
                 }
             };
         }
