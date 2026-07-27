@@ -1,5 +1,5 @@
 ﻿using Android.App;
-using BookShelves.Maui.Services;
+using BookShelves.Maui.Interfaces;
 
 namespace BookShelves.Maui.Platforms.Android;
 

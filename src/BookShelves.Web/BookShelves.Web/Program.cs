@@ -4,7 +4,9 @@ using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
+using BookShelves.Web.Handlers;
 using BookShelves.Web.Services;
+using BookShelves.Web.Services.Server;
 using BookShelves.Web.Shared.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -67,20 +69,19 @@ builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddMicrosoftGraphClient("https://graph.microsoft.com/User.Read");
 
-builder.Services.AddScoped<IBook, Book>();
-builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
-builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
-builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
-builder.Services.AddScoped<IAuthorDataService, ServerAuthorsDataService>();
+builder.Services.AddScoped<IWeatherForecasterService, WeatherForecasterService>();
+builder.Services.AddScoped<IBooksDataService, BooksDataService>();
+builder.Services.AddScoped<IAuthorsDataService, AuthorsDataService>();
 
-builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
-builder.Services.AddScoped<IVersionService, ServerVersionService>();
-builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
-builder.Services.AddTransient<ISyncDataService, ServerSyncDataService>();
+builder.Services.AddScoped<IFormFactor, FormFactorService>();
+builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderService>();
+builder.Services.AddTransient<ISyncDataService, SyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 
 builder.Services.AddScoped<BearerTokenHandler>();
 builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
+builder.Services.AddScoped<BooksDatasyncClientFactory>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -165,7 +166,7 @@ app.MapGet("/MicrosoftIdentity/Account/Challenge", (string? returnUrl, HttpConte
     );
 });
 
-app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
+app.MapGet("/weatherforecast", ([FromServices] IWeatherForecasterService WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
 }).RequireAuthorization();
@@ -241,7 +242,7 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
     }
 }).RequireAuthorization();
 
-app.MapGet("/authorsdata", async ([FromServices] IAuthorDataService AuthorsDataService, HttpContext context) =>
+app.MapGet("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDataService, HttpContext context) =>
 {
     try
     {
@@ -268,7 +269,7 @@ app.MapGet("/authorsdata", async ([FromServices] IAuthorDataService AuthorsDataS
 }).RequireAuthorization();
 
 // POST endpoint to create an author via the server-side IAuthorDataService implementation
-app.MapPost("/authorsdata", async ([FromServices] IAuthorDataService AuthorsDataService, AuthorViewModel author) =>
+app.MapPost("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDataService, AuthorViewModel author) =>
 {
     try
     {
@@ -282,7 +283,7 @@ app.MapPost("/authorsdata", async ([FromServices] IAuthorDataService AuthorsData
 }).RequireAuthorization();
 
 // DELETE endpoint to delete an author via the server-side IAuthorDataService implementation
-app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorDataService AuthorsDataService, string id) =>
+app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorsDataService AuthorsDataService, string id) =>
 {
     try
     {
@@ -297,7 +298,7 @@ app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorDataService Auth
 }).RequireAuthorization();
 
 // PUT endpoint to update an author via the server-side IAuthorDataService implementation
-app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorDataService AuthorsDataService, string id, AuthorViewModel author) =>
+app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorsDataService AuthorsDataService, string id, AuthorViewModel author) =>
 {
     try
     {

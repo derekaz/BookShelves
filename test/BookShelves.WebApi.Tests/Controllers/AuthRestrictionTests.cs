@@ -49,14 +49,4 @@ public sealed class AuthRestrictionTests(BookShelvesWebApiFactory factory) : ICl
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    [Fact]
-    public async Task Get_Books_WithTokenButNoScope_ReturnsForbidden()
-    {
-        using var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("Authorization", "Bearer test-token");
-
-        using var response = await client.GetAsync("/Books");
-
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-    }
 }

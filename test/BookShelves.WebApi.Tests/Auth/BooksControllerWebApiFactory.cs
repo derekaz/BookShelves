@@ -1,15 +1,11 @@
-using System.Reflection;
 using BookShelves.WebApi.BooksDataAccess;
-using BookShelves.WebApi.DataAccess;
 using CommunityToolkit.Datasync.Server;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
+using System.Reflection;
 
 namespace BookShelves.WebApi.Tests.Auth;
 
@@ -37,43 +33,102 @@ public sealed class BooksControllerWebApiFactory : WebApplicationFactory<Program
                 options.DefaultScheme = TestAuthHandler.SchemeName;
             }).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
 
-            services.AddSingleton(CreateRepository());
+            services.AddSingleton<IRepository<Book>>(BooksRepositoryProxy.Create());
         });
     }
 
-    private static BookRepository CreateRepository()
+    private class BooksRepositoryProxy : DispatchProxy
     {
-        var containerMock = new Mock<Container>(MockBehavior.Loose);
-        var iteratorMock = new Mock<FeedIterator<Book>>(MockBehavior.Loose);
-        iteratorMock.SetupGet(x => x.HasMoreResults).Returns(false);
-        iteratorMock.Setup(x => x.ReadNextAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("ReadNextAsync should not be called when HasMoreResults is false."));
+        public static IRepository<Book> Create()
+        {
+            return DispatchProxy.Create<IRepository<Book>, BooksRepositoryProxy>();
+        }
 
-        containerMock
-            .Setup(x => x.GetItemQueryIterator<Book>(It.IsAny<QueryDefinition>(), It.IsAny<string>(), It.IsAny<QueryRequestOptions>()))
-            .Returns(iteratorMock.Object);
-        containerMock
-            .Setup(x => x.CreateItemAsync(It.IsAny<Book>(), It.IsAny<PartitionKey?>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateNoOpItemResponse<Book>());
-        containerMock
-            .Setup(x => x.UpsertItemAsync(It.IsAny<Book>(), It.IsAny<PartitionKey?>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateNoOpItemResponse<Book>());
-        containerMock
-            .Setup(x => x.DeleteItemAsync<Book>(It.IsAny<string>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateNoOpItemResponse<Book>());
-        containerMock
-            .Setup(x => x.ReadItemAsync<Book>(It.IsAny<string>(), It.IsAny<PartitionKey>(), It.IsAny<ItemRequestOptions>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(CreateNoOpItemResponse<Book>());
+        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+        {
+            if (targetMethod is null)
+            {
+                return null;
+            }
 
-        var client = new CosmosClient("AccountEndpoint=https://localhost:8081/;AccountKey=AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QA==;");
-        var repository = new BookRepository(new LoggerFactory().CreateLogger<BookRepository>(), client, "test-db", "test-container");
+            return CreateResult(targetMethod.ReturnType);
+        }
 
-        var containerField = typeof(CosmosRepository<Book>).GetField("container", BindingFlags.Instance | BindingFlags.NonPublic)
-            ?? throw new InvalidOperationException("Unable to locate CosmosRepository container field.");
+        private static object? CreateResult(Type returnType)
+        {
+            if (returnType == typeof(void))
+            {
+                return null;
+            }
 
-        containerField.SetValue(repository, containerMock.Object);
-        return repository;
+            if (returnType == typeof(Task))
+            {
+                return Task.CompletedTask;
+            }
+
+            if (returnType == typeof(ValueTask))
+            {
+                return default(ValueTask);
+            }
+
+            if (returnType.IsGenericType)
+            {
+                var genericType = returnType.GetGenericTypeDefinition();
+                var genericArgument = returnType.GetGenericArguments()[0];
+
+                if (genericType == typeof(Task<>))
+                {
+                    var result = CreateGenericResult(genericArgument);
+                    return typeof(Task)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Single(method => method.Name == nameof(Task.FromResult) && method.IsGenericMethod)
+                        .MakeGenericMethod(genericArgument)
+                        .Invoke(null, new[] { result });
+                }
+
+                if (genericType == typeof(ValueTask<>))
+                {
+                    var result = CreateGenericResult(genericArgument);
+                    return Activator.CreateInstance(returnType, result);
+                }
+            }
+
+            return CreateGenericResult(returnType);
+        }
+
+        private static object? CreateGenericResult(Type type)
+        {
+            if (type == typeof(IQueryable<Book>))
+            {
+                return Array.Empty<Book>().AsQueryable();
+            }
+
+            if (type == typeof(IEnumerable<Book>))
+            {
+                return Array.Empty<Book>();
+            }
+
+            if (type == typeof(List<Book>))
+            {
+                return new List<Book>();
+            }
+
+            if (typeof(IQueryable).IsAssignableFrom(type))
+            {
+                return Array.Empty<Book>().AsQueryable();
+            }
+
+            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
+            {
+                return Array.Empty<Book>();
+            }
+
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
+        }
     }
-
-    private static ItemResponse<T> CreateNoOpItemResponse<T>()
-        => (ItemResponse<T>)Activator.CreateInstance(typeof(ItemResponse<T>), nonPublic: true)!;
 }

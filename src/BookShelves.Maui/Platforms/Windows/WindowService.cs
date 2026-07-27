@@ -1,4 +1,4 @@
-﻿using BookShelves.Maui.Services;
+﻿using BookShelves.Maui.Interfaces;
 using System.Runtime.InteropServices;
 
 namespace BookShelves.Maui.Platforms.Windows;

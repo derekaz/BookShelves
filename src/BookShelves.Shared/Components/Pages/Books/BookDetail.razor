@@ -1,5 +1,6 @@
 ﻿@using BookShelves.Shared.Data.Interfaces
 @inject IBooksDataService DataService
+@inject IAuthorsDataService AuthorsDataService
 
 <MudDialog>
     <TitleContent>@TitleText</TitleContent>
@@ -11,7 +12,33 @@
             </div>
             <div class="form-group">
                 <label for="Author" class="control-label">Author</label>
-                <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
+                <MudAutocomplete T="AuthorViewModel"
+                                 @bind-Value="SelectedAuthor"
+                                 SearchFunc="SearchAuthors"
+                                 ToStringFunc="@(author => author?.Name ?? string.Empty)"
+                                 Variant="Variant.Outlined"
+                                 Dense="true"
+                                 Clearable="true"
+                                 ResetValueOnEmptyText="true" />
+                <div class="d-flex gap-2 mt-2">
+                    <InputText class="form-control" @bind-Value="NewAuthorName" placeholder="Add new author name" />
+                    <button type="button" class="btn btn-outline-primary" @onclick="AddAuthorInlineAsync" disabled="@IsAddingAuthor">Add Author</button>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(AuthorStatusMessage))
+                {
+                    <div class="text-muted mt-1">@AuthorStatusMessage</div>
+                }
+            </div>
+            <div class="form-group">
+                <label for="Description" class="control-label">Description</label>
+                <InputText for="Description" class="form-control" @bind-Value="@BookObject.Description" />
+            </div>
+            <div class="form-group">
+                <label for="PublishDate" class="control-label">Published</label>
+                <div class="form-control">
+                    @BookObject.PublishDate
+                </div>
+                @* <InputText for="PublishDate" class="form-control" @bind-Value="@BookObject.PublishDate" /> *@
             </div>
             <div class="form-group">
                 <label for="LastUpdateTime" class="control-label">Last Update</label>
@@ -47,7 +74,7 @@
                     </div>
                     <div class="form-group">
                         <label for="Author" class="control-label">Author</label>
-                        <InputText for="Author" class="form-control" @bind-Value="@BookObject.Author" />
+                        <InputText for="Author" class="form-control" @bind-Value="@BookObject.AuthorId" />
                     </div>
                     <div class="form-group">
                         <label for="LastUpdateTime" class="control-label">Last Update</label>
@@ -78,9 +105,43 @@
 
     string message = string.Empty;
 
+    private List<AuthorViewModel> Authors { get; set; } = [];
+
+    private AuthorViewModel? SelectedAuthor { get; set; }
+
+    private string NewAuthorName { get; set; } = string.Empty;
+
+    private bool IsAddingAuthor { get; set; }
+
+    private string AuthorStatusMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BookObject ??= new BookViewModel();
+
+        Authors = (await AuthorsDataService.GetAuthorsAsync()).ToList();
+
+        if (!string.IsNullOrWhiteSpace(BookObject.Author?.Id))
+        {
+            SelectedAuthor = Authors.FirstOrDefault(a => a.Id == BookObject.Author.Id);
+        }
+
+        if (SelectedAuthor is null && !string.IsNullOrWhiteSpace(BookObject.Author?.Name))
+        {
+            SelectedAuthor = Authors.FirstOrDefault(a => string.Equals(a.Name, BookObject.Author.Name, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
     private async Task SubmitForm()
     {
-        if (String.IsNullOrEmpty(BookObject!.IdValue) || BookObject!.IdValue == "0")
+        if (BookObject is null)
+        {
+            return;
+        }
+
+        ApplySelectedAuthor();
+
+        if (string.IsNullOrEmpty(BookObject.IdValue) || BookObject.IdValue == "0")
         {
             var result = await DataService.CreateBookAsync(BookObject);
             if (result)
@@ -97,6 +158,78 @@
                 string message = $"'{BookObject.Title}' has been updated.";
                 MudDialog?.Close(DialogResult.Ok(message));
             }
+        }
+    }
+
+    private void ApplySelectedAuthor()
+    {
+        if (BookObject is null)
+        {
+            return;
+        }
+
+        BookObject.Author = SelectedAuthor is null
+            ? null
+            : new AuthorViewModel
+            {
+                Id = SelectedAuthor.Id,
+                Name = SelectedAuthor.Name,
+                Biography = SelectedAuthor.Biography,
+                LastUpdateTime = SelectedAuthor.LastUpdateTime
+            };
+    }
+
+    private Task<IEnumerable<AuthorViewModel>> SearchAuthors(string value, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.Equals(value, SelectedAuthor?.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult<IEnumerable<AuthorViewModel>>(Authors);
+        }
+
+        var results = Authors.Where(author =>
+            !string.IsNullOrWhiteSpace(author.Name) &&
+            author.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(results);
+    }
+
+    private async Task AddAuthorInlineAsync()
+    {
+        var authorName = NewAuthorName.Trim();
+        if (string.IsNullOrWhiteSpace(authorName))
+        {
+            return;
+        }
+
+        var existingAuthor = Authors.FirstOrDefault(a => string.Equals(a.Name, authorName, StringComparison.OrdinalIgnoreCase));
+        if (existingAuthor is not null)
+        {
+            SelectedAuthor = existingAuthor;
+            NewAuthorName = string.Empty;
+            AuthorStatusMessage = $"'{authorName}' already exists and has been selected.";
+            return;
+        }
+
+        IsAddingAuthor = true;
+        AuthorStatusMessage = string.Empty;
+
+        try
+        {
+            var result = await AuthorsDataService.CreateAuthorAsync(new AuthorViewModel { Name = authorName });
+            if (!result)
+            {
+                AuthorStatusMessage = "Unable to add author.";
+                return;
+            }
+
+            Authors = (await AuthorsDataService.GetAuthorsAsync()).ToList();
+            SelectedAuthor = Authors.LastOrDefault(a => string.Equals(a.Name, authorName, StringComparison.OrdinalIgnoreCase));
+            NewAuthorName = string.Empty;
+            AuthorStatusMessage = $"'{authorName}' has been added and selected.";
+        }
+        finally
+        {
+            IsAddingAuthor = false;
         }
     }
 

@@ -10,5 +10,5 @@ public interface IBooksDataService //<T> where T : IBook
 
     Task<bool> UpdateBookAsync(BookViewModel book);
 
-    Task<bool> DeleteBookAsync(BookViewModel book, bool softDelete = false);
+    Task<bool> DeleteBookAsync(BookViewModel book);
 }
