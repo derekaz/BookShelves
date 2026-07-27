@@ -4,17 +4,9 @@ namespace BookShelves.Web.Shared.Data;
 
 public class Author : DatasyncDto
 {
-    public const string AUTHORS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
-
-    //public string? Id { get; set; } = string.Empty;
-
-    //public string IdValue => Id ?? string.Empty;
-
     public string? Name { get; set; } = string.Empty;
 
     public string? Bio { get; set; } = string.Empty;
-
-    //public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public AuthorViewModel ToAuthorItemViewModel()
     {

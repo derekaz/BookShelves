@@ -1,3 +1,4 @@
+using BookShelves.Web.Handlers;
 using CommunityToolkit.Datasync.Client.Http;
 
 namespace BookShelves.Web.Services;
@@ -19,7 +20,7 @@ internal sealed class AuthorsDatasyncClientFactory
             endpoint += "/";
         }
 
-        // 1. Force the combined endpoint to include the /api/tables prefix at construction time
+        // 1. Force the combined endpoint to include the tables/ prefix at construction time
         var fullApiUri = new Uri(new Uri(endpoint), "tables/");
 
         _logger.LogTrace("[DATASYNC DEBUG] Creating AuthorsDatasyncClientFactory with endpoint: {fullApiUri}", fullApiUri);

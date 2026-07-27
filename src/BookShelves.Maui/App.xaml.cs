@@ -1,5 +1,5 @@
 ﻿
-using BookShelves.Maui.Data.SyncTest;
+using BookShelves.Maui.Data.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookShelves.Maui

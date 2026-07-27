@@ -6,10 +6,13 @@
 1. First Run:
    ```pwsh
    dotnet ef migrations add InitialCreate --context SyncDbContext --project ../BookShelves.Maui.Data/
+
+   May not need the --context parameter if you have only one DbContext in your project.
    ```
 
-   Futre Runs:
+   Future Runs:
    ```pwsh
-   dotnet ef migrations add <MigrationName> --context SyncDbContext --project ../BookShelves.Maui.Data/
+   # dotnet ef migrations add <MigrationName> --context SyncDbContext --project ../BookShelves.Maui.Data/
+   dotnet ef migrations add <MigrationName> --project ./BookShelves.Maui.Data  --startup-project ./BookShelves.Maui.MigrationHost
    ```
    Replace `<MigrationName>` with a descriptive name for your migration.

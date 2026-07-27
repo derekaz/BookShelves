@@ -1,50 +1,34 @@
-﻿using BookShelves.Shared.Data.Interfaces;
-using BookShelves.Shared.Presentation.ViewModels;
-using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+﻿using BookShelves.Shared.Presentation.ViewModels;
 
 namespace BookShelves.Web.Shared.Data;
 
-// [JsonObject(Title = "Book")]
-public class Book : IItem, IBook
+public class Book : DatasyncDto
 {
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    public const string BOOKS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
+    public string Title { get; set; } = string.Empty;
 
-    [JsonProperty("id")]
-    [JsonPropertyName("id")]
-    public string? Id { get; set; } = string.Empty;
+    public string? AuthorId { get; set; }
 
-    public string IdValue => Id ?? string.Empty;
+    public string? Description { get; set; }
 
-    [JsonProperty("title")]
-    [JsonPropertyName("title")]
-    public string? Title { get; set; } = string.Empty;
+    public DateTime? PublishedDate { get; set; }
 
-    [JsonProperty("author")]
-    [JsonPropertyName("author")]
-    public string? Author { get; set; } = string.Empty;
 
-    [JsonProperty("lastUpdateTime")]
-    [JsonPropertyName("lastUpdateTime")]
-    public DateTime? LastUpdateTime { get; set; } = DateTime.UtcNow;
-
-    [JsonProperty("revision")]
-    [JsonPropertyName("revision")]
-    public int? Revision { get; set; } = 0;
-
-    public BookViewModel ToBookViewModel()
+    public BookViewModel ToBookViewModel(IEnumerable<Author> authors)
     {
+        var authorMap = authors.ToDictionary(a => a.Id, a => new AuthorViewModel
+        {
+            Id = a.Id,
+            Name = a.Name
+        });
+
         return new BookViewModel()
         {
             Id = Id,
             Title = Title,
-            Author = Author,
-            LastUpdateTime = LastUpdateTime,
-            Revision = Revision,
-            //UpdateType = UpdateType,
-            //ServerId = ServerId
+            Author = AuthorId != null && authorMap.TryGetValue(AuthorId, out var authorVm) ? authorVm : null,
+            Description = Description,
+            PublishDate = PublishedDate,
+            LastUpdateTime = UpdatedAt
         };
     }
 
@@ -52,13 +36,12 @@ public class Book : IItem, IBook
     {
         return new Book()
         {
-            Id = book.Id,
+            Id = book.Id ?? string.Empty,
             Title = book.Title,
-            Author = book.Author,
-            LastUpdateTime = book.LastUpdateTime,
-            Revision = book.Revision,
-            //UpdateType = book.UpdateType,
-            //ServerId = book.ServerId
+            AuthorId = book.Author?.Id,
+            Description = book.Description,
+            PublishedDate = book.PublishDate,
+            UpdatedAt = book.LastUpdateTime
         };
     }
 

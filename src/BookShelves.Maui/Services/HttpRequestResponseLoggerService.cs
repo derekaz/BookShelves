@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
+﻿using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
 
 namespace BookShelves.Maui.Services;
 
@@ -38,7 +35,7 @@ class TraceContentLoggingHandler(HttpMessageHandler innerHandler, ILogger logger
         else
             logger.LogTrace("""NULL RESPONSE CONTENT""");
 
-            return response;
+        return response;
     }
 
     static async Task<string> ReadableResponse(HttpResponseMessage response, CancellationToken cancellationToken)

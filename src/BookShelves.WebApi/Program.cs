@@ -98,19 +98,20 @@ CosmosClient cosmosClient = new CosmosClient(connectionString,
 
 builder.Services.AddSingleton(cosmosClient);
 builder.Services.AddSingleton<ICosmosTableOptions<Author>>(new CosmosSharedTableOptions<Author>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
+builder.Services.AddSingleton<ICosmosTableOptions<Book>>(new CosmosSharedTableOptions<Book>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(CosmosTableRepository<>));
 
-builder.Services.AddTransient(x =>
-{
-    IConfiguration? configuration = x.GetService<IConfiguration>();
+//builder.Services.AddTransient(x =>
+//{
+//    IConfiguration? configuration = x.GetService<IConfiguration>();
 
-    return new BookRepository(
-        x.GetRequiredService<ILogger<BookRepository>>(),
-        new CosmosClient(configuration!["ConnectionStrings:CosmosDBConnectionString"]),
-        "azmoore-westus2-db1",
-        "azmoore-books-westus2-dbc1"
-    );
-});
+//    return new BookRepository(
+//        x.GetRequiredService<ILogger<BookRepository>>(),
+//        new CosmosClient(configuration!["ConnectionStrings:CosmosDBConnectionString"]),
+//        "azmoore-westus2-db1",
+//        "azmoore-books-westus2-dbc1"
+//    );
+//});
 
 builder.Services.AddEndpointsApiExplorer();
 
