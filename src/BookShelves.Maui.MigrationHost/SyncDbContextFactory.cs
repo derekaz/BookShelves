@@ -1,4 +1,5 @@
 ﻿using BookShelves.Maui.Data.Infrastructure;
+using BookShelves.Maui.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,9 +23,15 @@ public class SyncDbContextFactory : IDesignTimeDbContextFactory<SyncDbContext>
         return new SyncDbContext(
             optionsBuilder.Options,
             NullLogger<SyncDbContext>.Instance,
+            new DesignTimeSyncApiClient(),
             new DesignTimeHttpClientFactory()
         );
     }
+}
+
+internal class DesignTimeSyncApiClient : ISyncApiClient
+{
+    public HttpClient HttpClient { get; } = new();
 }
 
 // Simple dummy factory to satisfy the constructor at design time
