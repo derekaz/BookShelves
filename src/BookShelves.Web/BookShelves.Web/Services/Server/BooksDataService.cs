@@ -18,7 +18,7 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         {
             Title = book.Title ?? string.Empty,
             Description = book.Description,
-            AuthorId = book.AuthorId,
+            AuthorId = book.Author?.Id,
             PublishedDate = book.PublishDate
         };
 
@@ -68,13 +68,15 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         var httpClient = booksClientFactory.CreateClient();
         var tableEndpoint = new Uri("books", UriKind.Relative);
         var booksClient = new DatasyncServiceClient<Book>(tableEndpoint, httpClient);
+        var authorsClient = new DatasyncServiceClient<Author>(new Uri("authors", UriKind.Relative), httpClient);
 
         try
         {
 
             var books = await booksClient.ToListAsync(); //  .Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
+            var authors = await authorsClient.ToListAsync();
 
-            return books.Select(b => b.ToBookViewModel());
+            return books.Select(b => b.ToBookViewModel(authors));
         }
         catch (MsalUiRequiredException)
         {
