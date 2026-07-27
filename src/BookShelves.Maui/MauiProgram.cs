@@ -33,23 +33,23 @@ public static class MauiProgram
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
 
-        //AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-        //{
-        //    try
-        //    {
-        //        Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-        //        Console.WriteLine(args.Exception.StackTrace);
+        AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+        {
+            try
+            {
+                Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+                Console.WriteLine(args.Exception.StackTrace);
 
-        //        // Best-effort write to a persistent crash log so very early failures are captured
-        //        try
-        //        {
-        //            var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
-        //            File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
-        //        }
-        //        catch { }
-        //    }
-        //    catch { }
-        //};
+                // Best-effort write to a persistent crash log so very early failures are captured
+                try
+                {
+                    var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+                    File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+                }
+                catch { }
+            }
+            catch { }
+        };
 
         builder
             .UseMauiApp<App>()
@@ -71,16 +71,16 @@ public static class MauiProgram
         builder.Services.AddLogging(logging =>
         {
             logging.AddConsole();
-#if DEBUG
+            // #if DEBUG
             logging.AddDebug();
             logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-#endif
+            // #endif
         });
 
-#if DEBUG
+        // #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-#endif
+        // #endif
 
 
         builder.ConfigureLifecycleEvents(events =>
@@ -126,9 +126,10 @@ public static class MauiProgram
         // Add appSettings.json to configuration
         if (appSettingsStream != null) configBuilder.AddJsonStream(appSettingsStream);
 
-        // Optionally use appSettings.Development.json to override values in
-        // appSettings.json that shouldn't be committed to source control
+#if DEBUG
+        // Only apply Development overrides for debug builds
         if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
+#endif
 
         var config = configBuilder.Build();
 
