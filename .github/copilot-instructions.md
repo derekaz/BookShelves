@@ -35,7 +35,7 @@ For .NET installation on Linux, follow the official Microsoft documentation:
 
 ### Initial Repository Setup
 
-1. **Clone and navigate to repository:**git clone https://github.com/derekax/BookShelves.git
+1. **Clone and navigate to repository:** git clone https://github.com/derekax/BookShelves.git
 2. **Restore tools and build tasks (REQUIRED before opening IDE):**
 
 ## Project Structure
@@ -91,6 +91,9 @@ This command:
 ### macOS/Mac Catalyst
 - Requires Xcode installation
 
+## Logging Configuration
+- For the MAUI app, logging should avoid `SpecialFolder.Desktop` and use `Documents/AZMoore/BookShelves/logs`, while keeping the database path unchanged.
+
 ## Contribution Guidelines
 
 ### Handling Existing PRs for Assigned Issues
@@ -101,13 +104,13 @@ When working on an issue:
 
 1. **FIRST: Develop your own solution** - Come up with your own implementation approach without looking at existing PRs. Analyze the issue, understand the requirements, and design your solution independently.
 2. **THEN: Search for existing PRs** - After you have developed your solution approach, search for open PRs that address the same issue using GitHub search or issue links.
-3. **Compare solutions thoroughly** - Examine the existing PR's proposed changes, implementation approach, and any discussion in comments. Compare this to your own solution.
-4. **Evaluate and choose the best approach** - Decide which solution (yours or the existing PR's) better addresses the issue and follows best practices.
-5. **Always document your decision** - In your PR description, always include a summary comparing your solution to any other open PRs for the issue you are working on, and explain why you chose your approach over the alternatives.
-6. **Report on why you didn't choose other solutions** - Always make sure to explain the specific reasons why you didn't go with other existing solutions, including any concerns or issues you identified.
-7. **It's OK to abandon existing PRs** - If you're not confident enough in the existing PR's approach, it's completely acceptable to abandon it and implement your own solution.
-8. **Pull existing changes when you prefer them** - If you determine the existing solution is better than your approach, pull those changes into your PR as the foundation for your work, then find areas to improve and add tests.
-9. **Identify improvement opportunities** - Whether you use your solution or an existing one, look for areas where you can enhance it, such as:
+3. Compare solutions thoroughly - Examine the existing PR's proposed changes, implementation approach, and any discussion in comments. Compare this to your own solution.
+4. Evaluate and choose the best approach - Decide which solution (yours or the existing PR's) better addresses the issue and follows best practices.
+5. Always document your decision - In your PR description, always include a summary comparing your solution to any other open PRs for the issue you are working on, and explain why you chose your approach over the alternatives.
+6. Report on why you didn't choose other solutions - Always make sure to explain the specific reasons why you didn't go with other existing solutions, including any concerns or issues you identified.
+7. It's OK to abandon existing PRs - If you're not confident enough in the existing PR's approach, it's completely acceptable to abandon it and implement your own solution.
+8. Pull existing changes when you prefer them - If you determine the existing solution is better than your approach, pull those changes into your PR as the foundation for your work, then find areas to improve and add tests.
+9. Identify improvement opportunities - Whether you use your solution or an existing one, look for areas where you can enhance it, such as:
    - Adding comprehensive test coverage
    - Improving code quality, performance, or maintainability
    - Enhancing error handling or edge case coverage
@@ -137,14 +140,10 @@ Since coding agents function as both CI and pair programmers, they need to handl
 ### Opening PRs
 
 All PRs are required to have this at the top of the description:
-
-```
 <!-- Please let the below note in for people that find this PR -->
 > [!NOTE]
 > Are you waiting for the changes in this PR to be merged?
 > It would be very helpful if you could [test the resulting artifacts](https://github.com/dotnet/maui/wiki/Testing-PR-Builds) from this PR and let us know in a comment if this change resolves your issue. Thank you!
-```
-
 Always put that at the top, without the block quotes. Without it, the users will NOT be able to try the PR and your work will have been in vain!
 
 ## Additional Resources
@@ -160,3 +159,6 @@ Always put that at the top, without the block quotes. Without it, the users will
 ### Service/Client Registration
 - Avoid magic strings in service/client registrations.
 - Favor typed wrappers for service/client registrations to enhance type safety and maintainability.
+
+### User Preference
+- Do not create implementation plans or ancillary documents during requests; proceed directly with investigation/changes unless explicitly asked for a plan.

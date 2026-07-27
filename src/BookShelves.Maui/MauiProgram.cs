@@ -43,7 +43,7 @@ public static class MauiProgram
                 // Best-effort write to a persistent crash log so very early failures are captured
                 try
                 {
-                    var crashPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "unhandled-crash.log");
+                    var crashPath = FileAccessHelper.GetLogFilePath("unhandled-crash.log");
                     File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
                 }
                 catch { }
@@ -337,8 +337,7 @@ public static class MauiProgram
                         try
                         {
                             // persist to local file for post-mortem analysis
-                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unhandled-Crash-Log.txt");
+                            string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unhandled-Crash-Log.txt");
                             File.AppendAllText(crashLogPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
                         }
                         catch { /* best-effort only */ }
@@ -355,8 +354,7 @@ public static class MauiProgram
                         try
                         {
                             // persist to local file for post-mortem analysis
-                            string desktopPath = Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-                            string crashLogPath = Path.Combine(desktopPath, "BookShelves-Unobserved-Crash-Log.txt");
+                            string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unobserved-Crash-Log.txt");
                             File.AppendAllText(crashLogPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
                         }
                         catch { }
