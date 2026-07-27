@@ -43,7 +43,7 @@ else
                     <td>
                         <div class="fw-normal mb-1">@book.Title</div>
                         <div class="text-muted mb-0">@book.Author?.Name</div>
-                        <div class="text-muted mb-0">@book.PublishDate</div>
+                        <div class="text-muted mb-0">@book.PublishDate?.ToString("yyyy-MM-dd")</div>
                     </td>
                     <td>
                         <div class="fw-normal mb-1">@book.Description</div>
