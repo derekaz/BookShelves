@@ -6,7 +6,7 @@ using System.Net.Http.Json;
 
 namespace BookShelves.Maui.Data.Services.Maui;
 
-public class WeatherForecasterService(IWeatherApiClient httpClient, IHttpClientFactory httpClientFactory, ILogger<WeatherForecasterService> logger) : IWeatherForecasterService
+public class WeatherForecasterService(IWeatherApiClient httpClient, ILogger<WeatherForecasterService> logger) : IWeatherForecasterService
 {
     public async Task<IEnumerable<WeatherForecast>> GetWeatherForecastAsync()
     {
