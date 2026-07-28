@@ -358,6 +358,10 @@ jobs:
             /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
             /p:MtouchUseLlvm=false `
+            /p:MtouchLink=SdkOnly `
+            /p:DebugSymbols=true `
+            /p:DebugType=portable `
+            /p:NoDSymUtil=false `
             /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
             /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
             
@@ -418,6 +422,28 @@ jobs:
             exit 1
           fi
           echo "pkg=$PKG_PATH" >> $GITHUB_OUTPUT
+
+      - name: Collect IOS symbols
+        shell: pwsh
+        run: |
+          $symbolsPath = "${{ github.workspace }}/publish-output/ios-symbols"
+          New-Item -ItemType Directory -Force -Path $symbolsPath | Out-Null
+
+          Get-ChildItem -Path "${{ env.MAUI_IOS_PUBLISH_PATH }}" -Recurse -Filter *.dSYM | Copy-Item -Destination $symbolsPath -Recurse -Force
+          Get-ChildItem -Path "${{ env.MAUI_IOS_PUBLISH_PATH }}" -Recurse -Filter *.pdb | Copy-Item -Destination $symbolsPath -Force
+
+          $dsyms = Get-ChildItem -Path $symbolsPath -Recurse -Filter *.dSYM
+          if (-not $dsyms)
+          {
+            Write-Error "No iOS dSYM symbols were found in publish output."
+          }
+
+      - name: Archive IOS symbols artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: 'ios symbols'
+          path: '${{ github.workspace }}/publish-output/ios-symbols'
+          compression-level: 0
 
       - name: Archive IOS build artifact
         uses: actions/upload-artifact@v7
