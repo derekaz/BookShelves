@@ -31,66 +31,106 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        // Thread.Sleep(10000);
-        MauiAppBuilder builder = MauiApp.CreateBuilder();
+        string startupMilestone = "M00";
 
-        builder
-            .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-            })
-            .ConfigureEssentials(essentials =>
-            {
-                essentials.UseVersionTracking();
-            });
-
-        // 1. Establish the platform-specific safe logging directory
-        // string logDirectory = FileSystem.Current.AppDataDirectory;
-        // string logPath = Path.Combine(logDirectory, "logs", "app-log-.txt");
-
-        var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
-
-        Log.Logger = new LoggerConfiguration()
-#if DEBUG
-            .MinimumLevel.Debug()
-#else
-            .MinimumLevel.Information() // Filter out verbose logs for production
-#endif
-            .WriteTo.Debug()            // Keep for local IDE debugging
-            .WriteTo.File(
-                path: logPath,
-                rollingInterval: RollingInterval.Day, // Creates a new log file every day
-                retainedFileCountLimit: 7,            // Keeps only the last 7 days of logs
-                fileSizeLimitBytes: 5_000_000,        // Limit individual file size to 5MB
-                rollOnFileSizeLimit: true)            // Create new file if 5MB is exceeded
-            .CreateLogger();
-
-        builder.Logging.ClearProviders();
-        builder.Logging.AddSerilog(dispose: true);
-
-        AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+        try
         {
-            try
-            {
-                Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-                Console.WriteLine(args.Exception.StackTrace);
+            startupMilestone = "M01-CreateMauiApp-Enter";
 
-                // Best-effort write to a persistent crash log so very early failures are captured
+            // 1. Establish the platform-specific safe logging directory
+            var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
+
+            Log.Logger = new LoggerConfiguration()
+#if DEBUG
+                .MinimumLevel.Debug()
+#else
+                .MinimumLevel.Debug() // Filter out verbose logs for production
+#endif
+                .WriteTo.Debug()            // Keep for local IDE debugging
+                .WriteTo.File(
+                    path: logPath,
+                    rollingInterval: RollingInterval.Day, // Creates a new log file every day
+                    retainedFileCountLimit: 7,            // Keeps only the last 7 days of logs
+                    fileSizeLimitBytes: 5_000_000,        // Limit individual file size to 5MB
+                    rollOnFileSizeLimit: true)            // Create new file if 5MB is exceeded
+                .CreateLogger();
+
+            Log.Information("{Milestone}: Serilog initialized at {LogPath}", startupMilestone, logPath);
+
+            AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
+            {
                 try
                 {
-                    var crashPath = FileAccessHelper.GetLogFilePath("unhandled-crash.log");
-                    File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+                    Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
+                    Console.WriteLine(args.Exception.StackTrace);
+
+                    // Best-effort write to a persistent crash log so very early failures are captured
+                    try
+                    {
+                        var crashPath = FileAccessHelper.GetLogFilePath("unhandled-crash.log");
+                        File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
+                    }
+                    catch { }
                 }
                 catch { }
-            }
-            catch { }
-        };
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                try
+                {
+                    var ex = args.ExceptionObject as Exception ?? new Exception("Non-Exception thrown to AppDomain.CurrentDomain.UnhandledException");
+                    Log.Fatal(ex, "UNHANDLED APPDOMAIN exception. IsTerminating={IsTerminating}", args.IsTerminating);
+                    try
+                    {
+                        string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unhandled-Crash-Log.txt");
+                        File.AppendAllText(crashLogPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
+                    }
+                    catch { }
+                }
+                catch { }
+            };
+
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                try
+                {
+                    var ex = args.Exception ?? new AggregateException("UnobservedTaskException without Exception");
+                    Log.Fatal(ex, "UNOBSERVED TASK exception");
+                    try
+                    {
+                        string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unobserved-Crash-Log.txt");
+                        File.AppendAllText(crashLogPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
+                    }
+                    catch { }
+                    args.SetObserved();
+                }
+                catch { }
+            };
+
+            startupMilestone = "M02-Builder-Create";
+            MauiAppBuilder builder = MauiApp.CreateBuilder();
+
+            builder
+                .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                })
+                .ConfigureEssentials(essentials =>
+                {
+                    essentials.UseVersionTracking();
+                });
+
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog(dispose: true);
+            Log.Information("{Milestone}: Builder and logging providers configured", startupMilestone);
 
         builder.Services.AddMauiBlazorWebView();
 
         builder.Services.AddMudServices();
+        Log.Information("M03-UI-Services-Registered");
 
         builder.Services.AddLogging(logging =>
         {
@@ -101,10 +141,10 @@ public static class MauiProgram
 #endif
         });
 
-        // #if DEBUG
+#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-        // #endif
+#endif
 
 
         builder.ConfigureLifecycleEvents(events =>
@@ -116,6 +156,18 @@ public static class MauiProgram
                 {
                     AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
                 });
+            });
+#elif IOS
+            events.AddiOS(platform =>
+            {
+                platform.FinishedLaunching((_, _) =>
+                {
+                    Log.Information("M04-iOS-FinishedLaunching");
+                    return true;
+                });
+                platform.OnActivated(_ => Log.Information("M05-iOS-OnActivated"));
+                platform.DidEnterBackground(_ => Log.Information("M06-iOS-DidEnterBackground"));
+                platform.WillEnterForeground(_ => Log.Information("M07-iOS-WillEnterForeground"));
             });
 #endif
         });
@@ -142,15 +194,14 @@ public static class MauiProgram
         var assembly = Assembly.GetExecutingAssembly();
         var appName = assembly.GetName().Name;
 
-        using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
-        using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
-
         var configBuilder = new ConfigurationBuilder();
 
         // Add appSettings.json to configuration
+        using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         if (appSettingsStream != null) configBuilder.AddJsonStream(appSettingsStream);
 
 #if DEBUG
+        using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
         // Only apply Development overrides for debug builds
         if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
 #endif
@@ -158,6 +209,7 @@ public static class MauiProgram
         var config = configBuilder.Build();
 
         builder.Configuration.AddConfiguration(config);
+        Log.Information("M08-Configuration-Loaded");
 
         builder.Services.AddSingleton<IFormFactor, FormFactorService>();
         builder.Services.AddSingleton<IVersionService, VersionService>();
@@ -256,11 +308,6 @@ public static class MauiProgram
         //            options.EnableDetailedErrors();
         //        });
 
-        //builder.Services.AddTransient<IUnitOfWork<BookShelvesDbContext>, UnitOfWork<BookShelvesDbContext>>();
-        //builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
-        //builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
-        //builder.Services.AddTransient<IBook, LocalBook>();
-
         builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
 
         builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>();
@@ -322,10 +369,10 @@ public static class MauiProgram
         //    logging.MediaTypeOptions.AddText("application/javascript");
         //    logging.RequestBodyLogLimit = 4096;
         //    logging.ResponseBodyLogLimit = 4096;
-
         //});
 
         builder.Services.AddRazorClassLibraryServices(config);
+        Log.Information("M09-Service-Registration-Complete");
 
 #if MACCATALYST
         string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
@@ -341,67 +388,41 @@ public static class MauiProgram
         }
 #endif
 
+        startupMilestone = "M10-Before-Build";
+        Log.Information("{Milestone}", startupMilestone);
+
+        var app = builder.Build();
+
+        startupMilestone = "M11-After-Build";
+        Log.Information("{Milestone}", startupMilestone);
+
+        ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
+        //app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
+        startupMilestone = "M12-Before-SyncDbContextInitializer";
+        Log.Information("{Milestone}", startupMilestone);
+        app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
+
+        startupMilestone = "M13-Startup-Complete";
+        Log.Information("{Milestone}", startupMilestone);
+
+        return app;
+    }
+    catch (Exception ex)
+    {
         try
         {
-            var app = builder.Build();
-
-            ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-
-            // Register global unhandled exception handlers to capture crashes when running as a packaged app.
-            try
-            {
-                var globalLogger = ApplicationLogger.CreateLogger("GlobalUnhandledException");
-
-                AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-                {
-                    try
-                    {
-                        var ex = args.ExceptionObject as Exception ?? new Exception("Non-Exception thrown to AppDomain.CurrentDomain.UnhandledException");
-                        globalLogger.LogCritical(ex, "AppDomain unhandled exception. IsTerminating={IsTerminating}", args.IsTerminating);
-                        try
-                        {
-                            // persist to local file for post-mortem analysis
-                            string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unhandled-Crash-Log.txt");
-                            File.AppendAllText(crashLogPath, $"=== AppDomain UnhandledException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
-                        }
-                        catch { /* best-effort only */ }
-                    }
-                    catch { }
-                };
-
-                TaskScheduler.UnobservedTaskException += (sender, args) =>
-                {
-                    try
-                    {
-                        var ex = args.Exception ?? new AggregateException("UnobservedTaskException without Exception");
-                        globalLogger.LogCritical(ex, "Unobserved task exception");
-                        try
-                        {
-                            // persist to local file for post-mortem analysis
-                            string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Unobserved-Crash-Log.txt");
-                            File.AppendAllText(crashLogPath, $"=== TaskScheduler UnobservedTaskException ({DateTime.UtcNow:O}) ===\nError: {ex.Message}\nException: {ex}\n");
-                        }
-                        catch { }
-                        args.SetObserved();
-                    }
-                    catch { }
-                };
-            }
-            catch (Exception ex)
-            {
-                // if logger factory isn't available or something else fails, fallback to console
-                Console.WriteLine("Failed to register global exception handlers: {0}", ex);
-            }
-
-            //app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
-            app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
-
-            return app;
+            Log.Fatal(ex, "CreateMauiApp failed at {Milestone}", startupMilestone);
+            string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Startup-Crash-Log.txt");
+            File.AppendAllText(crashLogPath, $"=== CreateMauiApp Failure ({DateTime.UtcNow:O}) ===\nMilestone: {startupMilestone}\nException: {ex}\n\n");
+            Log.CloseAndFlush();
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine("MauiProgram:CreateMauiApp-Build Exception-{0}", ex.ToString());
-            throw;
+            Console.WriteLine("MauiProgram:CreateMauiApp fatal failure at milestone {0} - {1}", startupMilestone, ex);
         }
+
+        throw;
     }
+}
 }
