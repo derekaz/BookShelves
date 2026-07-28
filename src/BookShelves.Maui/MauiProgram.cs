@@ -47,9 +47,6 @@ public static class MauiProgram
             });
 
         // 1. Establish the platform-specific safe logging directory
-        // string logDirectory = FileSystem.Current.AppDataDirectory;
-        // string logPath = Path.Combine(logDirectory, "logs", "app-log-.txt");
-
         var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
 
         Log.Logger = new LoggerConfiguration()
@@ -101,10 +98,10 @@ public static class MauiProgram
 #endif
         });
 
-        // #if DEBUG
+#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
-        // #endif
+#endif
 
 
         builder.ConfigureLifecycleEvents(events =>
@@ -142,15 +139,14 @@ public static class MauiProgram
         var assembly = Assembly.GetExecutingAssembly();
         var appName = assembly.GetName().Name;
 
-        using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
-        using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
-
         var configBuilder = new ConfigurationBuilder();
 
         // Add appSettings.json to configuration
+        using var appSettingsStream = assembly.GetManifestResourceStream($"{appName}.appSettings.json");
         if (appSettingsStream != null) configBuilder.AddJsonStream(appSettingsStream);
 
 #if DEBUG
+        using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
         // Only apply Development overrides for debug builds
         if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
 #endif
@@ -256,11 +252,6 @@ public static class MauiProgram
         //            options.EnableDetailedErrors();
         //        });
 
-        //builder.Services.AddTransient<IUnitOfWork<BookShelvesDbContext>, UnitOfWork<BookShelvesDbContext>>();
-        //builder.Services.AddTransient<IRepository<LocalBook>, GenericRepository<BookShelvesDbContext, LocalBook>>(); // Register specific repositories if needed
-        //builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
-        //builder.Services.AddTransient<IBook, LocalBook>();
-
         builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
 
         builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>();
@@ -322,7 +313,6 @@ public static class MauiProgram
         //    logging.MediaTypeOptions.AddText("application/javascript");
         //    logging.RequestBodyLogLimit = 4096;
         //    logging.ResponseBodyLogLimit = 4096;
-
         //});
 
         builder.Services.AddRazorClassLibraryServices(config);
