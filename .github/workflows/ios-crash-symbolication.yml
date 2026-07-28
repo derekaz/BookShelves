@@ -1,0 +1,172 @@
+name: iOS Crash Symbolication
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: 'Workflow run id that contains artifacts: ios ipa and ios symbols'
+        required: true
+        type: string
+      crash_log_text:
+        description: 'Optional full crashlog.crash text from TestFlight export'
+        required: false
+        type: string
+      load_address:
+        description: 'Optional app image load address (example: 0x102c88000)'
+        required: false
+        type: string
+      addresses:
+        description: 'Optional comma/space separated addresses to symbolicate (example: 0x108916ecc,0x108af39a4)'
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  symbolicate:
+    name: Symbolicate iOS crash addresses
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Validate required symbolication inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${{ inputs.crash_log_text }}" ] && [ -z "${{ inputs.addresses }}" ]; then
+            echo 'Provide either crash_log_text or addresses.' >&2
+            exit 1
+          fi
+
+      - name: Download iOS IPA artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/symbolicate/ios-ipa"
+          gh run download "${{ inputs.source_run_id }}" --repo "${{ github.repository }}" --name "ios ipa" --dir "$RUNNER_TEMP/symbolicate/ios-ipa"
+
+      - name: Download iOS symbols artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/symbolicate/ios-symbols"
+          gh run download "${{ inputs.source_run_id }}" --repo "${{ github.repository }}" --name "ios symbols" --dir "$RUNNER_TEMP/symbolicate/ios-symbols"
+
+      - name: Resolve IPA and dSYM paths
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IPA_PATH=$(find "$RUNNER_TEMP/symbolicate/ios-ipa" -type f -name '*.ipa' | head -n1)
+          if [ -z "$IPA_PATH" ]; then
+            echo 'Unable to find .ipa in ios ipa artifact.' >&2
+            exit 1
+          fi
+
+          DSYM_PATH=$(find "$RUNNER_TEMP/symbolicate/ios-symbols" -type d -name '*.dSYM' | head -n1)
+          if [ -z "$DSYM_PATH" ]; then
+            echo 'Unable to find .dSYM in ios symbols artifact.' >&2
+            exit 1
+          fi
+
+          DSYM_BINARY=$(find "$DSYM_PATH/Contents/Resources/DWARF" -type f | head -n1)
+          if [ -z "$DSYM_BINARY" ]; then
+            echo 'Unable to find DWARF symbol binary in dSYM.' >&2
+            exit 1
+          fi
+
+          echo "ipa=$IPA_PATH" >> "$GITHUB_OUTPUT"
+          echo "dsym=$DSYM_PATH" >> "$GITHUB_OUTPUT"
+          echo "dwarf=$DSYM_BINARY" >> "$GITHUB_OUTPUT"
+
+      - name: Verify IPA and dSYM UUID match
+        id: uuid
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          WORK_DIR="$RUNNER_TEMP/symbolicate/ipa-extract"
+          mkdir -p "$WORK_DIR"
+          unzip -qq "${{ steps.resolve.outputs.ipa }}" -d "$WORK_DIR"
+
+          APP_DIR=$(find "$WORK_DIR/Payload" -maxdepth 1 -type d -name '*.app' | head -n1)
+          [ -n "$APP_DIR" ] || { echo 'Unable to locate .app in IPA payload.' >&2; exit 1; }
+
+          EXECUTABLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP_DIR/Info.plist")
+          APP_BINARY="$APP_DIR/$EXECUTABLE"
+          [ -f "$APP_BINARY" ] || { echo "Unable to locate app executable at $APP_BINARY" >&2; exit 1; }
+
+          APP_UUID=$(dwarfdump --uuid "$APP_BINARY" | awk '{print toupper($2)}' | head -n1)
+          [ -n "$APP_UUID" ] || { echo 'Unable to read app UUID.' >&2; exit 1; }
+
+          if ! dwarfdump --uuid "${{ steps.resolve.outputs.dwarf }}" | awk '{print toupper($2)}' | grep -q "$APP_UUID"; then
+            echo "dSYM UUID does not match IPA executable UUID: $APP_UUID" >&2
+            exit 1
+          fi
+
+          echo "app_uuid=$APP_UUID" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare addresses
+        id: prep
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          OUT_DIR="$RUNNER_TEMP/symbolicate/output"
+          mkdir -p "$OUT_DIR"
+          CRASH_FILE="$OUT_DIR/crashlog.crash"
+          ADDR_FILE="$OUT_DIR/addresses.txt"
+
+          if [ -n "${{ inputs.crash_log_text }}" ]; then
+            printf '%s\n' "${{ inputs.crash_log_text }}" > "$CRASH_FILE"
+          fi
+
+          LOAD_ADDR='${{ inputs.load_address }}'
+          if [ -z "$LOAD_ADDR" ] && [ -f "$CRASH_FILE" ]; then
+            LOAD_ADDR=$(grep -E '^[[:space:]]*0x[0-9a-fA-F]+[[:space:]]+-[[:space:]]+0x[0-9a-fA-F]+[[:space:]]+BookShelves\.Maui' "$CRASH_FILE" | head -n1 | sed -E 's/^[[:space:]]*(0x[0-9a-fA-F]+).*/\1/')
+          fi
+
+          if [ -n "${{ inputs.addresses }}" ]; then
+            echo "${{ inputs.addresses }}" | tr ', ' '\n\n' | grep -E '^0x[0-9a-fA-F]+$' | sort -u > "$ADDR_FILE"
+          elif [ -f "$CRASH_FILE" ]; then
+            grep -E 'BookShelves\.Maui[[:space:]]+0x[0-9a-fA-F]+' "$CRASH_FILE" | sed -E 's/.*(0x[0-9a-fA-F]+).*/\1/' | sort -u > "$ADDR_FILE"
+          fi
+
+          [ -s "$ADDR_FILE" ] || { echo 'No symbolication addresses were provided or extracted.' >&2; exit 1; }
+          [ -n "$LOAD_ADDR" ] || { echo 'Unable to determine image load address. Provide load_address.' >&2; exit 1; }
+
+          echo "load_addr=$LOAD_ADDR" >> "$GITHUB_OUTPUT"
+          echo "addr_file=$ADDR_FILE" >> "$GITHUB_OUTPUT"
+          echo "out_dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Symbolicate with atos
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          OUT_FILE="${{ steps.prep.outputs.out_dir }}/symbolicated-addresses.txt"
+          {
+            echo "App UUID: ${{ steps.uuid.outputs.app_uuid }}"
+            echo "Load address: ${{ steps.prep.outputs.load_addr }}"
+            echo "dSYM: ${{ steps.resolve.outputs.dsym }}"
+            echo
+          } > "$OUT_FILE"
+
+          while IFS= read -r ADDR; do
+            [ -z "$ADDR" ] && continue
+            SYM=$(atos -arch arm64 -o "${{ steps.resolve.outputs.dwarf }}" -l "${{ steps.prep.outputs.load_addr }}" "$ADDR" || true)
+            echo "$ADDR => $SYM" >> "$OUT_FILE"
+          done < "${{ steps.prep.outputs.addr_file }}"
+
+          cat "$OUT_FILE"
+
+      - name: Upload symbolicated output
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-symbolicated-output
+          path: ${{ steps.prep.outputs.out_dir }}
+          compression-level: 0
