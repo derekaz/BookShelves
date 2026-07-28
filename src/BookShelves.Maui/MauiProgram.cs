@@ -57,24 +57,6 @@ public static class MauiProgram
 
             Log.Information("{Milestone}: Serilog initialized at {LogPath}", startupMilestone, logPath);
 
-            AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-            {
-                try
-                {
-                    Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-                    Console.WriteLine(args.Exception.StackTrace);
-
-                    // Best-effort write to a persistent crash log so very early failures are captured
-                    try
-                    {
-                        var crashPath = FileAccessHelper.GetLogFilePath("unhandled-crash.log");
-                        File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
-                    }
-                    catch { }
-                }
-                catch { }
-            };
-
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try
@@ -156,18 +138,6 @@ public static class MauiProgram
                 {
                     AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
                 });
-            });
-#elif IOS
-            events.AddiOS(platform =>
-            {
-                platform.FinishedLaunching((_, _) =>
-                {
-                    Log.Information("M04-iOS-FinishedLaunching");
-                    return true;
-                });
-                platform.OnActivated(_ => Log.Information("M05-iOS-OnActivated"));
-                platform.DidEnterBackground(_ => Log.Information("M06-iOS-DidEnterBackground"));
-                platform.WillEnterForeground(_ => Log.Information("M07-iOS-WillEnterForeground"));
             });
 #endif
         });
