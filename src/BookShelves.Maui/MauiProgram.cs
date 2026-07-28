@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
+using Serilog;
 using System.Reflection;
 
 namespace BookShelves.Maui;
@@ -32,6 +33,42 @@ public static class MauiProgram
     {
         // Thread.Sleep(10000);
         MauiAppBuilder builder = MauiApp.CreateBuilder();
+
+        builder
+            .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+            })
+            .ConfigureEssentials(essentials =>
+            {
+                essentials.UseVersionTracking();
+            });
+
+        // 1. Establish the platform-specific safe logging directory
+        // string logDirectory = FileSystem.Current.AppDataDirectory;
+        // string logPath = Path.Combine(logDirectory, "logs", "app-log-.txt");
+
+        var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
+
+        Log.Logger = new LoggerConfiguration()
+#if DEBUG
+            .MinimumLevel.Debug()
+#else
+            .MinimumLevel.Information() // Filter out verbose logs for production
+#endif
+            .WriteTo.Debug()            // Keep for local IDE debugging
+            .WriteTo.File(
+                path: logPath,
+                rollingInterval: RollingInterval.Day, // Creates a new log file every day
+                retainedFileCountLimit: 7,            // Keeps only the last 7 days of logs
+                fileSizeLimitBytes: 5_000_000,        // Limit individual file size to 5MB
+                rollOnFileSizeLimit: true)            // Create new file if 5MB is exceeded
+            .CreateLogger();
+
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSerilog(dispose: true);
 
         AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
         {
@@ -51,19 +88,6 @@ public static class MauiProgram
             catch { }
         };
 
-        builder
-            .UseMauiApp<App>()
-            .UseMauiCommunityToolkit()
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-            })
-            .ConfigureEssentials(essentials =>
-            {
-                essentials.UseVersionTracking();
-            });
-
-
         builder.Services.AddMauiBlazorWebView();
 
         builder.Services.AddMudServices();
@@ -71,10 +95,10 @@ public static class MauiProgram
         builder.Services.AddLogging(logging =>
         {
             logging.AddConsole();
-            // #if DEBUG
+#if DEBUG
             logging.AddDebug();
             logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-            // #endif
+#endif
         });
 
         // #if DEBUG
