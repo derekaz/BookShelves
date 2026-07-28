@@ -429,13 +429,33 @@ jobs:
           $symbolsPath = "${{ github.workspace }}/publish-output/ios-symbols"
           New-Item -ItemType Directory -Force -Path $symbolsPath | Out-Null
 
-          Get-ChildItem -Path "${{ env.MAUI_IOS_PUBLISH_PATH }}" -Recurse -Filter *.dSYM | Copy-Item -Destination $symbolsPath -Recurse -Force
-          Get-ChildItem -Path "${{ env.MAUI_IOS_PUBLISH_PATH }}" -Recurse -Filter *.pdb | Copy-Item -Destination $symbolsPath -Force
+          $searchRoots = @(
+            "${{ env.MAUI_IOS_PUBLISH_PATH }}",
+            "${{ github.workspace }}/${{ env.MAUI_PROJPATH }}/bin/${{ env.RELEASE_CONFIGURATION }}/${{ env.DOTNET_VERSION }}-ios"
+          )
 
-          $dsyms = Get-ChildItem -Path $symbolsPath -Recurse -Filter *.dSYM
+          foreach ($root in $searchRoots)
+          {
+            if (Test-Path $root)
+            {
+              Get-ChildItem -Path $root -Recurse -Directory -Filter *.dSYM -ErrorAction SilentlyContinue |
+                ForEach-Object {
+                  $dest = Join-Path $symbolsPath $_.Name
+                  Copy-Item -Path $_.FullName -Destination $dest -Recurse -Force
+                }
+
+              Get-ChildItem -Path $root -Recurse -File -Filter *.pdb -ErrorAction SilentlyContinue |
+                Copy-Item -Destination $symbolsPath -Force
+            }
+          }
+
+          Write-Host "Collected symbol files:"
+          Get-ChildItem -Path $symbolsPath -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+
+          $dsyms = Get-ChildItem -Path $symbolsPath -Recurse -Directory -Filter *.dSYM -ErrorAction SilentlyContinue
           if (-not $dsyms)
           {
-            Write-Error "No iOS dSYM symbols were found in publish output."
+            Write-Error "No iOS dSYM symbols were found. Checked: $($searchRoots -join ', ')"
           }
 
       - name: Archive IOS symbols artifact
