@@ -1,0 +1,334 @@
+﻿@page "/authors"
+@implements IDisposable
+@inject IAuthorsDataService DataService
+@inject IDialogService DialogService
+@inject ILogger<Index> Logger
+@inject ISyncDataService SyncDataService
+@inject ISyncProgressService SyncProgressService
+@attribute [Authorize(Roles = "Administrator")]
+
+<h1>Authors</h1>
+
+<div>
+    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
+</div>
+@if (IsSyncSupported())
+{
+    <div>
+        <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary" disabled="@isSyncing">Server Sync</button>
+    </div>
+}
+
+<!-- Sync Progress Display -->
+@if (isSyncing)
+{
+    <div class="sync-progress-container alert alert-info" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
+            <span class="badge bg-info">@progressPercentage%</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                @progressPercentage%
+            </div>
+        </div>
+        <small class="text-muted d-block mt-2">@syncMessage</small>
+    </div>
+}
+
+<!-- Sync Progress Display -->
+@if (isSyncing)
+{
+    <div class="sync-progress-container alert alert-info" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
+            <span class="badge bg-info">@progressPercentage%</span>
+        </div>
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
+                @progressPercentage%
+            </div>
+        </div>
+        <small class="text-muted d-block mt-2">@syncMessage</small>
+    </div>
+}
+
+<p>@message</p>
+
+@if (Authors == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col"><div class="fw-bold mb-1">Name</div><div class="text-muted mb-0">Biography</div></th>
+                <th scope="col">Last Update</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in Authors)
+            {
+                <tr>
+                    <th scope="row">@author.IdValue</th>
+                    <td><div class="fw-normal mb-1">@author.Name</div><div class="text-muted mb-0">@author.Biography</div></td>
+                    <td>@author.LastUpdateTime</td>
+                    <td>
+                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(author))" value="Edit" />
+                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(author))" value="Delete" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    #if NET10_0
+    [PersistentState]
+#endif
+    public IEnumerable<AuthorViewModel>? Authors { get; set; }
+
+    private string message = string.Empty;
+    private bool isSyncing = false;
+    private int currentStep = 0;
+    private int totalSteps = 3;
+    private int progressPercentage = 0;
+    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
+    private string syncMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // subscribe to sync progress
+            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
+
+            Authors ??= await DataService.GetAuthorsAsync();
+        }
+        catch (Microsoft.Identity.Client.MsalUiRequiredException)
+        {
+            // ConsentHandler.HandleConsentRequiredException(ex);
+            // HandleMsalException(ex);
+        }
+        catch(NavigationException)
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
+        }
+    }
+
+    private bool IsSyncSupported()
+    {
+        return SyncDataService.SupportsSync;
+    }
+
+    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
+    {
+        try
+        {
+            // Try to marshal to native/main thread if available (MAUI runtime). If not, fall back to Blazor's InvokeAsync.
+            var mainThreadType = Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui.Essentials")
+                                 ?? Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui");
+
+            Action update = () => {
+                // Update new step-tracking properties
+                currentStep = e.CurrentStep;
+                totalSteps = e.TotalSteps;
+                progressPercentage = e.ProgressPercentage;
+                syncStage = e.SyncStage;
+                syncMessage = BuildSyncMessage(e);
+                isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started 
+                    or BookShelves.Shared.Services.SyncStage.Pushing 
+                    or BookShelves.Shared.Services.SyncStage.Pulling 
+                    or BookShelves.Shared.Services.SyncStage.Processing;
+
+                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}, IsSyncing: {IsSyncing}",
+                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage, isSyncing);
+
+                // Keep the legacy message format for compatibility
+                message = BuildMessage(e);
+                InvokeAsync(StateHasChanged);
+            };
+
+            if (mainThreadType != null)
+            {
+                var begin = mainThreadType.GetMethod("BeginInvokeOnMainThread", new Type[] { typeof(Action) });
+                if (begin != null)
+                {
+                    begin.Invoke(null, new object[] { update });
+                    return;
+                }
+            }
+
+            // fallback
+            _ = InvokeAsync(update);
+        }
+        catch
+        {
+            // best-effort only
+        }
+    }
+
+    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    {
+        if (e == null) return string.Empty;
+
+        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        {
+            return $"{e.Message} ({e.Current}/{e.Total})";
+        }
+
+        return e.Message ?? string.Empty;
+    }
+
+    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
+    {
+        return stage switch
+        {
+            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
+            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
+            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
+            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
+            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
+            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
+            _ => "Synchronizing..."
+        };
+    }
+
+    private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    {
+        if (e == null) return string.Empty;
+        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        {
+            var pct = (int)(100.0 * e.Current.Value / Math.Max(1, e.Total.Value));
+            return $"{e.Stage ?? "Sync"}: {e.Message} ({e.Current}/{e.Total}) {pct}%";
+        }
+        return $"{e.Stage ?? "Sync"}: {e.Message}";
+    }
+
+    private async void ShowDetailAsync(AuthorViewModel author, string titleText)
+    {
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
+
+        try
+        {
+            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
+
+            var dialog = await DialogService.ShowAsync<AuthorDetail>("Book Details", parameters, options);
+            var result = await dialog.Result;
+            if (result == null)
+            {
+                message = "Error completing the request";
+            }
+            else if (!result.Canceled)
+            {
+                message = result?.Data?.ToString() ?? "";
+
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
+            }
+            else
+            {
+                if (String.IsNullOrEmpty(author.IdValue))
+                    message = "Add canceled";
+                else
+                    message = "Edit canceled";
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:ShowDetailAsync-Exception");
+        }
+    }
+
+    private async void ServerSyncAsync()
+    {
+        try
+        {
+            Logger.LogTrace("Starting Sync");
+            message = "Starting sync...";
+            StateHasChanged();
+
+            await SyncDataService.ServerSyncAsync();
+            Logger.LogTrace("Completed Sync");
+
+            message = "Sync complete";
+
+            // refresh authors after sync
+            Logger.LogTrace("Starting Refresh");
+            Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
+            Logger.LogTrace("Completed Refresh");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "ServerSyncAsync failed");
+            message = $"Sync failed: {ex.Message}";
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void AddAsync()
+    {
+        var author = InitializeAuthorObject();
+        ShowDetailAsync(author, "New Author");
+    }
+
+    private void EditAsync(AuthorViewModel author)
+    {
+        ShowDetailAsync(author, "Edit Author");
+    }
+
+    private async void DeleteAsync(AuthorViewModel author)
+    {
+        var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
+        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
+        var result = await dialog.Result;
+        if (result == null)
+        {
+            message = "Error completing the request";
+        }
+        else if (!result.Canceled)
+        {
+            var deleteResult = await DataService.DeleteAuthorAsync(author);
+
+            if (deleteResult)
+            {
+                message = $"'{author.Name}' deleted";
+
+                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
+            }
+        }
+        else
+        {
+            message = "Delete canceled";
+        }
+        StateHasChanged();
+    }
+
+    private AuthorViewModel InitializeAuthorObject()
+    {
+        return new AuthorViewModel();
+    }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+    }
+}

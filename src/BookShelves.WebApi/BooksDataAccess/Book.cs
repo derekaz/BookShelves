@@ -1,35 +1,17 @@
-﻿using BookShelves.Shared.Data.Interfaces;
+﻿using CommunityToolkit.Datasync.Server.CosmosDb;
 using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace BookShelves.WebApi.BooksDataAccess;
 
-// [JsonObject(Title = "Book")]
-public class Book : IItem, IBook
+public class Book : CosmosTableData<Book>
 {
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    public const string BOOKS_UNIQUEID_RECORD_ID = "**UNIQUEID**";
+    [Required, MinLength(1)]
+    public string Title { get; set; } = string.Empty;
 
-    [JsonProperty("id")]
-    [JsonPropertyName("id")]
-    public string? Id { get; set; } = string.Empty;
+    public string? AuthorId { get; set; }
 
-    public string IdValue => Id ?? string.Empty;
+    public string? Description { get; set; }
 
-    [JsonProperty("title")]
-    [JsonPropertyName("title")]
-    public string? Title { get; set; } = string.Empty;
-
-    [JsonProperty("author")]
-    [JsonPropertyName("author")]
-    public string? Author { get; set; } = string.Empty;
-
-    [JsonProperty("lastUpdateTime")]
-    [JsonPropertyName("lastUpdateTime")]
-    public DateTime? LastUpdateTime { get; set; } = DateTime.UtcNow;
-
-    [JsonProperty("revision")]
-    [JsonPropertyName("revision")]
-    public int? Revision { get; set; } = 0;
+    public DateTime? PublishedDate { get; set; }
 }

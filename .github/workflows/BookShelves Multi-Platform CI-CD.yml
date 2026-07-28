@@ -20,13 +20,13 @@ permissions:
   contents: write
 
 env:
-  PROJPATH: 'src'
+  PROJPATH: '.'
   WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
-  WEB_CSPROJ: 'BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
+  WEB_CSPROJ: 'src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
   WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
-  WEBAPI_CSPROJ: 'BookShelves.WebApi/BookShelves.WebApi.csproj' #this includes the parent folder due to it being a dockerfile build
+  WEBAPI_CSPROJ: 'src/BookShelves.WebApi/BookShelves.WebApi.csproj' #this includes the parent folder due to it being a dockerfile build
   MAUI_PROJPATH: 'src/BookShelves.Maui'
-  MAUI_CSPROJ: 'BookShelves.Maui.csproj'
+  MAUI_CSPROJ: 'src/BookShelves.Maui/BookShelves.Maui.csproj'
   MAUI_IOS_PUBLISH_PATH: '${{ github.workspace }}/publish-output/ios'
   MAUI_IOS_ARTIFACTS_PATH: 'artifacts_ios'
   MAUI_IOS_MAC_BUNDLE_ID: 'com.azmoore.bookshelves.maui'
@@ -44,7 +44,8 @@ env:
   DOTNET_VERSION: 'net10.0'
   DOTNET_SDK_VERSION: '10.0.x'
   RELEASE_CONFIGURATION: 'Release'
-  XCODE_VERSION: '26.4.1'
+  # XCODE_VERSION: '26.4.1'
+  XCODE_VERSION: '26.6'
 
 jobs:
   # =================================================================
@@ -239,15 +240,7 @@ jobs:
       - name: Add Xcode developer tools to PATH
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
     
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: ${{env.MAUI_PROJPATH}}/global.json
-
-      - name: Restore Workloads
-        run: dotnet workload restore
-        working-directory: ${{env.MAUI_PROJPATH}}
-
+    
       - name: Cert Info IOS 1
         env:
           CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
@@ -302,6 +295,18 @@ jobs:
         shell: pwsh
         run: xcrun simctl list devices
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: ${{env.MAUI_PROJPATH}}/global.json
+
+      - name: Restore Workloads
+        shell: pwsh
+        run: |
+          dotnet workload restore
+          dotnet workload install wasm-tools
+        working-directory: ${{env.PROJPATH}}
+
       - name: Verify Dotnet SDKs
         shell: pwsh
         run: dotnet --list-sdks
@@ -314,10 +319,15 @@ jobs:
         shell: pwsh
         run: dotnet --list-runtimes
 
+      - name: Verify Dotnet Workloads
+        shell: pwsh
+        run: dotnet workload list
+
       - name: NuGet Restore
         shell: pwsh
         run: dotnet restore ${{env.MAUI_CSPROJ}}
-        working-directory: ${{env.MAUI_PROJPATH}}
+        # working-directory: ${{env.MAUI_PROJPATH}}
+        working-directory: ${{env.PROJPATH}}
 
       - name: Create IOS publish folder
         shell: pwsh
@@ -334,6 +344,7 @@ jobs:
       # Overrides passed directly to MSBuild properties mapping to Apple variables
       - name: Build Apple Package
         shell: pwsh
+        working-directory: ${{env.PROJPATH}}
         run: |
           dotnet `
             publish `
@@ -344,9 +355,13 @@ jobs:
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
             /p:ArchiveOnBuild=true `
+            /p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
             /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
             /p:MtouchUseLlvm=false `
+            /p:MtouchLink=SdkOnly `
+            /p:DebugSymbols=true `
+            /p:NoDSymUtil=false `
             /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
             /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
             
@@ -407,6 +422,101 @@ jobs:
             exit 1
           fi
           echo "pkg=$PKG_PATH" >> $GITHUB_OUTPUT
+
+      - name: Collect IOS symbols
+        shell: pwsh
+        run: |
+          $symbolsPath = "${{ github.workspace }}/publish-output/ios-symbols"
+          New-Item -ItemType Directory -Force -Path $symbolsPath | Out-Null
+
+          $searchRoots = @(
+            "${{ env.MAUI_IOS_PUBLISH_PATH }}",
+            "${{ github.workspace }}/${{ env.MAUI_PROJPATH }}/bin/${{ env.RELEASE_CONFIGURATION }}/${{ env.DOTNET_VERSION }}-ios",
+            "${{ github.workspace }}/publish-output/ios-archive"
+          )
+
+          foreach ($root in $searchRoots)
+          {
+            if (Test-Path $root)
+            {
+              Get-ChildItem -Path $root -Recurse -Directory -Filter *.dSYM -ErrorAction SilentlyContinue |
+                ForEach-Object {
+                  $dest = Join-Path $symbolsPath $_.Name
+                  Copy-Item -Path $_.FullName -Destination $dest -Recurse -Force
+                }
+
+              Get-ChildItem -Path $root -Recurse -File -Filter *.pdb -ErrorAction SilentlyContinue |
+                Copy-Item -Destination $symbolsPath -Force
+            }
+          }
+
+          Write-Host "Collected symbol files:"
+          Get-ChildItem -Path $symbolsPath -Recurse -ErrorAction SilentlyContinue | ForEach-Object { Write-Host $_.FullName }
+
+          $dsyms = Get-ChildItem -Path $symbolsPath -Recurse -Directory -Filter *.dSYM -ErrorAction SilentlyContinue
+          if (-not $dsyms)
+          {
+            Write-Error "No iOS dSYM symbols were found. Checked: $($searchRoots -join ', ')"
+          }
+
+      - name: Validate IOS app and dSYM UUID match
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IPA_PATH='${{steps.findipa.outputs.ipa}}'
+          SYMBOLS_ROOT='${{ github.workspace }}/publish-output/ios-symbols'
+
+          TMP_DIR=$(mktemp -d)
+          unzip -qq "$IPA_PATH" -d "$TMP_DIR"
+
+          APP_DIR=$(find "$TMP_DIR/Payload" -maxdepth 1 -type d -name '*.app' | head -n1)
+          if [ -z "$APP_DIR" ]; then
+            echo 'Unable to locate .app inside IPA payload.' >&2
+            exit 1
+          fi
+
+          EXECUTABLE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$APP_DIR/Info.plist")
+          APP_BINARY="$APP_DIR/$EXECUTABLE"
+
+          if [ ! -f "$APP_BINARY" ]; then
+            echo "Unable to locate app executable at $APP_BINARY" >&2
+            exit 1
+          fi
+
+          APP_UUID=$(dwarfdump --uuid "$APP_BINARY" | awk '{print toupper($2)}' | head -n1)
+          if [ -z "$APP_UUID" ]; then
+            echo 'Unable to read app UUID from IPA executable.' >&2
+            exit 1
+          fi
+
+          MATCHED_DSYM=''
+          while IFS= read -r DSYM_DIR; do
+            DSYM_BIN=$(find "$DSYM_DIR/Contents/Resources/DWARF" -type f | head -n1 || true)
+            if [ -z "$DSYM_BIN" ]; then
+              continue
+            fi
+
+            if dwarfdump --uuid "$DSYM_BIN" | awk '{print toupper($2)}' | grep -q "$APP_UUID"; then
+              MATCHED_DSYM="$DSYM_DIR"
+              break
+            fi
+          done < <(find "$SYMBOLS_ROOT" -type d -name '*.dSYM')
+
+          echo "App UUID: $APP_UUID"
+          if [ -n "$MATCHED_DSYM" ]; then
+            echo "Matched dSYM: $MATCHED_DSYM"
+          else
+            echo 'No dSYM with matching UUID was found for the IPA executable.' >&2
+            exit 1
+          fi
+
+      - name: Archive IOS symbols artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: 'ios symbols'
+          path: '${{ github.workspace }}/publish-output/ios-symbols'
+          compression-level: 0
 
       - name: Archive IOS build artifact
         uses: actions/upload-artifact@v7
@@ -493,6 +603,7 @@ jobs:
           mkdir -p ${{ env.MAUI_WINDOWS_PUBLISH_PATH }}
 
       - name: Build Windows Packages
+        working-directory: ${{env.PROJPATH}}
         run: |
           dotnet publish ${{env.MAUI_CSPROJ}} `
             -v minimal `
@@ -531,9 +642,9 @@ jobs:
             ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msix
             ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msixbundle
 
-#   =================================================================
-#   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
-#   =================================================================
+  #   =================================================================
+  #   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
+  #   =================================================================
 #   publish-android:
 #     name: Build Android App Bundle
 #     needs: validate

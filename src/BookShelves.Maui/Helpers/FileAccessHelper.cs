@@ -3,6 +3,7 @@
 internal class FileAccessHelper
 {
     public static string ApplicationSubPath = Path.Combine("AZMoore", "BookShelves");
+    public static string LogsSubPath = Path.Combine(ApplicationSubPath, "logs");
 
     public static string GetLocalFilePath() =>
         GetLocalFilePath(string.Empty, false, string.Empty);
@@ -15,21 +16,43 @@ internal class FileAccessHelper
 
     public static string GetLocalFilePath(string subPath, bool ensurePathExists, string filename)
     {
-        //#if WINDOWS
-        //        string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ApplicationSubPath, subPath);
-        //        if (ensurePathExists)
-        //        {
-        //            EnsureDirectoryExists(path);
-        //        }
-        //        return Path.Combine(path, filename);
-        //#else
         var path = Path.Combine(FileSystem.AppDataDirectory, subPath);
         if (ensurePathExists)
         {
             EnsureDirectoryExists(path);
         }
         return Path.Combine(path, filename);
-        //#endif
+    }
+
+    public static string GetLogFilePath(string filename) =>
+        GetLocalDocumentsPath(LogsSubPath, true, filename);
+
+    public static string GetLocalDocumentsPath(string subPath, bool ensurePathExists, string filename)
+    {
+        string baseDocumentsPath = string.Empty;
+#if ANDROID
+        // Maps to: /storage/emulated/0/Android/data/[your.package.name]/files/Documents
+        // This directory is automatically visible in modern Android File Managers without needing runtime permissions.
+        var androidDocs = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
+        baseDocumentsPath = androidDocs?.AbsolutePath ?? string.Empty;
+
+#elif IOS || MACCATALYST
+        // Maps to the app's local Documents folder. 
+        // Read Step 2 below to make this visible in the Apple "Files" App.
+        baseDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+#else
+        // Windows/Desktop standard visible Documents path
+        baseDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+#endif
+
+        var path = Path.Combine(baseDocumentsPath, subPath);
+        if (ensurePathExists)
+        {
+            EnsureDirectoryExists(path);
+        }
+
+        return Path.Combine(path, filename);
     }
 
     public static string GetLocalApplicationDataPath(string filename) =>

@@ -1,5 +1,6 @@
 using BookShelves.Shared;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.WasmSwa;
@@ -25,11 +26,13 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddTransient<IBook, Book>();
 builder.Services.AddTransient<IBookFactory, BookViewModelFactory>();
 builder.Services.AddTransient<IBooksDataService, BooksDataService>();
-builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+// builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 builder.Services.AddTransient<IWeatherForecaster, WasmWeatherForecaster>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, WasmAuthenticationUIProvider>();
 builder.Services.AddScoped<IGraphService, GraphService>();
+builder.Services.AddTransient<ISyncDataService, WasmSyncDataService>();
+builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 
 // Add authorization services - auth state comes from server
 builder.Services.AddAuthorizationCore(options =>

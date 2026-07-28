@@ -1,15 +1,10 @@
-﻿using BookShelves.Maui.Data.Extensions;
-using Foundation;
+﻿using Foundation;
 
 namespace BookShelves.Maui
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate
     {
-        protected override MauiApp CreateMauiApp()
-        {
-            SqliteProviderExtension.RegisterSqliteProvider();
-            return MauiProgram.CreateMauiApp();
-        }
+        protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
     }
 }

@@ -1,7 +1,9 @@
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
-using BookShelves.Web.Client.Services;
+using BookShelves.Web.Client.Handlers;
+using BookShelves.Web.Client.Services.Client;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 
@@ -18,21 +20,29 @@ builder.Services.AddAuthorizationCore(options =>
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();
 
-builder.Services.AddScoped<IAuthenticationUIProvider, ClientAuthenticationUIProvider>();
-builder.Services.AddScoped<IFormFactor, ClientFormFactor>();
-builder.Services.AddScoped<IVersionService, ClientVersionService>();
-builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
+builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderService>();
+builder.Services.AddScoped<IFormFactor, FormFactorService>();
+builder.Services.AddScoped<IVersionService, VersionService>();
+// builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
-builder.Services.AddHttpClient<IWeatherForecaster, ClientWeatherForecaster>(httpClient =>
+builder.Services.AddScoped<ISyncDataService, SyncDataService>();
+builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
+
+builder.Services.AddHttpClient<IWeatherForecasterService, WeatherForecasterService>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
 
-builder.Services.AddScoped<IBookFactory, ClientBookFactory>();
+// builder.Services.AddScoped<IBookFactory, ClientBookFactory>();
 
 builder.Services.AddTransient<BlazorAuthorizationHandler>();
 
-builder.Services.AddHttpClient<IBooksDataService, ClientBooksDataService>(httpClient =>
+builder.Services.AddHttpClient<IBooksDataService, BooksDataService>(httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+}).AddHttpMessageHandler<BlazorAuthorizationHandler>();
+
+builder.Services.AddHttpClient<IAuthorsDataService, AuthorsDataService>(httpClient =>
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 }).AddHttpMessageHandler<BlazorAuthorizationHandler>();

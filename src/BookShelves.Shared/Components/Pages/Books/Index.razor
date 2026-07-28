@@ -1,5 +1,5 @@
 ﻿@page "/books"
-@inject IBookFactory BookFactory
+@* @inject IBookFactory BookFactory *@
 @inject IBooksDataService DataService
 @inject ILogger<Index> Logger
 @inject IDialogService DialogService
@@ -23,7 +23,14 @@ else
         <thead>
             <tr>
                 <th scope="col">Id</th>
-                <th scope="col"><div class="fw-bold mb-1">Title</div><div class="text-muted mb-0">Author</div></th>
+                <th scope="col">
+                    <div class="fw-bold mb-1">Title</div>
+                    <div class="text-muted mb-0">Author</div>
+                    <div class="text-muted mb-0">Publish Date</div>
+                </th>
+                <th scope="col">
+                    <div class="fw-bold mb-1">Description</div>
+                </th>
                 <th scope="col">Last Update</th>
                 <th></th>
             </tr>
@@ -33,7 +40,14 @@ else
             {
                 <tr>
                     <th scope="row">@book.IdValue</th>
-                    <td><div class="fw-normal mb-1">@book.Title</div><div class="text-muted mb-0">@book.Author</div></td>
+                    <td>
+                        <div class="fw-normal mb-1">@book.Title</div>
+                        <div class="text-muted mb-0">@book.Author?.Name</div>
+                        <div class="text-muted mb-0">@book.PublishDate?.ToString("yyyy-MM-dd")</div>
+                    </td>
+                    <td>
+                        <div class="fw-normal mb-1">@book.Description</div>
+                    </td>
                     <td>@book.LastUpdateTime</td>
                     <td>
                         <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(book))" value="Edit" />
@@ -42,15 +56,7 @@ else
                 </tr>
             }
         </tbody>
-    </table>
-
-    <MudDialogProvider FullWidth="true"
-                       MaxWidth="MaxWidth.Medium"
-                       CloseButton="true"
-                       BackdropClick="false"
-                       Position="DialogPosition.Center"
-                       CloseOnEscapeKey="true"
-                       />
+    </table>                       
 }
 
 <style>
@@ -60,7 +66,7 @@ else
 </style>
 
 @code {
-#if NET10_0
+    #if NET10_0
     [PersistentState]
 #endif
     public IEnumerable<BookViewModel>? Books { get; set; }
@@ -163,6 +169,6 @@ else
 
     private BookViewModel InitializeBookObject()
     {
-        return BookFactory.CreateBook();
+        return new BookViewModel();
     }
 }

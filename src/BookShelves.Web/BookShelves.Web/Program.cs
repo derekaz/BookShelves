@@ -1,9 +1,12 @@
 using BookShelves.Shared.Data.Interfaces;
 using BookShelves.Shared.Presentation.ViewModels;
+using BookShelves.Shared.Services;
 using BookShelves.Shared.Services.AuthorizationPolicies;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using BookShelves.Web.Components;
+using BookShelves.Web.Handlers;
 using BookShelves.Web.Services;
+using BookShelves.Web.Services.Server;
 using BookShelves.Web.Shared.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -66,20 +69,19 @@ builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddMicrosoftGraphClient("https://graph.microsoft.com/User.Read");
 
-builder.Services.AddScoped<IBook, BookShelves.Web.Shared.Data.Book>();
-builder.Services.AddScoped<IWeatherForecaster, ServerWeatherForecaster>();
-builder.Services.AddScoped<IBookFactory, ServerBookFactory>();
-builder.Services.AddScoped<IBooksDataService, ServerBooksDataService>();
+builder.Services.AddScoped<IWeatherForecasterService, WeatherForecasterService>();
+builder.Services.AddScoped<IBooksDataService, BooksDataService>();
+builder.Services.AddScoped<IAuthorsDataService, AuthorsDataService>();
 
-//builder.Services.AddHttpClient("ExternalApi",
-//      client => client.BaseAddress = new Uri(builder.Configuration["ExternalApiUri"] ??
-//          throw new Exception("Missing base address!")))
-//      .AddHttpMessageHandler<TokenHandler>();
+builder.Services.AddScoped<IFormFactor, FormFactorService>();
+builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderService>();
+builder.Services.AddTransient<ISyncDataService, SyncDataService>();
+builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 
-builder.Services.AddScoped<IFormFactor, ServerFormFactor>();
-builder.Services.AddScoped<IVersionService, ServerVersionService>();
-builder.Services.AddScoped<IAuthenticationUIProvider, WebAuthenticationUIProvider>();
-builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
+builder.Services.AddScoped<BearerTokenHandler>();
+builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
+builder.Services.AddScoped<BooksDatasyncClientFactory>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -98,12 +100,6 @@ forwardedHeadersOptions.KnownIPNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 
 var app = builder.Build();
-
-// Place this at the VERY top of your middleware pipeline, before Auth or Routing
-//app.UseForwardedHeaders(new ForwardedHeadersOptions
-//{
-//    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-//});
 
 // If the environment variable from Docker Compose is present, enforce it
 if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
@@ -170,7 +166,7 @@ app.MapGet("/MicrosoftIdentity/Account/Challenge", (string? returnUrl, HttpConte
     );
 });
 
-app.MapGet("/weatherforecast", ([FromServices] IWeatherForecaster WeatherForecaster) =>
+app.MapGet("/weatherforecast", ([FromServices] IWeatherForecasterService WeatherForecaster) =>
 {
     return WeatherForecaster.GetWeatherForecastAsync();
 }).RequireAuthorization();
@@ -238,6 +234,77 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
         // Ensure the id from route is set on the incoming book model
         book.Id = id;
         var result = await BooksDataService.UpdateBookAsync(book);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+app.MapGet("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDataService, HttpContext context) =>
+{
+    try
+    {
+        var authors = await AuthorsDataService.GetAuthorsAsync();
+        var xlatAuthors = authors.Select(a => Author.FromAuthorItemViewModel(a));
+        return Results.Ok(xlatAuthors);
+    }
+    catch (MicrosoftIdentityWebChallengeUserException)
+    {
+        return Results.Unauthorized();
+    }
+    catch (MsalUiRequiredException)
+    {
+        return Results.Unauthorized();
+    }
+    catch (Exception ex)
+    {
+        if (ex.InnerException?.Message.Contains("MsalUiRequiredException") == true)
+        {
+            return Results.Unauthorized();
+        }
+        return Results.InternalServerError();
+    }
+}).RequireAuthorization();
+
+// POST endpoint to create an author via the server-side IAuthorDataService implementation
+app.MapPost("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDataService, AuthorViewModel author) =>
+{
+    try
+    {
+        var result = await AuthorsDataService.CreateAuthorAsync(author);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+// DELETE endpoint to delete an author via the server-side IAuthorDataService implementation
+app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorsDataService AuthorsDataService, string id) =>
+{
+    try
+    {
+        var author = new AuthorViewModel { Id = id };
+        var result = await AuthorsDataService.DeleteAuthorAsync(author);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+// PUT endpoint to update an author via the server-side IAuthorDataService implementation
+app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorsDataService AuthorsDataService, string id, AuthorViewModel author) =>
+{
+    try
+    {
+        // Ensure the id from route is set on the incoming author model
+        author.Id = id;
+        var result = await AuthorsDataService.UpdateAuthorAsync(author);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
     catch (Exception)

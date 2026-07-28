@@ -1,11 +1,43 @@
 ﻿
+using BookShelves.Maui.Data.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
 namespace BookShelves.Maui
 {
     public partial class App : Application
     {
-        public App()
+        public App(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+
+            Log.Information("M14-App-Constructed");
+
+            // Automatically provision the database when the app starts.
+            // Exceptions are caught and written to the crash log so that a migration
+            // failure does not become a silent unobserved-task crash on iOS.
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = serviceProvider.CreateScope();
+                    var dbContext = scope.ServiceProvider.GetRequiredService<SyncDbContext>();
+                    await dbContext.Database.MigrateAsync();
+                    Log.Information("M15-DB-Migration-Complete");
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(ex, "Database migration failed during app startup");
+                    System.Diagnostics.Debug.WriteLine($"[CRITICAL] Database migration failed: {ex}");
+                    try
+                    {
+                        var crashPath = Helpers.FileAccessHelper.GetLogFilePath("db-migration-crash.log");
+                        System.IO.File.AppendAllText(crashPath,
+                            $"=== DB Migration Failure ({DateTime.UtcNow:O}) ===\n{ex}\n\n");
+                    }
+                    catch { /* best-effort only */ }
+                }
+            });
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

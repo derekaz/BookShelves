@@ -1,6 +1,6 @@
 ﻿@page "/"
 @using BookShelves.Shared.Data.Interfaces
-@inject IBooksSyncService booksSyncService;
+@* @inject IBooksSyncService booksSyncService; *@
 @inject IConfiguration configuration;
 
 <h1>BookShelves</h1>
@@ -13,16 +13,16 @@ Welcome to your book library! 0.2.0 y+-
 <p>TestKey=@configuration["TestKey"]</p>
 <p>TestKey1=@configuration["settings:TestKey1"]</p>
 <p>TestKey2=@configuration["settings:TestKey2"]</p>
-<input type="button" class="btn btn-primary" @onclick="(() => SyncBooksAsync())" value="Sync" />
+<!--<input type="button" class="btn btn-primary" @onclick="(() => SyncBooksAsync())" value="Sync" />-->
 
 @code
 {
-    private async void SyncBooksAsync()
-    {
-        await booksSyncService.BeginSyncAsync();
-        // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");
-        // var temp = await http.GetStringAsync("/api/books");
-    }
+    // private async void SyncBooksAsync()
+    // {
+    //     await booksSyncService.BeginSyncAsync();
+    //     // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");
+    //     // var temp = await http.GetStringAsync("/api/books");
+    // }
 
     // [Inject] IMacAuthenticationService _authService { get; set; }
     // [Inject] ISettingsService _settingsService { get; set; }
