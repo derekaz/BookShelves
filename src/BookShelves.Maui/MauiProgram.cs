@@ -57,24 +57,6 @@ public static class MauiProgram
 
             Log.Information("{Milestone}: Serilog initialized at {LogPath}", startupMilestone, logPath);
 
-            AppDomain.CurrentDomain.FirstChanceException += (sender, args) =>
-            {
-                try
-                {
-                    Console.WriteLine($"[CRITICAL EXCEPTION]: {args.Exception.Message}");
-                    Console.WriteLine(args.Exception.StackTrace);
-
-                    // Best-effort write to a persistent crash log so very early failures are captured
-                    try
-                    {
-                        var crashPath = FileAccessHelper.GetLogFilePath("unhandled-crash.log");
-                        File.AppendAllText(crashPath, $"=== FirstChanceException ({DateTime.UtcNow:O}) ===\n{args.Exception}\n\n");
-                    }
-                    catch { }
-                }
-                catch { }
-            };
-
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 try
