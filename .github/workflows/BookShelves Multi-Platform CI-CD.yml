@@ -642,9 +642,9 @@ jobs:
             ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msix
             ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msixbundle
 
-#   =================================================================
-#   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
-#   =================================================================
+  #   =================================================================
+  #   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
+  #   =================================================================
 #   publish-android:
 #     name: Build Android App Bundle
 #     needs: validate
