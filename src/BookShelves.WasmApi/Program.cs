@@ -45,17 +45,17 @@ public class Program
             );
         });
 
-        builder.Services.AddTransient(x =>
-        {
-            IConfiguration? configuration = x.GetService<IConfiguration>();
+        //builder.Services.AddTransient(x =>
+        //{
+        //    IConfiguration? configuration = x.GetService<IConfiguration>();
 
-            return new UniqueIdRepository(
-                x.GetRequiredService<ILogger<UniqueIdRepository>>(),
-                new CosmosClient(configuration!["CosmosDBConnectionString"]),
-                "azmoore-westus2-db1",
-                "azmoore-books-westus2-dbc1"
-            );
-        });
+        //    return new UniqueIdRepository(
+        //        x.GetRequiredService<ILogger<UniqueIdRepository>>(),
+        //        new CosmosClient(configuration!["CosmosDBConnectionString"]),
+        //        "azmoore-westus2-db1",
+        //        "azmoore-books-westus2-dbc1"
+        //    );
+        //});
 
         var host = builder.Build();
 
