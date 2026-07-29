@@ -533,7 +533,7 @@ jobs:
           compression-level: 0
 
       - name: 'Upload IOS app to TestFlight'
-        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        # if: github.event_name == 'pull_request' || github.event_name == 'push'
         uses: apple-actions/upload-testflight-build@v5
         with:
           app-type: 'ios'
