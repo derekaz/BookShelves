@@ -31,11 +31,10 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        string startupMilestone = "M00";
+        string startupStage = "startup-init";
 
         try
         {
-            startupMilestone = "M01-CreateMauiApp-Enter";
 
             // 1. Establish the platform-specific safe logging directory
             var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
@@ -44,7 +43,7 @@ public static class MauiProgram
 #if DEBUG
                 .MinimumLevel.Debug()
 #else
-                .MinimumLevel.Debug() // Filter out verbose logs for production
+                .MinimumLevel.Information()
 #endif
                 .WriteTo.Debug()            // Keep for local IDE debugging
                 .WriteTo.File(
@@ -54,8 +53,6 @@ public static class MauiProgram
                     fileSizeLimitBytes: 5_000_000,        // Limit individual file size to 5MB
                     rollOnFileSizeLimit: true)            // Create new file if 5MB is exceeded
                 .CreateLogger();
-
-            Log.Information("{Milestone}: Serilog initialized at {LogPath}", startupMilestone, logPath);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
@@ -90,7 +87,7 @@ public static class MauiProgram
                 catch { }
             };
 
-            startupMilestone = "M02-Builder-Create";
+            startupStage = "builder-create";
             MauiAppBuilder builder = MauiApp.CreateBuilder();
 
             builder
@@ -107,21 +104,19 @@ public static class MauiProgram
 
             builder.Logging.ClearProviders();
             builder.Logging.AddSerilog(dispose: true);
-            Log.Information("{Milestone}: Builder and logging providers configured", startupMilestone);
 
             builder.Services.AddMauiBlazorWebView();
 
             builder.Services.AddMudServices();
-            Log.Information("M03-UI-Services-Registered");
 
+#if DEBUG
             builder.Services.AddLogging(logging =>
             {
                 logging.AddConsole();
-#if DEBUG
-            logging.AddDebug();
-            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-#endif
+                logging.AddDebug();
+                logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
             });
+#endif
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
@@ -179,7 +174,6 @@ public static class MauiProgram
             var config = configBuilder.Build();
 
             builder.Configuration.AddConfiguration(config);
-            Log.Information("M08-Configuration-Loaded");
 
             builder.Services.AddSingleton<IFormFactor, FormFactorService>();
             builder.Services.AddSingleton<IVersionService, VersionService>();
@@ -319,6 +313,7 @@ public static class MauiProgram
                 }
 
                 var dbPath5 = FileAccessHelper.GetLocalFilePath();
+
                 if (Directory.Exists(dbPath5))
                 {
                     foreach (var file in Directory.GetFiles(dbPath5, "*.*"))
@@ -342,12 +337,14 @@ public static class MauiProgram
                     sqliteOptions.MigrationsAssembly("BookShelves.Maui.Data");
                 });
 
-                options.LogTo(message => System.Diagnostics.Debug.WriteLine(message),
-                    new[] { DbLoggerCategory.Database.Command.Name }, // Filters down to just SQL queries/commands
-                    Microsoft.Extensions.Logging.LogLevel.Information);
+                #if DEBUG
+                                options.LogTo(message => System.Diagnostics.Debug.WriteLine(message),
+                                    new[] { DbLoggerCategory.Database.Command.Name }, // Filters down to just SQL queries/commands
+                                    Microsoft.Extensions.Logging.LogLevel.Information);
 
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
+                                options.EnableSensitiveDataLogging();
+                                options.EnableDetailedErrors();
+                #endif
             });
             // builder.Services.AddDbContext<AuthorDbContext>(options => options.UseSqlite(localDbConnectionString));
 
@@ -367,7 +364,6 @@ public static class MauiProgram
             //});
 
             builder.Services.AddRazorClassLibraryServices(config);
-            Log.Information("M09-Service-Registration-Complete");
 
 #if MACCATALYST
         string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
@@ -383,23 +379,16 @@ public static class MauiProgram
         }
 #endif
 
-            startupMilestone = "M10-Before-Build";
-            Log.Information("{Milestone}", startupMilestone);
-
+            startupStage = "builder-build";
             var app = builder.Build();
-
-            startupMilestone = "M11-After-Build";
-            Log.Information("{Milestone}", startupMilestone);
 
             ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
             //app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
-            startupMilestone = "M12-Before-SyncDbContextInitializer";
-            Log.Information("{Milestone}", startupMilestone);
+            startupStage = "db-initialize";
             app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
 
-            startupMilestone = "M13-Startup-Complete";
-            Log.Information("{Milestone}", startupMilestone);
+            startupStage = "startup-complete";
 
             return app;
         }
@@ -407,14 +396,14 @@ public static class MauiProgram
         {
             try
             {
-                Log.Fatal(ex, "CreateMauiApp failed at {Milestone}", startupMilestone);
+                Log.Fatal(ex, "CreateMauiApp failed at stage {StartupStage}", startupStage);
                 string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Startup-Crash-Log.txt");
-                File.AppendAllText(crashLogPath, $"=== CreateMauiApp Failure ({DateTime.UtcNow:O}) ===\nMilestone: {startupMilestone}\nException: {ex}\n\n");
+                File.AppendAllText(crashLogPath, $"=== CreateMauiApp Failure ({DateTime.UtcNow:O}) ===\nStage: {startupStage}\nException: {ex}\n\n");
                 Log.CloseAndFlush();
             }
             catch
             {
-                Console.WriteLine("MauiProgram:CreateMauiApp fatal failure at milestone {0} - {1}", startupMilestone, ex);
+                Console.WriteLine("MauiProgram:CreateMauiApp fatal failure at stage {0} - {1}", startupStage, ex);
             }
 
             throw;

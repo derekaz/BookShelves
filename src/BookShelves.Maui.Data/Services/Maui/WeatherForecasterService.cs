@@ -19,7 +19,7 @@ public class WeatherForecasterService(IWeatherApiClient httpClient, ILogger<Weat
         {
             // var httpClient = httpClientFactory.CreateClient("WeatherApi");
 
-            var weatherUrl = "api/weatherforecast";
+            var weatherUrl = "weatherforecast";
 
             forecasts = (await httpClient.HttpClient.GetFromJsonAsync<WeatherForecast[]>(weatherUrl)) ?? [];
         }

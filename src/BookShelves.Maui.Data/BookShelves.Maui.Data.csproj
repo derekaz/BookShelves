@@ -38,6 +38,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.4" />
+		<!-- Force SQLitePCLRaw to the 3.x line to avoid transitive NU1903 from CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. -->
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.10" />
 	</ItemGroup>
 
