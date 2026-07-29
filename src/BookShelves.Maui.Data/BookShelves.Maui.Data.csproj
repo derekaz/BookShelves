@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!--
-		<TargetFrameworks>net10.0;net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
-		-->
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -38,19 +34,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.4" />
+		<!-- Force SQLitePCLRaw to the 3.x line to avoid transitive NU1903 from CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. -->
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.10" />
 	</ItemGroup>
-
-	<!--
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-android'))">
-		<PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.3" />
-		<PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
-	</ItemGroup>
-
-	<ItemGroup Condition="$(TargetFramework.Contains('-ios')) Or $(TargetFramework.Contains('-maccatalyst'))">
-		<PackageReference Include="SQLitePCLRaw.provider.sqlite3" Version="3.0.3" />
-	</ItemGroup>
-	-->
 
 	<ItemGroup>
 		<ProjectReference Include="..\BookShelves.Shared\BookShelves.Shared.csproj" />
