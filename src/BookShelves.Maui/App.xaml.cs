@@ -1,4 +1,6 @@
 ﻿
+using Serilog;
+
 namespace BookShelves.Maui
 {
     public partial class App : Application
