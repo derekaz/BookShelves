@@ -319,6 +319,25 @@ public static class MauiProgram
                 {
                     File.Delete(dbPath2);
                 }
+                var dbPath3 = FileAccessHelper.GetLocalFilePath("BookShelvesSyncTest.db-wal");
+                if (File.Exists(dbPath3))
+                {
+                    File.Delete(dbPath3);
+                }
+                var dbPath4 = FileAccessHelper.GetLocalFilePath("BookShelvesSyncTest.db-shm");
+                if (File.Exists(dbPath4))
+                {
+                    File.Delete(dbPath4);
+                }
+
+                var dbPath5 = FileAccessHelper.GetLocalFilePath();
+                if (Directory.Exists(dbPath5))
+                {
+                    foreach (var file in Directory.GetFiles(dbPath5, "*.*"))
+                    {
+                        Log.Information("MauiProgram:CreateMauiApp - FileSystem.ApplicationData file:{0}", file);
+                    }
+                }
 
                 // var dbPath = FileAccessHelper.GetLocalFilePath(Constants.LocalDbFile);
                 var dbPath = FileAccessHelper.GetLocalFilePath("BookShelvesSync.db");
