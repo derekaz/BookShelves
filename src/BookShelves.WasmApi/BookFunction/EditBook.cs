@@ -53,7 +53,7 @@ public class EditBook
         {
             Id = id,
             Title = title ?? string.Empty,
-            Author = author ?? string.Empty
+            AuthorId = author ?? string.Empty
         };
 
         try
@@ -107,8 +107,8 @@ public class EditBook
         {
             Id = id,
             Title = title ?? string.Empty,
-            Author = author ?? string.Empty,
-            LastUpdateTime = string.IsNullOrEmpty(lastUpdateTime) ? DateTime.UtcNow : DateTime.Parse(lastUpdateTime)
+            AuthorId = author ?? string.Empty,
+            UpdatedAt = string.IsNullOrEmpty(lastUpdateTime) ? DateTime.UtcNow : DateTime.Parse(lastUpdateTime)
         };
 
         try

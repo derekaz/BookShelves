@@ -17,13 +17,11 @@ public class CreateBook
 {
     private readonly ILogger<CreateBook> _logger;
     private readonly BookRepository _bookRepository;
-    private readonly UniqueIdRepository _uniqueIdRepository;
 
-    public CreateBook(ILogger<CreateBook> logger, BookRepository bookRepository, UniqueIdRepository uniqueIdRepository)
+    public CreateBook(ILogger<CreateBook> logger, BookRepository bookRepository)
     {
         _logger = logger;
         _bookRepository = bookRepository;
-        _uniqueIdRepository = uniqueIdRepository;
     }
 
     [Function("CreateBook")]
@@ -52,34 +50,11 @@ public class CreateBook
 
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            long? newUniqueId = null;
-            try
-            {
-                var temp = await _uniqueIdRepository.GetAsync(Book.BOOKS_UNIQUEID_RECORD_ID); // ?? throw new ApplicationException("Unable to get unique id");
-                if (temp == null)
-                {
-                    temp = new UniqueId()
-                    {
-                        Id = Book.BOOKS_UNIQUEID_RECORD_ID,
-                        UniqueIdValue = 0
-                    };
-                }
-                temp.UniqueIdValue++;
-
-                await _uniqueIdRepository.UpdateAsync(Book.BOOKS_UNIQUEID_RECORD_ID, temp);
-                newUniqueId = temp.UniqueIdValue;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Unable to get id for new book: {jsonNode}");
-                return req.CreateResponse(HttpStatusCode.UnprocessableEntity);
-            }
-
             newBook = new()
             {
-                Id = newUniqueId.ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = title ?? string.Empty,
-                Author = author ?? string.Empty
+                AuthorId = author ?? string.Empty
             };
 
             try
@@ -139,37 +114,11 @@ public class CreateBook
 
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
-            long? newUniqueId = null;
-            try
-            {
-                var temp = await _uniqueIdRepository.GetAsync(Book.BOOKS_UNIQUEID_RECORD_ID); // ?? throw new ApplicationException("Unable to get unique id");
-                if (temp == null)
-                {
-                    temp = new UniqueId()
-                    {
-                        Id = Book.BOOKS_UNIQUEID_RECORD_ID,
-                        UniqueIdValue = 0
-                    };
-                }
-                temp.UniqueIdValue++;
-
-                await _uniqueIdRepository.UpdateAsync(Book.BOOKS_UNIQUEID_RECORD_ID, temp);
-                newUniqueId = temp.UniqueIdValue;
-            }
-            catch (Exception ex)
-            {
-                responseMessage = $"Unable to get id for new book: {jsonNode}";
-                _logger.LogError(ex, responseMessage);
-
-                return await ResponseFactory.CreateFailedResponseNoContentAsync(req, HttpStatusCode.UnprocessableEntity, responseMessage, ex);
-            }
-
             newBook = new()
             {
-                Id = newUniqueId.ToString(),
+                Id = Guid.CreateVersion7().ToString(),
                 Title = title ?? string.Empty,
-                Author = author ?? string.Empty,
-                LastUpdateTime = string.IsNullOrEmpty(lastUpdateTime) ? DateTime.UtcNow : DateTime.Parse(lastUpdateTime)
+                AuthorId = author ?? string.Empty
             };
 
             try
