@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 namespace BookShelves.WasmSwa.Services;
 
 internal sealed class WasmWeatherForecaster(HttpClient http, ILogger<WasmWeatherForecaster> logger)
-    : IWeatherForecaster
+    : IWeatherForecasterService
 {
     private readonly HttpClient _httpClient = http;
     private readonly ILogger _logger = logger;

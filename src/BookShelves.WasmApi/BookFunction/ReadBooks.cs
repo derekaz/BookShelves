@@ -30,7 +30,7 @@ public class ReadBooks
         logger.LogInformation($"C# HTTP trigger function processed a request. Function name: {nameof(ReadBooks)}");
 
         var response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM c WHERE c.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}'"));
+        await response.WriteAsJsonAsync(await booksData.GetMultipleAsync($"SELECT * FROM c WHERE c.id <> ''"));
         return response;
     }
 
@@ -95,7 +95,7 @@ public class ReadBooks
             // return req.CreateResponse(HttpStatusCode.NotFound);
         }
 
-        var books = await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.id <> '{Book.BOOKS_UNIQUEID_RECORD_ID}' AND i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC");
+        var books = await booksData.GetMultipleAsync($"SELECT * FROM items i WHERE i.id <> '' AND i.lastUpdateTime > '{searchString}' ORDER BY i.lastUpdateTime ASC");
         var response = await ResponseFactory.CreateSuccessResponseAsync<List<Book>>(req, "Records returned.", [.. books]);
 
         //var response = req.CreateResponse(HttpStatusCode.OK);

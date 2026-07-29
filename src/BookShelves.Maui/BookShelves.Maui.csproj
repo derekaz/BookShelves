@@ -55,7 +55,8 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-		<DefaultLanguage>en</DefaultLanguage>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<WindowsPackageType>None</WindowsPackageType>
 	</PropertyGroup>
@@ -92,6 +93,16 @@
 		<EnableSGenConc>True</EnableSGenConc>
 		<MtouchInterpreter>-all,System.Private.Windows.Core</MtouchInterpreter>
 	</PropertyGroup>
+
+	<Target Name="TrimWindowsMauiCultureFoldersInBuildOutput" AfterTargets="Build" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'Windows' and '$(Configuration)' == 'Release' and '$(IsCrossTargetingBuild)' != 'true' and Exists('$(TargetDir)')">
+		<Message Importance="high" Text="Trimming Windows culture folders from build output. Keeping: en-US" />
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$root='$(TargetDir)'; if (Test-Path $root) { Get-ChildItem -Path $root -Directory | Where-Object { $_.Name -notin @('en-US','en-us','EN-US') -and (Get-ChildItem -Path $_.FullName -File -Filter '*.mui' -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0 } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue }&quot;" />
+	</Target>
+
+	<Target Name="TrimWindowsMauiCultureFoldersInPublishOutput" AfterTargets="Publish" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'Windows' and '$(IsCrossTargetingBuild)' != 'true' and Exists('$(PublishDir)')">
+		<Message Importance="high" Text="Trimming Windows culture folders from publish output. Keeping: en-US" />
+		<Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$root='$(PublishDir)'; if (Test-Path $root) { Get-ChildItem -Path $root -Directory | Where-Object { $_.Name -notin @('en-US','en-us','EN-US') -and (Get-ChildItem -Path $_.FullName -File -Filter '*.mui' -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0 } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue }&quot;" />
+	</Target>
 
 	<ItemGroup>
 		<!-- App Icon -->

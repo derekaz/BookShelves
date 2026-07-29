@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BookShelves.Shared.Data.Interfaces;
+using BookShelves.Web.Shared.Data;
 
 namespace BookShelves.WasmApi.DataAccess;
 
-public class CosmosRepository<T> where T : IItem, new()
+public class CosmosRepository<T> where T : DatasyncDto, new()
 {
     private readonly Container container;
-    private readonly ILogger logger;
+    private readonly ILogger<CosmosRepository<T>> logger;
 
     public CosmosRepository(
-        ILogger logger,
+        ILogger<CosmosRepository<T>> logger,
         CosmosClient cosmosDbClient,
         string databaseName,
         string containerName)
