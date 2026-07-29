@@ -3,7 +3,7 @@
 internal class FileAccessHelper
 {
     public static string ApplicationSubPath = Path.Combine("AZMoore", "BookShelves");
-    public static string LogsSubPath = Path.Combine(ApplicationSubPath, "logs");
+    public static string LogsSubPath = "logs";
 
     public static string GetLocalFilePath() =>
         GetLocalFilePath(string.Empty, false, string.Empty);
@@ -24,8 +24,14 @@ internal class FileAccessHelper
         return Path.Combine(path, filename);
     }
 
-    public static string GetLogFilePath(string filename) =>
-        GetLocalDocumentsPath(LogsSubPath, true, filename);
+    public static string GetLogFilePath(string filename)
+    {
+#if IOS
+       return GetLocalDocumentsPath(LogsSubPath, true, filename);
+#else
+        return GetLocalDocumentsPath(Path.Combine(ApplicationSubPath, LogsSubPath), true, filename);
+#endif
+    }
 
     public static string GetLocalDocumentsPath(string subPath, bool ensurePathExists, string filename)
     {
@@ -44,6 +50,7 @@ internal class FileAccessHelper
 #else
         // Windows/Desktop standard visible Documents path
         baseDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
 #endif
 
         var path = Path.Combine(baseDocumentsPath, subPath);

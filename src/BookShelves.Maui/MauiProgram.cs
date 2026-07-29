@@ -129,30 +129,18 @@ public static class MauiProgram
 #endif
 
 
-            builder.ConfigureLifecycleEvents(events =>
-            {
-#if ANDROID
-                events.AddAndroid(platform =>
-                {
-                    platform.OnActivityResult((activity, rc, result, data) =>
+                    builder.ConfigureLifecycleEvents(events =>
                     {
-                        AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
+            #if ANDROID
+                        events.AddAndroid(platform =>
+                        {
+                            platform.OnActivityResult((activity, rc, result, data) =>
+                            {
+                                AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
+                            });
+                        });
+            #endif
                     });
-                });
-#elif IOS
-            events.AddiOS(platform =>
-            {
-                platform.FinishedLaunching((_, _) =>
-                {
-                    Log.Information("M04-iOS-FinishedLaunching");
-                    return true;
-                });
-                platform.OnActivated(_ => Log.Information("M05-iOS-OnActivated"));
-                platform.DidEnterBackground(_ => Log.Information("M06-iOS-DidEnterBackground"));
-                platform.WillEnterForeground(_ => Log.Information("M07-iOS-WillEnterForeground"));
-            });
-#endif
-            });
 
 #if ANDROID
             builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
