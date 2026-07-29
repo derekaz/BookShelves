@@ -313,7 +313,6 @@ public static class MauiProgram
                 }
 
                 var dbPath5 = FileAccessHelper.GetLocalFilePath();
-
                 if (Directory.Exists(dbPath5))
                 {
                     foreach (var file in Directory.GetFiles(dbPath5, "*.*"))
