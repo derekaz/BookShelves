@@ -11,7 +11,7 @@ public class Book : OfflineClientEntity
 
     public string? Description { get; set; }
 
-    public DateTime? PublisherDate { get; set; }
+    public DateTime? PublishDate { get; set; }
 
     public BookViewModel ToBookViewModel(IEnumerable<Author> authors)
     {
@@ -27,7 +27,9 @@ public class Book : OfflineClientEntity
             Title = Title,
             Author = AuthorId != null && authorMap.TryGetValue(AuthorId, out var authorVm) ? authorVm : null,
             Description = Description,
+            PublishDate = PublishDate,
             LastUpdateTime = UpdatedAt,
+            Version = Version
         };
     }
 
@@ -39,7 +41,9 @@ public class Book : OfflineClientEntity
             Title = book.Title ?? string.Empty,
             AuthorId = book.Author?.Id,
             Description = book.Description,
+            PublishDate = book.PublishDate,
             UpdatedAt = book.LastUpdateTime,
+            Version = book.Version
         };
     }
 }

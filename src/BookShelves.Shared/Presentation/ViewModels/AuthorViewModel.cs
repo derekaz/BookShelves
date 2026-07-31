@@ -13,4 +13,6 @@ public class AuthorViewModel
     public string? Biography { get; set; } = string.Empty;
 
     public DateTimeOffset? LastUpdateTime { get; set; } = DateTime.UtcNow;
+
+    public string? Version { get; set; }
 }

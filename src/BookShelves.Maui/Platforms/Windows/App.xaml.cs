@@ -14,10 +14,10 @@ namespace BookShelves.Maui.WinUI
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             // Use the native event handler directly on this instance
-            this.UnhandledException += (sender, e) =>
+            UnhandledException += (sender, e) =>
             {
                 var errorMessage = e.Message;
                 var exceptionDetails = e.Exception?.ToString() ?? "No inner exception details.";
@@ -25,8 +25,8 @@ namespace BookShelves.Maui.WinUI
                 // Write to a local text file in Documents/AZMoore/BookShelves/logs
                 try
                 {
-                    string logPath = global::BookShelves.Maui.Helpers.FileAccessHelper.GetLogFilePath("BookShelves_Crash_Log.txt");
-                    System.IO.File.AppendAllText(logPath, $"=== WinUI UnhandledException ({System.DateTime.UtcNow:O}) ===\nError: {errorMessage}\n\nDetails:\n{exceptionDetails}\n\n");
+                    string logPath = Helpers.FileAccessHelper.GetLogFilePath("BookShelves_Crash_Log.txt");
+                    File.AppendAllText(logPath, $"=== WinUI UnhandledException ({DateTime.UtcNow:O}) ===\nError: {errorMessage}\n\nDetails:\n{exceptionDetails}\n\n");
                 }
                 catch
                 {

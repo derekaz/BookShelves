@@ -13,5 +13,5 @@ public class Book : CosmosTableData<Book>
 
     public string? Description { get; set; }
 
-    public DateTime? PublishedDate { get; set; }
+    public DateTime? PublishDate { get; set; }
 }

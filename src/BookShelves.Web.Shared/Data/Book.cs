@@ -10,7 +10,7 @@ public class Book : DatasyncDto
 
     public string? Description { get; set; }
 
-    public DateTime? PublishedDate { get; set; }
+    public DateTime? PublishDate { get; set; }
 
 
     public BookViewModel ToBookViewModel(IEnumerable<Author> authors)
@@ -27,8 +27,9 @@ public class Book : DatasyncDto
             Title = Title,
             Author = AuthorId != null && authorMap.TryGetValue(AuthorId, out var authorVm) ? authorVm : null,
             Description = Description,
-            PublishDate = PublishedDate,
-            LastUpdateTime = UpdatedAt
+            PublishDate = PublishDate,
+            LastUpdateTime = UpdatedAt,
+            Version = Version
         };
     }
 
@@ -40,8 +41,9 @@ public class Book : DatasyncDto
             Title = book.Title,
             AuthorId = book.Author?.Id,
             Description = book.Description,
-            PublishedDate = book.PublishDate,
-            UpdatedAt = book.LastUpdateTime
+            PublishDate = book.PublishDate,
+            UpdatedAt = book.LastUpdateTime,
+            Version = book.Version
         };
     }
 

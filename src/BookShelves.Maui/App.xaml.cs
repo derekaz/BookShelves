@@ -12,9 +12,9 @@ namespace BookShelves.Maui
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            Log.Information("M15-CreateWindow-Start");
+            Log.Information("CreateWindow-Start");
             var window = new Window(new MainPage()) { Title = "BookShelves" };
-            Log.Information("M16-CreateWindow-End");
+            Log.Information("CreateWindow-End");
             return window;
         }
     }
