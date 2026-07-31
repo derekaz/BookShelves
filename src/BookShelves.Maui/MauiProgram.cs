@@ -119,23 +119,22 @@ public static class MauiProgram
 #endif
 
 #if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
-        builder.Logging.AddDebug();
+            builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
 
-                    builder.ConfigureLifecycleEvents(events =>
+            builder.ConfigureLifecycleEvents(events =>
+            {
+#if ANDROID
+                events.AddAndroid(platform =>
+                {
+                    platform.OnActivityResult((activity, rc, result, data) =>
                     {
-            #if ANDROID
-                        events.AddAndroid(platform =>
-                        {
-                            platform.OnActivityResult((activity, rc, result, data) =>
-                            {
-                                AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
-                            });
-                        });
-            #endif
+                        AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(rc, result, data);
                     });
+                });
+#endif
+            });
 
 #if ANDROID
             builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
@@ -166,9 +165,9 @@ public static class MauiProgram
             if (appSettingsStream != null) configBuilder.AddJsonStream(appSettingsStream);
 
 #if DEBUG
-        using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
-        // Only apply Development overrides for debug builds
-        if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
+            using var appSettingsDevStream = assembly.GetManifestResourceStream($"{appName}.appSettings.Development.json");
+            // Only apply Development overrides for debug builds
+            if (appSettingsDevStream != null) configBuilder.AddJsonStream(appSettingsDevStream);
 #endif
 
             var config = configBuilder.Build();
@@ -188,15 +187,6 @@ public static class MauiProgram
             // sync progress notifier used by UI to present synchronization status
             builder.Services.AddSingleton<ISyncProgressService, SyncProgressService>();
             builder.Services.AddTransient<ISyncUnitOfWork<SyncDbContext>, SyncUnitOfWork<SyncDbContext>>();
-
-            //builder.Services.AddHttpClient();
-            //builder.Services.AddHttpClient("BooksApi", client =>
-            //{
-            //    // client.BaseAddress = new Uri("https://bookshelves.cloud.azmoore.com");
-            //    // client.BaseAddress = new Uri("https://green-ground-05694281e-dev013.westus2.2.azurestaticapps.net");
-            //    client.BaseAddress = new Uri("http://localhost:7071");
-            //    client.Timeout = new TimeSpan(0, 0, 20);
-            //});
 
             builder.Services.AddHttpClient<IWeatherApiClient, WeatherApiClient>(client =>
             {
@@ -239,39 +229,7 @@ public static class MauiProgram
 #endif
             ;
 
-            // Configure DbContext
-            var bsp = builder.Services.BuildServiceProvider();
-            var loggerFactory = bsp.GetRequiredService<ILoggerFactory>();
-
             Data.Extensions.SqliteProviderExtension.RegisterSqliteProvider();
-
-            // builder.Configuration.AddSqliteConfiguration(localDbConnectionString, loggerFactory);
-
-            //        builder.Services.AddDbContextFactory<BookShelvesDbContext>(options =>
-            //        {
-            //            // set the local database path
-            //#if MACCATALYST
-            //            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-            //            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-            //            if (File.Exists(dbPath2))
-            //            {
-            //                File.Delete(dbPath2);
-            //            }
-            //#else
-            //            var dbPath = FileAccessHelper.GetLocalFilePath("bookshelves.db");
-            //#endif
-
-            //#if DEBUG
-            //            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
-            //#endif
-
-            //            var localDbConnectionString = $"Data Source={dbPath}";
-
-            //            options.UseSqlite(localDbConnectionString);
-            //            options.EnableSensitiveDataLogging();
-            //            options.EnableDetailedErrors();
-            //        });
-
             builder.Services.AddTransient<IUnitOfWork<SyncDbContext>, UnitOfWork<SyncDbContext>>();
 
             builder.Services.AddTransient<IRepository<Author>, GenericRepository<SyncDbContext, Author>>();
@@ -326,7 +284,7 @@ public static class MauiProgram
 #endif
 
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+                System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
 #endif
 
                 var localDbConnectionString = $"Data Source={dbPath}";
@@ -336,31 +294,17 @@ public static class MauiProgram
                     sqliteOptions.MigrationsAssembly("BookShelves.Maui.Data");
                 });
 
-                #if DEBUG
-                                options.LogTo(message => System.Diagnostics.Debug.WriteLine(message),
-                                    new[] { DbLoggerCategory.Database.Command.Name }, // Filters down to just SQL queries/commands
-                                    Microsoft.Extensions.Logging.LogLevel.Information);
+#if DEBUG
+                options.LogTo(message => System.Diagnostics.Debug.WriteLine(message),
+                    new[] { DbLoggerCategory.Database.Command.Name }, // Filters down to just SQL queries/commands
+                    Microsoft.Extensions.Logging.LogLevel.Information);
 
-                                options.EnableSensitiveDataLogging();
-                                options.EnableDetailedErrors();
-                #endif
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+#endif
             });
-            // builder.Services.AddDbContext<AuthorDbContext>(options => options.UseSqlite(localDbConnectionString));
-
-
-            // builder.Services.AddTransient<IBooksSyncService, BooksSyncService>();
 
             builder.Services.AddTransient<IWeatherForecasterService, WeatherForecasterService>();
-
-            //builder.Services.AddHttpLogging(logging =>
-            //{
-            //    logging.LoggingFields = HttpLoggingFields.All;
-            //    logging.RequestHeaders.Add("sec-ch-ua");
-            //    logging.ResponseHeaders.Add("MyResponseHeader");
-            //    logging.MediaTypeOptions.AddText("application/javascript");
-            //    logging.RequestBodyLogLimit = 4096;
-            //    logging.ResponseBodyLogLimit = 4096;
-            //});
 
             builder.Services.AddRazorClassLibraryServices(config);
 
@@ -383,7 +327,6 @@ public static class MauiProgram
 
             ApplicationLogger.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 
-            //app.Services.GetRequiredService<BookShelvesDbContext>().UpdateDatabase();
             startupStage = "db-initialize";
             app.Services.GetRequiredService<SyncDbContextInitializer>().Initialize();
 

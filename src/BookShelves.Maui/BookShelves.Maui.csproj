@@ -164,8 +164,6 @@
     </ItemGroup>-->
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.3" />
-		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.3" />
 		<PackageReference Include="Azure.Identity" Version="1.21.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="14.2.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -193,9 +191,9 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.86.1" />
+		<!--<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.86.1" />-->
 		<PackageReference Include="Microsoft.Identity.Client.Desktop" Version="4.86.1" />
-		<PackageReference Include="System.Drawing.Common" Version="10.0.10" />
+		<!--<PackageReference Include="System.Drawing.Common" Version="10.0.10" />-->
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-android'))">
