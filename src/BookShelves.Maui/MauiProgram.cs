@@ -202,7 +202,7 @@ public static class MauiProgram
                     scopes);
             })
 #if DEBUG
-        .AddTraceContentLogging()
+            .AddTraceContentLogging()
 #endif
             ;
 
@@ -225,7 +225,7 @@ public static class MauiProgram
                     scopes);
             })
 #if DEBUG
-        .AddTraceContentLogging()
+            .AddTraceContentLogging()
 #endif
             ;
 

@@ -15,7 +15,8 @@ public class Author : DatasyncDto
             Id = Id,
             Name = Name,
             Biography = Bio,
-            LastUpdateTime = UpdatedAt
+            LastUpdateTime = UpdatedAt,
+            Version = Version
         };
     }
 
@@ -26,7 +27,8 @@ public class Author : DatasyncDto
             Id = author.Id ?? string.Empty,
             Name = author.Name,
             Bio = author.Biography,
-            // UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow
+            UpdatedAt = author.LastUpdateTime ?? DateTime.UtcNow,
+            Version = author.Version
         };
     }
 }

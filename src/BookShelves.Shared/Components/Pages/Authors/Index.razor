@@ -228,7 +228,7 @@ else
         {
             var options = new DialogOptions { BackgroundClass = "my-custom-class" };
 
-            var dialog = await DialogService.ShowAsync<AuthorDetail>("Book Details", parameters, options);
+            var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, options);
             var result = await dialog.Result;
             if (result == null)
             {
