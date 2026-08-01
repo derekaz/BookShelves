@@ -1,11 +1,13 @@
 using BookShelves.WebApi.AuthorsDataAccess;
 using BookShelves.WebApi.BooksDataAccess;
+using BookShelves.WebApi.Data;
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using CommunityToolkit.Datasync.Server.CosmosDb;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Web;
 using System.Reflection;
 using System.Text.Json;
@@ -96,11 +98,25 @@ CosmosClient cosmosClient = new CosmosClient(connectionString,
         }
     });
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddSingleton(cosmosClient);
 builder.Services.AddSingleton<ICosmosTableOptions<Author>>(new CosmosSharedTableOptions<Author>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
 builder.Services.AddSingleton<ICosmosTableOptions<Book>>(new CosmosSharedTableOptions<Book>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
-builder.Services.AddSingleton(typeof(IRepository<>), typeof(CosmosTableRepository<>));
 
+builder.Services.AddSingleton<IRepository<Author>>(sp =>
+    new CachedCosmosRepository<Author>(
+        ActivatorUtilities.CreateInstance<CosmosTableRepository<Author>>(sp),
+        sp.GetRequiredService<IMemoryCache>(),
+        sp.GetRequiredService<ILogger<CachedCosmosRepository<Author>>>()
+    ));
+
+builder.Services.AddSingleton<IRepository<Book>>(sp =>
+    new CachedCosmosRepository<Book>(
+        ActivatorUtilities.CreateInstance<CosmosTableRepository<Book>>(sp),
+        sp.GetRequiredService<IMemoryCache>(),
+        sp.GetRequiredService<ILogger<CachedCosmosRepository<Book>>>()
+    ));
 //builder.Services.AddTransient(x =>
 //{
 //    IConfiguration? configuration = x.GetService<IConfiguration>();
