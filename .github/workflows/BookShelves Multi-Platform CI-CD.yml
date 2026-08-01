@@ -42,6 +42,10 @@ env:
   MAUI_MAC_CODESIGN_ENTITLEMENTS: 'Platforms/MacCatalyst/Entitlements.plist'
   MAUI_WINDOWS_PUBLISH_PATH: '${{ github.workspace }}/publish-output/windows'
   MAUI_WINDOWS_WINDOWS_ARTIFACTS_PATH: 'artifacts_windows'
+  GH_EVENT_NAME: '${{ github.event_name }}'
+  GH_BASE_REF: '${{ github.base_ref }}'
+  GH_REF_TYPE: '${{ github.ref_type }}'
+  GH_REF_NAME: '${{ github.ref_name }}'
 
   DOTNET_VERSION: 'net10.0'
   DOTNET_SDK_VERSION: '10.0.x'
@@ -139,6 +143,7 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' || 
+       github.ref_type == 'tag' ||
        startsWith(github.ref_name, 'release/') ||
        startsWith(github.ref_name, 'Release/')    
     runs-on: ubuntu-latest
@@ -212,6 +217,7 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' ||
+        github.ref_type == 'tag' ||
         startsWith(github.ref_name, 'release/') ||
         startsWith(github.ref_name, 'Release/')  
     runs-on: macos-26
@@ -567,8 +573,9 @@ jobs:
     needs: validate
     if: |
       github.event_name == 'release' ||
-       startsWith(github.ref_name, 'release/') ||
-       startsWith(github.ref_name, 'Release/')
+        github.ref_type == 'tag' ||
+        startsWith(github.ref_name, 'release/') ||
+        startsWith(github.ref_name, 'Release/')
     runs-on: windows-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45
