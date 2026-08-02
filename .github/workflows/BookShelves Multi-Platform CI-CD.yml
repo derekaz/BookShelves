@@ -11,6 +11,14 @@ on:
        - 'features/**'
     tags:
        - 'v*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/**'
+    types:
+      - opened
+      - reopened
+      - synchronize
   release:
     types: [published]
 
@@ -65,6 +73,7 @@ jobs:
       BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
       WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+      ContainerSemVer: ${{ steps.compute_container_version.outputs.containerSemVer }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
@@ -112,6 +121,37 @@ jobs:
           echo "windowsBuildNumber=${WINDOWS_BUILD}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD}"
 
+
+      - name: Compute container semantic version
+        id: compute_container_version
+        run: |
+          REF_TYPE="${{ github.ref_type }}"
+          REF_NAME="${{ github.ref_name }}"
+          MAJOR_MINOR_PATCH="${{ steps.gitversion.outputs.majorMinorPatch }}"
+          COMMITS_SINCE_VERSION_SOURCE="${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+          CONTAINER_SEMVER="${{ steps.gitversion.outputs.semVer }}"
+
+          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == v* ]]; then
+            CONTAINER_SEMVER="${REF_NAME#v}"
+          elif [[ "$REF_NAME" == release/* || "$REF_NAME" == releases/* || "$REF_NAME" == Release/* || "$REF_NAME" == Releases/* ]]; then
+            LATEST_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || true)
+            if [ -n "$LATEST_TAG" ]; then
+              BASE_VERSION="${LATEST_TAG#v}"
+              HEIGHT=$(git rev-list "${LATEST_TAG}..HEAD" --count 2>/dev/null || echo "$COMMITS_SINCE_VERSION_SOURCE")
+              if [[ "$BASE_VERSION" == *-* ]]; then
+                CONTAINER_SEMVER="${BASE_VERSION}.${HEIGHT}"
+              else
+                CONTAINER_SEMVER="${BASE_VERSION}-dev-release.${HEIGHT}"
+              fi
+            else
+              CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-dev-release.${COMMITS_SINCE_VERSION_SOURCE}"
+            fi
+          elif [ "$REF_NAME" = "main" ]; then
+            CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-alpha.${COMMITS_SINCE_VERSION_SOURCE}"
+          fi
+
+          echo "containerSemVer=${CONTAINER_SEMVER}" >> $GITHUB_OUTPUT
+          echo "Container SemVer: ${CONTAINER_SEMVER}"
 
       - name: Compute deployment environment
         id: compute_environment
@@ -181,10 +221,10 @@ jobs:
             GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
             GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+            GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.SemVer }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.ContainerSemVer }}
+            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -203,10 +243,10 @@ jobs:
             GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
             GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+            GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.SemVer }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.ContainerSemVer }}
+            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
