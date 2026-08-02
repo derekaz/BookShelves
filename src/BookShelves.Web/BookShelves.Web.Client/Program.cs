@@ -23,6 +23,7 @@ builder.Services.AddAuthenticationStateDeserialization();
 builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderService>();
 builder.Services.AddScoped<IFormFactor, FormFactorService>();
 builder.Services.AddScoped<IVersionService, VersionService>();
+builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessService>();
 // builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
 builder.Services.AddScoped<ISyncDataService, SyncDataService>();
