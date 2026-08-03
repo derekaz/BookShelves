@@ -46,8 +46,8 @@ internal class FileAccessHelper
 
     public static string GetLogFilePath(string filename)
     {
-#if IOS
-       return GetLocalDocumentsPath(LogsSubPath, true, filename);
+#if IOS || MACCATALYST
+        return GetLocalDocumentsPath(LogsSubPath, true, filename);
 #else
         return GetLocalDocumentsPath(Path.Combine(ApplicationSubPath, LogsSubPath), true, filename);
 #endif
