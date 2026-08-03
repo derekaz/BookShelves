@@ -133,7 +133,7 @@ jobs:
           COMMITS_SINCE_VERSION_SOURCE="${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
           CONTAINER_SEMVER="${{ steps.gitversion.outputs.semVer }}"
 
-          if [ "$REF_TYPE" == "tag" ] && [[ "$REF_NAME" == v* ]]; then
+          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == v* ]]; then
             CONTAINER_SEMVER="${REF_NAME#v}"
             RELEASE_TAG_NAME="${REF_NAME}"
             IS_PRERELEASE="false"
@@ -157,20 +157,24 @@ jobs:
       - name: Compute deployment environment
         id: compute_environment
         run: |
-          if [ "${{ github.ref_type }}" == "tag" ] && [ !contains("${{ github.ref_name }}", "-") ]; then
+          REF_TYPE="${{ github.ref_type }}"
+          REF_NAME="${{ github.ref_name }}"
+
+          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" != *-* ]]; then
             ENV_NAME="production"
-          elif [ "${{ github.ref_type }}" == "tag" ] && [ contains("${{ github.ref_name }}", "-") ]; then
+          elif [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == *-* ]]; then
             ENV_NAME="beta"
-          elif [[ "${{ github.ref_name }}" == release/* ]]; then
+          elif [[ "$REF_NAME" == release/* ]]; then
             ENV_NAME="staging"
-          elif [ "${{ github.ref_name }}" == "main" ]; then
+          elif [ "$REF_NAME" = "main" ]; then
             ENV_NAME="alpha"
           else
             ENV_NAME="development"
           fi
+
           echo "environmentName=${ENV_NAME}" >> $GITHUB_OUTPUT
           echo "Deployment environment: ${ENV_NAME}"
-          
+
       - name: Install .NET Workloads
         run: dotnet workload restore
 
