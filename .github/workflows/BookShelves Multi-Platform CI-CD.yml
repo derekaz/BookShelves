@@ -228,8 +228,10 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.ContainerSemVer }}
-            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            # ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.ContainerSemVer }}
+            # ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ContainerSemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -250,8 +252,11 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.ContainerSemVer }}
-            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            # ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.ContainerSemVer }}
+            # ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ContainerSemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
