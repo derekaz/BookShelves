@@ -19,8 +19,8 @@ on:
       - opened
       - reopened
       - synchronize
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
 
 concurrency:
   group: bookshelves-ci-cd-${{github.ref}}
@@ -70,15 +70,17 @@ jobs:
     outputs:
       AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
       AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
-      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
-      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
-      ContainerSemVer: ${{ steps.compute_container_version.outputs.containerSemVer }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.gitversion.outputs.semVer }}
+      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
+      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
+      ContainerSemVer: ${{ steps.compute_container_version.outputs.containerSemVer }}
+      ReleaseTagName: ${{ steps.compute_container_version.outputs.releaseTagName }}
+      IsPrerelease: ${{ steps.compute_container_version.outputs.isPrerelease }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
 
     defaults:
@@ -133,39 +135,42 @@ jobs:
 
           if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == v* ]]; then
             CONTAINER_SEMVER="${REF_NAME#v}"
-          elif [[ "$REF_NAME" == release/* || "$REF_NAME" == releases/* || "$REF_NAME" == Release/* || "$REF_NAME" == Releases/* ]]; then
-            LATEST_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || true)
-            if [ -n "$LATEST_TAG" ]; then
-              BASE_VERSION="${LATEST_TAG#v}"
-              HEIGHT=$(git rev-list "${LATEST_TAG}..HEAD" --count 2>/dev/null || echo "$COMMITS_SINCE_VERSION_SOURCE")
-              if [[ "$BASE_VERSION" == *-* ]]; then
-                CONTAINER_SEMVER="${BASE_VERSION}.${HEIGHT}"
-              else
-                CONTAINER_SEMVER="${BASE_VERSION}-dev-release.${HEIGHT}"
-              fi
-            else
-              CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-dev-release.${COMMITS_SINCE_VERSION_SOURCE}"
-            fi
+            RELEASE_TAG_NAME="${REF_NAME}"
+            IS_PRERELEASE="false"
+          elif [[ "$REF_NAME" == release/* ]]; then
+            CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-beta.${COMMITS_SINCE_VERSION_SOURCE}"
+            RELEASE_TAG_NAME="v${CONTAINER_SEMVER}"
+            IS_PRERELEASE="true"
           elif [ "$REF_NAME" = "main" ]; then
             CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-alpha.${COMMITS_SINCE_VERSION_SOURCE}"
+            RELEASE_TAG_NAME="v${CONTAINER_SEMVER}"
+            IS_PRERELEASE="true"
+          else
+            RELEASE_TAG_NAME="v${CONTAINER_SEMVER}"
+            IS_PRERELEASE="true"
           fi
 
           echo "containerSemVer=${CONTAINER_SEMVER}" >> $GITHUB_OUTPUT
-          echo "Container SemVer: ${CONTAINER_SEMVER}"
+          echo "releaseTagName=${RELEASE_TAG_NAME}" >> $GITHUB_OUTPUT
+          echo "isPrerelease=${IS_PRERELEASE}" >> $GITHUB_OUTPUT
 
       - name: Compute deployment environment
         id: compute_environment
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
+          if [ "${{ github.ref_type }}" = "tag" ] && [ !contains("${{ github.ref_name }}", "-") ]; then
             ENV_NAME="production"
-          elif [ "${{ github.ref_name }}" = "main" ]; then
+          elif [ "${{ github.ref_type }}" = "tag" ] && [ contains("${{ github.ref_name }}", "-") ]; then
+            ENV_NAME="beta"
+          elif [[ "${{ github.ref_name }}" == release/* ]]; then
             ENV_NAME="staging"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            ENV_NAME="development"
           else
             ENV_NAME="development"
           fi
           echo "environmentName=${ENV_NAME}" >> $GITHUB_OUTPUT
           echo "Deployment environment: ${ENV_NAME}"
-
+          
       - name: Install .NET Workloads
         run: dotnet workload restore
 
@@ -181,11 +186,10 @@ jobs:
     name: Publish Containers to Private Registry
     needs: validate
     if: |
-      github.event_name == 'release' || 
-       startsWith(github.ref_name, 'release/') ||
-       startsWith(github.ref_name, 'Release/') ||
-       startsWith(github.ref, 'refs/tags/v') ||
-       startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: ubuntu-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     steps:
@@ -256,11 +260,10 @@ jobs:
     name: Build iOS & MacCatalyst
     needs: validate
     if: |
-      github.event_name == 'release' ||
-        startsWith(github.ref_name, 'release/') ||
-        startsWith(github.ref_name, 'Release/') ||
-        startsWith(github.ref, 'refs/tags/v') ||
-        startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: macos-26
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
@@ -613,11 +616,10 @@ jobs:
     name: Build Windows App
     needs: validate
     if: |
-      github.event_name == 'release' ||
-        startsWith(github.ref_name, 'release/') ||
-        startsWith(github.ref_name, 'Release/') ||
-        startsWith(github.ref, 'refs/tags/v') ||
-        startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: windows-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45
