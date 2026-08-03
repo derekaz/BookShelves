@@ -86,3 +86,46 @@ server {
 }
 
 
+Branch/Release Management
+		<Version>$(GitVersion_FullSemVer)</Version>
+		<VersionPrefix>$(GitVersion_MajorMinorPatch)</VersionPrefix>
+		<AssemblyVersion>$(GitVersion_MajorMinorPatch)</AssemblyVersion>
+		<FileVersion>$(GitVersion_MajorMinorPatch)</FileVersion>
+		<InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+		<ApplicationVersion>$(GitVersion_CommitsSinceVersionSource)</ApplicationVersion>
+
+Desired Outcome
+Project|Maui - Windows|Maui - MacCatalyst|Maui - IOS|Web & WebApi - Docker
+AssemblyVersion|0.1.2|0.1.2|0.1.2|0.1.2
+FileVersion|0.1.2|0.1.2|0.1.2|0.1.2
+InformationalVersion|0.1.2-dev.1+2|0.1.2-dev.1+2|0.1.2-dev.1+2|0.1.2-dev.1+2
+
+Version|0.1.2-dev.1+2|0.1.2-dev.1+2|0.1.2-dev.1+2|0.1.2-dev.1+2
+ApplicationDisplayVersion|0.1.2|0.1.2|0.1.2|0.1.2
+ApplicationVersion|[1..n]|[1..n] (must be unique per ApplicationDisplayVersion)|[1..n] (must be unique per ApplicationDisplayVersion)|
+PackageVersion|0.1.2|?|?|0.1.2
+
+Docker Tags|NA|NA|NA|0.1.2-dev.1+2 (based source branch and/or tags present in that branch)
+
+
+Build Triggers
+
+Main - Commit|Build (Alpha + Increment/Last Tag In Branch + Increment)|Build (Alpha + Increment/Last Tag In Branch + Increment)|Build (Alpha + Increment/Last Tag In Branch + Increment)|Build (Alpha + Increment/Last Tag In Branch + Increment)
+Main - Tag|Build & Deploy (Tag)|Build & Deploy (Tag)|Build & Deploy (Tag)|Build & Deploy (Tag)
+Main - Release|Build & Deploy (Release)|Build & Deploy (Release)|Build & Deploy (Release)|Build & Deploy (Release)
+
+Release/[major].[minor].[patch] - Commit|Build & Deploy (Dev/Tag + Increment)|Build & Deploy (Dev/Tag + Increment)|Build & Deploy (Dev/Tag + Increment)|Build & Deploy (Dev/Tag + Increment)
+Release/[major].[minor].[patch] - Tag
+Release/[major].[minor].[patch] -> PR Create -> Main
+Release/[major].[minor].[patch] -> PR Merge -> Main
+
+Feature/[feature-name] - Commit
+Feature/[feature-name] -> PR Create -> Release/[major].[minor].[patch]
+Feature/[feature-name] -> PR Merge -> Release/[major].[minor].[patch]
+
+
+
+Maui - Windows|Yes|Yes|Yes
+Maui - MacCatalyst|Yes|Yes|Yes
+Maui - IOS|Yes|Yes|Yes
+
