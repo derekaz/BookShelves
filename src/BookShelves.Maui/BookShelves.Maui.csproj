@@ -56,7 +56,7 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 		<DefaultLanguage>en-US</DefaultLanguage>
-		<SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+		<SatelliteResourceLanguages>en;en-US</SatelliteResourceLanguages>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<WindowsPackageType>None</WindowsPackageType>
 	</PropertyGroup>
@@ -107,6 +107,9 @@
 	<Target Name="TrimAppleMauiLocalizationFoldersInPublishOutput" AfterTargets="Publish" Condition="($([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' Or $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst') and '$(IsCrossTargetingBuild)' != 'true' and Exists('$(PublishDir)')">
 		<Message Importance="high" Text="Trimming Apple localization folders from publish output. Keeping: Base.lproj and en.lproj" />
 		<Exec Command="find '$(PublishDir)' -type d -name '*.lproj' ! -name 'Base.lproj' ! -name 'en.lproj' -exec rm -rf {} +" />
+		<Message Importance="high" Text="Trimming Apple satellite resource folders. Keeping: en and en-US" />
+		<Exec Command="find '$(PublishDir)' -type f -name '*.resources.dll' ! -path '*/en/*' ! -path '*/en-US/*' -delete" />
+		<Exec Command="find '$(PublishDir)' -type d -empty -delete" />
 	</Target>
 
 	<ItemGroup>
