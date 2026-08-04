@@ -210,7 +210,7 @@ jobs:
           tags: |
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.SemVer }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookselves-web:sha-${{ needs.validate.outputs.ShortSha }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:sha-${{ needs.validate.outputs.ShortSha }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
       # --- WEB API PROJECT ---
