@@ -1,0 +1,112 @@
+@implements IDisposable
+@inject ISyncDataService SyncDataService
+@inject ISyncProgressService SyncProgressService
+
+@if (SyncDataService.SupportsSync)
+{
+    <div class="sync-status" title="@statusDetailText">
+        <span class="sync-dot @GetDotClass()"></span>
+        <span>@statusText</span>
+    </div>
+}
+
+<style>
+    .sync-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+        max-width: 28rem;
+    }
+
+    .sync-dot {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .sync-dot.idle {
+        background-color: #7fb285;
+    }
+
+    .sync-dot.pending {
+        background-color: #f0ad4e;
+    }
+
+    .sync-dot.failed {
+        background-color: #dc3545;
+    }
+
+    .sync-dot.syncing {
+        background-color: #0dcaf0;
+        animation: sync-pulse 1.1s ease-in-out infinite;
+    }
+
+    @@keyframes sync-pulse {
+        0% { transform: scale(0.9); opacity: 0.7; }
+        50% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(0.9); opacity: 0.7; }
+    }
+</style>
+
+@code {
+    private bool isSyncing;
+    private SyncStage currentStage = SyncStage.None;
+    private string statusText = "Sync idle";
+    private string statusDetailText = "Synchronization is idle.";
+
+    protected override void OnInitialized()
+    {
+        SyncProgressService.ProgressChanged += OnSyncProgressChanged;
+    }
+
+    private void OnSyncProgressChanged(object? sender, SyncProgressEventArgs e)
+    {
+        currentStage = e.SyncStage;
+        isSyncing = e.SyncStage is SyncStage.Started
+            or SyncStage.Pushing
+            or SyncStage.Pulling
+            or SyncStage.Processing;
+
+        statusText = e.SyncStage switch
+        {
+            SyncStage.Pending => "Sync pending",
+            SyncStage.Started => "Sync starting...",
+            SyncStage.Pushing => "Syncing (uploading)...",
+            SyncStage.Pulling => "Syncing (downloading)...",
+            SyncStage.Processing => "Syncing (processing)...",
+            SyncStage.Completed => "Sync complete",
+            SyncStage.Failed => "Sync failed",
+            _ => "Sync idle"
+        };
+
+        statusDetailText = string.IsNullOrWhiteSpace(e.Message)
+            ? statusText
+            : e.Message;
+
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private string GetDotClass()
+    {
+        if (isSyncing)
+        {
+            return "syncing";
+        }
+
+        return currentStage switch
+        {
+            SyncStage.Pending => "pending",
+            SyncStage.Failed => "failed",
+            _ => "idle"
+        };
+    }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+    }
+}

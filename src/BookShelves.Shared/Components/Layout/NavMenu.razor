@@ -1,5 +1,12 @@
-﻿@using Microsoft.AspNetCore.Components.Routing
+﻿@using BookShelves.Shared.Data.Interfaces
+@using BookShelves.Shared.Services
+@using BookShelves.Shared.Services.ServiceInterfaces
+@using Microsoft.AspNetCore.Components.Routing
+@implements IDisposable
 @inject IFormFactor FormFactor
+@inject ISyncDataService SyncDataService
+@inject ISyncProgressService SyncProgressService
+@inject ILogger<NavMenu> Logger
 
 <div class="top-row ps-3 navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
@@ -78,6 +85,17 @@
 
     @* Bottom section: Login + Platform Info (always anchored to bottom) *@
     <div class="nav-bottom">
+        @if (SyncDataService.SupportsSync)
+        {
+            <AuthorizeView Roles="Administrator">
+                <div class="nav-item px-3">
+                    <button type="button" class="sync-button" @onclick="ManualSyncAsync" disabled="@isSyncing">
+                        @(isSyncing ? "Syncing..." : "Sync now")
+                    </button>
+                </div>
+            </AuthorizeView>
+        }
+
         @* LoginDisplay - Works in both Web and MAUI *@
         <div class="nav-item px-3">
             <LoginDisplay />
@@ -104,8 +122,47 @@
 </div>
 
 @code {
+    private bool isSyncing;
+
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
     private string version => FormFactor.GetVersion();
     private string shortVersion => version.Contains('+') ? version[..version.IndexOf('+')] : version;
+
+    protected override void OnInitialized()
+    {
+        SyncProgressService.ProgressChanged += OnSyncProgressChanged;
+    }
+
+    private void OnSyncProgressChanged(object? sender, SyncProgressEventArgs e)
+    {
+        isSyncing = e.SyncStage is SyncStage.Started
+            or SyncStage.Pushing
+            or SyncStage.Pulling
+            or SyncStage.Processing;
+
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ManualSyncAsync()
+    {
+        if (isSyncing)
+        {
+            return;
+        }
+
+        try
+        {
+            await SyncDataService.ServerSyncAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Layout.NavMenu:ManualSyncAsync-Exception");
+        }
+    }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+    }
 }

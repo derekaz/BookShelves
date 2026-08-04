@@ -8,6 +8,7 @@ public class SyncProgressService : ISyncProgressService
 
     private static readonly Dictionary<SyncStage, int> StageToStepMap = new()
     {
+        { SyncStage.Pending, 0 },
         { SyncStage.Started, 0 },
         { SyncStage.Pushing, 1 },
         { SyncStage.Pulling, 2 },
