@@ -107,6 +107,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v4.7.0
         with:
           verbosity: Diagnostic
+          targetPath: ${{ github.workspace }}
 
       - name: Compute per-release build number
         id: compute_per_version
