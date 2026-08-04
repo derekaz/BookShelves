@@ -145,7 +145,7 @@ jobs:
             RELEASE_TAG_NAME="${REF_NAME}"
             IS_PRERELEASE="false"
           elif [[ "$REF_NAME" == release/* ]]; then
-            CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-beta.${COMMITS_SINCE_VERSION_SOURCE}"
+            CONTAINER_SEMVER="${{ steps.gitversion.outputs.semVer }}"
             RELEASE_TAG_NAME="v${CONTAINER_SEMVER}"
             IS_PRERELEASE="true"
           elif [ "$REF_NAME" = "main" ]; then
