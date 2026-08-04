@@ -24,7 +24,7 @@ major-version-bump-message: "\\+semver:\\s?(breaking|major)"
 minor-version-bump-message: "\\+semver:\\s?(feature|minor)"
 patch-version-bump-message: "\\+semver:\\s?(fix|patch)"
 no-bump-message: "\\+semver:\\s?(none|skip)"
-tag-pre-release-weight: 60000
+tag-pre-release-weight: 30000
 commit-date-format: yyyy-MM-dd
 merge-message-formats: {}
 update-build-number: true
