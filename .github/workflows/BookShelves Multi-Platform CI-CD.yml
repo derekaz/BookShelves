@@ -105,6 +105,8 @@ jobs:
       - name: Execute GitVersion Calculations
         id: gitversion
         uses: gittools/actions/gitversion/execute@v4.7.0
+        with:
+          verbosity: Diagnostic
 
       - name: Compute per-release build number
         id: compute_per_version
