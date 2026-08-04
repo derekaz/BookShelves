@@ -92,6 +92,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch Git Tags explicitly
+        run: git fetch --tags --force
+        working-directory: ${{ github.workspace }}
+
       - name: Install .NET
         uses: actions/setup-dotnet@v6
         with:
