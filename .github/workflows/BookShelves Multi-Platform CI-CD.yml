@@ -678,13 +678,46 @@ jobs:
         run: |
           Get-Childitem -Path ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} -Include *.* -File -Recurse
 
+      - name: Stage Windows installer artifacts
+        shell: pwsh
+        run: |
+          $stagePath = Join-Path $env:GITHUB_WORKSPACE "artifacts\windows"
+          if (Test-Path $stagePath) {
+            Remove-Item -Path $stagePath -Recurse -Force
+          }
+          New-Item -Path $stagePath -ItemType Directory | Out-Null
+
+          $appPackagesPath = "${{env.MAUI_PROJPATH}}\AppPackages"
+          $packages = Get-ChildItem -Path $appPackagesPath -Recurse -File -Include *.msix,*.msixbundle
+          if (-not $packages) {
+            throw "No MSIX/MSIXBundle files were found under $appPackagesPath"
+          }
+
+          foreach ($package in $packages) {
+            Copy-Item -Path $package.FullName -Destination (Join-Path $stagePath $package.Name) -Force
+          }
+
+          $dependencyRoots = Get-ChildItem -Path $appPackagesPath -Recurse -Directory | Where-Object { $_.Name -eq 'Dependencies' }
+          if ($dependencyRoots) {
+            foreach ($dependencyRoot in $dependencyRoots) {
+              $dependencyFiles = Get-ChildItem -Path $dependencyRoot.FullName -Recurse -File
+              foreach ($dependencyFile in $dependencyFiles) {
+                $relativeDependencyPath = $dependencyFile.FullName.Substring($dependencyRoot.FullName.Length).TrimStart('\\')
+                $destinationPath = Join-Path $stagePath (Join-Path 'Dependencies' $relativeDependencyPath)
+                $destinationDirectory = Split-Path -Path $destinationPath -Parent
+                if (-not (Test-Path $destinationDirectory)) {
+                  New-Item -Path $destinationDirectory -ItemType Directory -Force | Out-Null
+                }
+                Copy-Item -Path $dependencyFile.FullName -Destination $destinationPath -Force
+              }
+            }
+          }
+
       - name: Upload Windows Installer Artifact
         uses: actions/upload-artifact@v7
         with:
           name: MAUI-Windows-App
-          path: |
-            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msix
-            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msixbundle
+          path: ${{ github.workspace }}\artifacts\windows\*
 
   #   =================================================================
   #   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
