@@ -1,14 +1,17 @@
 ﻿@page "/books"
+@implements IDisposable
 @* @inject IBookFactory BookFactory *@
 @inject IBooksDataService DataService
 @inject ILogger<Index> Logger
 @inject IDialogService DialogService
+@inject ISyncDataService SyncDataService
+@inject ISyncProgressService SyncProgressService
 @attribute [Authorize(Roles = "Administrator")]
 
 <h1>Books</h1>
 
-<div>
-    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Book</button>
+<div class="mb-2">
+    <button @onclick="AddAsync" class="btn btn-primary">Add Book</button>
 </div>
 
 <p>@message</p>
@@ -71,12 +74,25 @@ else
 #endif
     public IEnumerable<BookViewModel>? Books { get; set; }
 
+    private static readonly TimeSpan AutoSyncDelay = TimeSpan.FromSeconds(2);
+
+    private readonly SemaphoreSlim syncOperationGate = new(1, 1);
+    private CancellationTokenSource? autoSyncDelayCts;
+
     private string message = string.Empty;
+    private bool isSyncing;
+    private bool syncRequested;
+    private int currentStep;
+    private int totalSteps = 3;
+    private int progressPercentage;
+    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
+    private string syncMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
             Books ??= await DataService.GetBooksAsync();
         }
         catch (Microsoft.Identity.Client.MsalUiRequiredException)
@@ -94,7 +110,76 @@ else
         }
     }
 
-    private async void ShowDetailAsync(BookViewModel book, string titleText)
+    private bool IsSyncSupported()
+    {
+        return SyncDataService.SupportsSync;
+    }
+
+    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
+    {
+        try
+        {
+            currentStep = e.CurrentStep;
+            totalSteps = e.TotalSteps;
+            progressPercentage = e.ProgressPercentage;
+            syncStage = e.SyncStage;
+            syncMessage = BuildSyncMessage(e);
+            isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started
+                or BookShelves.Shared.Services.SyncStage.Pushing
+                or BookShelves.Shared.Services.SyncStage.Pulling
+                or BookShelves.Shared.Services.SyncStage.Processing;
+
+            if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
+            {
+                _ = RefreshBooksAsync();
+            }
+
+            _ = InvokeAsync(StateHasChanged);
+        }
+        catch
+        {
+            // best-effort only
+        }
+    }
+
+    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    {
+        if (e == null) return string.Empty;
+
+        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        {
+            return $"{e.Message} ({e.Current}/{e.Total})";
+        }
+
+        return e.Message ?? string.Empty;
+    }
+
+    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
+    {
+        return stage switch
+        {
+            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
+            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
+            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
+            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
+            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
+            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
+            _ => "Synchronizing..."
+        };
+    }
+
+    private async Task AddAsync()
+    {
+        var book = InitializeBookObject();
+        await ShowDetailAsync(book, "New Book");
+    }
+
+    private async Task EditAsync(BookViewModel book)
+    {
+        await ShowDetailAsync(book, "Edit Book");
+    }
+
+    private async Task ShowDetailAsync(BookViewModel book, string titleText)
     {
         var parameters = new DialogParameters<BookDetail> { { x => x.BookObject, book }, { x => x.TitleText, titleText } };
 
@@ -110,18 +195,18 @@ else
             }
             else if (!result.Canceled)
             {
-                message = result?.Data?.ToString() ?? "";
-
-                Books = await DataService.GetBooksAsync() ?? new List<BookViewModel>() { };
+                message = result?.Data?.ToString() ?? string.Empty;
+                Books = await DataService.GetBooksAsync() ?? [];
+                QueueAutomaticSync();
             }
             else
             {
-                if (String.IsNullOrEmpty(book.IdValue))
-                    message = "Add canceled";
-                else
-                    message = "Edit canceled";
+                message = String.IsNullOrEmpty(book.IdValue)
+                    ? "Add canceled"
+                    : "Edit canceled";
             }
-            StateHasChanged();
+
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
@@ -129,18 +214,7 @@ else
         }
     }
 
-    private void AddAsync()
-    {
-        var book = InitializeBookObject();
-        ShowDetailAsync(book, "New Book");
-    }
-
-    private void EditAsync(BookViewModel book)
-    {
-        ShowDetailAsync(book, "Edit Book");
-    }
-
-    private async void DeleteAsync(BookViewModel book)
+    private async Task DeleteAsync(BookViewModel book)
     {
         var parameters = new DialogParameters<BookDelete> { { x => x.BookObject, book } };
         var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters);
@@ -156,19 +230,107 @@ else
             if (deleteResult)
             {
                 message = $"'{book.Title}' deleted";
-
-                Books = await DataService.GetBooksAsync() ?? new List<BookViewModel>() { };
+                Books = await DataService.GetBooksAsync() ?? [];
+                QueueAutomaticSync();
             }
         }
         else
         {
             message = "Delete canceled";
         }
-        StateHasChanged();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void QueueAutomaticSync()
+    {
+        if (!IsSyncSupported())
+        {
+            return;
+        }
+
+        syncRequested = true;
+        SyncProgressService.ReportStage(BookShelves.Shared.Services.SyncStage.Pending, "Local changes detected. Waiting to sync...");
+
+        autoSyncDelayCts?.Cancel();
+        autoSyncDelayCts?.Dispose();
+        autoSyncDelayCts = new CancellationTokenSource();
+        var token = autoSyncDelayCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(AutoSyncDelay, token);
+                await TriggerSyncAsync(isAutomaticTrigger: true);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore - a newer local change reset the delay
+            }
+        }, token);
+    }
+
+    private async Task TriggerSyncAsync(bool isAutomaticTrigger)
+    {
+        if (!IsSyncSupported())
+        {
+            return;
+        }
+
+        if (!await syncOperationGate.WaitAsync(0))
+        {
+            syncRequested = true;
+            return;
+        }
+
+        try
+        {
+            do
+            {
+                syncRequested = false;
+                message = isAutomaticTrigger
+                    ? "Book changes detected. Running background sync..."
+                    : "Starting sync...";
+
+                await InvokeAsync(StateHasChanged);
+                await SyncDataService.ServerSyncAsync();
+                Books = await DataService.GetBooksAsync() ?? [];
+
+                message = isAutomaticTrigger ? "Background sync complete." : "Sync complete";
+                isAutomaticTrigger = true;
+            }
+            while (syncRequested);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:TriggerSyncAsync-Exception");
+            message = $"Sync failed: {ex.Message}";
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+            syncOperationGate.Release();
+        }
+    }
+
+    private async Task RefreshBooksAsync()
+    {
+        Books = await DataService.GetBooksAsync() ?? [];
+        await InvokeAsync(StateHasChanged);
     }
 
     private BookViewModel InitializeBookObject()
     {
         return new BookViewModel();
+    }
+
+    public void Dispose()
+    {
+        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+
+        autoSyncDelayCts?.Cancel();
+        autoSyncDelayCts?.Dispose();
+        syncOperationGate.Dispose();
     }
 }

@@ -9,49 +9,9 @@
 
 <h1>Authors</h1>
 
-<div>
-    <button @onclick="(() => AddAsync())" class="btn btn-primary">Add Author</button>
+<div class="mb-2">
+    <button @onclick="AddAsync" class="btn btn-primary">Add Author</button>
 </div>
-@if (IsSyncSupported())
-{
-    <div>
-        <button @onclick="(() => ServerSyncAsync())" class="btn btn-primary" disabled="@isSyncing">Server Sync</button>
-    </div>
-}
-
-<!-- Sync Progress Display -->
-@if (isSyncing)
-{
-    <div class="sync-progress-container alert alert-info" role="alert">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
-            <span class="badge bg-info">@progressPercentage%</span>
-        </div>
-        <div class="progress" style="height: 20px;">
-            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
-                @progressPercentage%
-            </div>
-        </div>
-        <small class="text-muted d-block mt-2">@syncMessage</small>
-    </div>
-}
-
-<!-- Sync Progress Display -->
-@if (isSyncing)
-{
-    <div class="sync-progress-container alert alert-info" role="alert">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <strong>Step @currentStep of @totalSteps - @GetStageDisplay(syncStage)</strong>
-            <span class="badge bg-info">@progressPercentage%</span>
-        </div>
-        <div class="progress" style="height: 20px;">
-            <div class="progress-bar" role="progressbar" style="width: @progressPercentage%;" aria-valuenow="@progressPercentage" aria-valuemin="0" aria-valuemax="100">
-                @progressPercentage%
-            </div>
-        </div>
-        <small class="text-muted d-block mt-2">@syncMessage</small>
-    </div>
-}
 
 <p>@message</p>
 
@@ -99,8 +59,14 @@ else
 #endif
     public IEnumerable<AuthorViewModel>? Authors { get; set; }
 
+    private static readonly TimeSpan AutoSyncDelay = TimeSpan.FromSeconds(2);
+
+    private readonly SemaphoreSlim syncOperationGate = new(1, 1);
+    private CancellationTokenSource? autoSyncDelayCts;
+
     private string message = string.Empty;
     private bool isSyncing = false;
+    private bool syncRequested = false;
     private int currentStep = 0;
     private int totalSteps = 3;
     private int progressPercentage = 0;
@@ -161,6 +127,10 @@ else
 
                 // Keep the legacy message format for compatibility
                 message = BuildMessage(e);
+                if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
+                {
+                    _ = RefreshAuthorsAsync();
+                }
                 InvokeAsync(StateHasChanged);
             };
 
@@ -220,7 +190,18 @@ else
         return $"{e.Stage ?? "Sync"}: {e.Message}";
     }
 
-    private async void ShowDetailAsync(AuthorViewModel author, string titleText)
+    private async Task AddAsync()
+    {
+        var author = InitializeAuthorObject();
+        await ShowDetailAsync(author, "New Author");
+    }
+
+    private async Task EditAsync(AuthorViewModel author)
+    {
+        await ShowDetailAsync(author, "Edit Author");
+    }
+
+    private async Task ShowDetailAsync(AuthorViewModel author, string titleText)
     {
         var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
 
@@ -236,18 +217,19 @@ else
             }
             else if (!result.Canceled)
             {
-                message = result?.Data?.ToString() ?? "";
+                message = result?.Data?.ToString() ?? string.Empty;
 
-                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
+                Authors = await DataService.GetAuthorsAsync() ?? [];
+                QueueAutomaticSync();
             }
             else
             {
-                if (String.IsNullOrEmpty(author.IdValue))
-                    message = "Add canceled";
-                else
-                    message = "Edit canceled";
+                message = String.IsNullOrEmpty(author.IdValue)
+                    ? "Add canceled"
+                    : "Edit canceled";
             }
-            StateHasChanged();
+
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
@@ -255,47 +237,7 @@ else
         }
     }
 
-    private async void ServerSyncAsync()
-    {
-        try
-        {
-            Logger.LogTrace("Starting Sync");
-            message = "Starting sync...";
-            StateHasChanged();
-
-            await SyncDataService.ServerSyncAsync();
-            Logger.LogTrace("Completed Sync");
-
-            message = "Sync complete";
-
-            // refresh authors after sync
-            Logger.LogTrace("Starting Refresh");
-            Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
-            Logger.LogTrace("Completed Refresh");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "ServerSyncAsync failed");
-            message = $"Sync failed: {ex.Message}";
-        }
-        finally
-        {
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void AddAsync()
-    {
-        var author = InitializeAuthorObject();
-        ShowDetailAsync(author, "New Author");
-    }
-
-    private void EditAsync(AuthorViewModel author)
-    {
-        ShowDetailAsync(author, "Edit Author");
-    }
-
-    private async void DeleteAsync(AuthorViewModel author)
+    private async Task DeleteAsync(AuthorViewModel author)
     {
         var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
         var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
@@ -311,15 +253,99 @@ else
             if (deleteResult)
             {
                 message = $"'{author.Name}' deleted";
-
-                Authors = await DataService.GetAuthorsAsync() ?? new List<AuthorViewModel>() { };
+                Authors = await DataService.GetAuthorsAsync() ?? [];
+                QueueAutomaticSync();
             }
         }
         else
         {
             message = "Delete canceled";
         }
-        StateHasChanged();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void QueueAutomaticSync()
+    {
+        if (!IsSyncSupported())
+        {
+            return;
+        }
+
+        syncRequested = true;
+        SyncProgressService.ReportStage(BookShelves.Shared.Services.SyncStage.Pending, "Local changes detected. Waiting to sync...");
+
+        autoSyncDelayCts?.Cancel();
+        autoSyncDelayCts?.Dispose();
+        autoSyncDelayCts = new CancellationTokenSource();
+        var token = autoSyncDelayCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(AutoSyncDelay, token);
+                await TriggerSyncAsync(isAutomaticTrigger: true);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore - a newer local change reset the delay
+            }
+        }, token);
+    }
+
+    private async Task ServerSyncAsync()
+    {
+        await TriggerSyncAsync(isAutomaticTrigger: false);
+    }
+
+    private async Task TriggerSyncAsync(bool isAutomaticTrigger)
+    {
+        if (!IsSyncSupported())
+        {
+            return;
+        }
+
+        if (!await syncOperationGate.WaitAsync(0))
+        {
+            syncRequested = true;
+            return;
+        }
+
+        try
+        {
+            do
+            {
+                syncRequested = false;
+                message = isAutomaticTrigger
+                    ? "Changes detected. Running background sync..."
+                    : "Starting sync...";
+
+                await InvokeAsync(StateHasChanged);
+                await SyncDataService.ServerSyncAsync();
+                Authors = await DataService.GetAuthorsAsync() ?? [];
+
+                message = isAutomaticTrigger ? "Background sync complete." : "Sync complete";
+                isAutomaticTrigger = true;
+            }
+            while (syncRequested);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "ServerSyncAsync failed");
+            message = $"Sync failed: {ex.Message}";
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+            syncOperationGate.Release();
+        }
+    }
+
+    private async Task RefreshAuthorsAsync()
+    {
+        Authors = await DataService.GetAuthorsAsync() ?? [];
+        await InvokeAsync(StateHasChanged);
     }
 
     private AuthorViewModel InitializeAuthorObject()
@@ -330,5 +356,9 @@ else
     public void Dispose()
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
+
+        autoSyncDelayCts?.Cancel();
+        autoSyncDelayCts?.Dispose();
+        syncOperationGate.Dispose();
     }
 }
