@@ -59,7 +59,7 @@ branches:
     prevent-increment:
       of-merged-branch: true
       when-branch-merged: false
-      when-current-commit-tagged: false
+      when-current-commit-tagged: true
     track-merge-target: false
     track-merge-message: true
     regex: "^releases?[\\/-](?<BranchName>.+)"
