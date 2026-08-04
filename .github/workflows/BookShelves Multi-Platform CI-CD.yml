@@ -687,7 +687,15 @@ jobs:
           }
           New-Item -Path $stagePath -ItemType Directory | Out-Null
 
-          $appPackagesPath = "${{env.MAUI_PROJPATH}}\AppPackages"
+          $appPackagesPath = Join-Path $env:GITHUB_WORKSPACE "publish-output\windows"
+          $legacyAppPackagesPath = Join-Path $env:GITHUB_WORKSPACE "src\BookShelves.Maui\AppPackages"
+          if (Test-Path $legacyAppPackagesPath) {
+            $appPackagesPath = $legacyAppPackagesPath
+          }
+          elseif (Test-Path (Join-Path $appPackagesPath 'AppPackages')) {
+            $appPackagesPath = Join-Path $appPackagesPath 'AppPackages'
+          }
+
           $packages = Get-ChildItem -Path $appPackagesPath -Recurse -File -Include *.msix,*.msixbundle
           if (-not $packages) {
             throw "No MSIX/MSIXBundle files were found under $appPackagesPath"
