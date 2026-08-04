@@ -54,7 +54,7 @@ branches:
   release:
     mode: ContinuousDeployment
     label: alpha
-    increment: None
+    increment: Patch
     pre-release-number-calculation: Run-To-End
     prevent-increment:
       of-merged-branch: true
