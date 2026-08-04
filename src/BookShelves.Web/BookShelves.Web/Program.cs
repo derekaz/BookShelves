@@ -76,6 +76,7 @@ builder.Services.AddScoped<IAuthorsDataService, AuthorsDataService>();
 builder.Services.AddScoped<IFormFactor, FormFactorService>();
 builder.Services.AddScoped<IVersionService, VersionService>();
 builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderService>();
+builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessService>();
 builder.Services.AddTransient<ISyncDataService, SyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
 

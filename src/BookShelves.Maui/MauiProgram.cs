@@ -181,6 +181,7 @@ public static class MauiProgram
             builder.Services.AddScoped<AuthenticationStateProvider>(s => (AuthenticationStateProvider)s.GetRequiredService<IExternalAuthenticationStateProvider>());
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
+            builder.Services.AddSingleton<IDocumentsFolderAccessService, MacCatalystDocumentsFolderAccessService>();
             builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             builder.Services.AddSingleton<IGraphService, GraphService>();
 

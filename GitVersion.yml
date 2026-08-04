@@ -1,4 +1,5 @@
-mode: ContinuousDelivery
+workflow: GitHubFlow/v1
+mode: ContinuousDeployment
 label: "{BranchName}"
 #label: alpha
 increment: Inherit
@@ -23,7 +24,7 @@ major-version-bump-message: "\\+semver:\\s?(breaking|major)"
 minor-version-bump-message: "\\+semver:\\s?(feature|minor)"
 patch-version-bump-message: "\\+semver:\\s?(fix|patch)"
 no-bump-message: "\\+semver:\\s?(none|skip)"
-tag-pre-release-weight: 60000
+tag-pre-release-weight: 30000
 commit-date-format: yyyy-MM-dd
 merge-message-formats: {}
 update-build-number: true
@@ -51,9 +52,10 @@ branches:
     is-main-branch: true
     pre-release-weight: 55000
   release:
-    mode: ManualDeployment
-    label: dev-release
+    mode: ContinuousDelivery
+    label: alpha
     increment: Patch
+    pre-release-number-calculation: Run-To-End
     prevent-increment:
       of-merged-branch: true
       when-branch-merged: false
@@ -69,10 +71,10 @@ branches:
     is-main-branch: false
     pre-release-weight: 30000
   feature:
-    mode: ContinuousDelivery
-    #mode: ManualDeployment
+    # mode: ContinuousDelivery
+    mode: ManualDeployment
     label: "{BranchName}"
-    increment: Minor
+    increment: Inherit
     prevent-increment:
       when-current-commit-tagged: false
     track-merge-message: true
@@ -87,7 +89,7 @@ branches:
     mode: ContinuousDelivery
     label: "PullRequest{Number}"
     #label: pr
-    increment: None
+    increment: Inherit
     prevent-increment:
       of-merged-branch: true
       when-current-commit-tagged: false

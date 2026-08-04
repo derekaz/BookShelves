@@ -1,4 +1,8 @@
-﻿namespace BookShelves.Maui.Helpers;
+﻿#if MACCATALYST
+using BookShelves.Maui.Platforms.MacCatalyst;
+#endif
+
+namespace BookShelves.Maui.Helpers;
 
 internal class FileAccessHelper
 {
@@ -24,10 +28,26 @@ internal class FileAccessHelper
         return Path.Combine(path, filename);
     }
 
+    public static Task<string?> PickMacCatalystDocumentsRootAsync()
+    {
+#if MACCATALYST
+        return MacCatalystDocumentsAccess.PickAndPersistDocumentsRootAsync();
+#else
+        return Task.FromResult<string?>(null);
+#endif
+    }
+
+    public static void ClearMacCatalystDocumentsRoot()
+    {
+#if MACCATALYST
+        MacCatalystDocumentsAccess.ClearPersistedDocumentsRoot();
+#endif
+    }
+
     public static string GetLogFilePath(string filename)
     {
-#if IOS
-       return GetLocalDocumentsPath(LogsSubPath, true, filename);
+#if IOS || MACCATALYST
+        return GetLocalDocumentsPath(LogsSubPath, true, filename);
 #else
         return GetLocalDocumentsPath(Path.Combine(ApplicationSubPath, LogsSubPath), true, filename);
 #endif
@@ -42,10 +62,16 @@ internal class FileAccessHelper
         var androidDocs = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryDocuments);
         baseDocumentsPath = androidDocs?.AbsolutePath ?? string.Empty;
 
-#elif IOS || MACCATALYST
-        // Maps to the app's local Documents folder. 
+#elif IOS
+        // Maps to the app's local Documents folder.
         // Read Step 2 below to make this visible in the Apple "Files" App.
         baseDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+#elif MACCATALYST
+        // Prefer a user-selected folder with a security-scoped bookmark when one is available.
+        // Fall back to the app container Documents folder when the user has not granted access yet.
+        baseDocumentsPath = MacCatalystDocumentsAccess.GetDocumentsRootPath()
+            ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
 #else
         // Windows/Desktop standard visible Documents path

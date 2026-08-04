@@ -19,8 +19,8 @@ on:
       - opened
       - reopened
       - synchronize
-  release:
-    types: [published]
+  # release:
+  #   types: [published]
 
 concurrency:
   group: bookshelves-ci-cd-${{github.ref}}
@@ -70,15 +70,15 @@ jobs:
     outputs:
       AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}
       AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}
-      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
-      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
-      ContainerSemVer: ${{ steps.compute_container_version.outputs.containerSemVer }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.gitversion.outputs.semVer }}
+      ShortSha: ${{ steps.gitversion.outputs.shortSha }}
+      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
+      WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
 
     defaults:
@@ -89,6 +89,10 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Fetch Git Tags explicitly
+        run: git fetch --tags --force
+        working-directory: ${{ github.workspace }}
 
       - name: Install .NET
         uses: actions/setup-dotnet@v6
@@ -103,6 +107,9 @@ jobs:
       - name: Execute GitVersion Calculations
         id: gitversion
         uses: gittools/actions/gitversion/execute@v4.7.0
+        with:
+          verbosity: Diagnostic
+          targetPath: ${{ github.workspace }}
 
       - name: Compute per-release build number
         id: compute_per_version
@@ -122,47 +129,25 @@ jobs:
           echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD}"
 
 
-      - name: Compute container semantic version
-        id: compute_container_version
-        run: |
-          REF_TYPE="${{ github.ref_type }}"
-          REF_NAME="${{ github.ref_name }}"
-          MAJOR_MINOR_PATCH="${{ steps.gitversion.outputs.majorMinorPatch }}"
-          COMMITS_SINCE_VERSION_SOURCE="${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
-          CONTAINER_SEMVER="${{ steps.gitversion.outputs.semVer }}"
-
-          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == v* ]]; then
-            CONTAINER_SEMVER="${REF_NAME#v}"
-          elif [[ "$REF_NAME" == release/* || "$REF_NAME" == releases/* || "$REF_NAME" == Release/* || "$REF_NAME" == Releases/* ]]; then
-            LATEST_TAG=$(git describe --tags --abbrev=0 --match "v*" 2>/dev/null || true)
-            if [ -n "$LATEST_TAG" ]; then
-              BASE_VERSION="${LATEST_TAG#v}"
-              HEIGHT=$(git rev-list "${LATEST_TAG}..HEAD" --count 2>/dev/null || echo "$COMMITS_SINCE_VERSION_SOURCE")
-              if [[ "$BASE_VERSION" == *-* ]]; then
-                CONTAINER_SEMVER="${BASE_VERSION}.${HEIGHT}"
-              else
-                CONTAINER_SEMVER="${BASE_VERSION}-dev-release.${HEIGHT}"
-              fi
-            else
-              CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-dev-release.${COMMITS_SINCE_VERSION_SOURCE}"
-            fi
-          elif [ "$REF_NAME" = "main" ]; then
-            CONTAINER_SEMVER="${MAJOR_MINOR_PATCH}-alpha.${COMMITS_SINCE_VERSION_SOURCE}"
-          fi
-
-          echo "containerSemVer=${CONTAINER_SEMVER}" >> $GITHUB_OUTPUT
-          echo "Container SemVer: ${CONTAINER_SEMVER}"
 
       - name: Compute deployment environment
         id: compute_environment
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
+          REF_TYPE="${{ github.ref_type }}"
+          REF_NAME="${{ github.ref_name }}"
+
+          if [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" != *-* ]]; then
             ENV_NAME="production"
-          elif [ "${{ github.ref_name }}" = "main" ]; then
+          elif [ "$REF_TYPE" = "tag" ] && [[ "$REF_NAME" == *-* ]]; then
+            ENV_NAME="beta"
+          elif [[ "$REF_NAME" == release/* ]]; then
             ENV_NAME="staging"
+          elif [ "$REF_NAME" = "main" ]; then
+            ENV_NAME="alpha"
           else
             ENV_NAME="development"
           fi
+
           echo "environmentName=${ENV_NAME}" >> $GITHUB_OUTPUT
           echo "Deployment environment: ${ENV_NAME}"
 
@@ -181,11 +166,10 @@ jobs:
     name: Publish Containers to Private Registry
     needs: validate
     if: |
-      github.event_name == 'release' || 
-       startsWith(github.ref_name, 'release/') ||
-       startsWith(github.ref_name, 'Release/') ||
-       startsWith(github.ref, 'refs/tags/v') ||
-       startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: ubuntu-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     steps:
@@ -222,10 +206,12 @@ jobs:
             GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
             GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
+            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelvesweb:${{ needs.validate.outputs.ContainerSemVer }}
-            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelvesweb:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.SemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:sha-${{ needs.validate.outputs.ShortSha }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -244,10 +230,13 @@ jobs:
             GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
             GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.ContainerSemVer }}
+            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelveswebapi:${{ needs.validate.outputs.ContainerSemVer }}
-            ${{ !contains(needs.validate.outputs.ContainerSemVer, '-') && format('{0}/bookshelveswebapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.SemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:sha-${{ needs.validate.outputs.ShortSha }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
@@ -256,11 +245,10 @@ jobs:
     name: Build iOS & MacCatalyst
     needs: validate
     if: |
-      github.event_name == 'release' ||
-        startsWith(github.ref_name, 'release/') ||
-        startsWith(github.ref_name, 'Release/') ||
-        startsWith(github.ref, 'refs/tags/v') ||
-        startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: macos-26
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
@@ -414,8 +402,9 @@ jobs:
             /p:DebugSymbols=true `
             /p:NoDSymUtil=false `
             /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
-            
+            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
+
           dotnet `
             publish `
             ${{env.MAUI_CSPROJ}} `
@@ -433,7 +422,8 @@ jobs:
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false `
             /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}}
+            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
       - name: Show workspace folder content
         shell: pwsh
@@ -613,11 +603,10 @@ jobs:
     name: Build Windows App
     needs: validate
     if: |
-      github.event_name == 'release' ||
-        startsWith(github.ref_name, 'release/') ||
-        startsWith(github.ref_name, 'Release/') ||
-        startsWith(github.ref, 'refs/tags/v') ||
-        startsWith(github.ref_name, 'main')
+      startsWith(github.ref_name, 'release/') ||
+      startsWith(github.ref_name, 'Release/') ||
+      github.ref_type == 'tag' || 
+      github.ref_name == 'main'
     runs-on: windows-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45
@@ -675,7 +664,8 @@ jobs:
             /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
             /p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
             /p:Version=${{ needs.validate.outputs.FullSemVer }} `
-            /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }}
+            /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }} `
+            /p:InformationalVersion="${{ needs.validate.outputs.InformationalVersion }}"
           # -v options are quiet, minimal, normal, detailed, diagnostic
 
       - name: Show project folder content
@@ -688,13 +678,54 @@ jobs:
         run: |
           Get-Childitem -Path ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} -Include *.* -File -Recurse
 
+      - name: Stage Windows installer artifacts
+        shell: pwsh
+        run: |
+          $stagePath = Join-Path $env:GITHUB_WORKSPACE "artifacts\windows"
+          if (Test-Path $stagePath) {
+            Remove-Item -Path $stagePath -Recurse -Force
+          }
+          New-Item -Path $stagePath -ItemType Directory | Out-Null
+
+          $appPackagesPath = Join-Path $env:GITHUB_WORKSPACE "publish-output\windows"
+          $legacyAppPackagesPath = Join-Path $env:GITHUB_WORKSPACE "src\BookShelves.Maui\AppPackages"
+          if (Test-Path $legacyAppPackagesPath) {
+            $appPackagesPath = $legacyAppPackagesPath
+          }
+          elseif (Test-Path (Join-Path $appPackagesPath 'AppPackages')) {
+            $appPackagesPath = Join-Path $appPackagesPath 'AppPackages'
+          }
+
+          $packages = Get-ChildItem -Path $appPackagesPath -Recurse -File -Include *.msix,*.msixbundle | Where-Object { $_.FullName -notmatch '\\Dependencies\\' }
+          if (-not $packages) {
+            throw "No MSIX/MSIXBundle files were found under $appPackagesPath"
+          }
+
+          foreach ($package in $packages) {
+            Copy-Item -Path $package.FullName -Destination (Join-Path $stagePath $package.Name) -Force
+          }
+
+          $dependencyRoots = Get-ChildItem -Path $appPackagesPath -Recurse -Directory | Where-Object { $_.Name -eq 'Dependencies' }
+          if ($dependencyRoots) {
+            foreach ($dependencyRoot in $dependencyRoots) {
+              $dependencyFiles = Get-ChildItem -Path $dependencyRoot.FullName -Recurse -File
+              foreach ($dependencyFile in $dependencyFiles) {
+                $relativeDependencyPath = $dependencyFile.FullName.Substring($dependencyRoot.FullName.Length).TrimStart('\\')
+                $destinationPath = Join-Path $stagePath (Join-Path 'Dependencies' $relativeDependencyPath)
+                $destinationDirectory = Split-Path -Path $destinationPath -Parent
+                if (-not (Test-Path $destinationDirectory)) {
+                  New-Item -Path $destinationDirectory -ItemType Directory -Force | Out-Null
+                }
+                Copy-Item -Path $dependencyFile.FullName -Destination $destinationPath -Force
+              }
+            }
+          }
+
       - name: Upload Windows Installer Artifact
         uses: actions/upload-artifact@v7
         with:
           name: MAUI-Windows-App
-          path: |
-            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msix
-            ${{env.MAUI_PROJPATH}}\AppPackages\**\*.msixbundle
+          path: ${{ github.workspace }}\artifacts\windows\*
 
   #   =================================================================
   #   STAGE 5: ANDROID PUBLISH (MAUI .aab on Linux)
