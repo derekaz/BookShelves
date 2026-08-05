@@ -318,17 +318,17 @@ jobs:
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
     
     
-      - name: Cert Info Combined 1
+      - name: Cert Info Quad Combined 1
         env:
           CERTIFICATE_BASE64: ${{secrets.QUAD_COMBINED_DIST_INST_CERT_P12}}
         run: |
           echo $CERTIFICATE_BASE64 | base64 --decode > quad_combined_cert.p12
 
-      - name: Cert Info Combined 2
+      - name: Cert Info Quad Combined 2
         run: |
           openssl pkcs12 -in quad_combined_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
-      - name: Import IOS Code-Signing Certificates
+      - name: Import Quad Combined Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
         with:
           p12-file-base64: ${{secrets.QUAD_COMBINED_DIST_INST_CERT_P12}}
