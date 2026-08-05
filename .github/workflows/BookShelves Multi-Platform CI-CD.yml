@@ -318,47 +318,64 @@ jobs:
         run: export PATH="/Applications/Xcode_${{env.XCODE_VERSION}}.app/Contents/Developer/usr/bin:$PATH"
     
     
-      - name: Cert Info IOS 1
+      - name: Cert Info Combined 1
         env:
-          CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
+          CERTIFICATE_BASE64: ${{secrets.QUAD_COMBINED_DIST_INST_CERT_P12}}
         run: |
-          echo $CERTIFICATE_BASE64 | base64 --decode > ios_cert.p12
+          echo $CERTIFICATE_BASE64 | base64 --decode > quad_combined_cert.p12
 
-      - name: Cert Info IOS 2
+      - name: Cert Info Combined 2
         run: |
-          openssl pkcs12 -in ios_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
+          openssl pkcs12 -in quad_combined_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
       - name: Import IOS Code-Signing Certificates
         uses: Apple-Actions/import-codesign-certs@v7
         with:
-          p12-file-base64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
+          p12-file-base64: ${{secrets.QUAD_COMBINED_DIST_INST_CERT_P12}}
           p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
           keychain-password: ${{github.run_id}}
 
-      - name: Cert Info MAC 1
-        env:
-          CERTIFICATE_BASE64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
-        run: |
-          echo $CERTIFICATE_BASE64 | base64 --decode > mac_cert.p12
+      # - name: Cert Info IOS 1
+      #   env:
+      #     CERTIFICATE_BASE64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
+      #   run: |
+      #     echo $CERTIFICATE_BASE64 | base64 --decode > ios_cert.p12
 
-      - name: Cert Info MAC 2
-        run: |
-          openssl pkcs12 -in mac_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
+      # - name: Cert Info IOS 2
+      #   run: |
+      #     openssl pkcs12 -in ios_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
 
-      - name: Import MAC Code-Signing Certificates
-        uses: Apple-Actions/import-codesign-certs@v7
-        with:
-          # since we already have an ios cert, reuse the same keychain and password
-          create-keychain: false
-          keychain-password: ${{github.run_id}}
+      # - name: Import IOS Code-Signing Certificates
+      #   uses: Apple-Actions/import-codesign-certs@v7
+      #   with:
+      #     p12-file-base64: ${{secrets.IOS_DIST_CERTIFICATES_P12}}
+      #     p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
+      #     keychain-password: ${{github.run_id}}
 
-          # use this one for Mac app store/test flight
-          p12-file-base64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
+      # - name: Cert Info MAC 1
+      #   env:
+      #     CERTIFICATE_BASE64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
+      #   run: |
+      #     echo $CERTIFICATE_BASE64 | base64 --decode > mac_cert.p12
+
+      # - name: Cert Info MAC 2
+      #   run: |
+      #     openssl pkcs12 -in mac_cert.p12 -passin pass:${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}} -info -nokeys
+
+      # - name: Import MAC Code-Signing Certificates
+      #   uses: Apple-Actions/import-codesign-certs@v7
+      #   with:
+      #     # since we already have an ios cert, reuse the same keychain and password
+      #     create-keychain: false
+      #     keychain-password: ${{github.run_id}}
+
+      #     # use this one for Mac app store/test flight
+      #     p12-file-base64: ${{secrets.MAC_COMBINED_DIST_INST_CERT_P12}}
           
-          # use this one for ad-hoc
-          #p12-file-base64: ${{ secrets.APPLE_DEVELOPMENT_CERT_P12 }}
+      #     use this one for ad-hoc
+      #     # p12-file-base64: ${{ secrets.APPLE_DEVELOPMENT_CERT_P12 }}
           
-          p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
+      #     p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
 
       - name: Download Apple Provisioning Profiles
         uses: Apple-Actions/download-provisioning-profiles@v6
