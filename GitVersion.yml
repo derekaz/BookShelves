@@ -38,7 +38,7 @@ strategies:
   - VersionInBranchName
 branches:
   main:
-    label: ''
+    label: alpha
     increment: Patch
     prevent-increment:
       of-merged-branch: true
@@ -53,13 +53,13 @@ branches:
     pre-release-weight: 55000
   release:
     mode: ContinuousDelivery
-    label: alpha
+    label: beta
     increment: Patch
     pre-release-number-calculation: Run-To-End
     prevent-increment:
       of-merged-branch: true
       when-branch-merged: false
-      when-current-commit-tagged: false
+      when-current-commit-tagged: true
     track-merge-target: false
     track-merge-message: true
     regex: "^releases?[\\/-](?<BranchName>.+)"
