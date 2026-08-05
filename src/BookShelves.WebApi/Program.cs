@@ -165,12 +165,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("/version", () => new
+app.MapGet("/version", () =>
 {
-    ProductVersion = typeof(Program).Assembly
+    var informationalVersion = typeof(Program).Assembly
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-        .InformationalVersion ?? "Unknown",
-    AssemblyVersion = typeof(Program).Assembly.GetName().Version?.ToString()
+        .InformationalVersion ?? "Unknown";
+
+    return new
+    {
+        ProductVersion = informationalVersion,
+        InformationalVersion = informationalVersion,
+        AssemblyVersion = typeof(Program).Assembly.GetName().Version?.ToString()
+    };
 }).RequireAuthorization();
 
 app.Run();

@@ -112,9 +112,9 @@
                     <span class="info-label">Form Factor:</span>
                     <span class="info-value">@factor</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Build:</span>
-                    <span class="info-value" title="@version">@shortVersion</span>
+                <div class="info-row version-row">
+                    <span class="info-label">Version:</span>
+                    <span class="info-value version-value" title="@version">@displayVersion</span>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
     private string version => FormFactor.GetVersion();
-    private string shortVersion => version.Contains('+') ? version[..version.IndexOf('+')] : version;
+    private string displayVersion => GetDisplayVersion(version);
 
     protected override void OnInitialized()
     {
@@ -159,6 +159,28 @@
         {
             Logger.LogError(ex, "BookShelves.Shared.Components.Layout.NavMenu:ManualSyncAsync-Exception");
         }
+    }
+
+    private static string GetDisplayVersion(string fullVersion)
+    {
+        if (string.IsNullOrWhiteSpace(fullVersion))
+        {
+            return fullVersion;
+        }
+
+        var metadataSeparatorIndex = fullVersion.IndexOf('+');
+        if (metadataSeparatorIndex < 0)
+        {
+            return fullVersion;
+        }
+
+        var metadata = fullVersion[(metadataSeparatorIndex + 1)..];
+        if (metadata.Length <= 7)
+        {
+            return fullVersion;
+        }
+
+        return $"{fullVersion[..metadataSeparatorIndex]}+{metadata[..7]}";
     }
 
     public void Dispose()
