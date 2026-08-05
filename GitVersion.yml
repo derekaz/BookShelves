@@ -38,6 +38,7 @@ strategies:
   - VersionInBranchName
 branches:
   main:
+    mode: ContinuousDelivery
     label: alpha
     increment: Patch
     prevent-increment:
