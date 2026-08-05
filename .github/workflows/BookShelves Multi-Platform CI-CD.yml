@@ -115,7 +115,8 @@ jobs:
         run: |
           SEMVER="${{ steps.gitversion.outputs.semVer }}"
           SHORT_SHA="${{ steps.gitversion.outputs.shortSha }}"
-          INFORMATIONAL_VERSION="${SEMVER}+${SHORT_SHA}"
+          FULL_SHA="${{ github.sha }}"
+          INFORMATIONAL_VERSION="${SEMVER}+${FULL_SHA}"
           ARTIFACT_VERSION="${SEMVER}-${SHORT_SHA}"
 
           echo "informationalVersion=${INFORMATIONAL_VERSION}" >> $GITHUB_OUTPUT

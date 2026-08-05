@@ -52,6 +52,7 @@
 	<GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
 	<GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
 	<GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 	</PropertyGroup>
 
 
