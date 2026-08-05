@@ -5,10 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-       - 'main'
-       - 'release/**'  
-       - 'feature/**'  
-       - 'features/**'
+       - '**'
     tags:
        - 'v*'
   pull_request:
@@ -80,6 +77,7 @@ jobs:
       BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
       WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
+      IsValidReleaseTag: ${{ steps.validate_release_tag.outputs.isValidReleaseTag }}
 
     defaults:
       run:
@@ -114,18 +112,29 @@ jobs:
       - name: Compute per-release build number
         id: compute_per_version
         run: |
-          WEIGHTED=${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
-          RUN_NUM=${{ github.run_number }}
-          # For iOS/Mac: use run_number alone — it is globally monotonically increasing
-          # across all workflow runs, which guarantees Apple never rejects a build for a
-          # lower CFBundleVersion even when weightedPreReleaseNumber resets on a tag.
-          BUILD_NUM="${RUN_NUM}"
-          echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
+          REF_TYPE="${{ github.ref_type }}"
+          PRE_RELEASE_NUM="${{ steps.gitversion.outputs.preReleaseNumber }}"
+          COMMITS_SINCE_VERSION_SOURCE=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
 
-          # For Windows MSIX: use run_number for consistency with iOS/Mac
-          WINDOWS_BUILD="${RUN_NUM}"
-          echo "windowsBuildNumber=${WINDOWS_BUILD}" >> $GITHUB_OUTPUT
-          echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD}"
+          if [ -z "$COMMITS_SINCE_VERSION_SOURCE" ]; then
+            COMMITS_SINCE_VERSION_SOURCE=0
+          fi
+
+          if [ "$REF_TYPE" = "tag" ] && [ -n "$PRE_RELEASE_NUM" ]; then
+            BUILD_NUM="$PRE_RELEASE_NUM"
+          else
+            # Reset build number when GitVersion changes version source (for example, a new x.y.z tag).
+            BUILD_NUM=$((COMMITS_SINCE_VERSION_SOURCE + 1))
+          fi
+
+          if [ "$BUILD_NUM" -gt 65535 ]; then
+            echo "Computed build number $BUILD_NUM exceeds Windows limit (65535)."
+            exit 1
+          fi
+
+          echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "windowsBuildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${BUILD_NUM}"
 
 
 
@@ -150,6 +159,22 @@ jobs:
           echo "environmentName=${ENV_NAME}" >> $GITHUB_OUTPUT
           echo "Deployment environment: ${ENV_NAME}"
 
+      - name: Validate release tag format
+        id: validate_release_tag
+        run: |
+          REF_TYPE="${{ github.ref_type }}"
+          REF_NAME="${{ github.ref_name }}"
+          VALID_TAG=false
+
+          if [ "$REF_TYPE" = "tag" ]; then
+            if [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+              VALID_TAG=true
+            fi
+          fi
+
+          echo "isValidReleaseTag=${VALID_TAG}" >> $GITHUB_OUTPUT
+          echo "Valid release tag: ${VALID_TAG}"
+
       - name: Install .NET Workloads
         run: dotnet workload restore
 
@@ -167,8 +192,8 @@ jobs:
     if: |
       startsWith(github.ref_name, 'release/') ||
       startsWith(github.ref_name, 'Release/') ||
-      github.ref_type == 'tag' || 
-      github.ref_name == 'main'
+      github.ref_name == 'main' ||
+      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: ubuntu-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     steps:
@@ -246,8 +271,8 @@ jobs:
     if: |
       startsWith(github.ref_name, 'release/') ||
       startsWith(github.ref_name, 'Release/') ||
-      github.ref_type == 'tag' || 
-      github.ref_name == 'main'
+      github.ref_name == 'main' ||
+      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: macos-26
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
@@ -604,8 +629,8 @@ jobs:
     if: |
       startsWith(github.ref_name, 'release/') ||
       startsWith(github.ref_name, 'Release/') ||
-      github.ref_type == 'tag' || 
-      github.ref_name == 'main'
+      github.ref_name == 'main' ||
+      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: windows-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45
