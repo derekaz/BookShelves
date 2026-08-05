@@ -70,7 +70,8 @@ jobs:
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}
       DisplayVersion: ${{ steps.gitversion.outputs.majorMinorPatch }}
       FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
-      InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
+      InformationalVersion: ${{ steps.compute_version_identifier.outputs.informationalVersion }}
+      ArtifactVersion: ${{ steps.compute_version_identifier.outputs.artifactVersion }}
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.gitversion.outputs.semVer }}
       ShortSha: ${{ steps.gitversion.outputs.shortSha }}
@@ -109,32 +110,49 @@ jobs:
           verbosity: Diagnostic
           targetPath: ${{ github.workspace }}
 
+      - name: Compute shared version identifiers
+        id: compute_version_identifier
+        run: |
+          SEMVER="${{ steps.gitversion.outputs.semVer }}"
+          SHORT_SHA="${{ steps.gitversion.outputs.shortSha }}"
+          INFORMATIONAL_VERSION="${SEMVER}+${SHORT_SHA}"
+          ARTIFACT_VERSION="${SEMVER}-${SHORT_SHA}"
+
+          echo "informationalVersion=${INFORMATIONAL_VERSION}" >> $GITHUB_OUTPUT
+          echo "artifactVersion=${ARTIFACT_VERSION}" >> $GITHUB_OUTPUT
+          echo "Shared informational version: ${INFORMATIONAL_VERSION}"
+
       - name: Compute per-release build number
         id: compute_per_version
         run: |
           REF_TYPE="${{ github.ref_type }}"
           PRE_RELEASE_NUM="${{ steps.gitversion.outputs.preReleaseNumber }}"
           COMMITS_SINCE_VERSION_SOURCE=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+          RUN_NUM=${{ github.run_number }}
 
           if [ -z "$COMMITS_SINCE_VERSION_SOURCE" ]; then
             COMMITS_SINCE_VERSION_SOURCE=0
           fi
 
+          # Apple build numbers must be globally monotonically increasing for a bundle id,
+          # so they cannot reset per branch or per semantic version.
+          APPLE_BUILD_NUM="$RUN_NUM"
+
           if [ "$REF_TYPE" = "tag" ] && [ -n "$PRE_RELEASE_NUM" ]; then
-            BUILD_NUM="$PRE_RELEASE_NUM"
+            WINDOWS_BUILD_NUM="$PRE_RELEASE_NUM"
           else
-            # Reset build number when GitVersion changes version source (for example, a new x.y.z tag).
-            BUILD_NUM=$((COMMITS_SINCE_VERSION_SOURCE + 1))
+            # Windows can reset the build component when GitVersion changes version source.
+            WINDOWS_BUILD_NUM=$((COMMITS_SINCE_VERSION_SOURCE + 1))
           fi
 
-          if [ "$BUILD_NUM" -gt 65535 ]; then
-            echo "Computed build number $BUILD_NUM exceeds Windows limit (65535)."
+          if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
+            echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
 
-          echo "buildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
-          echo "windowsBuildNumber=${BUILD_NUM}" >> $GITHUB_OUTPUT
-          echo "iOS/Mac buildNumber: ${BUILD_NUM}, Windows buildNumber: ${BUILD_NUM}"
+          echo "buildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
 
 
 
@@ -246,9 +264,8 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.SemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:sha-${{ needs.validate.outputs.ShortSha }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
       # --- WEB API PROJECT ---
@@ -270,9 +287,8 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.SemVer }}
+            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:sha-${{ needs.validate.outputs.ShortSha }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
 
 
@@ -610,21 +626,21 @@ jobs:
       - name: Archive IOS symbols artifact
         uses: actions/upload-artifact@v7
         with:
-          name: 'ios symbols'
+          name: BookShelves-ios-symbols-${{ needs.validate.outputs.ArtifactVersion }}
           path: '${{ github.workspace }}/publish-output/ios-symbols'
           compression-level: 0
 
       - name: Archive IOS build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: 'ios ipa'
+          name: BookShelves-ios-ipa-${{ needs.validate.outputs.ArtifactVersion }}
           path: ${{steps.findipa.outputs.ipa}} #${{ env.IOS_ARTIFACTS_PATH }} #'${{ github.workspace }}/src/BookShelves.WinUI/bin/Release/net8.0-windows10.0.19041.0/win10-x64/AppPackages/*'
           compression-level: 0
 
       - name: Archive MAC build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: 'mac pkg'
+          name: BookShelves-mac-pkg-${{ needs.validate.outputs.ArtifactVersion }}
           path: ${{steps.findpkg.outputs.pkg}}
           compression-level: 0
 
@@ -779,7 +795,7 @@ jobs:
       - name: Upload Windows Installer Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: MAUI-Windows-App
+          name: BookShelves-windows-msix-${{ needs.validate.outputs.ArtifactVersion }}
           path: ${{ github.workspace }}\artifacts\windows\*
 
   #   =================================================================

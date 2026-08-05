@@ -112,9 +112,9 @@
                     <span class="info-label">Form Factor:</span>
                     <span class="info-value">@factor</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Build:</span>
-                    <span class="info-value" title="@version">@shortVersion</span>
+                <div class="info-row version-row">
+                    <span class="info-label">Version:</span>
+                    <span class="info-value version-value" title="@version">@version</span>
                 </div>
             </div>
         </div>
@@ -127,7 +127,6 @@
     private string factor => FormFactor.GetFormFactor();
     private string platform => FormFactor.GetPlatform();
     private string version => FormFactor.GetVersion();
-    private string shortVersion => version.Contains('+') ? version[..version.IndexOf('+')] : version;
 
     protected override void OnInitialized()
     {
