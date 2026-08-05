@@ -41,9 +41,9 @@ branches:
     label: alpha
     increment: Patch
     prevent-increment:
-      of-merged-branch: true
+      of-merged-branch: false
     track-merge-target: false
-    track-merge-message: true
+    track-merge-message: false
     regex: "^master$|^main$"
     source-branches: []
     is-source-branch-for: []
