@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Aspire Projects/" Id="827e0cd3-b72d-47b6-a68d-7590b98eb39b">
+    <Project Path="src/BookShelves.AppHost/BookShelves.AppHost.csproj" />
+    <Project Path="src/BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/Docs/">
     <File Path="docs/Build-Test-Run.md" />
     <File Path="docs/Developer-and-AI-Guidance.md" />
@@ -16,10 +20,6 @@
     <File Path="src/Directory.Build.Props" />
     <File Path="src/docker-compose.yml" />
     <File Path="src/global.json" />
-  </Folder>
-  <Folder Name="/src/">
-    <Project Path="src/BookShelves.AppHost/BookShelves.AppHost.csproj" />
-    <Project Path="src/BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj" />
   </Folder>
   <Project Path="src/BookShelves.Maui.Data/BookShelves.Maui.Data.csproj" />
   <Project Path="src/BookShelves.Maui.MigrationHost/BookShelves.Maui.MigrationHost.csproj" Id="5e62b617-4862-409d-b8c2-44a24ad70281" />
