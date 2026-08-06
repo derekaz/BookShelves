@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
 builder.Logging.AddConsole();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -178,5 +179,7 @@ app.MapGet("/version", () =>
         AssemblyVersion = typeof(Program).Assembly.GetName().Version?.ToString()
     };
 }).RequireAuthorization();
+
+app.MapDefaultEndpoints();
 
 app.Run();

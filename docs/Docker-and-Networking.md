@@ -17,6 +17,12 @@ The Docker setup uses nginx as a front door for the services.
 It routes only application paths such as `/` for the web site and `/api` for the Web API.
 It does not provide broader application-level proxying.
 
+## Relationship to Aspire
+
+- Aspire now provides the preferred local orchestration workflow for `BookShelves.Web` and `BookShelves.WebApi` during day-to-day development.
+- Docker Compose remains the container-focused workflow for validating the nginx front door, container images, and explicit environment-variable wiring.
+- The current GitHub Actions packaging and deployment flow still builds and publishes only the web and Web API containers.
+
 ## Future Considerations
 
 - Keep app containers on an internal bridge network

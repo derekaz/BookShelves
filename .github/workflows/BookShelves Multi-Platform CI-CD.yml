@@ -28,6 +28,7 @@ permissions:
 
 env:
   PROJPATH: '.'
+  APPHOST_CSPROJ: 'src/BookShelves.AppHost/BookShelves.AppHost.csproj'
   WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
   WEB_CSPROJ: 'src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
   WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
@@ -213,6 +214,7 @@ jobs:
 
       - name: Compile Solution (Debug Validation Step)
         run: |
+          dotnet build ${{env.APPHOST_CSPROJ}} -c Debug
           dotnet build ${{env.WEB_CSPROJ}} -c Debug
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
   
