@@ -19,6 +19,8 @@ using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Add services to the container.
 
 var initialScopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>();
@@ -313,5 +315,7 @@ app.MapPut("/authorsdata/{id}", async ([FromServices] IAuthorsDataService Author
         return Results.StatusCode(500);
     }
 }).RequireAuthorization();
+
+app.MapDefaultEndpoints();
 
 app.Run();

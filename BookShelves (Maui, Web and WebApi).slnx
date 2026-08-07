@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Aspire Projects/" Id="827e0cd3-b72d-47b6-a68d-7590b98eb39b">
+    <Project Path="src/BookShelves.AppHost/BookShelves.AppHost.csproj" />
+    <Project Path="src/BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/Docs/">
     <File Path="docs/Build-Test-Run.md" />
     <File Path="docs/Developer-and-AI-Guidance.md" />

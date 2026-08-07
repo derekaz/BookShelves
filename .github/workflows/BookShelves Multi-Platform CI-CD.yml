@@ -28,6 +28,7 @@ permissions:
 
 env:
   PROJPATH: '.'
+  APPHOST_CSPROJ: 'src/BookShelves.AppHost/BookShelves.AppHost.csproj'
   WEB_PROJPATH: 'src/BookShelves.Web/BookShelves.Web'
   WEB_CSPROJ: 'src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj' #this includes the parent folder due to it being a dockerfile build
   WEBAPI_PROJPATH: 'src/BookShelves.WebApi'
@@ -155,8 +156,6 @@ jobs:
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
 
-
-
       - name: Compute deployment environment
         id: compute_environment
         run: |
@@ -208,14 +207,32 @@ jobs:
           echo "isValidReleaseTag=${VALID_TAG}" >> $GITHUB_OUTPUT
           echo "Valid release tag: ${VALID_TAG}"
 
+      - name: Show Calcs on Status
+        run: |
+          echo "### Build Details" >> $GITHUB_STEP_SUMMARY
+          echo "SEMVER: ${GitVersion_SemVer}" >> $GITHUB_STEP_SUMMARY
+          echo "SHORT_SHA: ${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
+          echo "FULL_SHA: ${sha}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "INFORMATIONAL_VERSION: ${GitVersion_SemVer}+${sha}" >> $GITHUB_STEP_SUMMARY
+          echo "ARTIFACT_VERSION: ${GitVersion_SemVer}-${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
+
+          echo "App Version: ${{ steps.compute_version_identifier.outputs.artifactVersion }}" >> $GITHUB_STEP_SUMMARY
+          echo "iOS/Mac buildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}" >> $GITHUB_STEP_SUMMARY
+          echo "Windows buildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}" >> $GITHUB_STEP_SUMMARY
+
+          echo "Deployment environment: ${{ steps.compute_environment.outputs.environmentName }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Install .NET Workloads
         run: dotnet workload restore
 
       - name: Compile Solution (Debug Validation Step)
         run: |
+          dotnet build ${{env.APPHOST_CSPROJ}} -c Debug
           dotnet build ${{env.WEB_CSPROJ}} -c Debug
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
-  
+ 
+
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (Linux Matrix Runner)
   # =================================================================
