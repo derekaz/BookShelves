@@ -34,6 +34,7 @@ COPY ["Directory.Build.Props", "./"]
 COPY ["BookShelves.WebApi/BookShelves.WebApi.csproj", "BookShelves.WebApi/"]
 COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
+COPY ["BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj", "BookShelves.ServiceDefaults/"]
 
 # 4. Restore dependencies using the nested project path
 RUN dotnet restore "BookShelves.WebApi/BookShelves.WebApi.csproj"

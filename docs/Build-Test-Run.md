@@ -42,6 +42,17 @@ Run only Web API tests:
 dotnet test test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj
 ```
 
+## Run Web + WebApi with Aspire
+
+From the repo root:
+
+```powershell
+dotnet run --project src/BookShelves.AppHost/BookShelves.AppHost.csproj
+```
+
+Use Aspire for the day-to-day local development experience for `BookShelves.Web` and `BookShelves.WebApi`, including orchestration, logs, traces, and health endpoints.
+The MAUI app remains outside AppHost orchestration and continues using its own backend configuration.
+
 ## Run Web + WebApi with Docker Compose
 
 From the `src/` directory:
@@ -54,6 +65,7 @@ Expected exposed ports:
 - Web app: `http://localhost:5000`
 - Web API: `http://localhost:5001`
 
+Use Docker Compose when validating the containerized nginx front-door flow.
 For routing and proxy details, see `docs/Docker-and-Networking.md`.
 
 Stop containers:
@@ -79,6 +91,13 @@ Before commits, apply repository formatting guidance:
 ```powershell
 dotnet format "BookShelves (Maui, Web and WebApi).slnx" --no-restore --exclude Templates/src --exclude-diagnostics CA1822
 ```
+
+## CI and Container Packaging Notes
+
+- GitHub Actions still validates and publishes the deployable server containers from `src/BookShelves.Web/BookShelves.Web/Dockerfile` and `src/BookShelves.WebApi/Dockerfile`.
+- The new AppHost is for local orchestration and is not packaged or deployed as a production container in the current workflow.
+- The new `BookShelves.ServiceDefaults` project is a shared library only; it affects container restore/build inputs but does not produce its own image.
+- Container deployment still uses the existing separate web and Web API image model.
 
 ## Versioning Notes
 

@@ -35,6 +35,7 @@ COPY ["BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj", "BookShelves.Web
 COPY ["BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj", "BookShelves.Web/BookShelves.Web.Client/"]
 COPY ["BookShelves.Web.Shared/BookShelves.Web.Shared.csproj", "BookShelves.Web.Shared/"]
 COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
+COPY ["BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj", "BookShelves.ServiceDefaults/"]
 
 # 4. Restore dependencies using the nested project path
 RUN dotnet restore "BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
