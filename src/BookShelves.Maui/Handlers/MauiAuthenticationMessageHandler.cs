@@ -35,11 +35,11 @@ internal class MauiAuthenticationMessageHandler : DelegatingHandler
             if (!string.IsNullOrEmpty(token))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                _logger.LogDebug("Added Bearer token to request for {RequestUri}", request.RequestUri);
+                _logger.LogDebug("Added Bearer token to request for {RequestUri} using scopes {Scopes}", request.RequestUri, _scopes);
             }
             else
             {
-                _logger.LogWarning("No access token available for request to {RequestUri}", request.RequestUri);
+                _logger.LogWarning("No access token available for request to {RequestUri} using scopes {Scopes}", request.RequestUri, _scopes);
             }
         }
         catch (Exception ex)

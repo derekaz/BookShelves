@@ -23,8 +23,7 @@ public class SyncDbContextFactory : IDesignTimeDbContextFactory<SyncDbContext>
         return new SyncDbContext(
             optionsBuilder.Options,
             NullLogger<SyncDbContext>.Instance,
-            new DesignTimeSyncApiClient(),
-            new DesignTimeHttpClientFactory()
+            new DesignTimeSyncApiClient()
         );
     }
 }
@@ -32,10 +31,4 @@ public class SyncDbContextFactory : IDesignTimeDbContextFactory<SyncDbContext>
 internal class DesignTimeSyncApiClient : ISyncApiClient
 {
     public HttpClient HttpClient { get; } = new();
-}
-
-// Simple dummy factory to satisfy the constructor at design time
-internal class DesignTimeHttpClientFactory : IHttpClientFactory
-{
-    public HttpClient CreateClient(string name) => new HttpClient();
 }

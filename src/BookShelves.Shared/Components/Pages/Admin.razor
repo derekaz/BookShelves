@@ -3,29 +3,31 @@
 
 <PageTitle>Admin</PageTitle>
 
-<h1>Admin Panel</h1>
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h4">Admin Panel</MudText>
+        <MudText Typo="Typo.body1">This page is only accessible to users with the AdminAccess policy.</MudText>
 
-<p>This page is only accessible to users with the AdminAccess policy.</p>
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">
+            <MudText Typo="Typo.h6">Welcome, Administrator!</MudText>
+            <MudText Typo="Typo.body2">
+                You have successfully accessed the admin panel. This demonstrates that authorization policies
+                are working correctly across all platforms (Blazor Server, Blazor WASM, and MAUI).
+            </MudText>
+            <MudText Typo="Typo.body2">
+                To configure users with admin access, you would typically use roles or claims in Azure Entra ID.
+            </MudText>
+        </MudAlert>
 
-<div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">Welcome, Administrator!</h4>
-    <p>
-        You have successfully accessed the admin panel. This demonstrates that authorization policies
-        are working correctly across all platforms (Blazor Server, Blazor WASM, and MAUI).
-    </p>
-    <hr>
-    <p class="mb-0">
-        To configure users with admin access, you would typically use roles or claims in Azure Entra ID.
-    </p>
-</div>
-
-<h3>Admin Functions</h3>
-<ul>
-    <li>User Management</li>
-    <li>System Configuration</li>
-    <li>Reports and Analytics</li>
-    <li>Security Settings</li>
-</ul>
+        <MudText Typo="Typo.h6">Admin Functions</MudText>
+        <MudList T="string" Dense="true">
+            <MudListItem Text="User Management" />
+            <MudListItem Text="System Configuration" />
+            <MudListItem Text="Reports and Analytics" />
+            <MudListItem Text="Security Settings" />
+        </MudList>
+    </MudStack>
+</MudPaper>
 
 @code {
     // This page requires the AdminAccess policy

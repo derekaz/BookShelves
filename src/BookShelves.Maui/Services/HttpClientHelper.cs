@@ -1,4 +1,6 @@
-﻿namespace BookShelves.Maui.Services;
+﻿using System.Net.Security;
+
+namespace BookShelves.Maui.Services;
 
 /// <summary>
 /// Helper class to manage HttpClient configuration and Url endpoint addresses.
@@ -28,11 +30,41 @@ internal class HttpClientHelper
 
     public static HttpClient GetHttpClient()
     {
+        return new HttpClient(CreateHttpMessageHandler());
+    }
+
+    public static HttpMessageHandler CreateHttpMessageHandler()
+    {
 #if WINDOWS || MACCATALYST
-        return new HttpClient();
+        return new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                if (errors == SslPolicyErrors.None)
+                {
+                    return true;
+                }
+
+                return IsLocalDevelopmentHttpsEndpoint(message?.RequestUri);
+            }
+        };
 #else
-        return new HttpClient(new HttpsClientHandlerService().GetPlatformMessageHandler());
+        return new HttpsClientHandlerService().GetPlatformMessageHandler();
 #endif
+    }
+
+    private static bool IsLocalDevelopmentHttpsEndpoint(Uri? uri)
+    {
+        if (uri is null || !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var host = uri.Host;
+        return host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+            || host.Equals("::1", StringComparison.OrdinalIgnoreCase)
+            || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
     }
 }
 

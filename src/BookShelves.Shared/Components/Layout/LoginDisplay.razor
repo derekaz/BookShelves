@@ -6,52 +6,45 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="login-display">
-            <span class="user-name">Hello, @context.User.Identity?.Name!</span>
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.body2">Hello, @context.User.Identity?.Name!</MudText>
             @switch (AuthenticationUIProvider.LogoutActionType)
             {
                 case AuthenticationUIActionType.Link:
-                    <a href="@string.Concat(AuthenticationUIProvider.GetLogoutUrl()
-                        // , $"&returnUrl={Uri.EscapeDataString(currentUrl ?? "")}"
-                    )" class="logout-link">Logout</a>
+                    <MudLink Href="@AuthenticationUIProvider.GetLogoutUrl()">Logout</MudLink>
                     break;
                 case AuthenticationUIActionType.AuthenticationServiceShim:
-                    <button @onclick="BeginLogoutUsingAuthenticationServiceShim" class="logout-link">Logout</button>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="BeginLogoutUsingAuthenticationServiceShim">Logout</MudButton>
                     break;
                 case AuthenticationUIActionType.Form:
                     <form action="@AuthenticationUIProvider.GetLogoutUrl()" method="post">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Primary">Logout</MudButton>
                     </form>
                     break;
                 case AuthenticationUIActionType.Code:
-                    <button class="btn btn-link logout-button" @onclick="LogoutAsync">Logout</button>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="LogoutAsync">Logout</MudButton>
                     break;
                 default:
                     break;
             }
-        </div>
+        </MudStack>
     </Authorized>
     <NotAuthorized>
-        <div class="login-display">
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
             @switch (AuthenticationUIProvider.LoginActionType)
             {
                 case AuthenticationUIActionType.Link:
-                    <a href="@AuthenticationUIProvider.GetLoginUrl()" class="login-link">Login</a>
-                    break;
-                case AuthenticationUIActionType.Form:
-
+                    <MudLink Href="@AuthenticationUIProvider.GetLoginUrl()">Login</MudLink>
                     break;
                 case AuthenticationUIActionType.Code:
-                    <button class="btn btn-link login-button" @onclick="LoginAsync">Login</button>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="LoginAsync">Login</MudButton>
                     break;
                 default:
                     break;
             }
-        </div>
+        </MudStack>
     </NotAuthorized>
 </AuthorizeView>
 

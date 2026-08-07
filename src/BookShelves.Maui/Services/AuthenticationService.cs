@@ -225,8 +225,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
                 .WithAuthority(_settingsService?.AzureAdAuthority)
                 .WithLogging((level, message, pii) =>
                 {
-                    Debug.WriteLine($"[{level}] {message}");
-                }, Microsoft.Identity.Client.LogLevel.Verbose, enablePiiLogging: true)
+                    if (level is Microsoft.Identity.Client.LogLevel.Warning or Microsoft.Identity.Client.LogLevel.Error)
+                    {
+                        _logger.LogWarning("MSAL {Level}: {Message}", level, message);
+                    }
+                }, Microsoft.Identity.Client.LogLevel.Warning, enablePiiLogging: false)
 #if WINDOWS
                 //.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" })
                 //.WithWindowsEmbeddedBrowserSupport()

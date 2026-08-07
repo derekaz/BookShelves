@@ -1,125 +1,74 @@
 ﻿@using BookShelves.Shared.Data.Interfaces
 @using BookShelves.Shared.Services
 @using BookShelves.Shared.Services.ServiceInterfaces
-@using Microsoft.AspNetCore.Components.Routing
 @implements IDisposable
 @inject IFormFactor FormFactor
 @inject ISyncDataService SyncDataService
 @inject ISyncProgressService SyncProgressService
 @inject ILogger<NavMenu> Logger
 
-<div class="top-row ps-3 navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BookShelves</a>
-    </div>
-</div>
+<MudStack Spacing="1" Class="pa-4" Style="height:100%; justify-content:space-between;">
+    <MudStack Spacing="1">
+        @* <MudText Typo="Typo.h6" Class="mb-2">BookShelves</MudText> *@
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+        <MudNavMenu Rounded="true" Color="Color.Primary">
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+            <MudNavLink Href="/profile" Icon="@Icons.Material.Filled.Person">User Profile</MudNavLink>
+            <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> User Profile
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <AuthorizeView Policy="Authenticated">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="weather">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-                </NavLink>
-            </div>
-        </AuthorizeView>
-        @* <div class="nav-item px-3">
-            <NavLink class="nav-link" href="books">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Books
-            </NavLink>
-        </div> *@
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="testpage2">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> TestPage2
-            </NavLink>
-        </div>
-        @* <div class="nav-item px-3"> *@
-        @*     <NavLink class="nav-link" href="profile"> *@
-        @*         <span class="oi oi-list-rich" aria-hidden="true"></span> User Profile *@
-        @*     </NavLink> *@
-        @* </div> *@
-        <AuthorizeView Policy="AdminAccess">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="admin">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Admin
-                </NavLink>
-            </div>
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrator">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="books">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Books (AuthorizeView)
-                </NavLink>
-            </div>
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrator">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="authors">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Authors (AuthorizeView)
-                </NavLink>
-            </div>
-        </AuthorizeView>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="https://learn.microsoft.com/aspnet/core/">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> About
-            </NavLink>
-        </div>
-    </nav>
+            <AuthorizeView Policy="Authenticated">
+                <MudNavLink Href="/weather" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+            </AuthorizeView>
 
-    @* Bottom section: Login + Platform Info (always anchored to bottom) *@
-    <div class="nav-bottom">
+            <MudNavLink Href="/testpage2" Icon="@Icons.Material.Filled.Science">TestPage2</MudNavLink>
+
+            <AuthorizeView Policy="AdminAccess">
+                <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.AdminPanelSettings">Admin</MudNavLink>
+            </AuthorizeView>
+
+            <AuthorizeView Roles="Administrator">
+                <MudNavLink Href="/books" Icon="@Icons.Material.Filled.MenuBook">Books</MudNavLink>
+                <MudNavLink Href="/authors" Icon="@Icons.Material.Filled.People">Authors</MudNavLink>
+            </AuthorizeView>
+
+            <MudNavLink Href="https://learn.microsoft.com/aspnet/core/" Target="_blank" Icon="@Icons.Material.Filled.Info">About</MudNavLink>
+        </MudNavMenu>
+    </MudStack>
+
+    <MudStack Spacing="2" Class="mt-auto">
         @if (SyncDataService.SupportsSync)
         {
             <AuthorizeView Roles="Administrator">
-                <div class="nav-item px-3">
-                    <button type="button" class="sync-button" @onclick="ManualSyncAsync" disabled="@isSyncing">
-                        @(isSyncing ? "Syncing..." : "Sync now")
-                    </button>
-                </div>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           OnClick="ManualSyncAsync"
+                           Disabled="@isSyncing">
+                    @(isSyncing ? "Syncing..." : "Sync now")
+                </MudButton>
             </AuthorizeView>
         }
 
-        @* LoginDisplay - Works in both Web and MAUI *@
-        <div class="nav-item px-3">
-            <LoginDisplay />
-        </div>
+        <LoginDisplay />
 
-        @* Platform/Version Footer *@
-        <div class="nav-footer">
-            <div class="platform-info">
-                <div class="info-row">
-                    <span class="info-label">Platform:</span>
-                    <span class="info-value">@platform</span>
+        <MudPaper Elevation="0" Class="pa-2 rounded" Style="width:100%;">
+            <MudStack Spacing="1">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; min-width: 100%;">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="font-weight:600;">Platform</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="text-align:right; white-space:nowrap;">@platform</MudText>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Form Factor:</span>
-                    <span class="info-value">@factor</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; min-width: 100%;">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="font-weight:600;">Form factor</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="text-align:right; white-space:nowrap;">@factor</MudText>
                 </div>
-                <div class="info-row version-row">
-                    <span class="info-label">Version:</span>
-                    <span class="info-value version-value" title="@version">@displayVersion</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; min-width: 100%;">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="font-weight:600;">Version</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="text-align:right; white-space:nowrap;">@displayVersion</MudText>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+</MudStack>
 
 @code {
     private bool isSyncing;

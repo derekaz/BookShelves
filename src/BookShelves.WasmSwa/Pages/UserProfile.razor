@@ -2,34 +2,42 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Graph
 @using Microsoft.Graph.Models
+@using MudBlazor
 @inject ILogger<UserProfile> Logger
 @inject Microsoft.Graph.GraphServiceClient GraphServiceClient
 @attribute [Authorize]
 
-<h3>User Profile</h3>
-@if (user == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Property</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tr>
-            <td> DisplayName </td>
-            <td> @user.DisplayName </td>
-        </tr>
-        <tr>
-            <td> UserPrincipalName </td>
-            <td> @user.UserPrincipalName </td>
-        </tr>
-    </table>
-}
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5">User Profile</MudText>
+
+        @if (user == null)
+        {
+            <MudText Typo="Typo.body1"><em>Loading...</em></MudText>
+        }
+        else
+        {
+            <MudSimpleTable Dense="true" Hover="true">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>DisplayName</td>
+                        <td>@user.DisplayName</td>
+                    </tr>
+                    <tr>
+                        <td>UserPrincipalName</td>
+                        <td>@user.UserPrincipalName</td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudStack>
+</MudPaper>
 
 @code {
     User? user;

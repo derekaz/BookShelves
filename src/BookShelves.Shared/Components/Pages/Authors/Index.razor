@@ -7,45 +7,57 @@
 @inject ISyncProgressService SyncProgressService
 @attribute [Authorize(Roles = "Administrator")]
 
-<h1>Authors</h1>
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h4">Authors</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync">Add Author</MudButton>
 
-<div class="mb-2">
-    <button @onclick="AddAsync" class="btn btn-primary">Add Author</button>
-</div>
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
 
-<p>@message</p>
-
-@if (Authors == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col"><div class="fw-bold mb-1">Name</div><div class="text-muted mb-0">Biography</div></th>
-                <th scope="col">Last Update</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var author in Authors)
-            {
-                <tr>
-                    <th scope="row">@author.IdValue</th>
-                    <td><div class="fw-normal mb-1">@author.Name</div><div class="text-muted mb-0">@author.Biography</div></td>
-                    <td>@author.LastUpdateTime</td>
-                    <td>
-                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(author))" value="Edit" />
-                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(author))" value="Delete" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+        @if (Authors == null)
+        {
+            <MudText Typo="Typo.body1"><em>Loading...</em></MudText>
+        }
+        else
+        {
+            <MudSimpleTable Dense="true" Hover="true">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>
+                            <MudText Typo="Typo.subtitle2">Name</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Biography</MudText>
+                        </th>
+                        <th>Last Update</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var author in Authors)
+                    {
+                        <tr>
+                            <td>@author.IdValue</td>
+                            <td>
+                                <MudText Typo="Typo.body2">@author.Name</MudText>
+                                <MudText Typo="Typo.caption" Color="Color.Secondary">@author.Biography</MudText>
+                            </td>
+                            <td>@author.LastUpdateTime</td>
+                            <td>
+                                <MudStack Row="true" Spacing="1">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => EditAsync(author))">Edit</MudButton>
+                                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="(() => DeleteAsync(author))">Delete</MudButton>
+                                </MudStack>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        }
+    </MudStack>
+</MudPaper>
 
 <style>
     .my-custom-class {
