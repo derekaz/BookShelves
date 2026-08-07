@@ -5,7 +5,8 @@
              xmlns:route="clr-namespace:BookShelves.Maui.Components"
              xmlns:shared="clr-namespace:BookShelves.Shared;assembly=BookShelves.Shared"
              x:Class="BookShelves.Maui.MainPage"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             BackgroundColor="{DynamicResource PageBackgroundColor}"
+             SafeAreaEdges="All">
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type route:Routes}" />

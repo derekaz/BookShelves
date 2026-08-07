@@ -10,8 +10,9 @@
                    CloseOnEscapeKey="true" />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="1">
+<MudLayout Style="height: 100%; display: flex; flex-direction: column;">
+    <MudAppBar Elevation="1"
+               Style="padding-top: env(safe-area-inset-top); height: calc(var(--mud-appbar-height) + env(safe-area-inset-top));">
         <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Inherit"
                        Edge="Edge.Start"
@@ -23,12 +24,12 @@
 
     <MudDrawer @bind-Open="@drawerOpen"
                ClipMode="DrawerClipMode.Always"
-               Elevation="1"
+               Elevation="2"
                Variant="DrawerVariant.Responsive">
         <NavMenu />
     </MudDrawer>
 
-    <MudMainContent Class="pa-4">
+    <MudMainContent Style="flex: 1 1 auto; min-height: 0; padding-bottom: env(safe-area-inset-bottom);">
         @Body
     </MudMainContent>
 </MudLayout>

@@ -1,5 +1,22 @@
-﻿html, body {
+﻿html, body, #app {
+    height: 100dvh;
+    min-height: 100dvh;
+    width: 100%;
+    margin: 0;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    overflow: hidden;
+}
+
+.mud-layout {
+    min-height: 100dvh;
+}
+
+.mud-main-content {
+    min-height: 0;
+    overflow: auto;
 }
 
 a, .btn-link {
