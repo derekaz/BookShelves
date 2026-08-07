@@ -210,12 +210,12 @@ jobs:
       - name: Show Calcs on Status
         run: |
           echo "### Build Details" >> $GITHUB_STEP_SUMMARY
-          echo "SEMVER: ${steps.gitversion.outputs.semVer}" >> $GITHUB_STEP_SUMMARY
-          echo "SHORT_SHA: ${steps.gitversion.outputs.shortSha}" >> $GITHUB_STEP_SUMMARY
-          echo "FULL_SHA: ${github.sha}" >> $GITHUB_STEP_SUMMARY
+          echo "SEMVER: ${GitVersion_SemVer}" >> $GITHUB_STEP_SUMMARY
+          echo "SHORT_SHA: ${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
+          echo "FULL_SHA: ${sha}" >> $GITHUB_STEP_SUMMARY
           
-          echo "INFORMATIONAL_VERSION: ${steps.gitversion.outputs.semVer}+${githug.sha}" >> $GITHUB_STEP_SUMMARY
-          echo "ARTIFACT_VERSION: ${steps.gitversion.outputs.semVer}-${steps.gitversion.outputs.shortSha}" >> $GITHUB_STEP_SUMMARY
+          echo "INFORMATIONAL_VERSION: ${GitVersion_SemVer}+${sha}" >> $GITHUB_STEP_SUMMARY
+          echo "ARTIFACT_VERSION: ${GitVersion_SemVer}-${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
           
           echo "App Version: ${steps.compute_version_identifier.outputs.ARTIFACT_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "iOS/Mac buildNumber: ${steps.compute_per_version.outputs.APPLE_BUILD_NUM}" >> $GITHUB_STEP_SUMMARY
