@@ -216,8 +216,8 @@ jobs:
           
           echo "INFORMATIONAL_VERSION: ${GitVersion_SemVer}+${sha}" >> $GITHUB_STEP_SUMMARY
           echo "ARTIFACT_VERSION: ${GitVersion_SemVer}-${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
-          
-          echo "App Version: ${steps.compute_version_identifier.outputs.ARTIFACT_VERSION}" >> $GITHUB_STEP_SUMMARY
+
+          echo "App Version: ${{ steps.compute_version_identifier.outputs.artifactVersion }}" >> $GITHUB_STEP_SUMMARY
           echo "iOS/Mac buildNumber: ${steps.compute_per_version.outputs.APPLE_BUILD_NUM}" >> $GITHUB_STEP_SUMMARY
           echo "Windows buildNumber: ${steps.compute_per_version.outputs.WINDOWS_BUILD_NUM}" >> $GITHUB_STEP_SUMMARY
           echo "Deployment environment: ${steps.compute_environment.outputs.ENV_NAME}" >> $GITHUB_STEP_SUMMARY
