@@ -156,8 +156,6 @@ jobs:
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
 
-
-
       - name: Compute deployment environment
         id: compute_environment
         run: |
@@ -209,6 +207,21 @@ jobs:
           echo "isValidReleaseTag=${VALID_TAG}" >> $GITHUB_OUTPUT
           echo "Valid release tag: ${VALID_TAG}"
 
+      - name: Show Calcs on Status
+        run: |
+          echo "### Build Details" >> $GITHUB_STEP_SUMMARY
+          echo "SEMVER: ${steps.gitversion.outputs.semVer}" >> $GITHUB_STEP_SUMMARY
+          echo "SHORT_SHA: ${steps.gitversion.outputs.shortSha}" >> $GITHUB_STEP_SUMMARY
+          echo "FULL_SHA: ${github.sha}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "INFORMATIONAL_VERSION: ${steps.gitversion.outputs.semVer}+${githug.sha}" >> $GITHUB_STEP_SUMMARY
+          echo "ARTIFACT_VERSION: ${steps.gitversion.outputs.semVer}-${steps.gitversion.outputs.shortSha}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "App Version: ${steps.compute_version_identifier.outputs.ARTIFACT_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "iOS/Mac buildNumber: ${steps.compute_per_version.outputs.APPLE_BUILD_NUM}" >> $GITHUB_STEP_SUMMARY
+          echo "Windows buildNumber: ${steps.compute_per_version.outputs.WINDOWS_BUILD_NUM}" >> $GITHUB_STEP_SUMMARY
+          echo "Deployment environment: ${steps.compute_environment.outputs.ENV_NAME}" >> $GITHUB_STEP_SUMMARY
+
       - name: Install .NET Workloads
         run: dotnet workload restore
 
@@ -217,7 +230,8 @@ jobs:
           dotnet build ${{env.APPHOST_CSPROJ}} -c Debug
           dotnet build ${{env.WEB_CSPROJ}} -c Debug
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
-  
+ 
+
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (Linux Matrix Runner)
   # =================================================================
