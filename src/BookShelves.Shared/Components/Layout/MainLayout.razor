@@ -10,14 +10,13 @@
                    CloseOnEscapeKey="true" />
 <MudSnackbarProvider />
 
-<MudLayout Style="height: 100%; display: flex; flex-direction: column;">
-    <MudAppBar Elevation="1"
-               Style="padding-top: env(safe-area-inset-top); height: calc(var(--mud-appbar-height) + env(safe-area-inset-top));">
+<MudLayout>
+    <MudAppBar Elevation="1" SafeAreas="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu"
                        Color="Color.Inherit"
                        Edge="Edge.Start"
                        OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="ml-3">BookShelves</MudText>
+        <MudText Typo="Typo.h6" Class="ms-3">BookShelves</MudText>
         <MudSpacer />
         <SyncStatusIndicator />
     </MudAppBar>
@@ -29,7 +28,7 @@
         <NavMenu />
     </MudDrawer>
 
-    <MudMainContent Style="flex: 1 1 auto; min-height: 0; padding-bottom: env(safe-area-inset-bottom);">
+    <MudMainContent Class="mud-height-full">
         @Body
     </MudMainContent>
 </MudLayout>

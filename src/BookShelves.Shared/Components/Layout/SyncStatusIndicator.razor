@@ -8,12 +8,9 @@
              Size="Size.Small"
              Variant="Variant.Text"
              Color="@GetChipColor()"
-             Class="sync-status-chip"
-             title="@statusDetailText">
-        <MudIcon Icon="@Icons.Material.Filled.Circle"
-                 Size="Size.Small"
-                 Color="@GetChipColor()" />
-        <span>@statusText</span>
+             Icon="@Icons.Material.Filled.Circle"
+             Title="@statusDetailText">
+        @statusText
     </MudChip>
 }
 
