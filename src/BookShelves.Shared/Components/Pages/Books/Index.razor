@@ -1,16 +1,181 @@
 ﻿@page "/books"
-@implements IDisposable
+@inherits DataViewPageBase<BookViewModel>
 @inject IBooksDataService DataService
 @inject ILogger<Index> Logger
-@inject IDialogService DialogService
-@inject ISyncDataService SyncDataService
-@inject ISyncProgressService SyncProgressService
-@inject IPageSyncCoordinator PageSyncCoordinator
 @attribute [Authorize(Roles = "Administrator")]
+
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
         @* Header bar with your reusable offline sync widget *@
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Books</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
+
+        @* <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
+            Add Book
+        </MudButton> *@
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
+
+        @* Responsive, searchable, sortable MudTable pointing to base class "Items" *@
+        <MudTable Items="Items" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Items == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Book Inventory</MudText>
+                <MudSpacer />
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="5" Class="w-100 justify-end">
+                    <MudTextField @bind-Value="searchString" Placeholder="Search Title, Author, or Description..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
+
+                    <MudSpacer/>
+                    @* Secondary Material Variant button stacked neatly right after search inputs *@
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               OnClick="AddAsync"
+                               Title="Add New Book"
+                               Class="text-nowrap">
+                        @* The text hides on mobile viewports, instantly transforming this into a compact "+" icon button *@
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                            Add
+                        </MudHidden>
+                    </MudButton>
+                </MudStack>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Title)">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Author?.Name)">Author</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.PublishDate)">Publish Date</MudTableSortLabel></MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: right">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                <MudTd DataLabel="Author">@context.Author?.Name</MudTd>
+                <MudTd DataLabel="Publish Date">@context.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
+                <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                        @* Edit Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Title="Edit"
+                                       OnClick="@(() => EditAsync(context))" />
+
+                        @* Delete Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       Title="Delete"
+                                       OnClick="@(() => DeleteAsync(context))" />
+                      @*   <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton> *@
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudStack>
+</MudPaper>
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    // 1. Tell the base component how to populate the dataset
+    protected override async Task LoadDataServiceAsync() => Items = await DataService.GetBooksAsync();
+
+    // 2. Define the explicit keyword search bounds for this view model context
+    protected override bool ItemMatchesSearch(BookViewModel book, string query) =>
+        (book.Title?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+        (book.Author?.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+        (book.Description?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false);
+
+    private async Task AddAsync()
+    {
+        var parameters = new DialogParameters<BookDetail> { { x => x.ModelObject, new BookViewModel() }, { x => x.TitleText, "New Book" } };
+        var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, dialogOptions);
+
+        // Harnessing your new safe base handler utility
+        await ProcessDialogResultAsync(dialog, "Add canceled");
+    }
+
+    private async Task EditAsync(BookViewModel book)
+    {
+        var parameters = new DialogParameters<BookDetail> { { x => x.ModelObject, CloneBook(book) }, { x => x.TitleText, "Edit Book" } };
+        var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, dialogOptions);
+
+        await ProcessDialogResultAsync(dialog, "Edit canceled");
+    }
+
+    private async Task DeleteAsync(BookViewModel book)
+    {
+        var parameters = new DialogParameters<BookDelete> { { x => x.ModelObject, book } };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<BookDelete>("Delete Book", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false })
+        {
+            if (await DataService.DeleteBookAsync(book))
+            {
+                message = $"'{book.Title}' deleted";
+                await FetchDataAsync();
+                QueueAutomaticSync();
+            }
+        }
+        else
+        {
+            message = "Delete canceled";
+        }
+    }
+
+    private BookViewModel CloneBook(BookViewModel b) => new()
+    {
+        Id = b.Id,
+        Title = b.Title,
+        Description = b.Description,
+        PublishDate = b.PublishDate,
+        LastUpdateTime = b.LastUpdateTime,
+        Author = b.Author == null ? null : new AuthorViewModel
+        {
+            Id = b.Author.Id,
+            Name = b.Author.Name,
+            Biography = b.Author.Biography,
+            LastUpdateTime = b.Author.LastUpdateTime
+        }
+    };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
             <MudText Typo="Typo.h4">Books</MudText>
             <MudSpacer />
@@ -26,7 +191,6 @@
             <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
         }
 
-        @* Responsive, searchable, and sortable MudTable *@
         <MudTable Items="Books" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Books == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">Book Inventory</MudText>
@@ -34,7 +198,6 @@
                 <MudTextField @bind-Value="searchString" Placeholder="Search Title, Author, or Description..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
             </ToolBarContent>
             <HeaderContent>
-                @* <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.IdValue)">Id</MudTableSortLabel></MudTh> *@
                 <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Title)">Title</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Author?.Name)">Author</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.PublishDate)">Publish Date</MudTableSortLabel></MudTh>
@@ -43,7 +206,6 @@
                 <MudTh Style="text-align: right">Actions</MudTh>
             </HeaderContent>
             <RowTemplate>
-                @* <MudTd DataLabel="Id">@context.IdValue</MudTd> *@
                 <MudTd DataLabel="Title">@context.Title</MudTd>
                 <MudTd DataLabel="Author">@context.Author?.Name</MudTd>
                 <MudTd DataLabel="Publish Date">@context.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
@@ -67,83 +229,9 @@
     .my-custom-class {
         backdrop-filter: blur(10px);
     }
-</style>
-
-@* <MudPaper Class="pa-4" Elevation="1">
-    <MudStack Spacing="3">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudText Typo="Typo.h4">Books</MudText>
-            <MudSpacer />
-            <SyncStatusPanel Status="@syncStatus" />
-        </MudStack>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync">Add Book</MudButton>
-
-        @if (!string.IsNullOrWhiteSpace(message))
-        {
-            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
-        }
-
-        @if (Books == null)
-        {
-            <MudText Typo="Typo.body1"><em>Loading...</em></MudText>
-        }
-        else
-        {
-            <MudSimpleTable Dense="true" Hover="true">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>
-                            <MudStack Spacing="0">
-                                <MudText Typo="Typo.subtitle2">Title</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">Author</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">Publish Date</MudText>
-                            </MudStack>
-                        </th>
-                        <th>
-                            <MudText Typo="Typo.subtitle2">Description</MudText>
-                        </th>
-                        <th>Last Update</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var book in Books)
-                    {
-                        <tr>
-                            <td>@book.IdValue</td>
-                            <td>
-                                <MudStack Spacing="0">
-                                    <MudText Typo="Typo.body2">@book.Title</MudText>
-                                    <MudText Typo="Typo.caption" Color="Color.Secondary">@book.Author?.Name</MudText>
-                                    <MudText Typo="Typo.caption" Color="Color.Secondary">@book.PublishDate?.ToString("yyyy-MM-dd")</MudText>
-                                </MudStack>
-                            </td>
-                            <td>
-                                <MudText Typo="Typo.body2">@book.Description</MudText>
-                            </td>
-                            <td>@book.LastUpdateTime</td>
-                            <td>
-                                <MudStack Row="true" Spacing="1">
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => EditAsync(book))">Edit</MudButton>
-                                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="(() => DeleteAsync(book))">Delete</MudButton>
-                                </MudStack>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </MudSimpleTable>
-        }
-    </MudStack>
-</MudPaper>
-
-<style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
 </style> *@
 
-@code {
+@* @code {
 #if NET10_0
     [PersistentState]
 #endif
@@ -151,16 +239,12 @@
 
     private string message = string.Empty;
     private string searchString = string.Empty;
-    private SyncStatusViewModel syncStatus = new()
+
+    private readonly SyncStatusViewModel syncStatus = new()
     {
         ShowWhenIdle = false,
         ShowProgress = true
     };
-    private int currentStep;
-    private int totalSteps = 3;
-    private int progressPercentage;
-    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
-    private string syncMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -171,16 +255,15 @@
         }
         catch (Microsoft.Identity.Client.MsalUiRequiredException)
         {
-            // ConsentHandler.HandleConsentRequiredException(ex);
-            // HandleMsalException(ex);
+            // Identity handling workflows
         }
-        catch(NavigationException)
+        catch (NavigationException)
         {
-
+            // Blazor router intercept handling
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:OnInitializedAsync-Exception");
+            Logger.LogError(ex, "{Page}:{Method}-Exception", nameof(Index), nameof(OnInitializedAsync));
         }
     }
 
@@ -188,16 +271,11 @@
     {
         try
         {
-            currentStep = e.CurrentStep;
-            totalSteps = e.TotalSteps;
-            progressPercentage = e.ProgressPercentage;
-            syncStage = e.SyncStage;
-            syncMessage = BuildSyncMessage(e);
             syncStatus.CurrentStage = e.SyncStage;
             syncStatus.ProgressPercentage = e.ProgressPercentage;
             syncStatus.CurrentStep = e.CurrentStep;
             syncStatus.TotalSteps = e.TotalSteps;
-            syncStatus.Message = syncMessage;
+            syncStatus.Message = BuildSyncMessage(e);
 
             if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
             {
@@ -208,7 +286,7 @@
         }
         catch
         {
-            // best-effort only
+            // best-effort synchronization catch pipeline
         }
     }
 
@@ -216,23 +294,21 @@
     {
         if (e == null) return string.Empty;
 
-        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
-        {
-            return $"{e.Message} ({e.Current}/{e.Total})";
-        }
-
-        return e.Message ?? string.Empty;
+        return e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0
+            ? $"{e.Message} ({e.Current}/{e.Total})"
+            : e.Message ?? string.Empty;
     }
 
     private async Task AddAsync()
     {
-        var book = InitializeBookObject();
-        await ShowDetailAsync(book, "New Book");
+        await ShowDetailAsync(new BookViewModel(), "New Book");
     }
 
     private async Task EditAsync(BookViewModel book)
     {
-        await ShowDetailAsync(book, "Edit Book");
+        // Safe Cloning Pattern: isolates modal data tracking parameters from the data grid state arrays
+        var clonedBook = CloneBook(book);
+        await ShowDetailAsync(clonedBook, "Edit Book");
     }
 
     private async Task ShowDetailAsync(BookViewModel book, string titleText)
@@ -241,52 +317,51 @@
 
         try
         {
-            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
-
+            var options = new DialogOptions { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
             var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
             var result = await dialog.Result;
+
             if (result == null)
             {
                 message = "Error completing the request";
             }
             else if (!result.Canceled)
             {
-                message = result?.Data?.ToString() ?? string.Empty;
-                Books = await DataService.GetBooksAsync() ?? [];
+                message = result.Data?.ToString() ?? string.Empty;
+                await RefreshBooksAsync();
                 QueueAutomaticSync();
             }
             else
             {
-                message = String.IsNullOrEmpty(book.IdValue)
-                    ? "Add canceled"
-                    : "Edit canceled";
+                message = string.IsNullOrEmpty(book.Id) ? "Add canceled" : "Edit canceled";
             }
 
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:ShowDetailAsync-Exception");
+            Logger.LogError(ex, "{Page}:{Method}-Exception", nameof(Index), nameof(ShowDetailAsync));
         }
     }
 
     private async Task DeleteAsync(BookViewModel book)
     {
         var parameters = new DialogParameters<BookDelete> { { x => x.BookObject, book } };
-        var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters);
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters, options);
         var result = await dialog.Result;
+
         if (result == null)
         {
             message = "Error completing the request";
         }
         else if (!result.Canceled)
         {
-            var deleteResult = await DataService.DeleteBookAsync(book);
-
-            if (deleteResult)
+            if (await DataService.DeleteBookAsync(book))
             {
                 message = $"'{book.Title}' deleted";
-                Books = await DataService.GetBooksAsync() ?? [];
+                await RefreshBooksAsync();
                 QueueAutomaticSync();
             }
         }
@@ -300,18 +375,12 @@
 
     private void QueueAutomaticSync()
     {
-        if (!PageSyncCoordinator.IsSupported)
-        {
-            return;
-        }
+        if (!PageSyncCoordinator.IsSupported) return;
 
         _ = PageSyncCoordinator.QueueAutomaticSyncAsync(
             syncAction: () => SyncDataService.ServerSyncAsync(),
             refreshAction: () => RefreshBooksAsync(),
-            setMessage: value =>
-            {
-                message = value;
-            },
+            setMessage: value => message = value,
             refreshUi: () => InvokeAsync(StateHasChanged));
     }
 
@@ -321,21 +390,34 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private bool FilterFunc(BookViewModel book) 
+    private bool FilterFunc(BookViewModel book)
     {
-        return string.IsNullOrWhiteSpace(searchString) 
-            || book.Title?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true 
-            || book.Author?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true 
-            || book.Description?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+
+        // Structured hierarchy search evaluations
+        return (book.Title?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (book.Author?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (book.Description?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
-    private BookViewModel InitializeBookObject()
+    private BookViewModel CloneBook(BookViewModel source) => new()
     {
-        return new BookViewModel();
-    }
+        Id = source.Id,
+        Title = source.Title,
+        Description = source.Description,
+        PublishDate = source.PublishDate,
+        LastUpdateTime = source.LastUpdateTime,
+        Author = source.Author == null ? null : new AuthorViewModel
+        {
+            Id = source.Author.Id,
+            Name = source.Author.Name,
+            Biography = source.Author.Biography,
+            LastUpdateTime = source.Author.LastUpdateTime
+        }
+    };
 
     public void Dispose()
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
     }
-}
+} *@

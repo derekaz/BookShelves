@@ -1,4 +1,5 @@
-﻿html, body, #app {
+﻿@import url('c:\users\derek\source\repos\bookshelves\src\bookshelves.shared\wwwroot\css\app.css');
+html, body, #app {
     height: 100dvh;
     min-height: 100dvh;
     width: 100%;

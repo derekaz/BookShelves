@@ -1,4 +1,139 @@
 ﻿@page "/authors"
+@inherits DataViewPageBase<AuthorViewModel>
+@inject IAuthorsDataService DataService
+@attribute [Authorize(Roles = "Administrator")]
+
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        @* Header bar with your reusable offline sync widget *@
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Authors</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
+            Add Author
+        </MudButton>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
+
+        @* Responsive, searchable, sortable MudTable mapping to base Items dataset *@
+        <MudTable Items="Items" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Items == null)" Filter="new Func<AuthorViewModel, bool>(FilterFunc)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Author Profiles</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="Search Name or Biography..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<AuthorViewModel, object?>(x => x.Name)">Name</MudTableSortLabel></MudTh>
+                <MudTh>Biography</MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<AuthorViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: right">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Biography">@context.Biography</MudTd>
+                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
+                <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                        @* Edit Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Primary"
+                        Size="Size.Small"
+                        Title="Edit"
+                        OnClick="@(() => EditAsync(context))" />
+
+                        @* Delete Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       Title="Delete"
+                                       OnClick="@(() => DeleteAsync(context))" />
+                        @* <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton> *@
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudStack>
+</MudPaper>
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@code {
+    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    // 1. Tell the base component how to load the Author dataset
+    protected override async Task LoadDataServiceAsync() => Items = await DataService.GetAuthorsAsync();
+
+    // 2. Define the explicit search bounds for the filter loop
+    protected override bool ItemMatchesSearch(AuthorViewModel author, string query) =>
+        (author.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+        (author.Biography?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false);
+
+    private async Task AddAsync()
+    {
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, new AuthorViewModel() }, { x => x.TitleText, "New Author" } };
+        var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, dialogOptions);
+
+        await ProcessDialogResultAsync(dialog, "Add canceled");
+    }
+
+    private async Task EditAsync(AuthorViewModel author)
+    {
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, CloneAuthor(author) }, { x => x.TitleText, "Edit Author" } };
+        var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, dialogOptions);
+
+        await ProcessDialogResultAsync(dialog, "Edit canceled");
+    }
+
+    private async Task DeleteAsync(AuthorViewModel author)
+    {
+        var parameters = new DialogParameters<AuthorDelete> { { x => x.ModelObject, author } };
+        var options = new DialogOptions { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+
+        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: string authorId })
+        {
+            if (await DataService.DeleteAuthorAsync(author))
+            {
+                message = $"'{author.Name}' deleted";
+                await FetchDataAsync();
+                QueueAutomaticSync();
+            }
+        }
+        else
+        {
+            message = "Delete canceled";
+        }
+    }
+
+    private AuthorViewModel CloneAuthor(AuthorViewModel src) => new()
+    {
+        Id = src.Id,
+        Name = src.Name,
+        Biography = src.Biography,
+        LastUpdateTime = src.LastUpdateTime
+    };
+}
+
+
+
+@* 
+@page "/authors"
 @implements IDisposable
 @inject IAuthorsDataService DataService
 @inject IDialogService DialogService
@@ -7,8 +142,8 @@
 @inject ISyncProgressService SyncProgressService
 @inject IPageSyncCoordinator PageSyncCoordinator
 @attribute [Authorize(Roles = "Administrator")]
-
-<MudPaper Class="pa-4" Elevation="1">
+ *@
+@* <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
             <MudText Typo="Typo.h4">Authors</MudText>
@@ -44,7 +179,7 @@
                     @foreach (var author in Authors)
                     {
                         <tr>
-                            <td>@author.IdValue</td>
+                            <td>@author.Id</td>
                             <td>
                                 <MudText Typo="Typo.body2">@author.Name</MudText>
                                 <MudText Typo="Typo.caption" Color="Color.Secondary">@author.Biography</MudText>
@@ -68,9 +203,9 @@
     .my-custom-class {
         backdrop-filter: blur(10px);
     }
-</style>
+</style> *@
 
-@code {
+@* @code {
     #if NET10_0
     [PersistentState]
 #endif
@@ -200,7 +335,7 @@
 
     private async Task ShowDetailAsync(AuthorViewModel author, string titleText)
     {
-        var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, author }, { x => x.TitleText, titleText } };
 
         try
         {
@@ -221,7 +356,7 @@
             }
             else
             {
-                message = String.IsNullOrEmpty(author.IdValue)
+                message = String.IsNullOrEmpty(author.Id)
                     ? "Add canceled"
                     : "Edit canceled";
             }
@@ -236,8 +371,8 @@
 
     private async Task DeleteAsync(AuthorViewModel author)
     {
-        var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
-        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
+        var parameters = new DialogParameters<AuthorDelete> { { x => x.ModelObject, author } };
+        var dialog = await DialogService.ShowAsync<AuthorDelete>("Delete Author", parameters);
         var result = await dialog.Result;
         if (result == null)
         {
@@ -294,4 +429,4 @@
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
     }
-}
+} *@

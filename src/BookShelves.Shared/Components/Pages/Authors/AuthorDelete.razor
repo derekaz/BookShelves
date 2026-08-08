@@ -1,4 +1,25 @@
-﻿<MudDialog>
+﻿@inherits DeleteDialogBase<AuthorViewModel>
+
+<MudDialog>
+    <TitleContent>Delete Author</TitleContent>
+    <DialogContent>
+        Are you sure you want to delete '@GetRecordName(ModelObject!)'?
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    protected override string GetRecordIdentifier(AuthorViewModel model) => model.Id ?? string.Empty;
+    protected override string GetRecordName(AuthorViewModel model) => model.Name ?? string.Empty;
+}
+
+
+
+@* <MudDialog>
     <TitleContent>Delete Author</TitleContent>
     <DialogContent>
         Are you sure you want to delete '@AuthorObject!.Name'?
@@ -7,10 +28,10 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Ok">Ok</MudButton>
         <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
     </DialogActions>
-</MudDialog>
+</MudDialog> *@
 
 
-@code 
+@* @code 
 {
     [CascadingParameter] 
     IMudDialogInstance? MudDialog { get; set; } // = default!;
@@ -21,4 +42,4 @@
     private void Ok() => MudDialog? .Close(DialogResult.Ok(AuthorObject?.IdValue));
     private void Close() => MudDialog?.Close(DialogResult.Cancel());
     private void Cancel() => MudDialog?.Cancel();
-}
+} *@
