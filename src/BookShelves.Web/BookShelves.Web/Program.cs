@@ -86,6 +86,7 @@ builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderSe
 builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessService>();
 builder.Services.AddTransient<ISyncDataService, SyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
+builder.Services.AddScoped<IPageSyncCoordinator, PageSyncCoordinator>();
 
 builder.Services.AddScoped<BearerTokenHandler>();
 builder.Services.AddScoped<AuthorsDatasyncClientFactory>();

@@ -1,0 +1,110 @@
+@using BookShelves.Shared.Presentation.ViewModels
+@using BookShelves.Shared.Services
+
+@if (ShouldShowStatus)
+{
+    <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+        <MudStack Spacing="1">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@GetIcon()" Color="@GetIconColor()" />
+                <MudText Typo="Typo.subtitle2">@GetStageLabel()</MudText>
+                @if (Status?.ShowProgress == true)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@DisplayProgress</MudText>
+                }
+            </MudStack>
+
+            @if (Status?.ShowProgress == true && ProgressValue > 0)
+            {
+                <MudProgressLinear Color="@GetProgressColor()" Value="@ProgressValue" Striped="true" Size="Size.Small" />
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Status?.Message))
+            {
+                <MudText Typo="Typo.body2">@Status.Message</MudText>
+            }
+        </MudStack>
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public SyncStatusViewModel? Status { get; set; }
+
+    private bool IsActive => (Status?.CurrentStage ?? SyncStage.None) is SyncStage.Pending
+        or SyncStage.Started
+        or SyncStage.Pushing
+        or SyncStage.Pulling
+        or SyncStage.Processing;
+
+    private bool ShouldShowStatus => (Status?.ShowWhenIdle ?? false)
+        || IsActive
+        || (Status?.CurrentStage ?? SyncStage.None) == SyncStage.Failed;
+
+    private int ProgressValue => (Status?.CurrentStage ?? SyncStage.None) == SyncStage.Completed ? 100 : Math.Clamp(Status?.ProgressPercentage ?? 0, 0, 100);
+
+    private string DisplayProgress => (Status?.CurrentStep ?? 0) > 0 && (Status?.TotalSteps ?? 0) > 0
+        ? $"{Status!.CurrentStep}/{Status.TotalSteps} • {Status.ProgressPercentage}%"
+        : $"{Status?.ProgressPercentage ?? 0}%";
+
+    private string GetStageLabel()
+    {
+        return (Status?.CurrentStage ?? SyncStage.None) switch
+        {
+            SyncStage.Pending => "Sync pending",
+            SyncStage.Started => "Sync starting",
+            SyncStage.Pushing => "Uploading changes",
+            SyncStage.Pulling => "Downloading changes",
+            SyncStage.Processing => "Processing changes",
+            SyncStage.Completed => "Sync complete",
+            SyncStage.Failed => "Sync failed",
+            _ => "Sync idle"
+        };
+    }
+
+    private string GetIcon()
+    {
+        return (Status?.CurrentStage ?? SyncStage.None) switch
+        {
+            SyncStage.Pending => Icons.Material.Filled.Schedule,
+            SyncStage.Started => Icons.Material.Filled.Sync,
+            SyncStage.Pushing => Icons.Material.Filled.Upload,
+            SyncStage.Pulling => Icons.Material.Filled.Download,
+            SyncStage.Processing => Icons.Material.Filled.Autorenew,
+            SyncStage.Completed => Icons.Material.Filled.CheckCircle,
+            SyncStage.Failed => Icons.Material.Filled.Error,
+            _ => Icons.Material.Filled.CloudDone
+        };
+    }
+
+    private Color GetIconColor()
+    {
+        var currentStage = Status?.CurrentStage ?? SyncStage.None;
+
+        if (currentStage == SyncStage.Failed)
+        {
+            return Color.Error;
+        }
+
+        if (IsActive)
+        {
+            return Color.Info;
+        }
+
+        return currentStage switch
+        {
+            SyncStage.Pending => Color.Warning,
+            SyncStage.Completed => Color.Success,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetProgressColor()
+    {
+        return (Status?.CurrentStage ?? SyncStage.None) switch
+        {
+            SyncStage.Failed => Color.Error,
+            SyncStage.Completed => Color.Success,
+            _ => Color.Primary
+        };
+    }
+}

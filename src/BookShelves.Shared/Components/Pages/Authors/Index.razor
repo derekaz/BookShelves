@@ -5,11 +5,16 @@
 @inject ILogger<Index> Logger
 @inject ISyncDataService SyncDataService
 @inject ISyncProgressService SyncProgressService
+@inject IPageSyncCoordinator PageSyncCoordinator
 @attribute [Authorize(Roles = "Administrator")]
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
-        <MudText Typo="Typo.h4">Authors</MudText>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Authors</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync">Add Author</MudButton>
 
         @if (!string.IsNullOrWhiteSpace(message))
@@ -71,14 +76,12 @@
 #endif
     public IEnumerable<AuthorViewModel>? Authors { get; set; }
 
-    private static readonly TimeSpan AutoSyncDelay = TimeSpan.FromSeconds(2);
-
-    private readonly SemaphoreSlim syncOperationGate = new(1, 1);
-    private CancellationTokenSource? autoSyncDelayCts;
-
     private string message = string.Empty;
-    private bool isSyncing = false;
-    private bool syncRequested = false;
+    private SyncStatusViewModel syncStatus = new()
+    {
+        ShowWhenIdle = false,
+        ShowProgress = true
+    };
     private int currentStep = 0;
     private int totalSteps = 3;
     private int progressPercentage = 0;
@@ -109,11 +112,6 @@
         }
     }
 
-    private bool IsSyncSupported()
-    {
-        return SyncDataService.SupportsSync;
-    }
-
     private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
     {
         try
@@ -129,13 +127,14 @@
                 progressPercentage = e.ProgressPercentage;
                 syncStage = e.SyncStage;
                 syncMessage = BuildSyncMessage(e);
-                isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started 
-                    or BookShelves.Shared.Services.SyncStage.Pushing 
-                    or BookShelves.Shared.Services.SyncStage.Pulling 
-                    or BookShelves.Shared.Services.SyncStage.Processing;
+                syncStatus.CurrentStage = e.SyncStage;
+                syncStatus.ProgressPercentage = e.ProgressPercentage;
+                syncStatus.CurrentStep = e.CurrentStep;
+                syncStatus.TotalSteps = e.TotalSteps;
+                syncStatus.Message = syncMessage;
 
-                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}, IsSyncing: {IsSyncing}",
-                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage, isSyncing);
+                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}",
+                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage);
 
                 // Keep the legacy message format for compatibility
                 message = BuildMessage(e);
@@ -175,20 +174,6 @@
         }
 
         return e.Message ?? string.Empty;
-    }
-
-    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
-    {
-        return stage switch
-        {
-            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
-            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
-            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
-            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
-            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
-            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
-            _ => "Synchronizing..."
-        };
     }
 
     private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
@@ -279,79 +264,19 @@
 
     private void QueueAutomaticSync()
     {
-        if (!IsSyncSupported())
+        if (!PageSyncCoordinator.IsSupported)
         {
             return;
         }
 
-        syncRequested = true;
-        SyncProgressService.ReportStage(BookShelves.Shared.Services.SyncStage.Pending, "Local changes detected. Waiting to sync...");
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        autoSyncDelayCts = new CancellationTokenSource();
-        var token = autoSyncDelayCts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            try
+        _ = PageSyncCoordinator.QueueAutomaticSyncAsync(
+            syncAction: () => SyncDataService.ServerSyncAsync(),
+            refreshAction: () => RefreshAuthorsAsync(),
+            setMessage: value =>
             {
-                await Task.Delay(AutoSyncDelay, token);
-                await TriggerSyncAsync(isAutomaticTrigger: true);
-            }
-            catch (OperationCanceledException)
-            {
-                // ignore - a newer local change reset the delay
-            }
-        }, token);
-    }
-
-    private async Task ServerSyncAsync()
-    {
-        await TriggerSyncAsync(isAutomaticTrigger: false);
-    }
-
-    private async Task TriggerSyncAsync(bool isAutomaticTrigger)
-    {
-        if (!IsSyncSupported())
-        {
-            return;
-        }
-
-        if (!await syncOperationGate.WaitAsync(0))
-        {
-            syncRequested = true;
-            return;
-        }
-
-        try
-        {
-            do
-            {
-                syncRequested = false;
-                message = isAutomaticTrigger
-                    ? "Changes detected. Running background sync..."
-                    : "Starting sync...";
-
-                await InvokeAsync(StateHasChanged);
-                await SyncDataService.ServerSyncAsync();
-                Authors = await DataService.GetAuthorsAsync() ?? [];
-
-                message = isAutomaticTrigger ? "Background sync complete." : "Sync complete";
-                isAutomaticTrigger = true;
-            }
-            while (syncRequested);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "ServerSyncAsync failed");
-            message = $"Sync failed: {ex.Message}";
-        }
-        finally
-        {
-            await InvokeAsync(StateHasChanged);
-            syncOperationGate.Release();
-        }
+                message = value;
+            },
+            refreshUi: () => InvokeAsync(StateHasChanged));
     }
 
     private async Task RefreshAuthorsAsync()
@@ -368,9 +293,5 @@
     public void Dispose()
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        syncOperationGate.Dispose();
     }
 }

@@ -1,16 +1,81 @@
 ﻿@page "/books"
 @implements IDisposable
-@* @inject IBookFactory BookFactory *@
 @inject IBooksDataService DataService
 @inject ILogger<Index> Logger
 @inject IDialogService DialogService
 @inject ISyncDataService SyncDataService
 @inject ISyncProgressService SyncProgressService
+@inject IPageSyncCoordinator PageSyncCoordinator
 @attribute [Authorize(Roles = "Administrator")]
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
-        <MudText Typo="Typo.h4">Books</MudText>
+        @* Header bar with your reusable offline sync widget *@
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Books</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
+            Add Book
+        </MudButton>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
+
+        @* Responsive, searchable, and sortable MudTable *@
+        <MudTable Items="Books" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Books == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Book Inventory</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="Search Title, Author, or Description..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
+            </ToolBarContent>
+            <HeaderContent>
+                @* <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.IdValue)">Id</MudTableSortLabel></MudTh> *@
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Title)">Title</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Author?.Name)">Author</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.PublishDate)">Publish Date</MudTableSortLabel></MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: right">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                @* <MudTd DataLabel="Id">@context.IdValue</MudTd> *@
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                <MudTd DataLabel="Author">@context.Author?.Name</MudTd>
+                <MudTd DataLabel="Publish Date">@context.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
+                <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudStack>
+</MudPaper>
+
+<style>
+    .my-custom-class {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+@* <MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Books</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync">Add Book</MudButton>
 
         @if (!string.IsNullOrWhiteSpace(message))
@@ -76,22 +141,21 @@
     .my-custom-class {
         backdrop-filter: blur(10px);
     }
-</style>
+</style> *@
 
 @code {
-    #if NET10_0
+#if NET10_0
     [PersistentState]
 #endif
     public IEnumerable<BookViewModel>? Books { get; set; }
 
-    private static readonly TimeSpan AutoSyncDelay = TimeSpan.FromSeconds(2);
-
-    private readonly SemaphoreSlim syncOperationGate = new(1, 1);
-    private CancellationTokenSource? autoSyncDelayCts;
-
     private string message = string.Empty;
-    private bool isSyncing;
-    private bool syncRequested;
+    private string searchString = string.Empty;
+    private SyncStatusViewModel syncStatus = new()
+    {
+        ShowWhenIdle = false,
+        ShowProgress = true
+    };
     private int currentStep;
     private int totalSteps = 3;
     private int progressPercentage;
@@ -120,11 +184,6 @@
         }
     }
 
-    private bool IsSyncSupported()
-    {
-        return SyncDataService.SupportsSync;
-    }
-
     private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
     {
         try
@@ -134,10 +193,11 @@
             progressPercentage = e.ProgressPercentage;
             syncStage = e.SyncStage;
             syncMessage = BuildSyncMessage(e);
-            isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started
-                or BookShelves.Shared.Services.SyncStage.Pushing
-                or BookShelves.Shared.Services.SyncStage.Pulling
-                or BookShelves.Shared.Services.SyncStage.Processing;
+            syncStatus.CurrentStage = e.SyncStage;
+            syncStatus.ProgressPercentage = e.ProgressPercentage;
+            syncStatus.CurrentStep = e.CurrentStep;
+            syncStatus.TotalSteps = e.TotalSteps;
+            syncStatus.Message = syncMessage;
 
             if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
             {
@@ -162,20 +222,6 @@
         }
 
         return e.Message ?? string.Empty;
-    }
-
-    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
-    {
-        return stage switch
-        {
-            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
-            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
-            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
-            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
-            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
-            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
-            _ => "Synchronizing..."
-        };
     }
 
     private async Task AddAsync()
@@ -254,80 +300,33 @@
 
     private void QueueAutomaticSync()
     {
-        if (!IsSyncSupported())
+        if (!PageSyncCoordinator.IsSupported)
         {
             return;
         }
 
-        syncRequested = true;
-        SyncProgressService.ReportStage(BookShelves.Shared.Services.SyncStage.Pending, "Local changes detected. Waiting to sync...");
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        autoSyncDelayCts = new CancellationTokenSource();
-        var token = autoSyncDelayCts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            try
+        _ = PageSyncCoordinator.QueueAutomaticSyncAsync(
+            syncAction: () => SyncDataService.ServerSyncAsync(),
+            refreshAction: () => RefreshBooksAsync(),
+            setMessage: value =>
             {
-                await Task.Delay(AutoSyncDelay, token);
-                await TriggerSyncAsync(isAutomaticTrigger: true);
-            }
-            catch (OperationCanceledException)
-            {
-                // ignore - a newer local change reset the delay
-            }
-        }, token);
-    }
-
-    private async Task TriggerSyncAsync(bool isAutomaticTrigger)
-    {
-        if (!IsSyncSupported())
-        {
-            return;
-        }
-
-        if (!await syncOperationGate.WaitAsync(0))
-        {
-            syncRequested = true;
-            return;
-        }
-
-        try
-        {
-            do
-            {
-                syncRequested = false;
-                message = isAutomaticTrigger
-                    ? "Book changes detected. Running background sync..."
-                    : "Starting sync...";
-
-                await InvokeAsync(StateHasChanged);
-                await SyncDataService.ServerSyncAsync();
-                Books = await DataService.GetBooksAsync() ?? [];
-
-                message = isAutomaticTrigger ? "Background sync complete." : "Sync complete";
-                isAutomaticTrigger = true;
-            }
-            while (syncRequested);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Books.Index:TriggerSyncAsync-Exception");
-            message = $"Sync failed: {ex.Message}";
-        }
-        finally
-        {
-            await InvokeAsync(StateHasChanged);
-            syncOperationGate.Release();
-        }
+                message = value;
+            },
+            refreshUi: () => InvokeAsync(StateHasChanged));
     }
 
     private async Task RefreshBooksAsync()
     {
         Books = await DataService.GetBooksAsync() ?? [];
         await InvokeAsync(StateHasChanged);
+    }
+
+    private bool FilterFunc(BookViewModel book) 
+    {
+        return string.IsNullOrWhiteSpace(searchString) 
+            || book.Title?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true 
+            || book.Author?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true 
+            || book.Description?.Contains(searchString, StringComparison.OrdinalIgnoreCase) == true;
     }
 
     private BookViewModel InitializeBookObject()
@@ -338,9 +337,5 @@
     public void Dispose()
     {
         try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        syncOperationGate.Dispose();
     }
 }
