@@ -1,6 +1,4 @@
-﻿using System.Net.Security;
-
-namespace BookShelves.Maui.Services;
+﻿namespace BookShelves.Maui.Services;
 
 /// <summary>
 /// Helper class to manage HttpClient configuration and Url endpoint addresses.
@@ -8,7 +6,7 @@ namespace BookShelves.Maui.Services;
 internal class HttpClientHelper
 {
     //TODO: Place this in AppSettings or Client config file
-    private static string _baseUrl = "https://localhost:7157/";
+    private static readonly string _baseUrl = "https://localhost:7157/";
     public static string BaseUrl
     {
         get
@@ -33,23 +31,52 @@ internal class HttpClientHelper
         return new HttpClient(CreateHttpMessageHandler());
     }
 
-    public static HttpMessageHandler CreateHttpMessageHandler()
-    {
-#if WINDOWS || MACCATALYST
-        return new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-            {
-                if (errors == SslPolicyErrors.None)
-                {
-                    return true;
-                }
+    //    public static HttpMessageHandler CreateHttpMessageHandler()
+    //    {
+    //#if WINDOWS || MACCATALYST
+    //        return new HttpClientHandler
+    //        {
+    //            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+    //            {
+    //                if (errors == SslPolicyErrors.None)
+    //                {
+    //                    return true;
+    //                }
 
-                return IsLocalDevelopmentHttpsEndpoint(message?.RequestUri);
+    //                return IsLocalDevelopmentHttpsEndpoint(message?.RequestUri);
+    //            }
+    //        };
+    //#else
+    //        return new HttpsClientHandlerService().GetPlatformMessageHandler();
+    //#endif
+    //    }
+
+    public HttpMessageHandler GetPlatformMessageHandler()
+    {
+#if IOS
+        return new NSUrlSessionHandler
+        {
+            // This is the only callback iOS respects to bypass native TrustFailures
+            TrustOverrideForUrl = (sender, url, trust) =>
+            {
+                return url.StartsWith("https://localhost:7135") ||
+                        url.StartsWith("https://azmoore.com") ||
+                        url.StartsWith("https://home.azmoore.com") ||
+                        url.StartsWith("https://nas001.home.azmoore.com");
             }
         };
+#elif ANDROID
+    var handler = new Xamarin.Android.Net.AndroidMessageHandler();
+    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+    {
+        if (errors == System.Net.Security.SslPolicyErrors.None) return true;
+            
+        // Allow local debugging endpoints on Android
+        return message?.RequestUri?.Host == "10.0.2.2" || message?.RequestUri?.Host == "localhost";
+    };
+    return handler;
 #else
-        return new HttpsClientHandlerService().GetPlatformMessageHandler();
+    return new HttpClientHandler();
 #endif
     }
 
