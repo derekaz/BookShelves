@@ -1,7 +1,6 @@
 ﻿@page "/books"
 @inherits DataViewPageBase<BookViewModel>
 @inject IBooksDataService DataService
-@inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
 
 <MudPaper Class="pa-4" Elevation="1">
