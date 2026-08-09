@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
 using Serilog;
@@ -40,7 +39,16 @@ public static class MauiProgram
             var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
 
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
+                .MinimumLevel.Verbose()
+
+                // 2. Suppress generic noise you don't care about in production
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+
+                // 3. Explicitly allow your app code and HTTP API client telemetry to stay hyper-verbose
+                .MinimumLevel.Override("BookShelves.Maui", Serilog.Events.LogEventLevel.Debug)
+                .MinimumLevel.Override("System.Net.Http.HttpClient.WeatherApiClient", Serilog.Events.LogEventLevel.Verbose)
+
                 .WriteTo.Debug()            // Keep for local IDE debugging
                 .WriteTo.File(
                     path: logPath,
@@ -134,7 +142,7 @@ public static class MauiProgram
 #if ANDROID
             builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
 #elif IOS
-        builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
+            builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
 #elif MACCATALYST
         builder.Services.AddSingleton<IWindowService, Platforms.Mac.WindowService>();
 #elif WINDOWS

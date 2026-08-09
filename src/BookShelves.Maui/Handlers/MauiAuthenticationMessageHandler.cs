@@ -1,10 +1,6 @@
-﻿using BookShelves.Maui.Services;
-using BookShelves.Shared.Services.ServiceInterfaces;
+﻿using BookShelves.Shared.Services.ServiceInterfaces;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Net.Http.Headers;
-using System.Text;
 
 namespace BookShelves.Maui.Handlers;
 
@@ -47,6 +43,48 @@ internal class MauiAuthenticationMessageHandler : DelegatingHandler
             _logger.LogError(ex, "Error getting access token for request to {RequestUri}", request.RequestUri);
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        // --- DIAGNOSTICS LOGGING START ---
+        try
+        {
+            _logger.LogInformation("[DIAG] Outbound Headers for {Uri}: {Headers}", request.RequestUri, request.Headers.ToString());
+
+            var response = await base.SendAsync(request, cancellationToken);
+
+            _logger.LogInformation("[DIAG] Response received. Status: {StatusCode}", response.StatusCode);
+            return response;
+        }
+        catch (HttpRequestException httpEx)
+        {
+            _logger.LogError(httpEx, "[DIAG] HttpRequestException caught hitting {Uri}.", request.RequestUri);
+
+            // Unroll the inner exceptions to catch native iOS error structures
+            var inner = httpEx.InnerException;
+            int depth = 1;
+            while (inner != null)
+            {
+                _logger.LogError("[DIAG] Inner Exception Level {Depth}: {Type} - {Message}", depth, inner.GetType().Name, inner.Message);
+
+                // Check for specific native WebExceptions or SocketExceptions
+                if (inner is System.Net.WebException webEx)
+                {
+                    _logger.LogError("[DIAG] WebException Status: {Status}", webEx.Status);
+                    if (webEx.Response != null)
+                    {
+                        _logger.LogError("[DIAG] WebException has a response object present.");
+                    }
+                }
+
+                inner = inner.InnerException;
+                depth++;
+            }
+
+            throw; // Re-throw to maintain original application behavior
+        }
+        catch (Exception generalEx)
+        {
+            _logger.LogError(generalEx, "[DIAG] Non-HTTP Exception caught in pipeline: {Message}", generalEx.Message);
+            throw;
+        }
+        // --- DIAGNOSTICS LOGGING END ---
     }
 }
