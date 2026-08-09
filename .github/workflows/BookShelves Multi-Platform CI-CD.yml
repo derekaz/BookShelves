@@ -491,9 +491,8 @@ jobs:
       - name: NuGet Restore
         shell: pwsh
         run: |
-          dotnet restore ${{env.MAUI_CSPROJ}} -f ${{env.DOTNET_VERSION}}-ios
-          dotnet restore ${{env.MAUI_CSPROJ}} -f ${{env.DOTNET_VERSION}}-maccatalyst
-        # working-directory: ${{env.MAUI_PROJPATH}}
+          dotnet restore src/BookShelves.Maui/BookShelves.Maui.csproj -p:TargetFramework=net10.0-ios
+          dotnet restore src/BookShelves.Maui/BookShelves.Maui.csproj -p:TargetFramework=net10.0-maccatalyst        
         working-directory: ${{env.PROJPATH}}
 
       - name: Create IOS publish folder
