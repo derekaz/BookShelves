@@ -356,7 +356,7 @@ public static class MauiProgram
         {
             try
             {
-                Log.Fatal(ex, "CreateMauiApp failed at stage {StartupStage}", startupStage);
+                Log.Fatx,"CreateMauiApp failed at stage {StartupStage}", startupStage);
                 string crashLogPath = FileAccessHelper.GetLogFilePath("BookShelves-Startup-Crash-Log.txt");
                 File.AppendAllText(crashLogPath, $"=== CreateMauiApp Failure ({DateTime.UtcNow:O}) ===\nStage: {startupStage}\nException: {ex}\n\n");
                 Log.CloseAndFlush();

@@ -64,20 +64,22 @@ internal class HttpClientHelper
             {
                 return url.StartsWith("https://localhost:7135") ||
                         url.StartsWith("https://azmoore.com") ||
+                        url.StartsWith("https://bookshelves.azmoore.com") ||
                         url.StartsWith("https://home.azmoore.com") ||
+                        url.StartsWith("https://bookshelves.home.azmoore.com") ||
                         url.StartsWith("https://nas001.home.azmoore.com");
             }
         };
 #elif ANDROID
-    var handler = new Xamarin.Android.Net.AndroidMessageHandler();
-    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-    {
-        if (errors == SslPolicyErrors.None) return true;
-            
-        // Allow local debugging endpoints on Android
-        return message?.RequestUri?.Host == "10.0.2.2" || message?.RequestUri?.Host == "localhost";
-    };
-    return handler;
+        var handler = new Xamarin.Android.Net.AndroidMessageHandler();
+        handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+        {
+            if (errors == SslPolicyErrors.None) return true;
+
+            // Allow local debugging endpoints on Android
+            return message?.RequestUri?.Host == "10.0.2.2" || message?.RequestUri?.Host == "localhost";
+        };
+        return handler;
 #else
         return new HttpClientHandler();
 #endif
