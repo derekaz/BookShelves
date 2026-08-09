@@ -225,7 +225,7 @@ jobs:
 
       - name: Cache Linux Workloads
         id: cache-linux-workloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.dotnet/workloads
@@ -451,7 +451,7 @@ jobs:
 
       - name: Cache Apple Workloads
         id: cache-apple-workloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.dotnet/workloads
@@ -755,7 +755,7 @@ jobs:
 
       - name: Cache Windows Workloads
         id: cache-windows-workloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             C:\Program Files\dotnet\metadata\workloads
