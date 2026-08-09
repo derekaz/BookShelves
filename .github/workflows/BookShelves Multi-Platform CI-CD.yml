@@ -520,6 +520,7 @@ jobs:
             -p:RuntimeIdentifier=ios-arm64 `
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
+            /p:TargetPlatformIdentifier=ios `
             /p:ArchiveOnBuild=true `
             /p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
             /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
@@ -538,6 +539,7 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
+            -p:TargetPlatformIdentifier=maccatalyst `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
             -p:EnableCodeSigning=true `
