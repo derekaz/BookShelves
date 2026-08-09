@@ -14,36 +14,86 @@
             <SyncStatusPanel Status="@syncStatus" />
         </MudStack>
 
-        @* <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
-            Add Book
-        </MudButton> *@
-
         @if (!string.IsNullOrWhiteSpace(message))
         {
             <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
         }
 
         @* Responsive, searchable, sortable MudTable pointing to base class "Items" *@
-        <MudTable Items="Items" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Items == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
+        <MudTable Items="Items" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Loading="@(Items == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
             <ToolBarContent>
-                <MudText Typo="Typo.h6">Book Inventory</MudText>
+                @* Hide the title text if the search input is actively expanded on mobile devices to preserve horizontal line space *@
+                @if (!isSearchExpandedMobile)
+                {
+                    <MudText Typo="Typo.h6" Class="text-nowrap">Book Inventory</MudText>
+                }
                 <MudSpacer />
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="5" Class="w-100 justify-end">
-                    <MudTextField @bind-Value="searchString" Placeholder="Search Title, Author, or Description..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100 justify-end">
+                    @* --- DESKTOP VIEWPORT SCANNER --- *@
+                    @* Displays the standard persistent soft gray box on larger monitors and tablet devices *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        <MudTextField @bind-Value="searchString"
+                                      Placeholder="Search Inventory..."
+                                      Variant="Variant.Filled"
+                                      Margin="Margin.Dense"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      IconSize="Size.Medium"
+                                      Class="mt-0"
+                                      Style="max-width: 300px;"
+                                      Immediate="true"
+                                      Clearable="true" />
+                    </MudHidden>
 
-                    <MudSpacer/>
-                    @* Secondary Material Variant button stacked neatly right after search inputs *@
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Add"
-                               OnClick="AddAsync"
-                               Title="Add New Book"
-                               Class="text-nowrap">
-                        @* The text hides on mobile viewports, instantly transforming this into a compact "+" icon button *@
-                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                    @* --- MOBILE VIEWPORT SCANNER --- *@
+                    @* Toggles smoothly between a single standalone icon button and an active full-width input field *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @if (isSearchExpandedMobile)
+                        {
+                            <MudTextField @ref="mobileSearchField" 
+                                          @bind-Value="searchString"
+                                          Placeholder="Search..."
+                                          Variant="Variant.Filled"
+                                          Margin="Margin.Dense"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          IconSize="Size.Medium"
+                                          Class="mt-0 w-100 animate-fade-in"
+                                          Immediate="true"
+                                          Clearable="true"
+                                          OnClearButtonClick="ToggleMobileSearchAsync"
+                                          OnKeyDown="HandleSearchKeyDown" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                           Color="Color.Inherit"
+                                           OnClick="ToggleMobileSearchAsync"
+                                           Title="Open Search Bar" />
+                        }
+                    </MudHidden>
+
+                    @* --- ADD ACTION BUTTON --- *@
+                    @* Stays pinned safely on the far right edge of the control bar header line *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        @* Desktop: Full button with text *@
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   OnClick="AddAsync"
+                                   Title="Add New Book"
+                                   Class="text-nowrap">
                             Add
-                        </MudHidden>
-                    </MudButton>
+                        </MudButton>
+                    </MudHidden>
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @* Mobile: Perfect square icon button *@
+                        <MudIconButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Icon="@Icons.Material.Filled.Add"
+                                       OnClick="AddAsync"
+                                       Title="Add New Book" />
+                    </MudHidden>
                 </MudStack>
             </ToolBarContent>
             <HeaderContent>
@@ -75,11 +125,18 @@
                                        Size="Size.Small"
                                        Title="Delete"
                                        OnClick="@(() => DeleteAsync(context))" />
-                      @*   <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton> *@
                     </MudStack>
                 </MudTd>
             </RowTemplate>
+            <NoRecordsContent>
+                <MudStack AlignItems="AlignItems.Center" Class="pa-6" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+                    <MudText Typo="Typo.h6" Align="Align.Center">No matching records found</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                        Try adjusting your search terms or verify your offline data sync status.
+                    </MudText>
+                </MudStack>
+            </NoRecordsContent>
             <PagerContent>
                 <MudTablePager />
             </PagerContent>
@@ -88,15 +145,52 @@
 </MudPaper>
 
 <style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
 </style>
 
 @code {
-    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+    private bool isSearchExpandedMobile = false;
+    private MudTextField<string>? mobileSearchField;
 
     // 1. Tell the base component how to populate the dataset
+    private async Task ToggleMobileSearchAsync()
+    {
+        isSearchExpandedMobile = !isSearchExpandedMobile;
+
+        if (isSearchExpandedMobile)
+        {
+            // Gives Blazor one render tick to inject the MudTextField DOM node into the markup tree
+            await Task.Yield();
+
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.FocusAsync();
+            }
+        }
+        else
+        {
+            searchString = string.Empty;
+        }
+    }
+
+    // 2. Intercepts the keyboard input and collapses the view if the user presses Escape
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        // 1. ESC Key: Collapses the search layout entirely and resets the filter string
+        if (e.Key == "Escape")
+        {
+            await ToggleMobileSearchAsync();
+        }
+        // 2. ENTER Key: Safely drops focus from the text box, dismissing the mobile virtual keyboard
+        else if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.BlurAsync();
+            }
+        }
+    }
+
     protected override async Task LoadDataServiceAsync() => Items = await DataService.GetBooksAsync();
 
     // 2. Define the explicit keyword search bounds for this view model context
@@ -125,7 +219,7 @@
     private async Task DeleteAsync(BookViewModel book)
     {
         var parameters = new DialogParameters<BookDelete> { { x => x.ModelObject, book } };
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+        var options = new DialogOptions { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
 
         var dialog = await DialogService.ShowAsync<BookDelete>("Delete Book", parameters, options);
         var result = await dialog.Result;
@@ -161,263 +255,3 @@
         }
     };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-@* 
-<MudPaper Class="pa-4" Elevation="1">
-    <MudStack Spacing="3">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudText Typo="Typo.h4">Books</MudText>
-            <MudSpacer />
-            <SyncStatusPanel Status="@syncStatus" />
-        </MudStack>
-
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
-            Add Book
-        </MudButton>
-
-        @if (!string.IsNullOrWhiteSpace(message))
-        {
-            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
-        }
-
-        <MudTable Items="Books" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Books == null)" Filter="new Func<BookViewModel, bool>(FilterFunc)">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Book Inventory</MudText>
-                <MudSpacer />
-                <MudTextField @bind-Value="searchString" Placeholder="Search Title, Author, or Description..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Title)">Title</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.Author?.Name)">Author</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.PublishDate)">Publish Date</MudTableSortLabel></MudTh>
-                <MudTh>Description</MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
-                <MudTh Style="text-align: right">Actions</MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Title">@context.Title</MudTd>
-                <MudTd DataLabel="Author">@context.Author?.Name</MudTd>
-                <MudTd DataLabel="Publish Date">@context.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
-                <MudTd DataLabel="Description">@context.Description</MudTd>
-                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
-                <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
-                    <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton>
-                    </MudStack>
-                </MudTd>
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
-    </MudStack>
-</MudPaper>
-
-<style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
-</style> *@
-
-@* @code {
-#if NET10_0
-    [PersistentState]
-#endif
-    public IEnumerable<BookViewModel>? Books { get; set; }
-
-    private string message = string.Empty;
-    private string searchString = string.Empty;
-
-    private readonly SyncStatusViewModel syncStatus = new()
-    {
-        ShowWhenIdle = false,
-        ShowProgress = true
-    };
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
-            Books ??= await DataService.GetBooksAsync();
-        }
-        catch (Microsoft.Identity.Client.MsalUiRequiredException)
-        {
-            // Identity handling workflows
-        }
-        catch (NavigationException)
-        {
-            // Blazor router intercept handling
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{Page}:{Method}-Exception", nameof(Index), nameof(OnInitializedAsync));
-        }
-    }
-
-    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
-    {
-        try
-        {
-            syncStatus.CurrentStage = e.SyncStage;
-            syncStatus.ProgressPercentage = e.ProgressPercentage;
-            syncStatus.CurrentStep = e.CurrentStep;
-            syncStatus.TotalSteps = e.TotalSteps;
-            syncStatus.Message = BuildSyncMessage(e);
-
-            if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
-            {
-                _ = RefreshBooksAsync();
-            }
-
-            _ = InvokeAsync(StateHasChanged);
-        }
-        catch
-        {
-            // best-effort synchronization catch pipeline
-        }
-    }
-
-    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
-    {
-        if (e == null) return string.Empty;
-
-        return e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0
-            ? $"{e.Message} ({e.Current}/{e.Total})"
-            : e.Message ?? string.Empty;
-    }
-
-    private async Task AddAsync()
-    {
-        await ShowDetailAsync(new BookViewModel(), "New Book");
-    }
-
-    private async Task EditAsync(BookViewModel book)
-    {
-        // Safe Cloning Pattern: isolates modal data tracking parameters from the data grid state arrays
-        var clonedBook = CloneBook(book);
-        await ShowDetailAsync(clonedBook, "Edit Book");
-    }
-
-    private async Task ShowDetailAsync(BookViewModel book, string titleText)
-    {
-        var parameters = new DialogParameters<BookDetail> { { x => x.BookObject, book }, { x => x.TitleText, titleText } };
-
-        try
-        {
-            var options = new DialogOptions { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
-            var dialog = await DialogService.ShowAsync<BookDetail>("Book Details", parameters, options);
-            var result = await dialog.Result;
-
-            if (result == null)
-            {
-                message = "Error completing the request";
-            }
-            else if (!result.Canceled)
-            {
-                message = result.Data?.ToString() ?? string.Empty;
-                await RefreshBooksAsync();
-                QueueAutomaticSync();
-            }
-            else
-            {
-                message = string.IsNullOrEmpty(book.Id) ? "Add canceled" : "Edit canceled";
-            }
-
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{Page}:{Method}-Exception", nameof(Index), nameof(ShowDetailAsync));
-        }
-    }
-
-    private async Task DeleteAsync(BookViewModel book)
-    {
-        var parameters = new DialogParameters<BookDelete> { { x => x.BookObject, book } };
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
-
-        var dialog = await DialogService.ShowAsync<BookDelete>("Book Modal", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null)
-        {
-            message = "Error completing the request";
-        }
-        else if (!result.Canceled)
-        {
-            if (await DataService.DeleteBookAsync(book))
-            {
-                message = $"'{book.Title}' deleted";
-                await RefreshBooksAsync();
-                QueueAutomaticSync();
-            }
-        }
-        else
-        {
-            message = "Delete canceled";
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void QueueAutomaticSync()
-    {
-        if (!PageSyncCoordinator.IsSupported) return;
-
-        _ = PageSyncCoordinator.QueueAutomaticSyncAsync(
-            syncAction: () => SyncDataService.ServerSyncAsync(),
-            refreshAction: () => RefreshBooksAsync(),
-            setMessage: value => message = value,
-            refreshUi: () => InvokeAsync(StateHasChanged));
-    }
-
-    private async Task RefreshBooksAsync()
-    {
-        Books = await DataService.GetBooksAsync() ?? [];
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private bool FilterFunc(BookViewModel book)
-    {
-        if (string.IsNullOrWhiteSpace(searchString)) return true;
-
-        // Structured hierarchy search evaluations
-        return (book.Title?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (book.Author?.Name?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (book.Description?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false);
-    }
-
-    private BookViewModel CloneBook(BookViewModel source) => new()
-    {
-        Id = source.Id,
-        Title = source.Title,
-        Description = source.Description,
-        PublishDate = source.PublishDate,
-        LastUpdateTime = source.LastUpdateTime,
-        Author = source.Author == null ? null : new AuthorViewModel
-        {
-            Id = source.Author.Id,
-            Name = source.Author.Name,
-            Biography = source.Author.Biography,
-            LastUpdateTime = source.Author.LastUpdateTime
-        }
-    };
-
-    public void Dispose()
-    {
-        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
-    }
-} *@

@@ -118,3 +118,34 @@ body {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 }
+
+/* Customizes the MudBlazor striped background tint */
+/*.mud-table-striped .mud-table-row:nth-of-type(odd) {
+    background-color: var(--mud-palette-background-grey) !important;
+}
+*/
+.mud-custom-blurred-background-class {
+    backdrop-filter: blur(10px);
+}
+
+/* 1. FORCE HEADER CELL BACKGROUND (Overriding FixedHeader defaults) */
+.subtle-sort-table .mud-table-head .mud-table-cell {
+    background-color: var(--mud-palette-background-grey) !important;
+}
+
+/* 2. RE-ESTABLISH BOTTOM CONTAINER BORDER LINE */
+.subtle-sort-table .mud-table-head .mud-table-row {
+    border-bottom: 2px solid var(--mud-palette-divider) !important;
+}
+
+/* 3. MATCH SPECIFICITY CHAIN TO OVERRIDE THE SUBTITLE2 FONT WEIGHTS */
+.subtle-sort-table .mud-table-root .mud-table-head .mud-table-cell,
+.subtle-sort-table .mud-table-head .mud-table-sort-label {
+    font-weight: 700 !important;
+    color: var(--mud-palette-text-primary) !important;
+}
+
+/* 4. PIN ACTIVE & INACTIVE SORT ARROWS TO MATCH BOLD SYSTEM */
+.subtle-sort-table .mud-table-head .mud-table-sort-label .mud-icon-root {
+    font-weight: 700 !important;
+}

@@ -1,6 +1,7 @@
 ﻿@page "/authors"
 @inherits DataViewPageBase<AuthorViewModel>
 @inject IAuthorsDataService DataService
+@inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
 
 <MudPaper Class="pa-4" Elevation="1">
@@ -12,21 +13,87 @@
             <SyncStatusPanel Status="@syncStatus" />
         </MudStack>
 
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync" StartIcon="@Icons.Material.Filled.Add" Width="fit-content">
-            Add Author
-        </MudButton>
-
         @if (!string.IsNullOrWhiteSpace(message))
         {
             <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
         }
 
         @* Responsive, searchable, sortable MudTable mapping to base Items dataset *@
-        <MudTable Items="Items" Dense="true" Hover="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Loading="@(Items == null)" Filter="new Func<AuthorViewModel, bool>(FilterFunc)">
+        <MudTable Items="Items" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Loading="@(Items == null)" Filter="new Func<AuthorViewModel, bool>(FilterFunc)">
             <ToolBarContent>
-                <MudText Typo="Typo.h6">Author Profiles</MudText>
+                @* Hide the title text if the search input is actively expanded on mobile devices to preserve horizontal line space *@
+                @if (!isSearchExpandedMobile)
+                {
+                    <MudText Typo="Typo.h6" Class="text-nowrap">Author Profiles</MudText>
+                }
                 <MudSpacer />
-                <MudTextField @bind-Value="searchString" Placeholder="Search Name or Biography..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Immediate="true" Clearable="true" />
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100 justify-end">
+                    @* --- DESKTOP VIEWPORT SCANNER --- *@
+                    @* Displays the standard persistent soft gray box on larger monitors and tablet devices *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        <MudTextField @bind-Value="searchString"
+                                      Placeholder="Search..."
+                                      Variant="Variant.Filled"
+                                      Margin="Margin.Dense"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      IconSize="Size.Medium"
+                                      Class="mt-0"
+                                      Style="max-width: 300px;"
+                                      Immediate="true"
+                                      Clearable="true" />
+                    </MudHidden>
+
+                    @* --- MOBILE VIEWPORT SCANNER --- *@
+                    @* Toggles smoothly between a single standalone icon button and an active full-width input field *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @if (isSearchExpandedMobile)
+                        {
+                            <MudTextField @ref="mobileSearchField" 
+                                          @bind-Value="searchString"
+                                          Placeholder="Search..."
+                                          Variant="Variant.Filled"
+                                          Margin="Margin.Dense"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          IconSize="Size.Medium"
+                                          Class="mt-0 w-100 animate-fade-in"
+                                          Immediate="true"
+                                          Clearable="true"
+                                          OnClearButtonClick="ToggleMobileSearchAsync"
+                                          OnKeyDown="HandleSearchKeyDown" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                           Color="Color.Inherit"
+                                           OnClick="ToggleMobileSearchAsync"
+                                           Title="Open Search Bar" />
+                        }
+                    </MudHidden>
+
+                    @* --- ADD ACTION BUTTON --- *@
+                    @* Stays pinned safely on the far right edge of the control bar header line *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        @* Desktop: Full button with text *@
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   OnClick="AddAsync"
+                                   Title="Add New Author"
+                                   Class="text-nowrap">
+                            Add
+                        </MudButton>
+                    </MudHidden>
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @* Mobile: Perfect square icon button *@
+                        <MudIconButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Icon="@Icons.Material.Filled.Add"
+                                       OnClick="AddAsync"
+                                       Title="Add New Author" />
+                    </MudHidden>
+                </MudStack>
             </ToolBarContent>
             <HeaderContent>
                 <MudTh><MudTableSortLabel SortBy="new Func<AuthorViewModel, object?>(x => x.Name)">Name</MudTableSortLabel></MudTh>
@@ -53,11 +120,18 @@
                                        Size="Size.Small"
                                        Title="Delete"
                                        OnClick="@(() => DeleteAsync(context))" />
-                        @* <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditAsync(context))">Edit</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => DeleteAsync(context))">Delete</MudButton> *@
                     </MudStack>
                 </MudTd>
             </RowTemplate>
+            <NoRecordsContent>
+                <MudStack AlignItems="AlignItems.Center" Class="pa-6" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+                    <MudText Typo="Typo.h6" Align="Align.Center">No matching records found</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                        Try adjusting your search terms or verify your offline data sync status.
+                    </MudText>
+                </MudStack>
+            </NoRecordsContent>
             <PagerContent>
                 <MudTablePager />
             </PagerContent>
@@ -65,14 +139,50 @@
     </MudStack>
 </MudPaper>
 
-<style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
-</style>
-
 @code {
-    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+    private bool isSearchExpandedMobile = false;
+    private MudTextField<string>? mobileSearchField;
+
+    // 1. Tell the base component how to populate the dataset
+    private async Task ToggleMobileSearchAsync()
+    {
+        isSearchExpandedMobile = !isSearchExpandedMobile;
+
+        if (isSearchExpandedMobile)
+        {
+            // Gives Blazor one render tick to inject the MudTextField DOM node into the markup tree
+            await Task.Yield();
+
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.FocusAsync();
+            }
+        }
+        else
+        {
+            searchString = string.Empty;
+        }
+    }
+
+    // 2. Intercepts the keyboard input and collapses the view if the user presses Escape
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        // 1. ESC Key: Collapses the search layout entirely and resets the filter string
+        if (e.Key == "Escape")
+        {
+            await ToggleMobileSearchAsync();
+        }
+        // 2. ENTER Key: Safely drops focus from the text box, dismissing the mobile virtual keyboard
+        else if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.BlurAsync();
+            }
+        }
+    }
 
     // 1. Tell the base component how to load the Author dataset
     protected override async Task LoadDataServiceAsync() => Items = await DataService.GetAuthorsAsync();
@@ -101,7 +211,7 @@
     private async Task DeleteAsync(AuthorViewModel author)
     {
         var parameters = new DialogParameters<AuthorDelete> { { x => x.ModelObject, author } };
-        var options = new DialogOptions { BackgroundClass = "my-custom-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
+        var options = new DialogOptions { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
 
         var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters, options);
         var result = await dialog.Result;
@@ -129,304 +239,3 @@
         LastUpdateTime = src.LastUpdateTime
     };
 }
-
-
-
-@* 
-@page "/authors"
-@implements IDisposable
-@inject IAuthorsDataService DataService
-@inject IDialogService DialogService
-@inject ILogger<Index> Logger
-@inject ISyncDataService SyncDataService
-@inject ISyncProgressService SyncProgressService
-@inject IPageSyncCoordinator PageSyncCoordinator
-@attribute [Authorize(Roles = "Administrator")]
- *@
-@* <MudPaper Class="pa-4" Elevation="1">
-    <MudStack Spacing="3">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-            <MudText Typo="Typo.h4">Authors</MudText>
-            <MudSpacer />
-            <SyncStatusPanel Status="@syncStatus" />
-        </MudStack>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddAsync">Add Author</MudButton>
-
-        @if (!string.IsNullOrWhiteSpace(message))
-        {
-            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
-        }
-
-        @if (Authors == null)
-        {
-            <MudText Typo="Typo.body1"><em>Loading...</em></MudText>
-        }
-        else
-        {
-            <MudSimpleTable Dense="true" Hover="true">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>
-                            <MudText Typo="Typo.subtitle2">Name</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Secondary">Biography</MudText>
-                        </th>
-                        <th>Last Update</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var author in Authors)
-                    {
-                        <tr>
-                            <td>@author.Id</td>
-                            <td>
-                                <MudText Typo="Typo.body2">@author.Name</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">@author.Biography</MudText>
-                            </td>
-                            <td>@author.LastUpdateTime</td>
-                            <td>
-                                <MudStack Row="true" Spacing="1">
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => EditAsync(author))">Edit</MudButton>
-                                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="(() => DeleteAsync(author))">Delete</MudButton>
-                                </MudStack>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </MudSimpleTable>
-        }
-    </MudStack>
-</MudPaper>
-
-<style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
-</style> *@
-
-@* @code {
-    #if NET10_0
-    [PersistentState]
-#endif
-    public IEnumerable<AuthorViewModel>? Authors { get; set; }
-
-    private string message = string.Empty;
-    private SyncStatusViewModel syncStatus = new()
-    {
-        ShowWhenIdle = false,
-        ShowProgress = true
-    };
-    private int currentStep = 0;
-    private int totalSteps = 3;
-    private int progressPercentage = 0;
-    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
-    private string syncMessage = string.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            // subscribe to sync progress
-            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
-
-            Authors ??= await DataService.GetAuthorsAsync();
-        }
-        catch (Microsoft.Identity.Client.MsalUiRequiredException)
-        {
-            // ConsentHandler.HandleConsentRequiredException(ex);
-            // HandleMsalException(ex);
-        }
-        catch(NavigationException)
-        {
-
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
-        }
-    }
-
-    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
-    {
-        try
-        {
-            // Try to marshal to native/main thread if available (MAUI runtime). If not, fall back to Blazor's InvokeAsync.
-            var mainThreadType = Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui.Essentials")
-                                 ?? Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui");
-
-            Action update = () => {
-                // Update new step-tracking properties
-                currentStep = e.CurrentStep;
-                totalSteps = e.TotalSteps;
-                progressPercentage = e.ProgressPercentage;
-                syncStage = e.SyncStage;
-                syncMessage = BuildSyncMessage(e);
-                syncStatus.CurrentStage = e.SyncStage;
-                syncStatus.ProgressPercentage = e.ProgressPercentage;
-                syncStatus.CurrentStep = e.CurrentStep;
-                syncStatus.TotalSteps = e.TotalSteps;
-                syncStatus.Message = syncMessage;
-
-                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}",
-                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage);
-
-                // Keep the legacy message format for compatibility
-                message = BuildMessage(e);
-                if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
-                {
-                    _ = RefreshAuthorsAsync();
-                }
-                InvokeAsync(StateHasChanged);
-            };
-
-            if (mainThreadType != null)
-            {
-                var begin = mainThreadType.GetMethod("BeginInvokeOnMainThread", new Type[] { typeof(Action) });
-                if (begin != null)
-                {
-                    begin.Invoke(null, new object[] { update });
-                    return;
-                }
-            }
-
-            // fallback
-            _ = InvokeAsync(update);
-        }
-        catch
-        {
-            // best-effort only
-        }
-    }
-
-    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
-    {
-        if (e == null) return string.Empty;
-
-        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
-        {
-            return $"{e.Message} ({e.Current}/{e.Total})";
-        }
-
-        return e.Message ?? string.Empty;
-    }
-
-    private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
-    {
-        if (e == null) return string.Empty;
-        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
-        {
-            var pct = (int)(100.0 * e.Current.Value / Math.Max(1, e.Total.Value));
-            return $"{e.Stage ?? "Sync"}: {e.Message} ({e.Current}/{e.Total}) {pct}%";
-        }
-        return $"{e.Stage ?? "Sync"}: {e.Message}";
-    }
-
-    private async Task AddAsync()
-    {
-        var author = InitializeAuthorObject();
-        await ShowDetailAsync(author, "New Author");
-    }
-
-    private async Task EditAsync(AuthorViewModel author)
-    {
-        await ShowDetailAsync(author, "Edit Author");
-    }
-
-    private async Task ShowDetailAsync(AuthorViewModel author, string titleText)
-    {
-        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, author }, { x => x.TitleText, titleText } };
-
-        try
-        {
-            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
-
-            var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, options);
-            var result = await dialog.Result;
-            if (result == null)
-            {
-                message = "Error completing the request";
-            }
-            else if (!result.Canceled)
-            {
-                message = result?.Data?.ToString() ?? string.Empty;
-
-                Authors = await DataService.GetAuthorsAsync() ?? [];
-                QueueAutomaticSync();
-            }
-            else
-            {
-                message = String.IsNullOrEmpty(author.Id)
-                    ? "Add canceled"
-                    : "Edit canceled";
-            }
-
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:ShowDetailAsync-Exception");
-        }
-    }
-
-    private async Task DeleteAsync(AuthorViewModel author)
-    {
-        var parameters = new DialogParameters<AuthorDelete> { { x => x.ModelObject, author } };
-        var dialog = await DialogService.ShowAsync<AuthorDelete>("Delete Author", parameters);
-        var result = await dialog.Result;
-        if (result == null)
-        {
-            message = "Error completing the request";
-        }
-        else if (!result.Canceled)
-        {
-            var deleteResult = await DataService.DeleteAuthorAsync(author);
-
-            if (deleteResult)
-            {
-                message = $"'{author.Name}' deleted";
-                Authors = await DataService.GetAuthorsAsync() ?? [];
-                QueueAutomaticSync();
-            }
-        }
-        else
-        {
-            message = "Delete canceled";
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private void QueueAutomaticSync()
-    {
-        if (!PageSyncCoordinator.IsSupported)
-        {
-            return;
-        }
-
-        _ = PageSyncCoordinator.QueueAutomaticSyncAsync(
-            syncAction: () => SyncDataService.ServerSyncAsync(),
-            refreshAction: () => RefreshAuthorsAsync(),
-            setMessage: value =>
-            {
-                message = value;
-            },
-            refreshUi: () => InvokeAsync(StateHasChanged));
-    }
-
-    private async Task RefreshAuthorsAsync()
-    {
-        Authors = await DataService.GetAuthorsAsync() ?? [];
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private AuthorViewModel InitializeAuthorObject()
-    {
-        return new AuthorViewModel();
-    }
-
-    public void Dispose()
-    {
-        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
-    }
-} *@
