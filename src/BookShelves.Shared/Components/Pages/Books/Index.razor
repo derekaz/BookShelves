@@ -4,7 +4,6 @@
 @inject ILogger<Index> Logger
 @attribute [Authorize(Roles = "Administrator")]
 
-
 <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
         @* Header bar with your reusable offline sync widget *@
@@ -143,9 +142,6 @@
         </MudTable>
     </MudStack>
 </MudPaper>
-
-<style>
-</style>
 
 @code {
     private readonly DialogOptions dialogOptions = new() { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };

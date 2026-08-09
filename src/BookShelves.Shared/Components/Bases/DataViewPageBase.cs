@@ -20,7 +20,7 @@ public abstract class DataViewPageBase<TItem> : ComponentBase, IDisposable
 #if NET10_0
     [PersistentState]
 #endif
-    protected IEnumerable<TItem>? Items { get; set; }
+    public IEnumerable<TItem>? Items { get; set; }
 
     protected string message = string.Empty;
 
