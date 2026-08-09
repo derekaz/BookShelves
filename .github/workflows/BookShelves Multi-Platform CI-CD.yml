@@ -490,7 +490,9 @@ jobs:
 
       - name: NuGet Restore
         shell: pwsh
-        run: dotnet restore ${{env.MAUI_CSPROJ}}
+        run: |
+          dotnet restore ${{env.MAUI_CSPROJ}} -f ${{env.DOTNET_VERSION}}-ios
+          dotnet restore ${{env.MAUI_CSPROJ}} -f ${{env.DOTNET_VERSION}}-maccatalyst
         # working-directory: ${{env.MAUI_PROJPATH}}
         working-directory: ${{env.PROJPATH}}
 
