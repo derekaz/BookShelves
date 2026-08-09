@@ -223,8 +223,24 @@ jobs:
 
           echo "Deployment environment: ${{ steps.compute_environment.outputs.environmentName }}" >> $GITHUB_STEP_SUMMARY
 
+      - name: Cache Linux Workloads
+        id: cache-linux-workloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.dotnet/workloads
+            /usr/share/dotnet/metadata/workloads
+            /usr/share/dotnet/sdk-manifests
+          key: linux-workloads-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+
       - name: Install .NET Workloads
-        run: dotnet workload restore
+        if: steps.cache-linux-workloads.outputs.cache-hit != 'true'
+        # If AppHost/Web/API don't need workloads, change this to "dotnet workload install <specific-id>" 
+        # or omit it entirely if they are standard web apps.
+        run: dotnet workload restore 
+
+      # - name: Install .NET Workloads
+      #   run: dotnet workload restore
 
       - name: Compile Solution (Debug Validation Step)
         run: |
@@ -270,7 +286,7 @@ jobs:
           context: ${{ github.workspace }}/src
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             APP_VERSION=${{ needs.validate.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
@@ -285,6 +301,9 @@ jobs:
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+          # 2. Added GHA caching for Web App
+          cache-from: type=gha,scope=docker-web
+          cache-to: type=gha,mode=max,scope=docker-web
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -293,7 +312,7 @@ jobs:
           context: ${{ github.workspace }}/src
           file: ${{env.WEBAPI_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
             RUN_ID=${{ github.run_id }}
@@ -308,7 +327,9 @@ jobs:
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
-
+          # 2. Added GHA caching for Web API
+          cache-from: type=gha,scope=docker-webapi
+          cache-to: type=gha,mode=max,scope=docker-webapi
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
@@ -428,12 +449,28 @@ jobs:
         with:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
 
-      - name: Restore Workloads
-        shell: pwsh
-        run: |
-          dotnet workload restore
-          dotnet workload install wasm-tools
-        working-directory: ${{env.PROJPATH}}
+      - name: Cache Apple Workloads
+        id: cache-apple-workloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.dotnet/workloads
+            /usr/local/share/dotnet/metadata/workloads
+            /usr/local/share/dotnet/sdk-manifests
+          key: macos-maui-workloads-${{ hashFiles('**/*.csproj') }}
+
+      - name: Install Apple Workloads Only
+        if: steps.cache-apple-workloads.outputs.cache-hit != 'true'
+        shell: bash
+        run: dotnet workload install maui-ios maui-maccatalyst wasm-tools
+        working-directory: ${{env.PROJ_PATH}}
+
+      # - name: Restore Workloads
+      #   shell: bash
+      #   run: dotnet workload install maui-ios maui-maccatalyst wasm-tools
+      #   working-directory: ${{env.PROJPATH}}
+
+      # dotnet workload restore
 
       - name: Verify Dotnet SDKs
         shell: pwsh
@@ -716,9 +753,28 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
 
-      - name: Install MAUI Workloads
-        run: dotnet workload restore
-        working-directory: ${{env.PROJPATH}}
+      - name: Cache Windows Workloads
+        id: cache-windows-workloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\Program Files\dotnet\metadata\workloads
+            C:\Program Files\dotnet\sdk-manifests
+            ~/.dotnet/workloads
+          key: windows-maui-workloads-${{ hashFiles('**/*.csproj') }}
+
+      - name: Install Windows Workload Only
+        if: steps.cache-windows-workloads.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: dotnet workload install maui-windows wasm-tools
+        working-directory: ${{env.PROJ_PATH}}
+
+      # - name: Install MAUI Workloads
+      #   shell: pwsh  
+      #   run: dotnet workload install maui-windows wasm-tools
+      #   working-directory: ${{env.PROJPATH}}
+
+      #   dotnet workload restore
 
       - name: Decrypt PFX File
         run: |
