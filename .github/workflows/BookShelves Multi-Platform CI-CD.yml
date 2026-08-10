@@ -531,11 +531,11 @@ jobs:
       # Overrides passed directly to MSBuild properties mapping to Apple variables
       - name: Build Apple Package
         shell: pwsh
-        working-directory: ${{env.PROJPATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
         run: |
           dotnet `
             publish `
-            ${{env.MAUI_CSPROJ}} `
+            BookShelves.Maui.csproj `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
             -p:RuntimeIdentifier=ios-arm64 `
@@ -557,7 +557,7 @@ jobs:
 
           dotnet `
             publish `
-            ${{env.MAUI_CSPROJ}} `
+            BookShelves.Maui.csproj `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
@@ -826,9 +826,9 @@ jobs:
           mkdir -p ${{ env.MAUI_WINDOWS_PUBLISH_PATH }}
 
       - name: Build Windows Packages
-        working-directory: ${{env.PROJPATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
         run: |
-          dotnet publish ${{env.MAUI_CSPROJ}} `
+          dotnet publish BookShelves.Maui.csproj `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
