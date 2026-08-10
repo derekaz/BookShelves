@@ -450,7 +450,7 @@ jobs:
 
       - name: Install Apple Workloads
         shell: bash
-        run: dotnet workload restore BookShelves.Maui.csproj
+        run: dotnet workload restore BookShelves.Maui.csproj -p:TargetFrameworks="net10.0-ios;net10.0-maccatalyst"
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Verify Dotnet SDKs
@@ -468,11 +468,6 @@ jobs:
       - name: Verify Dotnet Workloads
         shell: pwsh
         run: dotnet workload list
-
-      - name: NuGet Restore
-        shell: pwsh
-        run: dotnet restore BookShelves.Maui.csproj
-        working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Create IOS publish folder
         shell: pwsh
@@ -494,11 +489,8 @@ jobs:
           dotnet `
             publish `
             BookShelves.Maui.csproj `
-            --no-restore `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
-            -p:TargetFramework=${{env.DOTNET_VERSION}}-ios `
-            -p:TargetFrameworks=${{env.DOTNET_VERSION}}-ios `
             -p:RuntimeIdentifier=ios-arm64 `
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
@@ -518,11 +510,8 @@ jobs:
           dotnet `
             publish `
             BookShelves.Maui.csproj `
-            --no-restore `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
-            -p:TargetFramework=${{env.DOTNET_VERSION}}-maccatalyst `
-            -p:TargetFrameworks=${{env.DOTNET_VERSION}}-maccatalyst `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
@@ -749,12 +738,7 @@ jobs:
 
       - name: Install Windows Workloads
         shell: pwsh
-        run: dotnet workload restore BookShelves.Maui.csproj
-        working-directory: ${{env.MAUI_PROJPATH}}
-
-      - name: NuGet Restore
-        shell: pwsh
-        run: dotnet restore BookShelves.Maui.csproj
+        run: dotnet workload restore BookShelves.Maui.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
@@ -775,11 +759,8 @@ jobs:
         working-directory: ${{env.MAUI_PROJPATH}}
         run: |
           dotnet publish BookShelves.Maui.csproj `
-            --no-restore `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
-            -p:TargetFramework=${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
-            -p:TargetFrameworks=${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
