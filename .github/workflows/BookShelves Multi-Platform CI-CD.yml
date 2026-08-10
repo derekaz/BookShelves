@@ -491,21 +491,21 @@ jobs:
             BookShelves.Maui.csproj `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
-            -p:RuntimeIdentifier=ios-arm64 `
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
-            /p:ArchiveOnBuild=true `
-            /p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
-            /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
-            /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
-            /p:CodesignEntitlements="${{env.MAUI_IOS_CODESIGN_ENTITLEMENTS}}" `
-            /p:MtouchUseLlvm=false `
-            /p:MtouchLink=SdkOnly `
-            /p:DebugSymbols=true `
-            /p:NoDSymUtil=false `
-            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
-            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
+            -p:RuntimeIdentifier=ios-arm64 `
+            -p:ArchiveOnBuild=true `
+            -p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
+            -p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
+            -p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
+            -p:CodesignEntitlements="${{env.MAUI_IOS_CODESIGN_ENTITLEMENTS}}" `
+            -p:MtouchUseLlvm=false `
+            -p:MtouchLink=SdkOnly `
+            -p:DebugSymbols=true `
+            -p:NoDSymUtil=false `
+            -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
           dotnet `
             publish `
@@ -513,6 +513,8 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
+            -v normal `
+            -p:RuntimeIdentifier=maccatalyst-arm64 `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
             -p:EnableCodeSigning=true `
@@ -523,9 +525,9 @@ jobs:
             -p:CodesignEntitlements="${{env.MAUI_MAC_CODESIGN_ENTITLEMENTS}}" `
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false `
-            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
-            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
+            -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
       - name: Show workspace folder content
         shell: pwsh
@@ -764,18 +766,19 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
-            /p:RuntimeIdentifierOverride=win10-x64 `
-            /p:InvariantGlobalization=true `
-            /p:GenerateTestArtifacts=false `
-            /p:WindowsPackageType=MSIX `
-            /p:GenerateAppxPackageOnBuild=true `
-            /p:AppxPackageSigningEnabled=true `
-            /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
-            /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
-            /p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
-            /p:Version=${{ needs.validate.outputs.FullSemVer }} `
-            /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }} `
-            /p:InformationalVersion="${{ needs.validate.outputs.InformationalVersion }}"
+            -v normal `
+            -p:RuntimeIdentifierOverride=win10-x64 `
+            -p:InvariantGlobalization=true `
+            -p:GenerateTestArtifacts=false `
+            -p:WindowsPackageType=MSIX `
+            -p:GenerateAppxPackageOnBuild=true `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
+            -p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
+            -p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
+            -p:Version=${{ needs.validate.outputs.FullSemVer }} `
+            -p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }} `
+            -p:InformationalVersion="${{ needs.validate.outputs.InformationalVersion }}"
           # -v options are quiet, minimal, normal, detailed, diagnostic
 
       - name: Show project folder content
