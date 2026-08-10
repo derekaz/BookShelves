@@ -40,6 +40,7 @@ env:
   MAUI_IOS_MAC_BUNDLE_ID: 'com.azmoore.bookshelves.maui'
   MAUI_IOS_CODESIGN_PROVISION: 'BookShelves Test Profile'
   MAUI_IOS_CODESIGN_KEY: 'iOS Distribution'
+  MAUI_IOS_CODESIGN_ENTITLEMENTS: 'Platforms/iOS/Entitlements.plist'
   MAUI_MAC_PUBLISH_PATH: '${{ github.workspace }}/publish-output/mac'
   MAUI_MAC_ARTIFACTS_PATH: 'artifacts_mac'
   MAUI_MAC_CODESIGN_PROVISION: 'BookShelves MacOS Provisioning'
@@ -525,6 +526,7 @@ jobs:
             /p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
             /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
             /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
+            /p:CodesignEntitlements="${{env.MAUI_IOS_CODESIGN_ENTITLEMENTS}}" `
             /p:MtouchUseLlvm=false `
             /p:MtouchLink=SdkOnly `
             /p:DebugSymbols=true `
