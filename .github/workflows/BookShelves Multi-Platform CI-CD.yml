@@ -231,27 +231,8 @@ jobs:
 
           echo "Deployment environment: ${{ steps.compute_environment.outputs.environmentName }}" >> $GITHUB_STEP_SUMMARY
 
-      - name: Cache Linux Workloads
-        id: cache-linux-workloads
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.dotnet/workloads
-            /usr/share/dotnet/metadata/workloads
-            /usr/share/dotnet/sdk-manifests
-            /usr/share/dotnet/packs
-          key: linux-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
-          restore-keys: |
-            linux-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
-
       - name: Install .NET Workloads
-        if: steps.cache-linux-workloads.outputs.cache-hit != 'true'
-        # If AppHost/Web/API don't need workloads, change this to "dotnet workload install <specific-id>" 
-        # or omit it entirely if they are standard web apps.
-        run: dotnet workload restore 
-
-      # - name: Install .NET Workloads
-      #   run: dotnet workload restore
+        run: dotnet workload restore
 
       - name: Compile Solution (Debug Validation Step)
         run: |
@@ -467,31 +448,10 @@ jobs:
             **/Directory.Packages.props
             **/NuGet.config
 
-      - name: Cache Apple Workloads
-        id: cache-apple-workloads
-        uses: actions/cache@v6
-        with:
-          path: |
-            ~/.dotnet/workloads
-            ~/.dotnet/metadata/workloads
-            ~/.dotnet/sdk-manifests
-            ~/.dotnet/packs
-          key: macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
-          restore-keys: |
-            macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
-
-      - name: Install Apple Workloads Only
-        if: steps.cache-apple-workloads.outputs.cache-hit != 'true'
+      - name: Install Apple Workloads
         shell: bash
         run: dotnet workload restore BookShelves.Maui.csproj
         working-directory: ${{env.MAUI_PROJPATH}}
-
-      # - name: Restore Workloads
-      #   shell: bash
-      #   run: dotnet workload install maui-ios maui-maccatalyst wasm-tools
-      #   working-directory: ${{env.PROJPATH}}
-
-      # dotnet workload restore
 
       - name: Verify Dotnet SDKs
         shell: pwsh
@@ -511,9 +471,7 @@ jobs:
 
       - name: NuGet Restore
         shell: pwsh
-        run: |
-          dotnet restore BookShelves.Maui.csproj -p:TargetFramework=net10.0-ios
-          dotnet restore BookShelves.Maui.csproj -p:TargetFramework=net10.0-maccatalyst
+        run: dotnet restore BookShelves.Maui.csproj
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Create IOS publish folder
@@ -536,6 +494,7 @@ jobs:
           dotnet `
             publish `
             BookShelves.Maui.csproj `
+            --no-restore `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
             -p:TargetFramework=${{env.DOTNET_VERSION}}-ios `
@@ -559,6 +518,7 @@ jobs:
           dotnet `
             publish `
             BookShelves.Maui.csproj `
+            --no-restore `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -p:TargetFramework=${{env.DOTNET_VERSION}}-maccatalyst `
@@ -787,31 +747,15 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
 
-      - name: Cache Windows Workloads
-        id: cache-windows-workloads
-        uses: actions/cache@v6
-        with:
-          path: |
-            C:\Program Files\dotnet\metadata\workloads
-            C:\Program Files\dotnet\sdk-manifests
-            C:\Program Files\dotnet\packs
-            ~/.dotnet/workloads
-          key: windows-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
-          restore-keys: |
-            windows-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
-
-      - name: Install Windows Workload Only
-        if: steps.cache-windows-workloads.outputs.cache-hit != 'true'
+      - name: Install Windows Workloads
         shell: pwsh
         run: dotnet workload restore BookShelves.Maui.csproj
         working-directory: ${{env.MAUI_PROJPATH}}
 
-      # - name: Install MAUI Workloads
-      #   shell: pwsh  
-      #   run: dotnet workload install maui-windows wasm-tools
-      #   working-directory: ${{env.PROJPATH}}
-
-      #   dotnet workload restore
+      - name: NuGet Restore
+        shell: pwsh
+        run: dotnet restore BookShelves.Maui.csproj
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
         run: |
@@ -831,6 +775,7 @@ jobs:
         working-directory: ${{env.MAUI_PROJPATH}}
         run: |
           dotnet publish BookShelves.Maui.csproj `
+            --no-restore `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -p:TargetFramework=${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
