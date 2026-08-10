@@ -99,6 +99,13 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.7.0
@@ -232,7 +239,10 @@ jobs:
             ~/.dotnet/workloads
             /usr/share/dotnet/metadata/workloads
             /usr/share/dotnet/sdk-manifests
-          key: linux-workloads-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+            /usr/share/dotnet/packs
+          key: linux-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
+          restore-keys: |
+            linux-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
 
       - name: Install .NET Workloads
         if: steps.cache-linux-workloads.outputs.cache-hit != 'true'
@@ -449,6 +459,13 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
       - name: Cache Apple Workloads
         id: cache-apple-workloads
@@ -458,13 +475,16 @@ jobs:
             ~/.dotnet/workloads
             /usr/local/share/dotnet/metadata/workloads
             /usr/local/share/dotnet/sdk-manifests
-          key: macos-maui-workloads-${{ hashFiles('**/*.csproj') }}
+            /usr/local/share/dotnet/packs
+          key: macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
+          restore-keys: |
+            macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
 
       - name: Install Apple Workloads Only
         if: steps.cache-apple-workloads.outputs.cache-hit != 'true'
         shell: bash
         run: dotnet workload install maui-ios maui-maccatalyst wasm-tools
-        working-directory: ${{env.PROJ_PATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       # - name: Restore Workloads
       #   shell: bash
@@ -754,6 +774,13 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
@@ -765,14 +792,17 @@ jobs:
           path: |
             C:\Program Files\dotnet\metadata\workloads
             C:\Program Files\dotnet\sdk-manifests
+            C:\Program Files\dotnet\packs
             ~/.dotnet/workloads
-          key: windows-maui-workloads-${{ hashFiles('**/*.csproj') }}
+          key: windows-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
+          restore-keys: |
+            windows-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
 
       - name: Install Windows Workload Only
         if: steps.cache-windows-workloads.outputs.cache-hit != 'true'
         shell: pwsh
         run: dotnet workload install maui-windows wasm-tools
-        working-directory: ${{env.PROJ_PATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       # - name: Install MAUI Workloads
       #   shell: pwsh  
