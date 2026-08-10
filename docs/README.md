@@ -12,6 +12,7 @@ This folder contains solution-level guidance for contributors and AI-assisted wo
 
 - `Docker-and-Networking.md` - local Docker workflow and nginx routing notes
 - `Versioning-and-Release.md` - build metadata and release-flow reminders
+- `MudBlazor-Migration-Plan.md` - phased plan for moving the shared MAUI/Web UI to MudBlazor
 
 ## Supporting Notes
 

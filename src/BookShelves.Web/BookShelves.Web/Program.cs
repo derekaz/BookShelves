@@ -21,6 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+
 // Add services to the container.
 
 var initialScopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>();
@@ -81,6 +86,7 @@ builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderSe
 builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessService>();
 builder.Services.AddTransient<ISyncDataService, SyncDataService>();
 builder.Services.AddTransient<ISyncProgressService, SyncProgressService>();
+builder.Services.AddScoped<IPageSyncCoordinator, PageSyncCoordinator>();
 
 builder.Services.AddScoped<BearerTokenHandler>();
 builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
@@ -107,7 +113,7 @@ var app = builder.Build();
 // If the environment variable from Docker Compose is present, enforce it
 if (builder.Configuration["ASPNETCORE_FORWARDEDHEADERS_ENABLED"] == "true")
 {
-    Console.WriteLine("Using forwarded headers middleware because ASPNETCORE_FORWARDEDHEADERS_ENABLED is set to true!");
+    app.Logger.LogInformation("Using forwarded headers middleware because ASPNETCORE_FORWARDEDHEADERS_ENABLED is set to true!");
     // Allows handling headers from reverse proxy containers on the internal network
     app.UseForwardedHeaders(forwardedHeadersOptions);
 }

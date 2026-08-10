@@ -28,6 +28,7 @@ builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessS
 
 builder.Services.AddScoped<ISyncDataService, SyncDataService>();
 builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
+builder.Services.AddScoped<IPageSyncCoordinator, PageSyncCoordinator>();
 
 builder.Services.AddHttpClient<IWeatherForecasterService, WeatherForecasterService>(httpClient =>
 {

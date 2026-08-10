@@ -40,6 +40,7 @@ env:
   MAUI_IOS_MAC_BUNDLE_ID: 'com.azmoore.bookshelves.maui'
   MAUI_IOS_CODESIGN_PROVISION: 'BookShelves Test Profile'
   MAUI_IOS_CODESIGN_KEY: 'iOS Distribution'
+  MAUI_IOS_CODESIGN_ENTITLEMENTS: 'Platforms/iOS/Entitlements.plist'
   MAUI_MAC_PUBLISH_PATH: '${{ github.workspace }}/publish-output/mac'
   MAUI_MAC_ARTIFACTS_PATH: 'artifacts_mac'
   MAUI_MAC_CODESIGN_PROVISION: 'BookShelves MacOS Provisioning'
@@ -98,6 +99,13 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.7.0
@@ -270,7 +278,7 @@ jobs:
           context: ${{ github.workspace }}/src
           file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             APP_VERSION=${{ needs.validate.outputs.majorMinorPatch }}
             RUN_ID=${{ github.run_id }}
@@ -285,6 +293,9 @@ jobs:
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+          # 2. Added GHA caching for Web App
+          cache-from: type=gha,scope=docker-web
+          cache-to: type=gha,mode=max,scope=docker-web
 
       # --- WEB API PROJECT ---
       - name: Build and Push Web API Docker Image
@@ -293,7 +304,7 @@ jobs:
           context: ${{ github.workspace }}/src
           file: ${{env.WEBAPI_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
           push: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
             RUN_ID=${{ github.run_id }}
@@ -308,7 +319,9 @@ jobs:
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
             ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
             ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
-
+          # 2. Added GHA caching for Web API
+          cache-from: type=gha,scope=docker-webapi
+          cache-to: type=gha,mode=max,scope=docker-webapi
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
@@ -427,13 +440,18 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           global-json-file: ${{env.MAUI_PROJPATH}}/global.json
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
-      - name: Restore Workloads
-        shell: pwsh
-        run: |
-          dotnet workload restore
-          dotnet workload install wasm-tools
-        working-directory: ${{env.PROJPATH}}
+      - name: Install Apple Workloads
+        shell: bash
+        run: dotnet workload install maui-ios maui-maccatalyst
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Verify Dotnet SDKs
         shell: pwsh
@@ -451,12 +469,6 @@ jobs:
         shell: pwsh
         run: dotnet workload list
 
-      - name: NuGet Restore
-        shell: pwsh
-        run: dotnet restore ${{env.MAUI_CSPROJ}}
-        # working-directory: ${{env.MAUI_PROJPATH}}
-        working-directory: ${{env.PROJPATH}}
-
       - name: Create IOS publish folder
         shell: pwsh
         run: |
@@ -472,34 +484,37 @@ jobs:
       # Overrides passed directly to MSBuild properties mapping to Apple variables
       - name: Build Apple Package
         shell: pwsh
-        working-directory: ${{env.PROJPATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
         run: |
           dotnet `
             publish `
-            ${{env.MAUI_CSPROJ}} `
+            BookShelves.Maui.csproj `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-ios `
-            -p:RuntimeIdentifier=ios-arm64 `
             -o ${{env.MAUI_IOS_PUBLISH_PATH}} `
             -v normal `
-            /p:ArchiveOnBuild=true `
-            /p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
-            /p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
-            /p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
-            /p:MtouchUseLlvm=false `
-            /p:MtouchLink=SdkOnly `
-            /p:DebugSymbols=true `
-            /p:NoDSymUtil=false `
-            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
-            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
+            -p:RuntimeIdentifier=ios-arm64 `
+            -p:ArchiveOnBuild=true `
+            -p:ArchiveBasePath="${{ github.workspace }}/publish-output/ios-archive" `
+            -p:CodesignKey="${{env.MAUI_IOS_CODESIGN_KEY}}" `
+            -p:CodesignProvision="${{env.MAUI_IOS_CODESIGN_PROVISION}}" `
+            -p:CodesignEntitlements="${{env.MAUI_IOS_CODESIGN_ENTITLEMENTS}}" `
+            -p:MtouchUseLlvm=false `
+            -p:MtouchLink=SdkOnly `
+            -p:DebugSymbols=true `
+            -p:NoDSymUtil=false `
+            -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
           dotnet `
             publish `
-            ${{env.MAUI_CSPROJ}} `
+            BookShelves.Maui.csproj `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -f ${{env.DOTNET_VERSION}}-maccatalyst `
             -o ${{env.MAUI_MAC_PUBLISH_PATH}} `
+            -v normal `
+            -p:RuntimeIdentifier=maccatalyst-arm64 `
             -p:MtouchLink=SdkOnly `
             -p:CreatePackage=true `
             -p:EnableCodeSigning=true `
@@ -510,9 +525,9 @@ jobs:
             -p:CodesignEntitlements="${{env.MAUI_MAC_CODESIGN_ENTITLEMENTS}}" `
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false `
-            /p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            /p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
-            /p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
+            -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
+            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
       - name: Show workspace folder content
         shell: pwsh
@@ -712,13 +727,21 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{env.DOTNET_SDK_VERSION}}
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.sln
+            **/global.json
+            **/Directory.Packages.props
+            **/NuGet.config
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
 
-      - name: Install MAUI Workloads
-        run: dotnet workload restore
-        working-directory: ${{env.PROJPATH}}
+      - name: Install Windows Workloads
+        shell: pwsh
+        run: dotnet workload install maui-windows
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
         run: |
@@ -735,26 +758,27 @@ jobs:
           mkdir -p ${{ env.MAUI_WINDOWS_PUBLISH_PATH }}
 
       - name: Build Windows Packages
-        working-directory: ${{env.PROJPATH}}
+        working-directory: ${{env.MAUI_PROJPATH}}
         run: |
-          dotnet publish ${{env.MAUI_CSPROJ}} `
+          dotnet publish BookShelves.Maui.csproj `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
+            -v normal `
             -p:RuntimeIdentifierOverride=win10-x64 `
             -p:InvariantGlobalization=true `
-            /p:GenerateTestArtifacts=false `
-            /p:WindowsPackageType=MSIX `
-            /p:GenerateAppxPackageOnBuild=true `
-            /p:AppxPackageSigningEnabled=true `
-            /p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
-            /p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
-            /p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
-            /p:Version=${{ needs.validate.outputs.FullSemVer }} `
-            /p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }} `
-            /p:InformationalVersion="${{ needs.validate.outputs.InformationalVersion }}"
+            -p:GenerateTestArtifacts=false `
+            -p:WindowsPackageType=MSIX `
+            -p:GenerateAppxPackageOnBuild=true `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateThumbprint="${{ secrets.WINDOWS_PFX_THUMBPRINT }}" `
+            -p:ApplicationDisplayVersion="${{ needs.validate.outputs.DisplayVersion }}" `
+            -p:ApplicationVersion=${{ needs.validate.outputs.WindowsBuildNumber}} `
+            -p:Version=${{ needs.validate.outputs.FullSemVer }} `
+            -p:PackageVersion=${{ needs.validate.outputs.MajorMinorPatch }} `
+            -p:InformationalVersion="${{ needs.validate.outputs.InformationalVersion }}"
           # -v options are quiet, minimal, normal, detailed, diagnostic
 
       - name: Show project folder content

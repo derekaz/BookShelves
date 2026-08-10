@@ -1,19 +1,27 @@
-﻿html, body {
+﻿@import url('c:\users\derek\source\repos\bookshelves\src\bookshelves.shared\wwwroot\css\app.css');
+html, body, #app {
+    height: 100dvh;
+    min-height: 100dvh;
+    width: 100%;
+    margin: 0;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+body {
+    overflow: hidden;
+}
+
+.mud-layout {
+    min-height: 100dvh;
+}
+
+.mud-main-content {
+    min-height: 0;
+    overflow: auto;
 }
 
 a, .btn-link {
     color: #006bb7;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -109,4 +117,35 @@ body {
     background-color: var(--site-bg) !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+}
+
+/* Customizes the MudBlazor striped background tint */
+/*.mud-table-striped .mud-table-row:nth-of-type(odd) {
+    background-color: var(--mud-palette-background-grey) !important;
+}
+*/
+.mud-custom-blurred-background-class {
+    backdrop-filter: blur(10px);
+}
+
+/* 1. FORCE HEADER CELL BACKGROUND (Overriding FixedHeader defaults) */
+.subtle-sort-table .mud-table-head .mud-table-cell {
+    background-color: var(--mud-palette-background-grey) !important;
+}
+
+/* 2. RE-ESTABLISH BOTTOM CONTAINER BORDER LINE */
+.subtle-sort-table .mud-table-head .mud-table-row {
+    border-bottom: 2px solid var(--mud-palette-divider) !important;
+}
+
+/* 3. MATCH SPECIFICITY CHAIN TO OVERRIDE THE SUBTITLE2 FONT WEIGHTS */
+.subtle-sort-table .mud-table-root .mud-table-head .mud-table-cell,
+.subtle-sort-table .mud-table-head .mud-table-sort-label {
+    font-weight: 700 !important;
+    color: var(--mud-palette-text-primary) !important;
+}
+
+/* 4. PIN ACTIVE & INACTIVE SORT ARROWS TO MATCH BOLD SYSTEM */
+.subtle-sort-table .mud-table-head .mud-table-sort-label .mud-icon-root {
+    font-weight: 700 !important;
 }

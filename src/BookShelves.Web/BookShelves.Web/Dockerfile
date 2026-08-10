@@ -38,15 +38,23 @@ COPY ["BookShelves.Shared/BookShelves.Shared.csproj", "BookShelves.Shared/"]
 COPY ["BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj", "BookShelves.ServiceDefaults/"]
 
 # 4. Restore dependencies using the nested project path
-RUN dotnet restore "BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
+# RUN dotnet restore "BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
+
+# 4. Restore dependencies using the nested project path with a cache mount
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet restore "BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj"
 
 # 5. Copy the actual source code files
 COPY . .
 
-# 6. Change working directories to build the targeted app context
+# 6. Change working directories to build the targeted app context using the same cache
 WORKDIR "/src/BookShelves.Web/BookShelves.Web"
-RUN dotnet build "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet build "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
+# 6. Change working directories to build the targeted app context
+# WORKDIR "/src/BookShelves.Web/BookShelves.Web"
+# RUN dotnet build "BookShelves.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish

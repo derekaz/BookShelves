@@ -40,11 +40,16 @@ public static class MauiProgram
             var logPath = FileAccessHelper.GetLogFilePath("app-log-.txt");
 
             Log.Logger = new LoggerConfiguration()
-#if DEBUG
-                .MinimumLevel.Debug()
-#else
-                .MinimumLevel.Information()
-#endif
+                .MinimumLevel.Verbose()
+
+                // 2. Suppress generic noise you don't care about in production
+                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+
+                // 3. Explicitly allow your app code and HTTP API client telemetry to stay hyper-verbose
+                .MinimumLevel.Override("BookShelves.Maui", Serilog.Events.LogEventLevel.Debug)
+                .MinimumLevel.Override("System.Net.Http.HttpClient.WeatherApiClient", Serilog.Events.LogEventLevel.Verbose)
+
                 .WriteTo.Debug()            // Keep for local IDE debugging
                 .WriteTo.File(
                     path: logPath,
@@ -112,9 +117,8 @@ public static class MauiProgram
 #if DEBUG
             builder.Services.AddLogging(logging =>
             {
-                logging.AddConsole();
                 logging.AddDebug();
-                logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
             });
 #endif
 
@@ -139,7 +143,7 @@ public static class MauiProgram
 #if ANDROID
             builder.Services.AddSingleton<IWindowService, Platforms.Android.WindowService>();
 #elif IOS
-        builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
+            builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
 #elif MACCATALYST
         builder.Services.AddSingleton<IWindowService, Platforms.Mac.WindowService>();
 #elif WINDOWS
@@ -192,9 +196,17 @@ public static class MauiProgram
             builder.Services.AddHttpClient<IWeatherApiClient, WeatherApiClient>(client =>
             {
                 string baseUrl = builder.Configuration.GetSection("WeatherApi:BaseUrl").Get<string>() ?? string.Empty;
+#if DEBUG
+                if (baseUrl.Contains("bookshelves.azmoore.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    baseUrl = "https://localhost:7135";
+                }
+#endif
                 client.BaseAddress = new Uri(baseUrl);
                 client.Timeout = new TimeSpan(0, 0, 20);
-            }).AddHttpMessageHandler(sp =>
+            })
+            .ConfigurePrimaryHttpMessageHandler(() => HttpClientHelper.CreateHttpMessageHandler())
+            .AddHttpMessageHandler(sp =>
             {
                 var scopes = builder.Configuration.GetSection("WeatherApi:Scopes").Get<string[]>() ?? [];
                 return new MauiAuthenticationMessageHandler(
@@ -210,9 +222,16 @@ public static class MauiProgram
             builder.Services.AddHttpClient<ISyncApiClient, SyncApiClient>(client =>
             {
                 string baseUrl = builder.Configuration.GetSection("SyncApi:BaseUrl").Get<string>() ?? string.Empty;
+#if DEBUG
+                if (baseUrl.Contains("bookshelves.azmoore.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    baseUrl = "https://localhost:7135";
+                }
+#endif
                 client.BaseAddress = new Uri(baseUrl);
                 client.Timeout = new TimeSpan(0, 0, 20);
             })
+            .ConfigurePrimaryHttpMessageHandler(() => HttpClientHelper.CreateHttpMessageHandler())
             .AddHttpMessageHandler(_ =>
             {
                 return new LoggingHandler();
@@ -285,7 +304,7 @@ public static class MauiProgram
 #endif
 
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine("MauiProgram:CreateMauiApp - Set dbPath:{0}", dbPath);
+                Log.Debug("MauiProgram:CreateMauiApp - Set dbPath: {DbPath}", dbPath);
 #endif
 
                 var localDbConnectionString = $"Data Source={dbPath}";
@@ -296,12 +315,10 @@ public static class MauiProgram
                 });
 
 #if DEBUG
-                options.LogTo(message => System.Diagnostics.Debug.WriteLine(message),
-                    new[] { DbLoggerCategory.Database.Command.Name }, // Filters down to just SQL queries/commands
-                    Microsoft.Extensions.Logging.LogLevel.Information);
-
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
+                options.LogTo(
+                    message => System.Diagnostics.Debug.WriteLine(message),
+                    new[] { DbLoggerCategory.Database.Command.Name },
+                    Microsoft.Extensions.Logging.LogLevel.Warning);
 #endif
             });
 

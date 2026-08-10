@@ -1,45 +1,21 @@
-﻿<MudDialog>
+﻿@inherits DeleteDialogBase<BookViewModel>
+
+<MudDialog>
     <TitleContent>Delete Book</TitleContent>
     <DialogContent>
-        Are you sure you want to delete '@BookObject!.Title'?
+        Are you sure you want to delete '@GetRecordName(ModelObject!)'?
     </DialogContent>
     <DialogActions>
-        <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
-
-@* <div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
-    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
-    <div class="modal-dialog" role="document" style="z-index: 1050">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Book</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
-                    <span aria-hidden="true">x</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete '@BookObject!.Title'?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div> *@
-
-@code 
+@code
 {
-    [CascadingParameter] 
-    IMudDialogInstance? MudDialog { get; set; } // = default!;
+    // 1. Tell the base class how to extract this entity's unique ID token
+    protected override string GetRecordIdentifier(BookViewModel model) => model.Id ?? string.Empty;
 
-    [Parameter]
-    public BookViewModel? BookObject { get; set; }
-
-    private void Ok() => MudDialog? .Close(DialogResult.Ok(BookObject?.IdValue));
-    private void Close() => MudDialog?.Close(DialogResult.Cancel());
-    private void Cancel() => MudDialog?.Cancel();
+    // 2. Tell the base class what property display text to inject into the modal string
+    protected override string GetRecordName(BookViewModel model) => model.Title ?? string.Empty;
 }

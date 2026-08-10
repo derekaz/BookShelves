@@ -1,6 +1,5 @@
-﻿@using BookShelves.Shared
-@using Microsoft.AspNetCore.Components.Authorization
-
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 
 <ErrorBoundary>
     <ChildContent>
@@ -20,9 +19,11 @@
         </Router>
     </ChildContent>
     <ErrorContent Context="exception">
-        <div class="alert alert-danger m-3">
-            <h4>An unexpected error occurred.</h4>
-            <p>@exception.Message</p>
-        </div>
+        <MudPaper Class="pa-4 ma-3" Elevation="1">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h6">An unexpected error occurred.</MudText>
+                <MudText Typo="Typo.body2">@exception.Message</MudText>
+            </MudStack>
+        </MudPaper>
     </ErrorContent>
 </ErrorBoundary>

@@ -1,33 +1,31 @@
 ﻿@page "/"
-@using BookShelves.Shared.Data.Interfaces
 @using BookShelves.Shared.Services.ServiceInterfaces
-@* @inject IBooksSyncService booksSyncService; *@
 @inject IConfiguration configuration;
 @inject IDocumentsFolderAccessService documentsFolderAccessService
 
-<h1>BookShelves</h1>
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.h4">BookShelves</MudText>
+        <MudText Typo="Typo.body1">Welcome to your book library! 0.2.4+</MudText>
+        <MudText Typo="Typo.body2">TestKey=@configuration["TestKey"]</MudText>
+        <MudText Typo="Typo.body2">TestKey1=@configuration["settings:TestKey1"]</MudText>
+        <MudText Typo="Typo.body2">TestKey2=@configuration["settings:TestKey2"]</MudText>
 
-Welcome to your book library! 0.2.4+
+        @if (OperatingSystem.IsMacCatalyst())
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="RequestDocumentsFolderAccessAsync">
+                Choose Documents/BookShelves Folder
+            </MudButton>
 
-<!--<button class="btn btn-primary" @onclick="LoginAsync">Login</button>
-<button class="btn" @onclick="Logout">Logout</button>
-<p role="status">Current token: @currentToken</p>-->
-<p>TestKey=@configuration["TestKey"]</p>
-<p>TestKey1=@configuration["settings:TestKey1"]</p>
-<p>TestKey2=@configuration["settings:TestKey2"]</p>
-<!--<input type="button" class="btn btn-primary" @onclick="(() => SyncBooksAsync())" value="Sync" />-->
-
-@if (OperatingSystem.IsMacCatalyst())
-{
-    <div class="mt-3">
-        <button class="btn btn-primary" @onclick="RequestDocumentsFolderAccessAsync">Choose Documents/BookShelves Folder</button>
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(folderAccessStatus))
-    {
-        <p class="mt-2">@folderAccessStatus</p>
-    }
-}
+            @if (!string.IsNullOrWhiteSpace(folderAccessStatus))
+            {
+                <MudText Typo="Typo.body2">@folderAccessStatus</MudText>
+            }
+        }
+    </MudStack>
+</MudPaper>
 
 @code
 {
@@ -40,30 +38,4 @@ Welcome to your book library! 0.2.4+
             ? "No folder was selected."
             : $"Persistent access granted: {folderPath}";
     }
-
-    // private async void SyncBooksAsync()
-    // {
-    //     await booksSyncService.BeginSyncAsync();
-    //     // http.BaseAddress = new Uri("https:bookshelves.cloud.azmoore.com");
-    //     // var temp = await http.GetStringAsync("/api/books");
-    // }
-
-    // [Inject] IMacAuthenticationService _authService { get; set; }
-    // [Inject] ISettingsService _settingsService { get; set; }
-
-    // private string currentToken = "NA";
-
-    // private async Task LoginAsync()
-    // {
-    //     var result = await _authService.GetTokenAsync( _settingsService.GraphScopes, false);
-    //     currentToken = result ?? "NULL";
-    //     Console.WriteLine("Login Auth Result: '" + result + "'");
-    // }
-
-    // private void Logout()
-    // {
-    //     _authService.LogOut();
-    //     currentToken = "NA";
-    //     Console.WriteLine("Logged out");
-    // }
 }

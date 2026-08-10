@@ -1,147 +1,86 @@
 ﻿@using BookShelves.Shared.Data.Interfaces
+@inherits DetailDialogBase<BookDetail, BookViewModel>
 @inject IBooksDataService DataService
 @inject IAuthorsDataService AuthorsDataService
 
 <MudDialog>
     <TitleContent>@TitleText</TitleContent>
     <DialogContent>
-        <EditForm Model="@BookObject">
-            <div class="form-group">
-                <label for="Title" class="control-label">Title</label>
-                <InputText id="title" for="Title" class="form-control" @bind-Value="@BookObject!.Title" />
-            </div>
-            <div class="form-group">
-                <label for="Author" class="control-label">Author</label>
-                <MudAutocomplete T="AuthorViewModel"
-                                 @bind-Value="SelectedAuthor"
-                                 SearchFunc="SearchAuthors"
-                                 ToStringFunc="@(author => author?.Name ?? string.Empty)"
-                                 Variant="Variant.Outlined"
-                                 Dense="true"
-                                 Clearable="true"
-                                 ResetValueOnEmptyText="true" />
-                <div class="d-flex gap-2 mt-2">
-                    <InputText class="form-control" @bind-Value="NewAuthorName" placeholder="Add new author name" />
-                    <button type="button" class="btn btn-outline-primary" @onclick="AddAuthorInlineAsync" disabled="@IsAddingAuthor">Add Author</button>
-                </div>
+        <MudStack Spacing="3">
+            @* Map fields directly to base class "ModelObject" target *@
+            <MudTextField Label="Title" @bind-Value="@ModelObject!.Title" Variant="Variant.Outlined" />
+
+            <div>
+                <MudAutocomplete T="AuthorViewModel" Label="Author" @bind-Value="SelectedAuthor" SearchFunc="SearchAuthors" ToStringFunc="@(author => author?.Name ?? string.Empty)" Variant="Variant.Outlined" Dense="true" Clearable="true" ResetValueOnEmptyText="true" />
+                <MudStack Row="true" Spacing="2" Class="mt-2">
+                    <MudTextField @bind-Value="NewAuthorName" Label="Add new author name" Variant="Variant.Outlined" />
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddAuthorInlineAsync" Disabled="@IsAddingAuthor">
+                        Add Author
+                    </MudButton>
+                </MudStack>
                 @if (!string.IsNullOrWhiteSpace(AuthorStatusMessage))
                 {
-                    <div class="text-muted mt-1">@AuthorStatusMessage</div>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2">@AuthorStatusMessage</MudText>
                 }
             </div>
-            <div class="form-group">
-                <label for="Description" class="control-label">Description</label>
-                <InputText for="Description" class="form-control" @bind-Value="@BookObject.Description" />
-            </div>
-            <div class="form-group">
-                <label for="PublishDate" class="control-label">Published</label>
-                <MudDatePicker @bind-Date="BookObject.PublishDate"
-                               Placeholder="Select a date"
-                               Editable="true"
-                               DateFormat="MM/dd/yyyy"
-                               Variant="Variant.Outlined"
-                               Clearable="true" />
-            </div>
-            <div class="form-group">
-                <label for="LastUpdateTime" class="control-label">Last Update</label>
-                <div class="form-control">
-                    @BookObject.LastUpdateTime
-                </div>
-                @* <InputText for="LastUpdateTime" class="form-control" @bind-Value="@BookObject.LastUpdateTime" /> *@
-            </div>
-        </EditForm>
+
+            <MudTextField Label="Description" @bind-Value="@ModelObject.Description" Variant="Variant.Outlined" Lines="3" />
+            <MudDatePicker @bind-Date="ModelObject.PublishDate" Label="Published" Placeholder="Select a date" Editable="true" DateFormat="MM/dd/yyyy" Variant="Variant.Outlined" Clearable="true" />
+            <MudField Label="Last Update" Variant="Variant.Outlined">@ModelObject.LastUpdateTime</MudField>
+        </MudStack>
     </DialogContent>
     <DialogActions>
-        <button type="button" @onclick="SubmitForm">Submit</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitForm">Submit</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
-@code 
+@code
 {
-    [CascadingParameter]
-    IMudDialogInstance? MudDialog { get; set; } // = default!;
-
-    [Parameter]
-    public BookViewModel? BookObject { get; set; }
-
-    [Parameter]
-    public string TitleText { get; set; } = "Books";
-
-    string message = string.Empty;
-
-    private List<AuthorViewModel> Authors { get; set; } = [];
-
+    private List<AuthorViewModel> Authors { get; set; } = new();
     private AuthorViewModel? SelectedAuthor { get; set; }
-
     private string NewAuthorName { get; set; } = string.Empty;
-
     private bool IsAddingAuthor { get; set; }
-
     private string AuthorStatusMessage { get; set; } = string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        BookObject ??= new BookViewModel();
+    // 1. Tell the base component how to instantiate a fresh book view model context
+    protected override BookViewModel InitializeModel() => new();
 
+    // 2. Define the explicit ID evaluation rule boundaries
+    protected override bool IsNewRecord(BookViewModel model) => string.IsNullOrEmpty(model.Id) || model.Id == "0";
+
+    // 3. Mount individual Data Service strategy pipelines
+    protected override async Task<bool> ExecuteCreateAsync(BookViewModel model) => await DataService.CreateBookAsync(model);
+    protected override async Task<bool> ExecuteUpdateAsync(BookViewModel model) => await DataService.UpdateBookAsync(model);
+    protected override string GetSuccessMessage(BookViewModel model, bool isNew) => isNew ? $"'{model.Title}' has been added." : $"'{model.Title}' has been updated.";
+
+    // 4. Load your Author drops safely inside the initialized hook method
+    protected override async Task OnFormInitializedAsync()
+    {
         Authors = (await AuthorsDataService.GetAuthorsAsync()).ToList();
 
-        if (!string.IsNullOrWhiteSpace(BookObject.Author?.Id))
+        if (!string.IsNullOrWhiteSpace(ModelObject!.Author?.Id))
         {
-            SelectedAuthor = Authors.FirstOrDefault(a => a.Id == BookObject.Author.Id);
+            SelectedAuthor = Authors.FirstOrDefault(a => a.Id == ModelObject.Author.Id);
         }
 
-        if (SelectedAuthor is null && !string.IsNullOrWhiteSpace(BookObject.Author?.Name))
+        if (SelectedAuthor is null && !string.IsNullOrWhiteSpace(ModelObject.Author?.Name))
         {
-            SelectedAuthor = Authors.FirstOrDefault(a => string.Equals(a.Name, BookObject.Author.Name, StringComparison.OrdinalIgnoreCase));
-        }
-    }
-
-    private async Task SubmitForm()
-    {
-        if (BookObject is null)
-        {
-            return;
-        }
-
-        ApplySelectedAuthor();
-
-        if (string.IsNullOrEmpty(BookObject.IdValue) || BookObject.IdValue == "0")
-        {
-            var result = await DataService.CreateBookAsync(BookObject);
-            if (result)
-            {
-                string message = $"'{BookObject.Title}' has been added.";
-                MudDialog?.Close(DialogResult.Ok(message));
-            }
-        }
-        else
-        {
-            var result = await DataService.UpdateBookAsync(BookObject);
-            if (result)
-            {
-                string message = $"'{BookObject.Title}' has been updated.";
-                MudDialog?.Close(DialogResult.Ok(message));
-            }
+            SelectedAuthor = Authors.FirstOrDefault(a => string.Equals(a.Name, ModelObject.Author.Name, StringComparison.OrdinalIgnoreCase));
         }
     }
 
-    private void ApplySelectedAuthor()
+    // 5. Package up the active chosen lookup right before base data changes submit
+    protected override Task OnBeforeSubmitAsync()
     {
-        if (BookObject is null)
+        ModelObject!.Author = SelectedAuthor is null ? null : new AuthorViewModel
         {
-            return;
-        }
-
-        BookObject.Author = SelectedAuthor is null
-            ? null
-            : new AuthorViewModel
-            {
-                Id = SelectedAuthor.Id,
-                Name = SelectedAuthor.Name,
-                Biography = SelectedAuthor.Biography,
-                LastUpdateTime = SelectedAuthor.LastUpdateTime
-            };
+            Id = SelectedAuthor.Id,
+            Name = SelectedAuthor.Name,
+            Biography = SelectedAuthor.Biography,
+            LastUpdateTime = SelectedAuthor.LastUpdateTime
+        };
+        return Task.CompletedTask;
     }
 
     private Task<IEnumerable<AuthorViewModel>> SearchAuthors(string value, CancellationToken cancellationToken)
@@ -151,20 +90,13 @@
             return Task.FromResult<IEnumerable<AuthorViewModel>>(Authors);
         }
 
-        var results = Authors.Where(author =>
-            !string.IsNullOrWhiteSpace(author.Name) &&
-            author.Name.Contains(value, StringComparison.OrdinalIgnoreCase));
-
-        return Task.FromResult(results);
+        return Task.FromResult(Authors.Where(a => !string.IsNullOrWhiteSpace(a.Name) && a.Name.Contains(value, StringComparison.OrdinalIgnoreCase)));
     }
 
     private async Task AddAuthorInlineAsync()
     {
         var authorName = NewAuthorName.Trim();
-        if (string.IsNullOrWhiteSpace(authorName))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(authorName)) return;
 
         var existingAuthor = Authors.FirstOrDefault(a => string.Equals(a.Name, authorName, StringComparison.OrdinalIgnoreCase));
         if (existingAuthor is not null)
@@ -180,24 +112,15 @@
 
         try
         {
-            var result = await AuthorsDataService.CreateAuthorAsync(new AuthorViewModel { Name = authorName });
-            if (!result)
+            if (await AuthorsDataService.CreateAuthorAsync(new AuthorViewModel { Name = authorName }))
             {
-                AuthorStatusMessage = "Unable to add author.";
-                return;
+                Authors = (await AuthorsDataService.GetAuthorsAsync()).ToList();
+                SelectedAuthor = Authors.LastOrDefault(a => string.Equals(a.Name, authorName, StringComparison.OrdinalIgnoreCase));
+                NewAuthorName = string.Empty;
+                AuthorStatusMessage = $"'{authorName}' has been added and selected.";
             }
-
-            Authors = (await AuthorsDataService.GetAuthorsAsync()).ToList();
-            SelectedAuthor = Authors.LastOrDefault(a => string.Equals(a.Name, authorName, StringComparison.OrdinalIgnoreCase));
-            NewAuthorName = string.Empty;
-            AuthorStatusMessage = $"'{authorName}' has been added and selected.";
+            else AuthorStatusMessage = "Unable to add author.";
         }
-        finally
-        {
-            IsAddingAuthor = false;
-        }
+        finally { IsAddingAuthor = false; }
     }
-
-    private void Close() => MudDialog?.Close(DialogResult.Cancel());
-    private void Cancel() => MudDialog?.Cancel();
 }

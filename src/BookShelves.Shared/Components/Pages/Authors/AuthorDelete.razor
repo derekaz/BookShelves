@@ -1,45 +1,18 @@
-﻿<MudDialog>
+﻿@inherits DeleteDialogBase<AuthorViewModel>
+
+<MudDialog>
     <TitleContent>Delete Author</TitleContent>
     <DialogContent>
-        Are you sure you want to delete '@AuthorObject!.Name'?
+        Are you sure you want to delete '@GetRecordName(ModelObject!)'?
     </DialogContent>
     <DialogActions>
-        <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
-
-@* <div class="modal fade show d-block" tabindex="-1" role="dialog" id="confirmDelete">
-    <div class="modal-backdrop fade show" @onclick="Cancel"></div>
-    <div class="modal-dialog" role="document" style="z-index: 1050">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Book</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="Close">
-                    <span aria-hidden="true">x</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to delete '@BookObject!.Title'?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="Ok">Ok</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div> *@
-
-@code 
+@code
 {
-    [CascadingParameter] 
-    IMudDialogInstance? MudDialog { get; set; } // = default!;
-
-    [Parameter]
-    public AuthorViewModel? AuthorObject { get; set; }
-
-    private void Ok() => MudDialog? .Close(DialogResult.Ok(AuthorObject?.IdValue));
-    private void Close() => MudDialog?.Close(DialogResult.Cancel());
-    private void Cancel() => MudDialog?.Cancel();
+    protected override string GetRecordIdentifier(AuthorViewModel model) => model.Id ?? string.Empty;
+    protected override string GetRecordName(AuthorViewModel model) => model.Name ?? string.Empty;
 }

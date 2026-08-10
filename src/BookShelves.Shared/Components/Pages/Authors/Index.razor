@@ -1,259 +1,226 @@
 ﻿@page "/authors"
-@implements IDisposable
+@inherits DataViewPageBase<AuthorViewModel>
 @inject IAuthorsDataService DataService
-@inject IDialogService DialogService
-@inject ILogger<Index> Logger
-@inject ISyncDataService SyncDataService
-@inject ISyncProgressService SyncProgressService
 @attribute [Authorize(Roles = "Administrator")]
 
-<h1>Authors</h1>
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        @* Header bar with your reusable offline sync widget *@
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Authors</MudText>
+            <MudSpacer />
+            <SyncStatusPanel Status="@syncStatus" />
+        </MudStack>
 
-<div class="mb-2">
-    <button @onclick="AddAsync" class="btn btn-primary">Add Author</button>
-</div>
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
 
-<p>@message</p>
+        @* Responsive, searchable, sortable MudTable mapping to base Items dataset *@
+        <MudTable Items="Items" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Loading="@(Items == null)" Filter="new Func<AuthorViewModel, bool>(FilterFunc)">
+            <ToolBarContent>
+                @* Hide the title text if the search input is actively expanded on mobile devices to preserve horizontal line space *@
+                @if (!isSearchExpandedMobile)
+                {
+                    <MudText Typo="Typo.h6" Class="text-nowrap">Author Profiles</MudText>
+                }
+                <MudSpacer />
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100 justify-end">
+                    @* --- DESKTOP VIEWPORT SCANNER --- *@
+                    @* Displays the standard persistent soft gray box on larger monitors and tablet devices *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        <MudTextField @bind-Value="searchString"
+                                      Placeholder="Search..."
+                                      Variant="Variant.Filled"
+                                      Margin="Margin.Dense"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      IconSize="Size.Medium"
+                                      Class="mt-0"
+                                      Style="max-width: 300px;"
+                                      Immediate="true"
+                                      Clearable="true" />
+                    </MudHidden>
 
-@if (Authors == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col"><div class="fw-bold mb-1">Name</div><div class="text-muted mb-0">Biography</div></th>
-                <th scope="col">Last Update</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var author in Authors)
-            {
-                <tr>
-                    <th scope="row">@author.IdValue</th>
-                    <td><div class="fw-normal mb-1">@author.Name</div><div class="text-muted mb-0">@author.Biography</div></td>
-                    <td>@author.LastUpdateTime</td>
-                    <td>
-                        <input type="button" class="btn btn-primary" @onclick="(() => EditAsync(author))" value="Edit" />
-                        <input type="button" class="btn btn-primary" @onclick="(() => DeleteAsync(author))" value="Delete" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                    @* --- MOBILE VIEWPORT SCANNER --- *@
+                    @* Toggles smoothly between a single standalone icon button and an active full-width input field *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @if (isSearchExpandedMobile)
+                        {
+                            <MudTextField @ref="mobileSearchField" 
+                                          @bind-Value="searchString"
+                                          Placeholder="Search..."
+                                          Variant="Variant.Filled"
+                                          Margin="Margin.Dense"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          IconSize="Size.Medium"
+                                          Class="mt-0 w-100 animate-fade-in"
+                                          Immediate="true"
+                                          Clearable="true"
+                                          OnClearButtonClick="ToggleMobileSearchAsync"
+                                          OnKeyDown="HandleSearchKeyDown" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                           Color="Color.Inherit"
+                                           OnClick="ToggleMobileSearchAsync"
+                                           aria-label="Open Search Bar" />
+                        }
+                    </MudHidden>
 
-<style>
-    .my-custom-class {
-        backdrop-filter: blur(10px);
-    }
-</style>
+                    @* --- ADD ACTION BUTTON --- *@
+                    @* Stays pinned safely on the far right edge of the control bar header line *@
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        @* Desktop: Full button with text *@
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   OnClick="AddAsync"
+                                   aria-label="Add New Author"
+                                   Class="text-nowrap">
+                            Add
+                        </MudButton>
+                    </MudHidden>
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @* Mobile: Perfect square icon button *@
+                        <MudIconButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       Icon="@Icons.Material.Filled.Add"
+                                       OnClick="AddAsync"
+                                       aria-label="Add New Author" />
+                    </MudHidden>
+                </MudStack>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<AuthorViewModel, object?>(x => x.Name)">Name</MudTableSortLabel></MudTh>
+                <MudTh>Biography</MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<AuthorViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
+                <MudTh Style="text-align: right">Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Biography">@context.Biography</MudTd>
+                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
+                <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
+                    <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                        @* Edit Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Primary"
+                        Size="Size.Small"
+                        aria-label="Edit"
+                        OnClick="@(() => EditAsync(context))" />
+
+                        @* Delete Icon Button *@
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       aria-label="Delete"
+                                       OnClick="@(() => DeleteAsync(context))" />
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudStack AlignItems="AlignItems.Center" Class="pa-6" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.SearchOff" Size="Size.Large" Color="Color.Secondary" />
+                    <MudText Typo="Typo.h6" Align="Align.Center">No matching records found</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                        Try adjusting your search terms or verify your offline data sync status.
+                    </MudText>
+                </MudStack>
+            </NoRecordsContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudStack>
+</MudPaper>
 
 @code {
-    #if NET10_0
-    [PersistentState]
-#endif
-    public IEnumerable<AuthorViewModel>? Authors { get; set; }
+    private readonly DialogOptions dialogOptions = new() { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
 
-    private static readonly TimeSpan AutoSyncDelay = TimeSpan.FromSeconds(2);
+    private bool isSearchExpandedMobile = false;
+    private MudTextField<string>? mobileSearchField;
 
-    private readonly SemaphoreSlim syncOperationGate = new(1, 1);
-    private CancellationTokenSource? autoSyncDelayCts;
-
-    private string message = string.Empty;
-    private bool isSyncing = false;
-    private bool syncRequested = false;
-    private int currentStep = 0;
-    private int totalSteps = 3;
-    private int progressPercentage = 0;
-    private BookShelves.Shared.Services.SyncStage syncStage = BookShelves.Shared.Services.SyncStage.None;
-    private string syncMessage = string.Empty;
-
-    protected override async Task OnInitializedAsync()
+    // 1. Tell the base component how to populate the dataset
+    private async Task ToggleMobileSearchAsync()
     {
-        try
+        isSearchExpandedMobile = !isSearchExpandedMobile;
+
+        if (isSearchExpandedMobile)
         {
-            // subscribe to sync progress
-            SyncProgressService.ProgressChanged += OnSyncProgressChanged;
+            // Gives Blazor one render tick to inject the MudTextField DOM node into the markup tree
+            await Task.Yield();
 
-            Authors ??= await DataService.GetAuthorsAsync();
-        }
-        catch (Microsoft.Identity.Client.MsalUiRequiredException)
-        {
-            // ConsentHandler.HandleConsentRequiredException(ex);
-            // HandleMsalException(ex);
-        }
-        catch(NavigationException)
-        {
-
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:OnInitializedAsync-Exception");
-        }
-    }
-
-    private bool IsSyncSupported()
-    {
-        return SyncDataService.SupportsSync;
-    }
-
-    private void OnSyncProgressChanged(object? sender, BookShelves.Shared.Services.SyncProgressEventArgs e)
-    {
-        try
-        {
-            // Try to marshal to native/main thread if available (MAUI runtime). If not, fall back to Blazor's InvokeAsync.
-            var mainThreadType = Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui.Essentials")
-                                 ?? Type.GetType("Microsoft.Maui.ApplicationModel.MainThread, Microsoft.Maui");
-
-            Action update = () => {
-                // Update new step-tracking properties
-                currentStep = e.CurrentStep;
-                totalSteps = e.TotalSteps;
-                progressPercentage = e.ProgressPercentage;
-                syncStage = e.SyncStage;
-                syncMessage = BuildSyncMessage(e);
-                isSyncing = e.SyncStage is BookShelves.Shared.Services.SyncStage.Started 
-                    or BookShelves.Shared.Services.SyncStage.Pushing 
-                    or BookShelves.Shared.Services.SyncStage.Pulling 
-                    or BookShelves.Shared.Services.SyncStage.Processing;
-
-                Logger.LogTrace("BookShelves.Shared.Components.Pages.Authors.Index:OnSyncProgressChanged - CurrentStep: {CurrentStep}, TotalSteps: {TotalSteps}, ProgressPercentage: {ProgressPercentage}, SyncStage: {SyncStage}, SyncMessage: {SyncMessage}, IsSyncing: {IsSyncing}",
-                    currentStep, totalSteps, progressPercentage, syncStage, syncMessage, isSyncing);
-
-                // Keep the legacy message format for compatibility
-                message = BuildMessage(e);
-                if (e.SyncStage == BookShelves.Shared.Services.SyncStage.Completed)
-                {
-                    _ = RefreshAuthorsAsync();
-                }
-                InvokeAsync(StateHasChanged);
-            };
-
-            if (mainThreadType != null)
+            if (mobileSearchField is not null)
             {
-                var begin = mainThreadType.GetMethod("BeginInvokeOnMainThread", new Type[] { typeof(Action) });
-                if (begin != null)
-                {
-                    begin.Invoke(null, new object[] { update });
-                    return;
-                }
+                await mobileSearchField.FocusAsync();
             }
-
-            // fallback
-            _ = InvokeAsync(update);
         }
-        catch
+        else
         {
-            // best-effort only
+            searchString = string.Empty;
         }
     }
 
-    private string BuildSyncMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
+    // 2. Intercepts the keyboard input and collapses the view if the user presses Escape
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
     {
-        if (e == null) return string.Empty;
-
-        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
+        // 1. ESC Key: Collapses the search layout entirely and resets the filter string
+        if (e.Key == "Escape")
         {
-            return $"{e.Message} ({e.Current}/{e.Total})";
+            await ToggleMobileSearchAsync();
         }
-
-        return e.Message ?? string.Empty;
-    }
-
-    private string GetStageDisplay(BookShelves.Shared.Services.SyncStage stage)
-    {
-        return stage switch
+        // 2. ENTER Key: Safely drops focus from the text box, dismissing the mobile virtual keyboard
+        else if (e.Key == "Enter" || e.Key == "NumpadEnter")
         {
-            BookShelves.Shared.Services.SyncStage.Started => "Starting...",
-            BookShelves.Shared.Services.SyncStage.Pushing => "📤 Uploading",
-            BookShelves.Shared.Services.SyncStage.Pulling => "📥 Downloading",
-            BookShelves.Shared.Services.SyncStage.Processing => "⚙️ Processing",
-            BookShelves.Shared.Services.SyncStage.Completed => "✅ Complete",
-            BookShelves.Shared.Services.SyncStage.Failed => "❌ Failed",
-            _ => "Synchronizing..."
-        };
-    }
-
-    private string BuildMessage(BookShelves.Shared.Services.SyncProgressEventArgs? e)
-    {
-        if (e == null) return string.Empty;
-        if (e.Current.HasValue && e.Total.HasValue && e.Total.Value > 0)
-        {
-            var pct = (int)(100.0 * e.Current.Value / Math.Max(1, e.Total.Value));
-            return $"{e.Stage ?? "Sync"}: {e.Message} ({e.Current}/{e.Total}) {pct}%";
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.BlurAsync();
+            }
         }
-        return $"{e.Stage ?? "Sync"}: {e.Message}";
     }
+
+    // 1. Tell the base component how to load the Author dataset
+    protected override async Task LoadDataServiceAsync() => Items = await DataService.GetAuthorsAsync();
+
+    // 2. Define the explicit search bounds for the filter loop
+    protected override bool ItemMatchesSearch(AuthorViewModel author, string query) =>
+        (author.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+        (author.Biography?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false);
 
     private async Task AddAsync()
     {
-        var author = InitializeAuthorObject();
-        await ShowDetailAsync(author, "New Author");
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, new AuthorViewModel() }, { x => x.TitleText, "New Author" } };
+        var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, dialogOptions);
+
+        await ProcessDialogResultAsync(dialog, "Add canceled");
     }
 
     private async Task EditAsync(AuthorViewModel author)
     {
-        await ShowDetailAsync(author, "Edit Author");
-    }
+        var parameters = new DialogParameters<AuthorDetail> { { x => x.ModelObject, CloneAuthor(author) }, { x => x.TitleText, "Edit Author" } };
+        var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, dialogOptions);
 
-    private async Task ShowDetailAsync(AuthorViewModel author, string titleText)
-    {
-        var parameters = new DialogParameters<AuthorDetail> { { x => x.AuthorObject, author }, { x => x.TitleText, titleText } };
-
-        try
-        {
-            var options = new DialogOptions { BackgroundClass = "my-custom-class" };
-
-            var dialog = await DialogService.ShowAsync<AuthorDetail>("Author Details", parameters, options);
-            var result = await dialog.Result;
-            if (result == null)
-            {
-                message = "Error completing the request";
-            }
-            else if (!result.Canceled)
-            {
-                message = result?.Data?.ToString() ?? string.Empty;
-
-                Authors = await DataService.GetAuthorsAsync() ?? [];
-                QueueAutomaticSync();
-            }
-            else
-            {
-                message = String.IsNullOrEmpty(author.IdValue)
-                    ? "Add canceled"
-                    : "Edit canceled";
-            }
-
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Authors.Index:ShowDetailAsync-Exception");
-        }
+        await ProcessDialogResultAsync(dialog, "Edit canceled");
     }
 
     private async Task DeleteAsync(AuthorViewModel author)
     {
-        var parameters = new DialogParameters<AuthorDelete> { { x => x.AuthorObject, author } };
-        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters);
-        var result = await dialog.Result;
-        if (result == null)
-        {
-            message = "Error completing the request";
-        }
-        else if (!result.Canceled)
-        {
-            var deleteResult = await DataService.DeleteAuthorAsync(author);
+        var parameters = new DialogParameters<AuthorDelete> { { x => x.ModelObject, author } };
+        var options = new DialogOptions { BackgroundClass = "mud-custom-blurred-background-class", CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true };
 
-            if (deleteResult)
+        var dialog = await DialogService.ShowAsync<AuthorDelete>("Author Modal", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: string authorId })
+        {
+            if (await DataService.DeleteAuthorAsync(author))
             {
                 message = $"'{author.Name}' deleted";
-                Authors = await DataService.GetAuthorsAsync() ?? [];
+                await FetchDataAsync();
                 QueueAutomaticSync();
             }
         }
@@ -261,104 +228,13 @@ else
         {
             message = "Delete canceled";
         }
-
-        await InvokeAsync(StateHasChanged);
     }
 
-    private void QueueAutomaticSync()
+    private AuthorViewModel CloneAuthor(AuthorViewModel src) => new()
     {
-        if (!IsSyncSupported())
-        {
-            return;
-        }
-
-        syncRequested = true;
-        SyncProgressService.ReportStage(BookShelves.Shared.Services.SyncStage.Pending, "Local changes detected. Waiting to sync...");
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        autoSyncDelayCts = new CancellationTokenSource();
-        var token = autoSyncDelayCts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await Task.Delay(AutoSyncDelay, token);
-                await TriggerSyncAsync(isAutomaticTrigger: true);
-            }
-            catch (OperationCanceledException)
-            {
-                // ignore - a newer local change reset the delay
-            }
-        }, token);
-    }
-
-    private async Task ServerSyncAsync()
-    {
-        await TriggerSyncAsync(isAutomaticTrigger: false);
-    }
-
-    private async Task TriggerSyncAsync(bool isAutomaticTrigger)
-    {
-        if (!IsSyncSupported())
-        {
-            return;
-        }
-
-        if (!await syncOperationGate.WaitAsync(0))
-        {
-            syncRequested = true;
-            return;
-        }
-
-        try
-        {
-            do
-            {
-                syncRequested = false;
-                message = isAutomaticTrigger
-                    ? "Changes detected. Running background sync..."
-                    : "Starting sync...";
-
-                await InvokeAsync(StateHasChanged);
-                await SyncDataService.ServerSyncAsync();
-                Authors = await DataService.GetAuthorsAsync() ?? [];
-
-                message = isAutomaticTrigger ? "Background sync complete." : "Sync complete";
-                isAutomaticTrigger = true;
-            }
-            while (syncRequested);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "ServerSyncAsync failed");
-            message = $"Sync failed: {ex.Message}";
-        }
-        finally
-        {
-            await InvokeAsync(StateHasChanged);
-            syncOperationGate.Release();
-        }
-    }
-
-    private async Task RefreshAuthorsAsync()
-    {
-        Authors = await DataService.GetAuthorsAsync() ?? [];
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private AuthorViewModel InitializeAuthorObject()
-    {
-        return new AuthorViewModel();
-    }
-
-    public void Dispose()
-    {
-        try { SyncProgressService.ProgressChanged -= OnSyncProgressChanged; } catch { }
-
-        autoSyncDelayCts?.Cancel();
-        autoSyncDelayCts?.Dispose();
-        syncOperationGate.Dispose();
-    }
+        Id = src.Id,
+        Name = src.Name,
+        Biography = src.Biography,
+        LastUpdateTime = src.LastUpdateTime
+    };
 }

@@ -10,24 +10,31 @@
                    CloseOnEscapeKey="true" />
 <MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
+<MudLayout>
+    <MudAppBar Elevation="1"> @* SafeAreas="true"> *@
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ms-3">BookShelves</MudText>
+        <MudSpacer />
+        <SyncStatusIndicator />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="@drawerOpen"
+               ClipMode="DrawerClipMode.Always"
+               Elevation="2"
+               Variant="DrawerVariant.Responsive">
         <NavMenu />
-    </div>
+    </MudDrawer>
 
-    <main>
-        <div class="top-row px-4 d-flex justify-content-end align-items-center">
-            <SyncStatusIndicator />
-            @* <LoginDisplay /> *@
-            @* <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a> *@
-        </div>
+    <MudMainContent Class="mud-height-full">
+        @Body
+    </MudMainContent>
+</MudLayout>
 
-        <article class="content px-4">
-            @Body
-        </article>
+@code {
+    private bool drawerOpen = true;
 
-    </main>
-    <!--<footer class="fixed-bottom">
-        <LayoutFooter />
-    </footer>-->
-</div>
+    private void ToggleDrawer() => drawerOpen = !drawerOpen;
+}

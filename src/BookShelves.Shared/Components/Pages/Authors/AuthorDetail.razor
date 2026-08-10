@@ -1,68 +1,26 @@
 ﻿@using BookShelves.Shared.Data.Interfaces
-@inject IAuthorsDataService DataService
+@inherits DetailDialogBase<AuthorDetail, AuthorViewModel>
+@inject IAuthorsDataService AuthorsDataService
 
 <MudDialog>
     <TitleContent>@TitleText</TitleContent>
     <DialogContent>
-        <EditForm Model="@AuthorObject">
-            <div class="form-group">
-                <label for="Name" class="control-label">Name</label>
-                <InputText id="name" for="Name" class="form-control" @bind-Value="@AuthorObject!.Name" />
-            </div>
-            <div class="form-group">
-                <label for="Biography" class="control-label">Biography</label>
-                <InputText for="Biography" class="form-control" @bind-Value="@AuthorObject.Biography" />
-            </div>
-            <div class="form-group">
-                <label for="LastUpdateTime" class="control-label">Last Update</label>
-                <div class="form-control">
-                    @AuthorObject.LastUpdateTime
-                </div>
-                @* <InputText for="LastUpdateTime" class="form-control" @bind-Value="@AuthorObject.LastUpdateTime" /> *@
-            </div>
-        </EditForm>
+        <MudStack Spacing="3">
+            <MudTextField Label="Author Name" @bind-Value="@ModelObject!.Name" Variant="Variant.Outlined" />
+            <MudTextField Label="Biography" @bind-Value="@ModelObject.Biography" Variant="Variant.Outlined" Lines="4" />
+            <MudField Label="Last Update" Variant="Variant.Outlined">@ModelObject.LastUpdateTime</MudField>
+        </MudStack>
     </DialogContent>
     <DialogActions>
-        <button type="button" @onclick="SubmitForm">Submit</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="Close">Cancel</button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitForm">Submit</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Close">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
-@code 
-{
-    [CascadingParameter]
-    IMudDialogInstance? MudDialog { get; set; } // = default!;
-
-    [Parameter]
-    public AuthorViewModel? AuthorObject { get; set; }
-
-    [Parameter]
-    public string TitleText { get; set; } = "Authors";
-
-    string message = string.Empty;
-
-    private async Task SubmitForm()
-    {
-        if (String.IsNullOrEmpty(AuthorObject!.IdValue) || AuthorObject!.IdValue == "0")
-        {
-            var result = await DataService.CreateAuthorAsync(AuthorObject);
-            if (result)
-            {
-                string message = $"'{AuthorObject.Name}' has been added.";
-                MudDialog?.Close(DialogResult.Ok(message));
-            }
-        }
-        else
-        {
-            var result = await DataService.UpdateAuthorAsync(AuthorObject);
-            if (result)
-            {
-                string message = $"'{AuthorObject.Name}' has been updated.";
-                MudDialog?.Close(DialogResult.Ok(message));
-            }
-        }
-    }
-
-    private void Close() => MudDialog?.Close(DialogResult.Cancel());
-    private void Cancel() => MudDialog?.Cancel();
+@code {
+    protected override AuthorViewModel InitializeModel() => new();
+    protected override bool IsNewRecord(AuthorViewModel model) => string.IsNullOrEmpty(model.Id) || model.Id == "0";
+    protected override async Task<bool> ExecuteCreateAsync(AuthorViewModel model) => await AuthorsDataService.CreateAuthorAsync(model);
+    protected override async Task<bool> ExecuteUpdateAsync(AuthorViewModel model) => await AuthorsDataService.UpdateAuthorAsync(model);
+    protected override string GetSuccessMessage(AuthorViewModel model, bool isNew) => isNew ? $"'{model.Name}' added successfully." : $"'{model.Name}' updated successfully.";
 }
