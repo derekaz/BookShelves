@@ -67,7 +67,7 @@
                             <MudIconButton Icon="@Icons.Material.Filled.Search"
                                            Color="Color.Inherit"
                                            OnClick="ToggleMobileSearchAsync"
-                                           Title="Open Search Bar" />
+                                           aria-label="Open Search Bar" />
                         }
                     </MudHidden>
 
@@ -79,7 +79,7 @@
                                    Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.Add"
                                    OnClick="AddAsync"
-                                   Title="Add New Book"
+                                   aria-label="Add New Book"
                                    Class="text-nowrap">
                             Add
                         </MudButton>
@@ -90,6 +90,7 @@
                                        Color="Color.Primary"
                                        Icon="@Icons.Material.Filled.Add"
                                        OnClick="AddAsync"
+                                       aria-label="Add New Book" />
                                        Title="Add New Book" />
                     </MudHidden>
                 </MudStack>
@@ -114,14 +115,14 @@
                         <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Size="Size.Small"
-                                       Title="Edit"
+                                       aria-label="Edit"
                                        OnClick="@(() => EditAsync(context))" />
 
                         @* Delete Icon Button *@
                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                        Color="Color.Error"
                                        Size="Size.Small"
-                                       Title="Delete"
+                                       aria-label="Delete"
                                        OnClick="@(() => DeleteAsync(context))" />
                     </MudStack>
                 </MudTd>
