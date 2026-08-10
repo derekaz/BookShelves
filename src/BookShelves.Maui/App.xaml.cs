@@ -14,6 +14,9 @@ namespace BookShelves.Maui
         {
             Log.Information("CreateWindow-Start");
             var window = new Window(new MainPage()) { Title = "BookShelves" };
+#if WINDOWS
+            window.Height = 806;
+#endif
             Log.Information("CreateWindow-End");
             return window;
         }

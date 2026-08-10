@@ -1,15 +1,21 @@
 @page "/profile"
 @using Microsoft.AspNetCore.Authorization
-@* @using Microsoft.Graph.Models *@
+@using Microsoft.AspNetCore.Components.Web
 @using System.Security.Claims
-@* @inject IGraphService GraphService *@
 @inject ILogger<UserProfile> Logger
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @attribute [Authorize]
 
 <MudPaper Class="pa-4" Elevation="1">
-    <MudStack Spacing="4">
-        <MudText Typo="Typo.h4">User Profile</MudText>
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">User Profile</MudText>
+            <MudSpacer />
+            @if (!string.IsNullOrWhiteSpace(user?.Identity?.Name))
+            {
+                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Info">@user.Identity.Name</MudChip>
+            }
+        </MudStack>
 
         @if (user == null)
         {
@@ -17,72 +23,153 @@
         }
         else
         {
-            <MudSimpleTable Dense="true" Hover="true">
-                <thead>
-                    <tr>
-                        <th>Property</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>DisplayName</td>
-                        <td>@(user.Identity?.Name ?? "N/A")</td>
-                    </tr>
-                    <tr>
-                        <td>UserPrincipalName</td>
-                        <td>@(user.Identity?.Name ?? "N/A")</td>
-                    </tr>
-                </tbody>
-            </MudSimpleTable>
-
-            <MudText Typo="Typo.h6">Claims from ClaimsIdentity</MudText>
-            <MudSimpleTable Dense="true" Hover="true">
-                <thead>
-                    <tr>
-                        <th>Claim Type</th>
-                        <th>Claim Value</th>
-                        <th>Subject Name</th>
-                        <th>Issuer Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (System.Security.Claims.Claim claim in claims)
+            <MudTable Items="claims" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Filter="new Func<Claim, bool>(FilterFunc)">
+                <ToolBarContent>
+                    @if (!isSearchExpandedMobile)
                     {
-                        <tr>
-                            <td>@claim.Type</td>
-                            <td>@claim.Value</td>
-                            <td>@(claim?.Subject?.Name ?? "UNK")</td>
-                            <td>@(claim?.Issuer ?? "UNK")</td>
-                        </tr>
+                        <MudText Typo="Typo.h6" Class="text-nowrap">Claims</MudText>
                     }
-                </tbody>
-            </MudSimpleTable>
+                    <MudSpacer />
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100 justify-end">
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                            <MudTextField @bind-Value="searchString"
+                                          Placeholder="Search claims..."
+                                          Variant="Variant.Filled"
+                                          Margin="Margin.Dense"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          IconSize="Size.Medium"
+                                          Class="mt-0"
+                                          Style="max-width: 300px;"
+                                          Immediate="true"
+                                          Clearable="true" />
+                        </MudHidden>
+
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                            @if (isSearchExpandedMobile)
+                            {
+                                <MudTextField @ref="mobileSearchField"
+                                              @bind-Value="searchString"
+                                              Placeholder="Search..."
+                                              Variant="Variant.Filled"
+                                              Margin="Margin.Dense"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.Search"
+                                              IconSize="Size.Medium"
+                                              Class="mt-0 w-100 animate-fade-in"
+                                              Immediate="true"
+                                              Clearable="true"
+                                              OnClearButtonClick="ToggleMobileSearchAsync"
+                                              OnKeyDown="HandleSearchKeyDown" />
+                            }
+                            else
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                               Color="Color.Inherit"
+                                               OnClick="ToggleMobileSearchAsync"
+                                               aria-label="Open Search Bar" />
+                            }
+                        </MudHidden>
+                    </MudStack>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Claim, object?>(x => x.Type)">Claim Type</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Claim, object?>(x => x.Value)">Claim Value</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Claim, object?>(x => x.Subject?.Name)">Subject Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Claim, object?>(x => x.Issuer)">Issuer Name</MudTableSortLabel></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Claim Type">@context.Type</MudTd>
+                    <MudTd DataLabel="Claim Value">@context.Value</MudTd>
+                    <MudTd DataLabel="Subject Name">@(context.Subject?.Name ?? "UNK")</MudTd>
+                    <MudTd DataLabel="Issuer Name">@(context.Issuer ?? "UNK")</MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="py-8" Spacing="1">
+                        <MudText Typo="Typo.h6">No claims found.</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            Try adjusting your search terms.
+                        </MudText>
+                    </MudStack>
+                </NoRecordsContent>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
         }
     </MudStack>
 </MudPaper>
 
 @code {
-    ClaimsPrincipal? user;
-    IEnumerable<Claim> claims = new List<Claim>();
+    private ClaimsPrincipal? user;
+    private IEnumerable<Claim> claims = [];
+
+    private bool isSearchExpandedMobile;
+    private string searchString = string.Empty;
+    private MudTextField<string>? mobileSearchField;
 
     protected override async Task OnInitializedAsync()
     {
-        // HelloLabel.Text = $"Hello, {user.DisplayName}!";
-
         try
         {
-            // user = await GraphService.GetUserInfoAsync();
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             user = authState.User;
             claims = authState.User.Claims;
 
-
-            Logger.LogInformation("Logged in: '" + (authState.User.Identity?.Name ?? "N/A") + "'");
+            Logger.LogInformation("Logged in: '{UserName}'", authState.User.Identity?.Name ?? "N/A");
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "BookShelves.Shared.Components.Pages.UserProfile:OnInitializedAsync-Exception");
+        }
+    }
+
+    private bool FilterFunc(Claim claim)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            return true;
+        }
+
+        var query = searchString.Trim();
+
+        return claim.Type.Contains(query, StringComparison.OrdinalIgnoreCase)
+            || claim.Value.Contains(query, StringComparison.OrdinalIgnoreCase)
+            || (claim.Subject?.Name?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false)
+            || claim.Issuer.Contains(query, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task ToggleMobileSearchAsync()
+    {
+        isSearchExpandedMobile = !isSearchExpandedMobile;
+
+        if (isSearchExpandedMobile)
+        {
+            await Task.Yield();
+
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.FocusAsync();
+            }
+        }
+        else
+        {
+            searchString = string.Empty;
+        }
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            await ToggleMobileSearchAsync();
+        }
+        else if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.BlurAsync();
+            }
         }
     }
 }
