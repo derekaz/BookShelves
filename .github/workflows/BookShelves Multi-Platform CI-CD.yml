@@ -280,7 +280,7 @@ jobs:
           push: true
           # no-cache: true
           build-args: |
-            APP_VERSION=${{ needs.validate.outputs.majorMinorPatch }}
+            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
             RUN_ID=${{ github.run_id }}
             GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
             GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
