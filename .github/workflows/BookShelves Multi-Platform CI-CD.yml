@@ -450,7 +450,7 @@ jobs:
 
       - name: Install Apple Workloads
         shell: bash
-        run: dotnet workload restore BookShelves.Maui.csproj -p:TargetFrameworks="net10.0-ios;net10.0-maccatalyst"
+        run: dotnet workload install maui-ios maui-maccatalyst
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Verify Dotnet SDKs
@@ -738,7 +738,7 @@ jobs:
 
       - name: Install Windows Workloads
         shell: pwsh
-        run: dotnet workload restore BookShelves.Maui.csproj -p:TargetFrameworks=net10.0-windows10.0.19041.0
+        run: dotnet workload install maui-windows
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
