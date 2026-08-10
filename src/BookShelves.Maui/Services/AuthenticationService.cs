@@ -230,6 +230,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
                         _logger.LogWarning("MSAL {Level}: {Message}", level, message);
                     }
                 }, Microsoft.Identity.Client.LogLevel.Warning, enablePiiLogging: false)
+                .WithLegacyCacheCompatibility(false)
 #if WINDOWS
                 //.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" })
                 //.WithWindowsEmbeddedBrowserSupport()
