@@ -1,108 +1,181 @@
 ﻿@page "/weather"
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = AuthorizationPolicies.Authenticated)]
 @using BookShelves.Shared.Data.Models
+@using Microsoft.AspNetCore.Components.Web
 @inject IWeatherForecasterService WeatherForecaster
 @inject ILogger<Weather> Logger
 
 <PageTitle>Weather</PageTitle>
 
 <MudPaper Class="pa-4" Elevation="1">
-    <MudStack Spacing="2">
-        <MudText Typo="Typo.h4">Weather</MudText>
-        <MudText Typo="Typo.body1">This component demonstrates showing data.</MudText>
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">Weather</MudText>
+            <MudSpacer />
+            @if (!string.IsNullOrWhiteSpace(Source))
+            {
+                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Info">Source: @Source</MudChip>
+            }
+        </MudStack>
 
-        @if (Forecasts == null)
+        @if (!string.IsNullOrWhiteSpace(loadErrorMessage))
         {
-            <MudText Typo="Typo.body1"><em>Loading...</em></MudText>
+            <MudAlert Severity="Severity.Error" Dense="true" Variant="Variant.Outlined">@loadErrorMessage</MudAlert>
         }
-        else
-        {
-            <MudSimpleTable Dense="true" Hover="true">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Temp. (C)</th>
-                        <th>Temp. (F)</th>
-                        <th>Summary</th>
-                        <th>Updated At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var forecast in Forecasts)
-                    {
-                        <tr>
-                            <td>@forecast.Date.ToShortDateString()</td>
-                            <td>@forecast.TemperatureC</td>
-                            <td>@forecast.TemperatureF</td>
-                            <td>@forecast.Summary</td>
-                            <td>
-                                @if (forecast.LastUpdated.HasValue)
-                                {
-                                    @forecast.LastUpdated.Value.ToString("MM/dd/yy h:mm:ss tt")
-                                }
-                                else
-                                {
-                                    <text>N/A</text>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="5">Source: @Forecasts.FirstOrDefault()?.Source</td>
-                    </tr>
-                </tfoot>
-            </MudSimpleTable>
-        }
+
+        <MudTable Items="Forecasts" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Loading="@(Forecasts == null)" Filter="new Func<WeatherForecast, bool>(FilterFunc)">
+            <ToolBarContent>
+                @if (!isSearchExpandedMobile)
+                {
+                    <MudText Typo="Typo.h6" Class="text-nowrap">Forecast Outlook</MudText>
+                }
+                <MudSpacer />
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100 justify-end">
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                        <MudTextField @bind-Value="searchString"
+                                      Placeholder="Search forecast..."
+                                      Variant="Variant.Filled"
+                                      Margin="Margin.Dense"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search"
+                                      IconSize="Size.Medium"
+                                      Class="mt-0"
+                                      Style="max-width: 300px;"
+                                      Immediate="true"
+                                      Clearable="true" />
+                    </MudHidden>
+
+                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                        @if (isSearchExpandedMobile)
+                        {
+                            <MudTextField @ref="mobileSearchField"
+                                          @bind-Value="searchString"
+                                          Placeholder="Search..."
+                                          Variant="Variant.Filled"
+                                          Margin="Margin.Dense"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Search"
+                                          IconSize="Size.Medium"
+                                          Class="mt-0 w-100 animate-fade-in"
+                                          Immediate="true"
+                                          Clearable="true"
+                                          OnClearButtonClick="ToggleMobileSearchAsync"
+                                          OnKeyDown="HandleSearchKeyDown" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Search"
+                                           Color="Color.Inherit"
+                                           OnClick="ToggleMobileSearchAsync"
+                                           aria-label="Open Search Bar" />
+                        }
+                    </MudHidden>
+                </MudStack>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object?>(x => x.Date)">Date</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object?>(x => x.TemperatureC)">Temp. (C)</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object?>(x => x.TemperatureF)">Temp. (F)</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object?>(x => x.Summary)">Summary</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<WeatherForecast, object?>(x => x.LastUpdated)">Updated At</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+                <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+                <MudTd DataLabel="Summary">@context.Summary</MudTd>
+                <MudTd DataLabel="Updated At">@(context.LastUpdated?.ToString("MM/dd/yy h:mm:ss tt") ?? "N/A")</MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="py-8" Spacing="1">
+                    <MudText Typo="Typo.h6">No forecast data found.</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        Try adjusting your search terms or refresh the data source.
+                    </MudText>
+                </MudStack>
+            </NoRecordsContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
     </MudStack>
 </MudPaper>
 
 @code {
-
 #if NET10_0
     [PersistentState]
 #endif
     public IEnumerable<WeatherForecast>? Forecasts { get; set; }
 
+    private bool isSearchExpandedMobile;
+    private string searchString = string.Empty;
+    private string? loadErrorMessage;
+    private MudTextField<string>? mobileSearchField;
+
+    private string? Source => Forecasts?.FirstOrDefault()?.Source;
+
     protected override async Task OnInitializedAsync()
     {
-        Forecasts ??= await WeatherForecaster.GetWeatherForecastAsync();
-
+        try
+        {
+            Forecasts ??= await WeatherForecaster.GetWeatherForecastAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Weather:OnInitializedAsync-Exception");
+            loadErrorMessage = "Unable to load weather data at this time.";
+            Forecasts = [];
+        }
     }
 
-    // private IEnumerable<IWeatherForecast> forecasts = new List<IWeatherForecast>();
+    private bool FilterFunc(WeatherForecast forecast)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            return true;
+        }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     try
-    //     {
-    //         forecasts = await DataService.GetWeatherForecastsAsync() ?? new List<IWeatherForecast>() { };
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Logger.LogError(ex, "BookShelves.Shared.Components.Pages.Weather:OnInitializedAsync-Exception");
-    //     }
+        var query = searchString.Trim();
 
+        return forecast.Date.ToShortDateString().Contains(query, StringComparison.OrdinalIgnoreCase)
+            || forecast.TemperatureC.ToString().Contains(query, StringComparison.OrdinalIgnoreCase)
+            || forecast.TemperatureF.ToString().Contains(query, StringComparison.OrdinalIgnoreCase)
+            || (forecast.Summary?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (forecast.Source?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (forecast.LastUpdated?.ToString("MM/dd/yy h:mm:ss tt").Contains(query, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
 
-        // // Simulate asynchronous loading to demonstrate a loading indicator
-        // await Task.Delay(500);
+    private async Task ToggleMobileSearchAsync()
+    {
+        isSearchExpandedMobile = !isSearchExpandedMobile;
 
-        // var startDate = DateOnly.FromDateTime(DateTime.Now);
-        // var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        // forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        // {
-        //     Date = startDate.AddDays(index),
-        //     TemperatureC = Random.Shared.Next(-20, 55),
-        //     Summary = summaries[Random.Shared.Next(summaries.Length)]
-        // }).ToArray();
-//    }
+        if (isSearchExpandedMobile)
+        {
+            await Task.Yield();
 
-    // private class WeatherForecast
-    // {
-    //     public DateOnly Date { get; set; }
-    //     public int TemperatureC { get; set; }
-    //     public string? Summary { get; set; }
-    //     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    // }
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.FocusAsync();
+            }
+        }
+        else
+        {
+            searchString = string.Empty;
+        }
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+        {
+            await ToggleMobileSearchAsync();
+        }
+        else if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            if (mobileSearchField is not null)
+            {
+                await mobileSearchField.BlurAsync();
+            }
+        }
+    }
 }
