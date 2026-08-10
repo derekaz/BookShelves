@@ -473,9 +473,9 @@ jobs:
         with:
           path: |
             ~/.dotnet/workloads
-            /usr/local/share/dotnet/metadata/workloads
-            /usr/local/share/dotnet/sdk-manifests
-            /usr/local/share/dotnet/packs
+            ~/.dotnet/metadata/workloads
+            ~/.dotnet/sdk-manifests
+            ~/.dotnet/packs
           key: macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-${{ hashFiles('**/*.csproj', '**/*.sln', '**/global.json', '**/Directory.Packages.props', '**/NuGet.config') }}
           restore-keys: |
             macos-maui-workloads-${{ runner.os }}-${{ env.DOTNET_SDK_VERSION }}-
@@ -834,8 +834,9 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
-            -p:RuntimeIdentifierOverride=win10-x64 `
-            -p:InvariantGlobalization=true `
+            /p:RuntimeIdentifierOverride=win10-x64 `
+            /p:TargetPlatformIdentifier=windows `
+            /p:InvariantGlobalization=true `
             /p:GenerateTestArtifacts=false `
             /p:WindowsPackageType=MSIX `
             /p:GenerateAppxPackageOnBuild=true `
