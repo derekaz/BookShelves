@@ -483,7 +483,7 @@ jobs:
       - name: Install Apple Workloads Only
         if: steps.cache-apple-workloads.outputs.cache-hit != 'true'
         shell: bash
-        run: dotnet workload install maui-ios maui-maccatalyst wasm-tools
+        run: dotnet workload restore BookShelves.Maui.csproj
         working-directory: ${{env.MAUI_PROJPATH}}
 
       # - name: Restore Workloads
@@ -512,9 +512,9 @@ jobs:
       - name: NuGet Restore
         shell: pwsh
         run: |
-          dotnet restore src/BookShelves.Maui/BookShelves.Maui.csproj -p:TargetFramework=net10.0-ios
-          dotnet restore src/BookShelves.Maui/BookShelves.Maui.csproj -p:TargetFramework=net10.0-maccatalyst        
-        working-directory: ${{env.PROJPATH}}
+          dotnet restore BookShelves.Maui.csproj -p:TargetFramework=net10.0-ios
+          dotnet restore BookShelves.Maui.csproj -p:TargetFramework=net10.0-maccatalyst
+        working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Create IOS publish folder
         shell: pwsh
@@ -801,7 +801,7 @@ jobs:
       - name: Install Windows Workload Only
         if: steps.cache-windows-workloads.outputs.cache-hit != 'true'
         shell: pwsh
-        run: dotnet workload install maui-windows wasm-tools
+        run: dotnet workload restore BookShelves.Maui.csproj
         working-directory: ${{env.MAUI_PROJPATH}}
 
       # - name: Install MAUI Workloads
