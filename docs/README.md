@@ -21,3 +21,4 @@ This folder contains solution-level guidance for contributors and AI-assisted wo
 ## Related Repository Guidance
 
 - `.github/copilot-instructions.md` - repository-wide Copilot instructions and conventions
+- `.github/RELEASE_PROCESS.md` - workflow trigger, environment mapping, and publish process details
