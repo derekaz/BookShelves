@@ -141,7 +141,7 @@ jobs:
           RUN_NUM=${{ github.run_number }}
           APPLE_BUILD_NUM="$RUN_NUM"
           
-          COUNTER_BRANCH="build-counters"
+          COUNTER_BRANCH="zz-build-counters"
           FILE_NAME="${SEMVER}.txt"
           REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           
