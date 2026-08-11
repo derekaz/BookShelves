@@ -77,7 +77,7 @@ jobs:
       MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}
       SemVer: ${{ steps.gitversion.outputs.semVer }}
       ShortSha: ${{ steps.gitversion.outputs.shortSha }}
-      BuildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}
+      AppleBuildNumber: ${{ steps.compute_per_version.outputs.appleBuildNumber }}
       WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
       IsValidReleaseTag: ${{ steps.validate_release_tag.outputs.isValidReleaseTag }}
@@ -132,37 +132,54 @@ jobs:
           echo "artifactVersion=${ARTIFACT_VERSION}" >> $GITHUB_OUTPUT
           echo "Shared informational version: ${INFORMATIONAL_VERSION}"
 
+      # 1. Restore the tracked build number for this version slice
+      - name: Restore version tracking cache
+        id: restore-version-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.version_tracker
+          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
+          restore-keys: |
+            version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-
+
+      # 2. Increment the value (The Bash Script)
       - name: Compute per-release build number
         id: compute_per_version
         run: |
-          REF_TYPE="${{ github.ref_type }}"
-          PRE_RELEASE_NUM="${{ steps.gitversion.outputs.preReleaseNumber }}"
-          COMMITS_SINCE_VERSION_SOURCE=${{ steps.gitversion.outputs.commitsSinceVersionSource }}
+          SEMVER="${{ steps.gitversion.outputs.majorMinorPatch }}"
           RUN_NUM=${{ github.run_number }}
-
-          if [ -z "$COMMITS_SINCE_VERSION_SOURCE" ]; then
-            COMMITS_SINCE_VERSION_SOURCE=0
-          fi
-
-          # Apple build numbers must be globally monotonically increasing for a bundle id,
-          # so they cannot reset per branch or per semantic version.
+          
           APPLE_BUILD_NUM="$RUN_NUM"
+          CACHE_DIR="$HOME/.version_tracker"
+          CACHE_FILE="$CACHE_DIR/${SEMVER}.txt"
+          mkdir -p "$CACHE_DIR"
 
-          if [ "$REF_TYPE" = "tag" ] && [ -n "$PRE_RELEASE_NUM" ]; then
-            WINDOWS_BUILD_NUM="$PRE_RELEASE_NUM"
+          # Determine the next logical Windows Build Number
+          if [ -f "$CACHE_FILE" ]; then
+            LAST_NUM=$(cat "$CACHE_FILE")
+            WINDOWS_BUILD_NUM=$((LAST_NUM + 1))
           else
-            # Windows can reset the build component when GitVersion changes version source.
-            WINDOWS_BUILD_NUM=$((COMMITS_SINCE_VERSION_SOURCE + 1))
+            WINDOWS_BUILD_NUM=1
           fi
+
+          # Overwrite file with the updated number
+          echo "$WINDOWS_BUILD_NUM" > "$CACHE_FILE"
 
           if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
             echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
 
-          echo "buildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
+
+      # 3. Save the updated tracking file back to GitHub's infrastructure
+      - name: Save updated version tracking cache
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.version_tracker
+          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
 
       - name: Compute deployment environment
         id: compute_environment
@@ -226,7 +243,7 @@ jobs:
           echo "ARTIFACT_VERSION: ${GitVersion_SemVer}-${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
 
           echo "App Version: ${{ steps.compute_version_identifier.outputs.artifactVersion }}" >> $GITHUB_STEP_SUMMARY
-          echo "iOS/Mac buildNumber: ${{ steps.compute_per_version.outputs.buildNumber }}" >> $GITHUB_STEP_SUMMARY
+          echo "iOS/Mac buildNumber: ${{ steps.compute_per_version.outputs.appleBuildNumber }}" >> $GITHUB_STEP_SUMMARY
           echo "Windows buildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}" >> $GITHUB_STEP_SUMMARY
 
           echo "Deployment environment: ${{ steps.compute_environment.outputs.environmentName }}" >> $GITHUB_STEP_SUMMARY
@@ -504,7 +521,7 @@ jobs:
             -p:DebugSymbols=true `
             -p:NoDSymUtil=false `
             -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:ApplicationVersion=${{needs.validate.outputs.AppleBuildNumber}} `
             -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
           dotnet `
@@ -526,7 +543,7 @@ jobs:
             -p:UseHardenedRuntime=true `
             -p:MtouchUseLlvm=false `
             -p:ApplicationDisplayVersion="${{needs.validate.outputs.DisplayVersion}}" `
-            -p:ApplicationVersion=${{needs.validate.outputs.BuildNumber}} `
+            -p:ApplicationVersion=${{needs.validate.outputs.AppleBuildNumber}} `
             -p:InformationalVersion="${{needs.validate.outputs.InformationalVersion}}"
 
       - name: Show workspace folder content
