@@ -132,58 +132,54 @@ jobs:
           echo "artifactVersion=${ARTIFACT_VERSION}" >> $GITHUB_OUTPUT
           echo "Shared informational version: ${INFORMATIONAL_VERSION}"
 
+      # 1. Restore the tracked build number for this version slice
+      - name: Restore version tracking cache
+        id: restore-version-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.version_tracker
+          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
+          restore-keys: |
+            version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-
+
+      # 2. Increment the value (The Bash Script)
       - name: Compute per-release build number
         id: compute_per_version
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Capture base variables
           SEMVER="${{ steps.gitversion.outputs.majorMinorPatch }}"
           RUN_NUM=${{ github.run_number }}
           
-          # Apple stays globally unique to the life of the workflow counter
           APPLE_BUILD_NUM="$RUN_NUM"
-
-          # 2. Setup a localized tracking file using the current version name
           CACHE_DIR="$HOME/.version_tracker"
           CACHE_FILE="$CACHE_DIR/${SEMVER}.txt"
           mkdir -p "$CACHE_DIR"
 
-          # 3. Try to restore the highest tracked build number from GHA Cache
-          echo "Checking for existing build tracking cache for version $SEMVER..."
-          gh cache download "version-track-${SEMVER}" --dir "$CACHE_DIR" 2>/dev/null || echo "No prior cache found for this version slice."
-
-          # 4. Determine the next logical Windows Build Number
+          # Determine the next logical Windows Build Number
           if [ -f "$CACHE_FILE" ]; then
             LAST_NUM=$(cat "$CACHE_FILE")
             WINDOWS_BUILD_NUM=$((LAST_NUM + 1))
           else
-            # Brand new Major.Minor.Patch track! Start at 1
             WINDOWS_BUILD_NUM=1
           fi
 
-          # 5. Save the new highest value back to the tracking file
+          # Overwrite file with the updated number
           echo "$WINDOWS_BUILD_NUM" > "$CACHE_FILE"
 
-          # 6. Push the updated tracking file back to GitHub Actions Cache immediately
-          # We append the RUN_NUM to the key name to bypass immediate API collisions
-          echo "Saving updated build tracker to cache..."
-          gh cache save "version-track-${SEMVER}-${RUN_NUM}" --target "$CACHE_FILE"
-
-          # 7. Clean up older cache iterations for this version track asynchronously
-          # (This keeps your cache space tidy without blocking the build)
-          gh cache list --key "version-track-${SEMVER}-" --json key -q '.[].key' | grep -v "version-track-${SEMVER}-${RUN_NUM}" | xargs -I {} gh cache delete {} 2>/dev/null || true
-
-          # 8. Fail-safe boundary checks
           if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
             echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
 
-          # 9. Set job outputs
           echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
+
+      # 3. Save the updated tracking file back to GitHub's infrastructure
+      - name: Save updated version tracking cache
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.version_tracker
+          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
 
       - name: Compute deployment environment
         id: compute_environment
