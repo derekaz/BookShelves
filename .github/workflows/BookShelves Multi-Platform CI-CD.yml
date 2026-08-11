@@ -135,7 +135,7 @@ jobs:
       # 1. Restore the tracked build number for this version slice
       - name: Restore version tracking cache
         id: restore-version-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ~/.version_tracker
           key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
@@ -176,7 +176,7 @@ jobs:
 
       # 3. Save the updated tracking file back to GitHub's infrastructure
       - name: Save updated version tracking cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: ~/.version_tracker
           key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
