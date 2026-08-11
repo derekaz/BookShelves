@@ -11,7 +11,8 @@ namespace BookShelves.Maui
 
         public override bool OpenUrl(UIApplication application, NSUrl url, NSDictionary options)
         {
-            if (AuthenticationContinuationHelper.IsBrokerResponse(null))
+            // Temporary broker callback correctness fix: easy rollback by changing `url` back to `null`.
+            if (AuthenticationContinuationHelper.IsBrokerResponse(url?.AbsoluteString))
             {
                 // Done on different thread to allow return in no time.
                 _ = Task.Factory.StartNew(() => AuthenticationContinuationHelper.SetBrokerContinuationEventArgs(url));

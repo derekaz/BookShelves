@@ -74,6 +74,24 @@ Stop containers:
 docker compose down
 ```
 
+## Validate Web API Auth from PowerShell
+
+Use `src/BookShelves.WebApi/Invoke-BookShelvesWebApiCheck.ps1` for a quick CLI check against either the direct Web API container or the deployed nginx front door.
+
+Quick reachability check against a protected endpoint:
+
+```powershell
+./src/BookShelves.WebApi/Invoke-BookShelvesWebApiCheck.ps1 -BaseUrl "https://bookshelves.azmoore.com" -SkipToken
+```
+
+Authenticated check with client credentials:
+
+```powershell
+./src/BookShelves.WebApi/Invoke-BookShelvesWebApiCheck.ps1 -BaseUrl "https://bookshelves.azmoore.com" -TenantId "<tenant-id>" -ClientId "<client-id>" -ClientSecret "<client-secret>"
+```
+
+For local Docker Compose validation, point the script at `http://localhost:5001` and use `-Path "/Test"`.
+
 ## EF Core Migration Workflow (MAUI Data)
 
 For MAUI data model changes, use the migration host project.

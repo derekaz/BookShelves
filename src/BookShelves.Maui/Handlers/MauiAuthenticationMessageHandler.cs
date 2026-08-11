@@ -46,11 +46,11 @@ internal class MauiAuthenticationMessageHandler : DelegatingHandler
         // --- DIAGNOSTICS LOGGING START ---
         try
         {
-            _logger.LogInformation("[DIAG] Outbound Headers for {Uri}: {Headers}", request.RequestUri, request.Headers.ToString());
+            _logger.LogDebug("[DIAG] Outbound Headers for {Uri}: {Headers}", request.RequestUri, request.Headers.ToString());
 
             var response = await base.SendAsync(request, cancellationToken);
 
-            _logger.LogInformation("[DIAG] Response received. Status: {StatusCode}", response.StatusCode);
+            _logger.LogDebug("[DIAG] Response received. Status: {StatusCode}", response.StatusCode);
             return response;
         }
         catch (HttpRequestException httpEx)
