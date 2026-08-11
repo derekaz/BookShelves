@@ -278,6 +278,9 @@ jobs:
       - name: Show Calcs on Status
         run: |
           echo "### Build Details" >> $GITHUB_STEP_SUMMARY
+          echo "GITHUB.REF_TYPE: ${GITHUB_REF_TYPE}" >> $GITHUB_STEP_SUMMARY
+          echo "GITHUB.REF_NAME: ${GITHUB_REF_NAME}" >> $GITHUB_STEP_SUMMARY
+
           echo "SEMVER: ${GitVersion_SemVer}" >> $GITHUB_STEP_SUMMARY
           echo "SHORT_SHA: ${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
           echo "FULL_SHA: ${sha}" >> $GITHUB_STEP_SUMMARY
