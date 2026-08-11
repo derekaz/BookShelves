@@ -132,54 +132,109 @@ jobs:
           echo "artifactVersion=${ARTIFACT_VERSION}" >> $GITHUB_OUTPUT
           echo "Shared informational version: ${INFORMATIONAL_VERSION}"
 
-      # 1. Restore the tracked build number for this version slice
-      - name: Restore version tracking cache
-        id: restore-version-cache
-        uses: actions/cache/restore@v6
-        with:
-          path: ~/.version_tracker
-          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
-          restore-keys: |
-            version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-
-
-      # 2. Increment the value (The Bash Script)
       - name: Compute per-release build number
         id: compute_per_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           SEMVER="${{ steps.gitversion.outputs.majorMinorPatch }}"
           RUN_NUM=${{ github.run_number }}
-          
           APPLE_BUILD_NUM="$RUN_NUM"
-          CACHE_DIR="$HOME/.version_tracker"
-          CACHE_FILE="$CACHE_DIR/${SEMVER}.txt"
-          mkdir -p "$CACHE_DIR"
+          
+          COUNTER_BRANCH="build-counters"
+          FILE_NAME="${SEMVER}.txt"
 
-          # Determine the next logical Windows Build Number
-          if [ -f "$CACHE_FILE" ]; then
-            LAST_NUM=$(cat "$CACHE_FILE")
-            WINDOWS_BUILD_NUM=$((LAST_NUM + 1))
+          echo "Configuring lightweight git worker..."
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 1. Clone ONLY the tracking branch into a temporary directory
+          # If the branch doesn't exist yet, we initialize it as an empty orphan branch
+          TMP_DIR=$(mktemp -d)
+          if git clone --branch "$COUNTER_BRANCH" --depth 1 https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git "$TMP_DIR" 2>/dev/null; then
+            cd "$TMP_DIR"
           else
-            WINDOWS_BUILD_NUM=1
+            echo "Branch '$COUNTER_BRANCH' does not exist. Initializing orphan tracking track..."
+            cd "$TMP_DIR"
+            git init
+            git checkout --orphan "$COUNTER_BRANCH"
           fi
 
-          # Overwrite file with the updated number
-          echo "$WINDOWS_BUILD_NUM" > "$CACHE_FILE"
+          # 2. Read the previous number or start fresh at 1
+          if [ -f "$FILE_NAME" ]; then
+            LAST_NUM=$(cat "$FILE_NAME")
+            WINDOWS_BUILD_NUM=$((LAST_NUM + 1))
+            echo "Incrementing build track to $WINDOWS_BUILD_NUM..."
+          else
+            WINDOWS_BUILD_NUM=1
+            echo "First build for version track $SEMVER. Initializing at 1..."
+          fi
 
+          # 3. Write the updated number and push back to the tracker branch
+          echo "$WINDOWS_BUILD_NUM" > "$FILE_NAME"
+          git add "$FILE_NAME"
+          git commit -m "chore: increment build counter for $SEMVER to $WINDOWS_BUILD_NUM [skip ci]"
+          git push https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git "$COUNTER_BRANCH"
+
+          # 4. Fail-safe boundary checks
           if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
             echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
 
+          # 5. Set job outputs
           echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
 
-      # 3. Save the updated tracking file back to GitHub's infrastructure
-      - name: Save updated version tracking cache
-        uses: actions/cache/save@v6
-        with:
-          path: ~/.version_tracker
-          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}-main
+      # # 1. Restore the tracked build number for this version slice
+      # - name: Restore version tracking cache
+      #   id: restore-version-cache
+      #   uses: actions/cache/restore@v6
+      #   with:
+      #     path: ~/.version_tracker
+      #     key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
+      #     restore-keys: |
+      #       version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-
+
+      # # 2. Increment the value (The Bash Script)
+      # - name: Compute per-release build number
+      #   id: compute_per_version
+      #   run: |
+      #     SEMVER="${{ steps.gitversion.outputs.majorMinorPatch }}"
+      #     RUN_NUM=${{ github.run_number }}
+          
+      #     APPLE_BUILD_NUM="$RUN_NUM"
+      #     CACHE_DIR="$HOME/.version_tracker"
+      #     CACHE_FILE="$CACHE_DIR/${SEMVER}.txt"
+      #     mkdir -p "$CACHE_DIR"
+
+      #     Determine the next logical Windows Build Number
+      #     if [ -f "$CACHE_FILE" ]; then
+      #       LAST_NUM=$(cat "$CACHE_FILE")
+      #       WINDOWS_BUILD_NUM=$((LAST_NUM + 1))
+      #     else
+      #       WINDOWS_BUILD_NUM=1
+      #     fi
+
+      #     Overwrite file with the updated number
+      #     echo "$WINDOWS_BUILD_NUM" > "$CACHE_FILE"
+
+      #     if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
+      #       echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
+      #       exit 1
+      #     fi
+
+      #     echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
+      #     echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
+      #     echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
+
+      # # 3. Save the updated tracking file back to GitHub's infrastructure
+      # - name: Save updated version tracking cache
+      #   uses: actions/cache/save@v6
+      #   with:
+      #     path: ~/.version_tracker
+      #     key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}-main
 
       - name: Compute deployment environment
         id: compute_environment
