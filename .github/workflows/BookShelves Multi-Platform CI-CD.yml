@@ -150,7 +150,6 @@ jobs:
           mkdir -p "$CACHE_DIR"
 
           # 3. Try to restore the highest tracked build number from GHA Cache
-          # (We use the standard gh CLI tool built directly into GitHub runners)
           echo "Checking for existing build tracking cache for version $SEMVER..."
           gh cache download "version-track-${SEMVER}" --dir "$CACHE_DIR" 2>/dev/null || echo "No prior cache found for this version slice."
 
@@ -167,17 +166,21 @@ jobs:
           echo "$WINDOWS_BUILD_NUM" > "$CACHE_FILE"
 
           # 6. Push the updated tracking file back to GitHub Actions Cache immediately
-          # (Delete old cache entry first if it exists to allow the overwrite)
-          gh cache delete "version-track-${SEMVER}" 2>/dev/null || true
-          gh cache save "version-track-${SEMVER}" --path "$CACHE_FILE"
+          # We append the RUN_NUM to the key name to bypass immediate API collisions
+          echo "Saving updated build tracker to cache..."
+          gh cache save "version-track-${SEMVER}-${RUN_NUM}" --target "$CACHE_FILE"
 
-          # 7. Fail-safe boundary checks
+          # 7. Clean up older cache iterations for this version track asynchronously
+          # (This keeps your cache space tidy without blocking the build)
+          gh cache list --key "version-track-${SEMVER}-" --json key -q '.[].key' | grep -v "version-track-${SEMVER}-${RUN_NUM}" | xargs -I {} gh cache delete {} 2>/dev/null || true
+
+          # 8. Fail-safe boundary checks
           if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
             echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
 
-          # 8. Set job outputs
+          # 9. Set job outputs
           echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "iOS/Mac buildNumber: ${APPLE_BUILD_NUM}, Windows buildNumber: ${WINDOWS_BUILD_NUM}"
