@@ -179,7 +179,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: ~/.version_tracker
-          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}
+          key: version-track-${{ steps.gitversion.outputs.majorMinorPatch }}-${{ github.run_number }}-main
 
       - name: Compute deployment environment
         id: compute_environment
