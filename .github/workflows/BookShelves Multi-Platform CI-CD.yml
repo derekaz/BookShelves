@@ -143,15 +143,16 @@ jobs:
           
           COUNTER_BRANCH="build-counters"
           FILE_NAME="${SEMVER}.txt"
-
+          
           echo "Configuring lightweight git worker..."
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config --global init.defaultBranch "main"
+          
           # 1. Clone ONLY the tracking branch into a temporary directory
           # If the branch doesn't exist yet, we initialize it as an empty orphan branch
           TMP_DIR=$(mktemp -d)
-          if git clone --branch "$COUNTER_BRANCH" --depth 1 https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git "$TMP_DIR" 2>/dev/null; then
+          if git clone --branch "$COUNTER_BRANCH" --depth 1 "https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git" "$TMP_DIR" 2>/dev/null; then
             cd "$TMP_DIR"
           else
             echo "Branch '$COUNTER_BRANCH' does not exist. Initializing orphan tracking track..."
@@ -159,7 +160,7 @@ jobs:
             git init
             git checkout --orphan "$COUNTER_BRANCH"
           fi
-
+          
           # 2. Read the previous number or start fresh at 1
           if [ -f "$FILE_NAME" ]; then
             LAST_NUM=$(cat "$FILE_NAME")
@@ -169,19 +170,19 @@ jobs:
             WINDOWS_BUILD_NUM=1
             echo "First build for version track $SEMVER. Initializing at 1..."
           fi
-
+          
           # 3. Write the updated number and push back to the tracker branch
           echo "$WINDOWS_BUILD_NUM" > "$FILE_NAME"
           git add "$FILE_NAME"
           git commit -m "chore: increment build counter for $SEMVER to $WINDOWS_BUILD_NUM [skip ci]"
-          git push https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git "$COUNTER_BRANCH"
-
+          git push "https://x-access-token:${GH_TOKEN}@://github.com{{ github.repository }}.git" "$COUNTER_BRANCH"
+          
           # 4. Fail-safe boundary checks
           if [ "$WINDOWS_BUILD_NUM" -gt 65535 ]; then
             echo "Computed Windows build number $WINDOWS_BUILD_NUM exceeds Windows limit (65535)."
             exit 1
           fi
-
+          
           # 5. Set job outputs
           echo "appleBuildNumber=${APPLE_BUILD_NUM}" >> $GITHUB_OUTPUT
           echo "windowsBuildNumber=${WINDOWS_BUILD_NUM}" >> $GITHUB_OUTPUT
