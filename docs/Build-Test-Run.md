@@ -98,10 +98,13 @@ dotnet format "BookShelves (Maui, Web and WebApi).slnx" --no-restore --exclude T
 - The new AppHost is for local orchestration and is not packaged or deployed as a production container in the current workflow.
 - The new `BookShelves.ServiceDefaults` project is a shared library only; it affects container restore/build inputs but does not produce its own image.
 - Container deployment still uses the existing separate web and Web API image model.
+- MAUI publish jobs in CI override `ApplicationDisplayVersion` and `ApplicationVersion` at publish time.
+- Windows publish uses a per-`major.minor.patch` incrementing `ApplicationVersion` for MSIX packaging.
 
 ## Versioning Notes
 
 - The SDK pin lives in `src/global.json`.
 - Shared version properties are centralized in `src/Directory.Build.Props`.
 - Local fallback version values keep developer builds working outside CI.
+- Local MAUI builds may use fallback `ApplicationVersion` values when CI outputs are not supplied.
 - See `docs/Versioning-and-Release.md` for branch, build, and release details.

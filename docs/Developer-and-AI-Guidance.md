@@ -41,6 +41,7 @@ This file provides practical guardrails for human and AI-assisted contributions.
 - Versioning is centrally controlled via `GitVersion.yml` and `src/Directory.Build.Props`.
 - Use branch conventions consistently for main, release, feature, and pull-request flows.
 - For release-sensitive changes, verify effective version outputs locally and in CI.
+- When CI versioning logic changes, update both `docs/Versioning-and-Release.md` and `.github/RELEASE_PROCESS.md`.
 
 ## Documentation Hygiene
 
