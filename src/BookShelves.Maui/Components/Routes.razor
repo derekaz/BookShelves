@@ -3,20 +3,22 @@
 
 <ErrorBoundary>
     <ChildContent>
-        <Router AppAssembly="typeof(MauiProgram).Assembly"
-                AdditionalAssemblies="new[] { typeof(Shared._Imports).Assembly }">
-            <Found Context="routeData">
-                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.Components.Layout.MainLayout)">
-                    <Authorizing>
-                        Authorizing...
-                    </Authorizing>
-                    <NotAuthorized>
-                        <BookShelves.Maui.Components.Pages.Authentication.Login />
-                    </NotAuthorized>
-                </AuthorizeRouteView>
-                <FocusOnNavigate RouteData="routeData" Selector="h1" />
-            </Found>
-        </Router>
+        <CascadingAuthenticationState>
+            <Router AppAssembly="typeof(MauiProgram).Assembly"
+                    AdditionalAssemblies="new[] { typeof(Shared._Imports).Assembly }">
+                <Found Context="routeData">
+                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.Components.Layout.MainLayout)">
+                        <Authorizing>
+                            Authorizing...
+                        </Authorizing>
+                        <NotAuthorized>
+                            <BookShelves.Maui.Components.Pages.Authentication.Login />
+                        </NotAuthorized>
+                    </AuthorizeRouteView>
+                    <FocusOnNavigate RouteData="routeData" Selector="h1" />
+                </Found>
+            </Router>
+        </CascadingAuthenticationState>
     </ChildContent>
     <ErrorContent Context="exception">
         <MudPaper Class="pa-4 ma-3" Elevation="1">
