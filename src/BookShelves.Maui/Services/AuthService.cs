@@ -2,25 +2,22 @@
 
 namespace BookShelves.Maui.Services;
 
-internal class AuthService(IServiceProvider serviceProvider) : IAuthService
+internal class AuthService(IExternalAuthenticationStateProvider authenticationStateProvider) : IAuthService
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly IExternalAuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
 
     public async Task InitializeAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
-        await authenticationStateProvider.InitializeAsync();
+        await _authenticationStateProvider.InitializeAsync();
     }
 
     public async Task LoginAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
-        await authenticationStateProvider.LogInAsync();
+        await _authenticationStateProvider.LogInAsync();
     }
 
     public async Task LogoutAsync()
     {
-        var authenticationStateProvider = _serviceProvider.GetRequiredService<IExternalAuthenticationStateProvider>();
-        await authenticationStateProvider.LogoutAsync();
+        await _authenticationStateProvider.LogoutAsync();
     }
 }

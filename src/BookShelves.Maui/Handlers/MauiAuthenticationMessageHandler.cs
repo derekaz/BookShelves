@@ -43,48 +43,21 @@ internal class MauiAuthenticationMessageHandler : DelegatingHandler
             _logger.LogError(ex, "Error getting access token for request to {RequestUri}", request.RequestUri);
         }
 
-        // --- DIAGNOSTICS LOGGING START ---
         try
         {
-            _logger.LogDebug("[DIAG] Outbound Headers for {Uri}: {Headers}", request.RequestUri, request.Headers.ToString());
-
             var response = await base.SendAsync(request, cancellationToken);
-
-            _logger.LogDebug("[DIAG] Response received. Status: {StatusCode}", response.StatusCode);
+            _logger.LogDebug("Request to {RequestUri} completed with status code {StatusCode}", request.RequestUri, response.StatusCode);
             return response;
         }
-        catch (HttpRequestException httpEx)
+        catch (HttpRequestException ex)
         {
-            _logger.LogError(httpEx, "[DIAG] HttpRequestException caught hitting {Uri}.", request.RequestUri);
-
-            // Unroll the inner exceptions to catch native iOS error structures
-            var inner = httpEx.InnerException;
-            int depth = 1;
-            while (inner != null)
-            {
-                _logger.LogError("[DIAG] Inner Exception Level {Depth}: {Type} - {Message}", depth, inner.GetType().Name, inner.Message);
-
-                // Check for specific native WebExceptions or SocketExceptions
-                if (inner is System.Net.WebException webEx)
-                {
-                    _logger.LogError("[DIAG] WebException Status: {Status}", webEx.Status);
-                    if (webEx.Response != null)
-                    {
-                        _logger.LogError("[DIAG] WebException has a response object present.");
-                    }
-                }
-
-                inner = inner.InnerException;
-                depth++;
-            }
-
-            throw; // Re-throw to maintain original application behavior
-        }
-        catch (Exception generalEx)
-        {
-            _logger.LogError(generalEx, "[DIAG] Non-HTTP Exception caught in pipeline: {Message}", generalEx.Message);
+            _logger.LogError(ex, "HTTP request failed for {RequestUri}", request.RequestUri);
             throw;
         }
-        // --- DIAGNOSTICS LOGGING END ---
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected exception during request pipeline for {RequestUri}", request.RequestUri);
+            throw;
+        }
     }
 }

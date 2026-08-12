@@ -145,9 +145,9 @@ public static class MauiProgram
 #elif IOS
             builder.Services.AddSingleton<IWindowService, Platforms.IOS.WindowService>();
 #elif MACCATALYST
-        builder.Services.AddSingleton<IWindowService, Platforms.Mac.WindowService>();
+            builder.Services.AddSingleton<IWindowService, Platforms.Mac.WindowService>();
 #elif WINDOWS
-        builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
+            builder.Services.AddSingleton<IWindowService, Platforms.Windows.WindowService>();
 #endif
             builder.Services.AddOptions();
 
@@ -267,12 +267,12 @@ public static class MauiProgram
             {
                 // set the local database path
 #if MACCATALYST
-            var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
-            var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
-            if (File.Exists(dbPath2))
-            {
-                File.Delete(dbPath2);
-            }
+                var dbPath = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, Constants.LocalDbFile);
+                var dbPath2 = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "BookShelvesTest.db");
+                if (File.Exists(dbPath2))
+                {
+                    File.Delete(dbPath2);
+                }
 #else
                 var dbPath2 = FileAccessHelper.GetLocalFilePath("BookShelvesSyncTest.db");
                 if (File.Exists(dbPath2))
@@ -327,17 +327,17 @@ public static class MauiProgram
             builder.Services.AddRazorClassLibraryServices(config);
 
 #if MACCATALYST
-        string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
-        if (File.Exists(dataProtectionCertFile))
-        {
-            File.Delete(dataProtectionCertFile);
-        }
+            string dataProtectionCertFile = FileAccessHelper.GetLocalFilePath(FileAccessHelper.ApplicationSubPath, true, "DataProtectionCert.pfx");
+            if (File.Exists(dataProtectionCertFile))
+            {
+                File.Delete(dataProtectionCertFile);
+            }
 
-        string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
-        if (Directory.Exists(dataProtectionKeysDirectory))
-        {
-            Directory.Delete(dataProtectionKeysDirectory, true);
-        }
+            string dataProtectionKeysDirectory = FileAccessHelper.GetLocalFilePath(Path.Combine(FileAccessHelper.ApplicationSubPath, "MacOsEncryption-Keys"), true);
+            if (Directory.Exists(dataProtectionKeysDirectory))
+            {
+                Directory.Delete(dataProtectionKeysDirectory, true);
+            }
 #endif
 
             startupStage = "builder-build";
