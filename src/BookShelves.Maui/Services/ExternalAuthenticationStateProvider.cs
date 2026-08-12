@@ -11,15 +11,18 @@ public class ExternalAuthenticationStateProvider(
     ILogger<ExternalAuthenticationStateProvider> logger) : AuthenticationStateProvider, IExternalAuthenticationStateProvider
 {
     private ClaimsPrincipal _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
-    // private AuthenticationState _currentAuthenticationState = new AuthenticationState(new ClaimsPrincipal());
     private readonly IAuthenticationService _authenticationService = authenticationService;
     private readonly ILogger<ExternalAuthenticationStateProvider> _logger = logger;
+    private bool _hasCheckedAuthenticationState;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var temp = await Task.FromResult(new AuthenticationState(_currentUser));
-        // var temp = await Task.FromResult(_currentAuthenticationState);
-        return temp;
+        if (!_hasCheckedAuthenticationState)
+        {
+            await RefreshCurrentUserAsync(notify: false);
+        }
+
+        return new AuthenticationState(_currentUser);
     }
 
     public async Task<string?> GetAccessTokenAsync(string[] scopes)
@@ -38,15 +41,7 @@ public class ExternalAuthenticationStateProvider(
 
     public async Task InitializeAsync()
     {
-        var loginTask = await _authenticationService.IsAuthenticatedAsync();
-        if (loginTask)
-        {
-            _currentUser = _authenticationService.CurrentPrincipal;
-            var state = Task.FromResult(new AuthenticationState(_currentUser));
-            NotifyAuthenticationStateChanged(state);
-            await state;
-        }
-        return;
+        await RefreshCurrentUserAsync(notify: true);
     }
 
     public Task LogInAsync()
@@ -62,6 +57,7 @@ public class ExternalAuthenticationStateProvider(
             {
                 var user = await LoginWithExternalProviderAsync();
                 _currentUser = user;
+                _hasCheckedAuthenticationState = true;
                 return new AuthenticationState(user);
             }
             catch (Exception ex)
@@ -73,21 +69,19 @@ public class ExternalAuthenticationStateProvider(
         }
     }
 
-    //public Task LogInAsync()
-    //{
-    //    var loginTask = LogInAsyncCore();
+    private async Task RefreshCurrentUserAsync(bool notify)
+    {
+        var isAuthenticated = await _authenticationService.IsAuthenticatedAsync();
+        _currentUser = isAuthenticated
+            ? _authenticationService.CurrentPrincipal
+            : new ClaimsPrincipal(new ClaimsIdentity());
+        _hasCheckedAuthenticationState = true;
 
-    //    return loginTask;
-    //}
-
-    //private async Task<AuthenticationState> LogInAsyncCore()
-    //{
-    //    var user = await LoginWithExternalProviderAsync();
-    //    _currentUser = user;
-    //    var state = Task.FromResult(new AuthenticationState(_currentUser));
-    //    NotifyAuthenticationStateChanged(state);
-    //    return state.Result;
-    //}
+        if (notify)
+        {
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_currentUser)));
+        }
+    }
 
     private async Task<ClaimsPrincipal> LoginWithExternalProviderAsync()
     {
@@ -111,12 +105,7 @@ public class ExternalAuthenticationStateProvider(
     {
         await _authenticationService.SignOutAsync();
         _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+        _hasCheckedAuthenticationState = true;
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_currentUser)));
     }
-
-    //public void NotifyUserLoggedIn(ClaimsPrincipal principal)
-    //{
-    //    _currentAuthenticationState = new AuthenticationState(principal);
-    //    NotifyAuthenticationStateChanged(Task.FromResult(_currentAuthenticationState));
-    //}
 }

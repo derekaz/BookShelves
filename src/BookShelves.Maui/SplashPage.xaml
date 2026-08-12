@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BookShelves.Maui.SplashPage"
+             BackgroundColor="{DynamicResource PageBackgroundColor}"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid RowDefinitions="*" ColumnDefinitions="*" 
+          Padding="20" 
+          RowSpacing="20"
+          VerticalOptions="Center"
+          HorizontalOptions="Center">
+
+        <VerticalStackLayout 
+            Grid.Row="0" 
+            Grid.Column="0"
+            Spacing="20"
+            VerticalOptions="Center"
+            HorizontalOptions="Center">
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator 
+                IsRunning="True"
+                IsVisible="True"
+                Color="{DynamicResource Primary}"
+                Scale="1.5"
+                HorizontalOptions="Center" />
+
+            <!-- App Title -->
+            <Label 
+                Text="BookShelves"
+                FontSize="32"
+                FontAttributes="Bold"
+                TextColor="{DynamicResource Primary}"
+                HorizontalTextAlignment="Center"
+                HorizontalOptions="Center" />
+
+            <!-- Loading Message -->
+            <Label 
+                Text="Initializing Application..."
+                FontSize="14"
+                TextColor="{DynamicResource Gray700}"
+                HorizontalTextAlignment="Center"
+                HorizontalOptions="Center"
+                Margin="0,20,0,0" />
+
+            <!-- Subtext -->
+            <Label 
+                Text="Please wait"
+                FontSize="12"
+                TextColor="{DynamicResource Gray600}"
+                HorizontalTextAlignment="Center"
+                HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>
