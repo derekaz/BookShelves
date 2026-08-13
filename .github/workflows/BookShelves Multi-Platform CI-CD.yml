@@ -55,7 +55,7 @@ env:
   GH_REF_NAME: '${{ github.ref_name }}'
 
   DOTNET_VERSION: 'net10.0'
-  DOTNET_SDK_VERSION: '10.0.x'
+  DOTNET_SDK_VERSION: '10.0.303'
   RELEASE_CONFIGURATION: 'Release'
   XCODE_VERSION: '26.6'
 
@@ -859,6 +859,7 @@ jobs:
           dotnet publish BookShelves.Maui.csproj `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
+            -p:TargetFrameworks=${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
