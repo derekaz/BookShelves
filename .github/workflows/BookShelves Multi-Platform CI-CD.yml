@@ -103,6 +103,7 @@ jobs:
           cache-dependency-path: |
             **/*.csproj
             **/*.sln
+            **/*.slnx
             **/global.json
             **/Directory.Packages.props
             **/NuGet.config
