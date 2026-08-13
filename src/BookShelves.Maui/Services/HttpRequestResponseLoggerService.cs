@@ -22,7 +22,7 @@ class TraceContentLoggingHandler(HttpMessageHandler innerHandler, ILogger logger
         else
             logger.LogTrace("""NULL REQUEST CONTENT""");
 
-        var response = await base.SendAsync(request, cancellationToken); //.ConfigureAwait(false); // This is disposable, but if we dispose it the ultimate caller can't read the content
+        var response = await base.SendAsync(request, cancellationToken); // This is disposable, but if we dispose it the ultimate caller can't read the content
 
         if (response.Content is not null)
             logger.LogTrace("""

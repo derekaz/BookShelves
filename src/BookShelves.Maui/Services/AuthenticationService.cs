@@ -4,16 +4,11 @@
 using BookShelves.Maui.Interfaces;
 using BookShelves.Shared.Services.ServiceInterfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
-//#if WINDOWS
-//using Microsoft.Identity.Client.Desktop;
-//#endif
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
-using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -23,11 +18,8 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 {
     private readonly Lazy<Task<IPublicClientApplication>> _pca;
     private readonly ISettingsService _settingsService;
-    private readonly IWindowService? _windowService;
+    private readonly IWindowService _windowService;
     private readonly ILogger<AuthenticationService> _logger;
-    //#if MACCATALYST
-    //    private readonly IDataProtector? _dataProtector;
-    //#endif
 
     private readonly string[] _defaultScopes = [];
     private string _userIdentifier = string.Empty;
@@ -47,28 +39,22 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    public AuthenticationService(ISettingsService? settingsService, IWindowService? windowService, IServiceProvider serviceProvider, ILogger<AuthenticationService> logger, IHostEnvironment environment) // IServiceCollection serviceCollection)
+    public AuthenticationService(ISettingsService settingsService, IWindowService windowService, ILogger<AuthenticationService> logger) // IServiceCollection serviceCollection)
     {
+        ArgumentNullException.ThrowIfNull(settingsService);
+        ArgumentNullException.ThrowIfNull(windowService);
+        ArgumentNullException.ThrowIfNull(logger);
+
         _logger = logger;
 
         _logger.LogInformation("AuthenticationService:Constructor-Start");
         _currentPrincipal = new ClaimsPrincipal();
-
-        if (settingsService == null) throw new NullReferenceException(nameof(settingsService));
-        if (windowService == null) throw new NullReferenceException(nameof(windowService));
 
         try
         {
             _settingsService = settingsService;
             _windowService = windowService;
             _defaultScopes = _settingsService.GraphScopes;
-#if MACCATALYST
-            // _logger.LogInformation("AuthenticationService:Constructor-Environment:{0}", environment.ToString());
-            // _logger.LogInformation("AuthenticationService:Constructor-EnvironmentContentRoot:{0}", environment.ContentRootPath);
-            // _logger.LogInformation("AuthenticationService:Constructor-DataProtector start");
-            // _dataProtector = serviceProvider.GetDataProtector(purpose: "MacOsEncryption");
-            // _logger.LogInformation("AuthenticationService:Constructor-DataProtector complete-{0}", _dataProtector);
-#endif
         }
         catch (Exception ex)
         {
@@ -113,7 +99,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         // If silent attempt didn't work, try an
         // interactive sign in
         result ??= await GetTokenInteractivelyAsync(account, _defaultScopes);
-        //result ??= await GetTokenInteractivelyAsync(account);
 
         SetCurrentPrincipal(result);
 
@@ -124,7 +109,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     private void SetCurrentPrincipal(AuthenticationResult? result)
     {
         var idToken = result?.IdToken;
-        //var accessToken = result?.AccessToken;
+
         if (idToken != null)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -168,47 +153,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         result ??= await GetTokenInteractivelyAsync(account, scopes);
 
         return result?.AccessToken;
-
-        //try
-        //{
-        //    var accounts = await pca.GetAccountsAsync();
-        //    var account = accounts.FirstOrDefault();
-
-        //    if (account == null)
-        //    {
-        //        _logger.LogWarning("No account found, cannot get access token");
-        //        return null;
-        //    }
-
-        //    var result = await pca
-        //        .AcquireTokenSilent(scopes, account)
-        //        .ExecuteAsync();
-
-        //    return result.AccessToken;
-        //}
-        //catch (MsalUiRequiredException)
-        //{
-        //    _logger.LogWarning("UI interaction required to get access token");
-
-        //    try
-        //    {
-        //        var result = await pca
-        //            .AcquireTokenInteractive(scopes)
-        //            .ExecuteAsync();
-
-        //        return result.AccessToken;
-        //    }
-        //    catch (MsalException ex)
-        //    {
-        //        _logger.LogError(ex, "Error during interactive token acquisition");
-        //        return null;
-        //    }
-        //}
-        //catch (MsalException ex)
-        //{
-        //    _logger.LogError(ex, "Error getting access token");
-        //    return null;
-        //}
     }
 
     /// <summary>
@@ -231,14 +175,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
                     }
                 }, Microsoft.Identity.Client.LogLevel.Warning, enablePiiLogging: false)
                 .WithLegacyCacheCompatibility(false)
-#if WINDOWS
-                //.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" })
-                //.WithWindowsEmbeddedBrowserSupport()
-#endif
-                // .WithRedirectUri("http://localhost");
                 .WithDefaultRedirectUri();
-            //.WithBroker(brokerOptions)
-            //.WithRedirectUri($"msal{Constants.ApplicationId}://auth");
 
             builder = AddPlatformConfiguration(builder);
 
@@ -258,48 +195,8 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
     }
 
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder);
-    // {
-    // #if ANDROID
-    //        return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
-    // android: return builder.WithParentActivityOrWindow(() => Platform.CurrentActivity);
-    // #elif IOS
-    // ios:  return builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
-    // #elif MACCATALYST
-    // #elif WINDOWS
-    //    //builder.WithWindowsEmbeddedBrowserSupport();
-    //    //builder.WithDesktopFeatures();
-    // return builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
-    // #endif
-    //    // from example code: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/Windows/AuthenticationService.cs
-    //    return builder;
-    // }
 
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache);
-
-    // from example code here: https://github.com/microsoftgraph/msgraph-sample-maui/blob/main/GraphMAUI/Platforms/iOS/AuthenticationService.cs
-    //{
-    //    // Configure storage properties for cross-platform
-    //    // See https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-    //    var storageProperties =
-    //        new StorageCreationPropertiesBuilder(_settingsService.CacheFileName, _settingsService.CacheDirectory)
-    //        .WithLinuxKeyring(
-    //            _settingsService.LinuxKeyRingSchema,
-    //            _settingsService.LinuxKeyRingCollection,
-    //            _settingsService.LinuxKeyRingLabel,
-    //            _settingsService.LinuxKeyRingAttr1,
-    //            _settingsService.LinuxKeyRingAttr2)
-    //        .WithMacKeyChain(
-    //            _settingsService.KeyChainServiceName,
-    //            _settingsService.KeyChainAccountName)
-    //        .Build();
-
-    //    // CreateBook a cache helper
-    //    var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-
-    //    // Connect the PublicClientApplication's cache with the cacheHelper.
-    //    // This will cause the cache to persist into secure storage on the device.
-    //    cacheHelper.RegisterCache(tokenCache);
-    //}
 
     /// <summary>
     /// Get the user account from the MSAL cache.
@@ -347,12 +244,6 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
             var result = await pca.AcquireTokenSilent(scopes, userAccount)
                 .ExecuteAsync();
             return result;
-
-            //var authResult = await pca.AcquireTokenSilent(_settingsService.GraphScopes, userAccount).ExecuteAsync();
-            //if (authResult.Account != null)
-            //{
-            //    pca.SetActiveAccount(authResult.account);
-            //}
         }
         catch (MsalUiRequiredException)
         {
@@ -374,38 +265,11 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
 
         var builder = pca.AcquireTokenInteractive(scopes);
         builder.WithPrompt(Prompt.ForceLogin);
+        builder = AddAcquireTokenPlatformConfiguration(builder);
 
-        //builder.WithEmbeddedWebViewOptions(new EmbeddedWebViewOptions
-        //{
-        //    Title = "BookShelves Sign In"
-        //    // This is required for the authentication flow to work correctly on Mac Catalyst
-        //    // and may also help with the authentication flow on iOS. Android and Windows should be unaffected.
-        //    //PreferredBrowserOption = PreferredEmbeddedBrowser.SystemDefault
-        //});
-        // builder.WithUseEmbeddedWebView(true);
-        // builder.WithParentActivityOrWindow(Application.Current?.MainPage?.Window?.Handler?.PlatformView as Microsoft.UI.Xaml.Window);
-
-        // var window = _windowService?.GetMainWindowHandle();
-
-        //var window = _windowService?.GetMainWindowHandle();
-        //var window = ((MauiWinUIWindow)App.Current.Windows[0].Handler.PlatformView).CoreWindow;
-        // var window = App.Current.MainPage.Window.Handler.PlatformView;
-
-        builder = AddAquireTokenPlatformConfiguration(builder);
-        // builder.WithParentActivityOrWindow(window); // trying this to maybe fix the IOS launch issue
-        //builder.WithParentActivityOrWindow(GetWindowHandle()); // trying this to maybe fix the IOS launch issue
-        //builder.WithUseEmbeddedWebView(true);
         try
         {
             var result = await builder.ExecuteAsync();
-
-            //var result = await pca.AcquireTokenInteractive(_settingsService.GraphScopes)
-            //.WithAccount(userAccount)
-            //.WithLoginHint("derek_m@outlook.com")
-            //.WithPrompt(Prompt.NoPrompt)
-            //.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle()); // trying this to maybe fix the IOS launch issue
-            //.WithUseEmbeddedWebView(true)
-            //.ExecuteAsync();
 
             // Store the user ID to make account retrieval easier
             _userIdentifier = result.Account.HomeAccountId.Identifier;
@@ -418,26 +282,7 @@ public partial class AuthenticationService : ObservableObject, IAuthenticationSe
         }
     }
 
-    private IntPtr GetWindowHandle()
-    {
-#if WINDOWS
-        // Get the current MAUI Window
-        var window = Application.Current?.Windows.FirstOrDefault();
-        if (window != null)
-        {
-            // Retrieve the native WinUI 3 Window
-            var nativeWindow = window.Handler.PlatformView as Microsoft.UI.Xaml.Window;
-            if (nativeWindow != null)
-            {
-                // Retrieve the HWND for the WinUI 3 window
-                return WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
-            }
-        }
-#endif
-        return IntPtr.Zero;
-    }
-
-    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder);
+    private partial AcquireTokenInteractiveParameterBuilder AddAcquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder);
 
     public async Task AuthenticateRequestAsync(
         RequestInformation request,

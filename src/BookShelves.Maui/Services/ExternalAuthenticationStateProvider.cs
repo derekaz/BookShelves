@@ -63,7 +63,6 @@ public class ExternalAuthenticationStateProvider(
             catch (Exception ex)
             {
                 _logger.LogError("ExternalAuthenticationStateProvider: LogInAsyncCore - Exception: {0}", ex);
-                //await Toast.Make(ex.Message).Show();
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
@@ -87,16 +86,14 @@ public class ExternalAuthenticationStateProvider(
     {
         try
         {
-            if (_authenticationService == null) { throw new InvalidOperationException("AuthenticationService not defined"); }
-
             var result = await _authenticationService.SignInAsync();
             if (result) return _authenticationService.CurrentPrincipal;
         }
         catch (MsalClientException ex)
         {
-            _logger.LogError("ExternalAuthenticationStateProvider: LogingWithExternalProviderAsync - Exception: {0}", ex);
-            //await Toast.Make(ex.Message).Show();
+            _logger.LogError("ExternalAuthenticationStateProvider: LoginWithExternalProviderAsync - Exception: {0}", ex);
         }
+
         var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity());
         return authenticatedUser;
     }

@@ -9,8 +9,6 @@ public partial class AuthenticationService
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
         builder.WithRedirectUri("http://localhost");
-        //builder.WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient");
-        //builder.WithDefaultRedirectUri();
         builder.WithIosKeychainSecurityGroup("com.microsoft.adalcache");
         return builder;
     }
@@ -28,27 +26,22 @@ public partial class AuthenticationService
             await Browser.Default.OpenAsync(url, BrowserLaunchMode.External); 
         });
 
-        //await Browser.Default.OpenAsync(url);
         _logger.LogInformation("AuthenticationService:TryThisAsync (Mac) - After Url Open");
-        //Process.Start(new ProcessStartInfo("cmd", $"/c start microsoft-edge:{url}") { CreateNoWindow = true });
-        //await Task.FromResult(0).ConfigureAwait(false);
     }
 
-    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
+    private partial AcquireTokenInteractiveParameterBuilder AddAcquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
         var options = new SystemWebViewOptions()
         {
             OpenBrowserAsync = TryThisAsync
         };
         builder.WithSystemWebViewOptions(options);
-        //builder.WithUseEmbeddedWebView(false);
         return builder;
     }
 
     private partial Task RegisterMsalCacheAsync(ITokenCache tokenCache)
     {
-        // if (_dataProtector == null) throw new NullReferenceException(nameof(_dataProtector));
-        MacTokenCacheHelper.EnableSerialization(tokenCache); // , _dataProtector);
+        MacTokenCacheHelper.EnableSerialization(tokenCache);
 
         _logger.LogInformation("AuthenticationService:InitializeMsalWithCache (Mac)-RegisterCache complete");
         return Task.CompletedTask;

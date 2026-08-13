@@ -1,10 +1,5 @@
 ﻿using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Desktop;
-
-
-
-
-//using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace BookShelves.Maui.Services;
@@ -14,30 +9,13 @@ public partial class AuthenticationService
 {
     private partial PublicClientApplicationBuilder AddPlatformConfiguration(PublicClientApplicationBuilder builder)
     {
-        //var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
-        //{
-        //    Title = "BookShelves"
-        //};
-
-        //builder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
-
-        // // builder.WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows) { Title = "BookShelves" });
-        //builder.WithWinUI3EmbeddedBrowserSupport();
-        //builder.WithWindowsDesktopFeatures(brokerOptions);
-        // builder.WithWindowsEmbeddedBrowserSupport();
-
-        // //builder.WithWindowsDesktopFeatures(new BrokerOptions(BrokerOptions.OperatingSystems.Windows));
-        //builder.WithDefaultRedirectUri();
-        //builder.WithParentActivityOrWindow(_windowService?.GetMainWindowHandle());
-        //builder.WithBroker(brokerOptions);
-        //builder.WithBroker(false);
         builder.WithWindowsEmbeddedBrowserSupport();
 
         return builder;
     }
 
 
-    private partial AcquireTokenInteractiveParameterBuilder AddAquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
+    private partial AcquireTokenInteractiveParameterBuilder AddAcquireTokenPlatformConfiguration(AcquireTokenInteractiveParameterBuilder builder)
     {
         builder.WithUseEmbeddedWebView(true);
         return builder;
@@ -60,7 +38,7 @@ public partial class AuthenticationService
                 _settingsService.KeyChainAccountName)
             .Build();
 
-        // CreateBook a cache helper
+        // Create a cache helper
         var cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
 
         // Connect the PublicClientApplication's cache with the cacheHelper.

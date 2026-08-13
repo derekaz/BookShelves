@@ -139,14 +139,19 @@
 	  <AndroidResource Remove="BundleArtifacts\**" />
 	  <Compile Remove="AppPackages\**" />
 	  <Compile Remove="BundleArtifacts\**" />
+	  <Compile Remove="Models\**" />
 	  <Content Remove="AppPackages\**" />
 	  <Content Remove="BundleArtifacts\**" />
+	  <Content Remove="Models\**" />
 	  <EmbeddedResource Remove="AppPackages\**" />
 	  <EmbeddedResource Remove="BundleArtifacts\**" />
+	  <EmbeddedResource Remove="Models\**" />
 	  <MauiXaml Remove="AppPackages\**" />
 	  <MauiXaml Remove="BundleArtifacts\**" />
+	  <MauiXaml Remove="Models\**" />
 	  <None Remove="AppPackages\**" />
 	  <None Remove="BundleArtifacts\**" />
+	  <None Remove="Models\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -233,10 +238,6 @@
 		<Compile Update="Platforms\Windows\AuthenticationService.cs">
 			<ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
 		</Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Models\" />
 	</ItemGroup>
 
 	<ItemGroup>
