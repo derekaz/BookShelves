@@ -1,5 +1,5 @@
 <Solution>
-  <Folder Name="/Aspire/" Id="827e0cd3-b72d-47b6-a68d-7590b98eb39b">
+  <Folder Name="/Aspire/">
     <Project Path="src/BookShelves.AppHost/BookShelves.AppHost.csproj" />
     <Project Path="src/BookShelves.ServiceDefaults/BookShelves.ServiceDefaults.csproj" />
   </Folder>
@@ -21,9 +21,9 @@
     <File Path="src/docker-compose.yml" />
     <File Path="src/global.json" />
   </Folder>
-  <Folder Name="/src/" />
-  <Folder Name="/test/">
+  <Folder Name="/Tests/" Id="0c88dd14-f956-ce84-757c-a364ccf449fc">
     <Project Path="test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj" />
+    <Project Path="test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj" />
   </Folder>
   <Project Path="src/BookShelves.Maui.Data/BookShelves.Maui.Data.csproj" />
   <Project Path="src/BookShelves.Maui.MigrationHost/BookShelves.Maui.MigrationHost.csproj" Id="5e62b617-4862-409d-b8c2-44a24ad70281" />
@@ -35,5 +35,4 @@
   <Project Path="src/BookShelves.Web/BookShelves.Web.Client/BookShelves.Web.Client.csproj" />
   <Project Path="src/BookShelves.Web/BookShelves.Web/BookShelves.Web.csproj" />
   <Project Path="src/BookShelves.WebApi/BookShelves.WebApi.csproj" />
-  <Project Path="test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj" />
 </Solution>
