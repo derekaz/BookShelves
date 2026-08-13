@@ -132,6 +132,7 @@ dotnet format "BookShelves (Maui, Web and WebApi).slnx" --no-restore --exclude T
 
 - GitHub Actions still validates and publishes the deployable server containers from `src/BookShelves.Web/BookShelves.Web/Dockerfile` and `src/BookShelves.WebApi/Dockerfile`.
 - The validation job now runs the four solution test suites (`WebApi`, `Shared`, `Web.Shared`, and `Maui.Data`) and uploads TRX + coverage artifacts for each run.
+- See `docs/CI-Test-Artifacts.md` for artifact triage and interpretation guidance.
 - The new AppHost is for local orchestration and is not packaged or deployed as a production container in the current workflow.
 - The new `BookShelves.ServiceDefaults` project is a shared library only; it affects container restore/build inputs but does not produce its own image.
 - Container deployment still uses the existing separate web and Web API image model.
