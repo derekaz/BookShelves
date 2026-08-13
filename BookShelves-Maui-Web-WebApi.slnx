@@ -22,7 +22,9 @@
     <File Path="src/global.json" />
   </Folder>
   <Folder Name="/Tests/" Id="0c88dd14-f956-ce84-757c-a364ccf449fc">
+    <Project Path="test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj" />
     <Project Path="test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj" />
+    <Project Path="test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj" />
     <Project Path="test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj" />
   </Folder>
   <Project Path="src/BookShelves.Maui.Data/BookShelves.Maui.Data.csproj" />
