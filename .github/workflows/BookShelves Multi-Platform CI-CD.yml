@@ -836,7 +836,7 @@ jobs:
 
       - name: Install Windows Workloads
         shell: pwsh
-        run: dotnet workload install maui-windows
+        run: dotnet workload install maui-windows -v minimal
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
@@ -862,7 +862,6 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
-            -v normal `
             -p:RuntimeIdentifierOverride=win10-x64 `
             -p:InvariantGlobalization=true `
             -p:GenerateTestArtifacts=false `
