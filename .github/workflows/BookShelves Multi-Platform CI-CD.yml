@@ -859,7 +859,6 @@ jobs:
           dotnet publish BookShelves.Maui.csproj `
             -v minimal `
             -f ${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
-            -p:TargetFrameworks=${{env.DOTNET_VERSION}}-windows10.0.19041.0 `
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
