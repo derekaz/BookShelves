@@ -11,6 +11,8 @@ namespace BookShelves.Web.Services.Server;
 internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsClientFactory, ILogger<AuthorsDataService> logger)
         : IAuthorsDataService
 {
+    private readonly DatasyncServiceClient<Author> authorsClient =
+        new(new Uri("authors", UriKind.Relative), authorsClientFactory.CreateClient());
 
     public async Task<bool> CreateAuthorAsync(AuthorViewModel author)
     {
@@ -19,10 +21,6 @@ internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsCli
             Name = author.Name,
             Bio = author.Biography,
         };
-
-        var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("authors", UriKind.Relative);
-        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         try
         {
@@ -63,13 +61,8 @@ internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsCli
 
     public async Task<IEnumerable<AuthorViewModel>> GetAuthorsDataAsync(bool includeSoftDeleted = false)
     {
-        var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("authors", UriKind.Relative);
-        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
-
         try
         {
-
             var authors = await authorsClient.ToListAsync(); //  .Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
 
             return authors.Select(a => a.ToAuthorItemViewModel());
@@ -84,7 +77,7 @@ internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsCli
         }
         catch (Exception ex)
         {
-            logger.LogError($"An error occurred while retrieving authors. {ex.Message}  Exception:{ex};  httpClient.BaseAddress:{httpClient.BaseAddress}");
+            logger.LogError(ex, "An error occurred while retrieving authors in {Service}", nameof(AuthorsDataService));
             throw;
         }
     }
@@ -95,10 +88,6 @@ internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsCli
         ArgumentException.ThrowIfNullOrWhiteSpace(author.Id, nameof(author));
 
         var newAuthor = Author.FromAuthorItemViewModel(author);
-
-        var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("authors", UriKind.Relative);
-        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
 
         var result = await authorsClient.ReplaceAsync(newAuthor);
 
@@ -112,10 +101,6 @@ internal sealed class AuthorsDataService(AuthorsDatasyncClientFactory authorsCli
 
     public async Task<bool> DeleteAuthorAsync(AuthorViewModel author)
     {
-        var httpClient = authorsClientFactory.CreateClient();
-        var tableEndpoint = new Uri("authors", UriKind.Relative);
-        var authorsClient = new DatasyncServiceClient<Author>(tableEndpoint, httpClient);
-
         ArgumentNullException.ThrowIfNull(author);
         ArgumentException.ThrowIfNullOrWhiteSpace(author.Id, nameof(author));
 

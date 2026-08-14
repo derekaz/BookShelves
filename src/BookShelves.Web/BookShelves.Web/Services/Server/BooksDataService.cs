@@ -8,9 +8,20 @@ using Microsoft.Identity.Web.Resource;
 
 namespace BookShelves.Web.Services.Server;
 
-internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFactory, ILogger<BooksDataService> logger)
-        : IBooksDataService
+internal sealed class BooksDataService : IBooksDataService
 {
+    private readonly ILogger<BooksDataService> logger;
+    private readonly DatasyncServiceClient<Book> booksClient;
+    private readonly DatasyncServiceClient<Author> authorsClient;
+
+    public BooksDataService(BooksDatasyncClientFactory booksClientFactory, ILogger<BooksDataService> logger)
+    {
+        this.logger = logger;
+
+        var client = booksClientFactory.CreateClient();
+        booksClient = new DatasyncServiceClient<Book>(new Uri("books", UriKind.Relative), client);
+        authorsClient = new DatasyncServiceClient<Author>(new Uri("authors", UriKind.Relative), client);
+    }
 
     public async Task<bool> CreateBookAsync(BookViewModel book)
     {
@@ -21,10 +32,6 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
             AuthorId = book.Author?.Id,
             PublishDate = book.PublishDate
         };
-
-        var httpClient = booksClientFactory.CreateClient();
-        var tableEndpoint = new Uri("books", UriKind.Relative);
-        var booksClient = new DatasyncServiceClient<Book>(tableEndpoint, httpClient);
 
         try
         {
@@ -37,7 +44,6 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         }
         catch (Exception ex)
         {
-            // Handle the exception as needed
             throw new InvalidOperationException("Error creating book.", ex);
         }
 
@@ -58,22 +64,16 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         }
         catch (Exception ex)
         {
-            logger.LogError($"An error occurred while retrieving books. {ex.Message}  Exception:{ex}");
+            logger.LogError("An error occurred while retrieving books. {Message} Exception:{Exception}", ex.Message, ex);
             throw;
         }
     }
 
     public async Task<IEnumerable<BookViewModel>> GetBooksDataAsync(bool includeSoftDeleted = false)
     {
-        var httpClient = booksClientFactory.CreateClient();
-        var tableEndpoint = new Uri("books", UriKind.Relative);
-        var booksClient = new DatasyncServiceClient<Book>(tableEndpoint, httpClient);
-        var authorsClient = new DatasyncServiceClient<Author>(new Uri("authors", UriKind.Relative), httpClient);
-
         try
         {
-
-            var books = await booksClient.ToListAsync(); //  .Where(item => !item.Deleted).ToListAsync();  //includeSoftDeleted: includeSoftDeleted)
+            var books = await booksClient.ToListAsync();
             var authors = await authorsClient.ToListAsync();
 
             return books.Select(b => b.ToBookViewModel(authors));
@@ -88,7 +88,7 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         }
         catch (Exception ex)
         {
-            logger.LogError($"An error occurred while retrieving books. {ex.Message}  Exception:{ex};  httpClient.BaseAddress:{httpClient.BaseAddress}");
+            logger.LogError(ex, "An error occurred while retrieving books in {Service}", nameof(BooksDataService));
             throw;
         }
     }
@@ -99,11 +99,6 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
         ArgumentException.ThrowIfNullOrWhiteSpace(book.Id, nameof(book));
 
         var newBook = Book.FromBookViewModel(book);
-
-        var httpClient = booksClientFactory.CreateClient();
-        var tableEndpoint = new Uri("books", UriKind.Relative);
-        var booksClient = new DatasyncServiceClient<Book>(tableEndpoint, httpClient);
-
         var result = await booksClient.ReplaceAsync(newBook);
 
         if (result.IsSuccessful && result.HasValue)
@@ -115,17 +110,11 @@ internal sealed class BooksDataService(BooksDatasyncClientFactory booksClientFac
     }
 
     public async Task<bool> DeleteBookAsync(BookViewModel book)
-
     {
-        var httpClient = booksClientFactory.CreateClient();
-        var tableEndpoint = new Uri("books", UriKind.Relative);
-        var booksClient = new DatasyncServiceClient<Book>(tableEndpoint, httpClient);
-
         ArgumentNullException.ThrowIfNull(book);
         ArgumentException.ThrowIfNullOrWhiteSpace(book.Id, nameof(book));
 
         var id = book.Id;
-
         var result = await booksClient.RemoveAsync(id, new DatasyncServiceOptions());
 
         if (result.IsSuccessful)
