@@ -60,6 +60,18 @@ Run only MAUI data tests:
 dotnet test test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj
 ```
 
+Run only Web host smoke/integration tests:
+
+```powershell
+dotnet test test/BookShelves.Web.Tests/BookShelves.Web.Tests.csproj
+```
+
+Run only WebAssembly client tests:
+
+```powershell
+dotnet test test/BookShelves.Web.Client.Tests/BookShelves.Web.Client.Tests.csproj
+```
+
 ## Run Web + WebApi with Aspire
 
 From the repo root:
@@ -131,7 +143,7 @@ dotnet format "BookShelves (Maui, Web and WebApi).slnx" --no-restore --exclude T
 ## CI and Container Packaging Notes
 
 - GitHub Actions still validates and publishes the deployable server containers from `src/BookShelves.Web/BookShelves.Web/Dockerfile` and `src/BookShelves.WebApi/Dockerfile`.
-- The validation job now runs the four solution test suites (`WebApi`, `Shared`, `Web.Shared`, and `Maui.Data`) and uploads TRX + coverage artifacts for each run.
+- The validation job runs all test projects under `test/`, requires the core suites (`WebApi`, `Shared`, `Web.Shared`, `Maui.Data`, `Web`, and `Web.Client`) to be present, and uploads TRX + coverage artifacts for each run.
 - See `docs/CI-Test-Artifacts.md` for artifact triage and interpretation guidance.
 - The new AppHost is for local orchestration and is not packaged or deployed as a production container in the current workflow.
 - The new `BookShelves.ServiceDefaults` project is a shared library only; it affects container restore/build inputs but does not produce its own image.

@@ -305,12 +305,40 @@ jobs:
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
 
       - name: Run solution test suites with coverage
+        shell: bash
         run: |
+          set -euo pipefail
+
           mkdir -p TestResults
-          dotnet test test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.WebApi.Tests.trx" --results-directory TestResults
-          dotnet test test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Shared.Tests.trx" --results-directory TestResults
-          dotnet test test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Web.Shared.Tests.trx" --results-directory TestResults
-          dotnet test test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Maui.Data.Tests.trx" --results-directory TestResults
+
+          REQUIRED_PROJECTS=(
+            "test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj"
+            "test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj"
+            "test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj"
+            "test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj"
+            "test/BookShelves.Web.Tests/BookShelves.Web.Tests.csproj"
+            "test/BookShelves.Web.Client.Tests/BookShelves.Web.Client.Tests.csproj"
+          )
+
+          for required in "${REQUIRED_PROJECTS[@]}"; do
+            if [ ! -f "$required" ]; then
+              echo "Missing required core test project: $required" >&2
+              exit 1
+            fi
+          done
+
+          mapfile -t TEST_PROJECTS < <(find test -name '*.csproj' | sort)
+
+          if [ "${#TEST_PROJECTS[@]}" -eq 0 ]; then
+            echo "No test projects found under test/." >&2
+            exit 1
+          fi
+
+          for project in "${TEST_PROJECTS[@]}"; do
+            project_name=$(basename "$project" .csproj)
+            echo "Running $project_name"
+            dotnet test "$project" --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=${project_name}.trx" --results-directory TestResults
+          done
 
       - name: Upload validation test results
         if: always()

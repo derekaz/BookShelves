@@ -12,6 +12,8 @@ Current automated test projects in the solution:
 | `test/BookShelves.WebApi.Tests` | API auth, controller, and repository caching behavior (`BookShelves.WebApi`) | 15+ |
 | `test/BookShelves.Web.Shared.Tests` | Web shared DTO and mapping behavior (`BookShelves.Web.Shared`) | 5 |
 | `test/BookShelves.Maui.Data.Tests` | MAUI data mapping and local unit-of-work behavior (`BookShelves.Maui.Data`) | 5 |
+| `test/BookShelves.Web.Tests` | Web host endpoint/routing smoke behavior (`BookShelves.Web`) | 2+ |
+| `test/BookShelves.Web.Client.Tests` | WebAssembly client service/handler behavior (`BookShelves.Web.Client`) | 6+ |
 
 \* Counts are based on local test discovery and are expected to change as coverage grows.
 
@@ -32,8 +34,8 @@ Use these categories consistently across the solution:
 | `src/BookShelves.WebApi` | Auth/controller tests plus caching tests exist; endpoint validation and persistence contracts still incomplete | High | Integration + contract |
 | `src/BookShelves.Web.Shared` | Dedicated tests now cover core mapping behavior; broader DTO edge-case coverage still limited | Medium | Unit |
 | `src/BookShelves.Maui.Data` | Dedicated tests now cover mapping and local unit-of-work behavior; sync pipeline integration remains limited | High | Integration |
-| `src/BookShelves.Web/BookShelves.Web` | No dedicated test project in solution | Medium | Integration |
-| `src/BookShelves.Web/BookShelves.Web.Client` | No dedicated test project in solution | Medium | UI/component smoke |
+| `src/BookShelves.Web/BookShelves.Web` | Dedicated host smoke/integration coverage exists and should expand beyond initial routing/login boundaries | Medium | Integration |
+| `src/BookShelves.Web/BookShelves.Web.Client` | Dedicated client service/handler tests exist; UI/component smoke coverage for interactive components remains limited | Medium | Unit + UI/component smoke |
 | `src/BookShelves.Maui` | No dedicated test project in solution | Medium | Unit (extracted shared logic) + targeted integration |
 | `src/BookShelves.ServiceDefaults` | No dedicated test project in solution | Low | Unit |
 
@@ -52,7 +54,7 @@ Prioritize test additions by risk to production behavior:
 Adopt these as the current default quality bar:
 
 1. All test projects in the solution must pass before merge.
-2. Pull request validation must execute the core test projects in CI (`WebApi`, `Shared`, `Web.Shared`, and `Maui.Data`).
+2. Pull request validation must execute the core test projects in CI (`WebApi`, `Shared`, `Web.Shared`, `Maui.Data`, `Web`, and `Web.Client`).
 3. CI should publish test evidence for every validation run:
    - TRX test result artifacts
    - Cobertura coverage artifacts
@@ -87,8 +89,8 @@ Adopt these as the current default quality bar:
 | `src/BookShelves.Shared` | `test/BookShelves.Shared.Tests` | Maintain shared service/model logic coverage and protect cross-host behavior changes. |
 | `src/BookShelves.Web.Shared` | `test/BookShelves.Web.Shared.Tests` | Maintain DTO/view-model mapping and client-shared data contract coverage. |
 | `src/BookShelves.Maui.Data` | `test/BookShelves.Maui.Data.Tests` | Maintain local persistence/sync-adjacent behavior coverage and mapping integrity. |
-| `src/BookShelves.Web/BookShelves.Web` | `test/BookShelves.WebApi.Tests` (until dedicated suite exists) | Add boundary tests when server-host behavior changes impact auth/routing/API integration. |
-| `src/BookShelves.Web/BookShelves.Web.Client` | `test/BookShelves.Web.Shared.Tests` (until dedicated suite exists) | Add smoke/behavior tests for browser-facing changes that affect shared contracts. |
+| `src/BookShelves.Web/BookShelves.Web` | `test/BookShelves.Web.Tests` | Maintain host endpoint/routing/auth-boundary smoke coverage and expand integration checks as server-host behavior evolves. |
+| `src/BookShelves.Web/BookShelves.Web.Client` | `test/BookShelves.Web.Client.Tests` | Maintain client service/handler coverage and add browser-facing smoke tests for interactive components. |
 | `src/BookShelves.Maui` | `test/BookShelves.Maui.Data.Tests` + `test/BookShelves.Shared.Tests` (until dedicated suite exists) | Cover extracted shared logic and add integration checks around MAUI-specific orchestration. |
 
 ## Ownership and Review Expectations

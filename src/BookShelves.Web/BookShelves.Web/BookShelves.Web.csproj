@@ -51,6 +51,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>BookShelves.Web.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Update="Components\WebApp.razor">
 			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>

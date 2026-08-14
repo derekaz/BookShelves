@@ -4,7 +4,7 @@ This document explains how to use CI test artifacts produced by the validation w
 
 ## What Gets Published
 
-The validation workflow uploads two artifact types:
+The validation workflow executes all test projects under `test/` (while requiring the four core suites) and uploads two artifact types:
 
 - **TRX files** (`*.trx`) - test run results (pass/fail, duration, stack traces, standard output).
 - **Coverage files** (`coverage.cobertura.xml`) - code coverage data in Cobertura format.

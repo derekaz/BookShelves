@@ -38,6 +38,8 @@ BookShelves is a cross-platform book library application with shared Blazor UI, 
 - Build and test the affected area before finalizing changes.
 - Update the relevant docs in `docs/` when behavior, workflow, or architecture changes.
 - Defer branch protection required-check changes until test coverage reaches a reasonable level after completing test improvements.
+- For current testing strategy work, skip creating a separate dedicated PR validation workflow for now.
+- Pause additional Web.Client-focused test expansion for now and shift effort elsewhere.
 
 ### Restore and Build
 
@@ -55,6 +57,8 @@ dotnet test test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj
 dotnet test test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj
 dotnet test test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj
 ```
+
+- When reporting test coverage numbers, always exclude migration/generated files from the metrics.
 
 ### Format
 

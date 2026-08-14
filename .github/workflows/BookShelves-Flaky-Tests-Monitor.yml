@@ -65,6 +65,8 @@ jobs:
 
           FAILURES=0
 
+          dotnet restore "$PROJECT"
+
           for i in 1 2 3; do
             echo "Running ${PROJECT_NAME} pass ${i}/3"
 
