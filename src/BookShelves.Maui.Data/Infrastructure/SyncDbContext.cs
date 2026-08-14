@@ -36,7 +36,7 @@ public class SyncDbContext : OfflineDbContext
         _ = optionsBuilder.UseHttpClient(_syncApiClient.HttpClient);
     }
 
-    public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
+    public virtual async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Starting synchronization...");
         _logger.LogTrace("Pushing local changes to the server...");
