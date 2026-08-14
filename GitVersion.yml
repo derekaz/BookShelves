@@ -53,7 +53,7 @@ branches:
     is-main-branch: true
     pre-release-weight: 55000
   release:
-    mode: ContinuousDelivery
+    mode: ContinuousDeployment
     label: beta
     increment: Patch
     pre-release-number-calculation: Run-To-End
