@@ -17,16 +17,14 @@ public sealed class AuthorBookDetailComponentTests
 
         var dialog = new Mock<IMudDialogInstance>();
         DialogResult? result = null;
-        dialog.Setup(x => x.Close(It.IsAny<DialogResult?>())).Callback<DialogResult?>(r => result = r);
+        dialog.Setup(x => x.Close(It.IsAny<DialogResult>())).Callback<DialogResult>(r => result = r);
 
-        var sut = new TestAuthorDetail
+        var sut = new TestAuthorDetail();
+        sut.SetModelObject(new AuthorViewModel
         {
-            ModelObject = new AuthorViewModel
-            {
-                Id = string.Empty,
-                Name = "New Author"
-            }
-        };
+            Id = string.Empty,
+            Name = "New Author"
+        });
         sut.InitializeDependencies(authorsService.Object, dialog.Object);
         await sut.InvokeOnInitializedAsync();
 
@@ -47,16 +45,14 @@ public sealed class AuthorBookDetailComponentTests
 
         var dialog = new Mock<IMudDialogInstance>();
         DialogResult? result = null;
-        dialog.Setup(x => x.Close(It.IsAny<DialogResult?>())).Callback<DialogResult?>(r => result = r);
+        dialog.Setup(x => x.Close(It.IsAny<DialogResult>())).Callback<DialogResult>(r => result = r);
 
-        var sut = new TestAuthorDetail
+        var sut = new TestAuthorDetail();
+        sut.SetModelObject(new AuthorViewModel
         {
-            ModelObject = new AuthorViewModel
-            {
-                Id = "author-1",
-                Name = "Existing Author"
-            }
-        };
+            Id = "author-1",
+            Name = "Existing Author"
+        });
         sut.InitializeDependencies(authorsService.Object, dialog.Object);
         await sut.InvokeOnInitializedAsync();
 
@@ -89,17 +85,15 @@ public sealed class AuthorBookDetailComponentTests
 
         var dialog = new Mock<IMudDialogInstance>();
         DialogResult? result = null;
-        dialog.Setup(x => x.Close(It.IsAny<DialogResult?>())).Callback<DialogResult?>(r => result = r);
+        dialog.Setup(x => x.Close(It.IsAny<DialogResult>())).Callback<DialogResult>(r => result = r);
 
-        var sut = new TestBookDetail
+        var sut = new TestBookDetail();
+        sut.SetModelObject(new BookViewModel
         {
-            ModelObject = new BookViewModel
-            {
-                Id = string.Empty,
-                Title = "New Book",
-                Author = new AuthorViewModel { Id = "author-a" }
-            }
-        };
+            Id = string.Empty,
+            Title = "New Book",
+            Author = new AuthorViewModel { Id = "author-a" }
+        });
         sut.InitializeDependencies(booksService.Object, authorsService.Object, dialog.Object);
         await sut.InvokeOnInitializedAsync();
 
@@ -127,16 +121,14 @@ public sealed class AuthorBookDetailComponentTests
 
         var dialog = new Mock<IMudDialogInstance>();
         DialogResult? result = null;
-        dialog.Setup(x => x.Close(It.IsAny<DialogResult?>())).Callback<DialogResult?>(r => result = r);
+        dialog.Setup(x => x.Close(It.IsAny<DialogResult>())).Callback<DialogResult>(r => result = r);
 
-        var sut = new TestBookDetail
+        var sut = new TestBookDetail();
+        sut.SetModelObject(new BookViewModel
         {
-            ModelObject = new BookViewModel
-            {
-                Id = "book-1",
-                Title = "Existing Book"
-            }
-        };
+            Id = "book-1",
+            Title = "Existing Book"
+        });
         sut.InitializeDependencies(booksService.Object, authorsService.Object, dialog.Object);
         await sut.InvokeOnInitializedAsync();
 
@@ -151,6 +143,8 @@ public sealed class AuthorBookDetailComponentTests
 
     private sealed class TestAuthorDetail : AuthorDetail
     {
+        public void SetModelObject(AuthorViewModel? model) => ModelObject = model;
+
         public void InitializeDependencies(IAuthorsDataService dataService, IMudDialogInstance dialog)
         {
             SetNonPublicProperty(this, "AuthorsDataService", dataService);
@@ -164,6 +158,8 @@ public sealed class AuthorBookDetailComponentTests
 
     private sealed class TestBookDetail : BookDetail
     {
+        public void SetModelObject(BookViewModel? model) => ModelObject = model;
+
         public void InitializeDependencies(IBooksDataService booksDataService, IAuthorsDataService authorsDataService, IMudDialogInstance dialog)
         {
             SetNonPublicProperty(this, "DataService", booksDataService);

@@ -23,7 +23,8 @@ public sealed class DetailDialogBaseTests
     public async Task OnInitializedAsync_DoesNotReinitialize_WhenModelProvided()
     {
         var existing = new TestViewModel { Id = "existing", Name = "Existing" };
-        var sut = new TestDetailDialog { ModelObject = existing };
+        var sut = new TestDetailDialog();
+        sut.SetModelObject(existing);
 
         await sut.InvokeOnInitializedAsync();
 
@@ -38,9 +39,9 @@ public sealed class DetailDialogBaseTests
         var dialog = new Mock<IMudDialogInstance>();
         var sut = new TestDetailDialog
         {
-            ModelObject = new TestViewModel { Id = string.Empty, Name = "New Name" },
             CreateResult = true
         };
+        sut.SetModelObject(new TestViewModel { Id = string.Empty, Name = "New Name" });
         sut.SetDialog(dialog.Object);
 
         await sut.InvokeSubmitForm();
@@ -48,8 +49,7 @@ public sealed class DetailDialogBaseTests
         Assert.Equal(1, sut.OnBeforeSubmitCallCount);
         Assert.Equal(1, sut.ExecuteCreateCallCount);
         Assert.Equal(0, sut.ExecuteUpdateCallCount);
-        dialog.Verify(x => x.Close(It.Is<DialogResult?>(r =>
-            r != null &&
+        dialog.Verify(x => x.Close(It.Is<DialogResult>(r =>
             !r.Canceled &&
             string.Equals(r.Data == null ? null : r.Data.ToString(), "created:New Name", StringComparison.Ordinal))), Times.Once);
     }
@@ -60,9 +60,9 @@ public sealed class DetailDialogBaseTests
         var dialog = new Mock<IMudDialogInstance>();
         var sut = new TestDetailDialog
         {
-            ModelObject = new TestViewModel { Id = "id-10", Name = "Existing Name" },
             UpdateResult = true
         };
+        sut.SetModelObject(new TestViewModel { Id = "id-10", Name = "Existing Name" });
         sut.SetDialog(dialog.Object);
 
         await sut.InvokeSubmitForm();
@@ -70,8 +70,7 @@ public sealed class DetailDialogBaseTests
         Assert.Equal(1, sut.OnBeforeSubmitCallCount);
         Assert.Equal(0, sut.ExecuteCreateCallCount);
         Assert.Equal(1, sut.ExecuteUpdateCallCount);
-        dialog.Verify(x => x.Close(It.Is<DialogResult?>(r =>
-            r != null &&
+        dialog.Verify(x => x.Close(It.Is<DialogResult>(r =>
             !r.Canceled &&
             string.Equals(r.Data == null ? null : r.Data.ToString(), "updated:Existing Name", StringComparison.Ordinal))), Times.Once);
     }
@@ -82,26 +81,24 @@ public sealed class DetailDialogBaseTests
         var dialog = new Mock<IMudDialogInstance>();
         var sut = new TestDetailDialog
         {
-            ModelObject = new TestViewModel { Id = "id-20", Name = "Fail" },
             UpdateResult = false
         };
+        sut.SetModelObject(new TestViewModel { Id = "id-20", Name = "Fail" });
         sut.SetDialog(dialog.Object);
 
         await sut.InvokeSubmitForm();
 
         Assert.Equal(1, sut.OnBeforeSubmitCallCount);
         Assert.Equal(1, sut.ExecuteUpdateCallCount);
-        dialog.Verify(x => x.Close(It.IsAny<DialogResult?>()), Times.Never);
+        dialog.Verify(x => x.Close(It.IsAny<DialogResult>()), Times.Never);
     }
 
     [Fact]
     public async Task SubmitForm_WhenModelIsNull_DoesNothing()
     {
         var dialog = new Mock<IMudDialogInstance>();
-        var sut = new TestDetailDialog
-        {
-            ModelObject = null
-        };
+        var sut = new TestDetailDialog();
+        sut.SetModelObject(null);
         sut.SetDialog(dialog.Object);
 
         await sut.InvokeSubmitForm();
@@ -109,7 +106,7 @@ public sealed class DetailDialogBaseTests
         Assert.Equal(0, sut.OnBeforeSubmitCallCount);
         Assert.Equal(0, sut.ExecuteCreateCallCount);
         Assert.Equal(0, sut.ExecuteUpdateCallCount);
-        dialog.Verify(x => x.Close(It.IsAny<DialogResult?>()), Times.Never);
+        dialog.Verify(x => x.Close(It.IsAny<DialogResult>()), Times.Never);
     }
 
     [Fact]
@@ -121,7 +118,7 @@ public sealed class DetailDialogBaseTests
 
         sut.InvokeClose();
 
-        dialog.Verify(x => x.Close(It.Is<DialogResult?>(r => r != null && r.Canceled)), Times.Once);
+        dialog.Verify(x => x.Close(It.Is<DialogResult>(r => r.Canceled)), Times.Once);
     }
 
     [Fact]
@@ -153,6 +150,8 @@ public sealed class DetailDialogBaseTests
         public bool UpdateResult { get; init; }
 
         public void SetDialog(IMudDialogInstance dialog) => MudDialog = dialog;
+
+        public void SetModelObject(TestViewModel? model) => ModelObject = model;
 
         public Task InvokeOnInitializedAsync() => OnInitializedAsync();
 

@@ -261,7 +261,7 @@ public sealed class DataViewPageBaseTests
     {
         public string Message => message;
 
-        public string SyncStatusMessage => syncStatus.Message;
+        public string SyncStatusMessage => syncStatus.Message ?? string.Empty;
 
         public SyncStage CurrentStage => syncStatus.CurrentStage;
 
