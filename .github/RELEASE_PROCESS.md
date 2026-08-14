@@ -8,6 +8,7 @@ Branch naming and intent
 
 Workflow triggers
 - Validation runs on push to branches, pull requests to `main`/`release/**`, and manual `workflow_dispatch`.
+- Validation includes compile checks, core test-suite execution, and upload of TRX/coverage artifacts.
 - Publish jobs (containers, Apple, Windows) run for:
   - `main`
   - `release/*`
@@ -50,4 +51,5 @@ Manual approvals and environment protection
 - Environment protection configuration is done in GitHub UI by a repository admin.
 
 Questions or changes
-- If environment naming or publish gates need to change, update `.github/workflows/BookShelves Multi-Platform CI-CD.yml` and this file together.
+- If validation/test gates, environment naming, or publish gates need to change, update `.github/workflows/BookShelves Multi-Platform CI-CD.yml` and this file together.
+- For flaky-monitor schedule or retry-count changes, update `.github/workflows/BookShelves-Flaky-Tests-Monitor.yml` and `docs/Testing-Strategy.md` together.

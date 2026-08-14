@@ -20,13 +20,17 @@ This file provides practical guardrails for human and AI-assisted contributions.
 - MAUI EF Core migration startup host: `src/BookShelves.Maui.MigrationHost`
 - Web-oriented shared code: `src/BookShelves.Web.Shared`
 - API test coverage: `test/BookShelves.WebApi.Tests`
+- Shared library test coverage: `test/BookShelves.Shared.Tests`
+- Web shared library test coverage: `test/BookShelves.Web.Shared.Tests`
+- MAUI data test coverage: `test/BookShelves.Maui.Data.Tests`
 
 ## Safe Change Workflow
 
 1. Identify the owning host project and impacted shared library.
 2. Implement changes in the narrowest layer that solves the issue.
-3. Build impacted projects and run targeted tests.
-4. Update docs when behavior, workflow, or architecture changes.
+3. Add or update regression tests when fixing a bug.
+4. Build impacted projects and run targeted tests.
+5. Update docs when behavior, workflow, or architecture changes.
 
 ## AI-Assisted Work Recommendations
 
@@ -34,6 +38,7 @@ This file provides practical guardrails for human and AI-assisted contributions.
 - Avoid speculative refactors not required by the request.
 - Do not modify generated or CI-owned artifacts unless explicitly required.
 - Keep instructions and assumptions explicit in PR descriptions.
+- Reuse existing test helpers/utilities before adding new ad-hoc setup in tests.
 - Treat `docs/Notes.md` as historical reference material, not as the source of truth.
 
 ## Versioning and Branching Awareness
@@ -50,3 +55,4 @@ This file provides practical guardrails for human and AI-assisted contributions.
 - Cross-link related docs as this folder grows.
 - Use `docs/README.md` as the entry point for solution-level documentation.
 - Update `Solution-Structure.md` and `Build-Test-Run.md` when the solution layout or build workflow changes.
+- Update `Testing-Strategy.md` when test scope, risk priorities, or quality gates change.

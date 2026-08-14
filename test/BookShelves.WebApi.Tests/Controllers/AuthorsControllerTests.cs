@@ -1,4 +1,5 @@
 using BookShelves.WebApi.Tests.Auth;
+using BookShelves.WebApi.Tests.TestUtilities;
 using System.Net;
 
 namespace BookShelves.WebApi.Tests.Controllers;
@@ -26,7 +27,7 @@ public sealed class AuthorsControllerTests : IClassFixture<AuthorsWebApiFactory>
     public async Task Get_Authors_WithToken_ReturnsSuccess()
     {
         using var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("Authorization", "Bearer test-token");
+        client.UseTestBearerToken();
 
         using var response = await client.GetAsync("/tables/Authors");
 

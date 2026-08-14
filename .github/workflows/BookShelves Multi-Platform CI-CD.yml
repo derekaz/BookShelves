@@ -103,6 +103,7 @@ jobs:
           cache-dependency-path: |
             **/*.csproj
             **/*.sln
+            **/*.slnx
             **/global.json
             **/Directory.Packages.props
             **/NuGet.config
@@ -302,7 +303,38 @@ jobs:
           dotnet build ${{env.APPHOST_CSPROJ}} -c Debug
           dotnet build ${{env.WEB_CSPROJ}} -c Debug
           dotnet build ${{env.WEBAPI_CSPROJ}} -c Debug
- 
+
+      - name: Run solution test suites with coverage
+        run: |
+          mkdir -p TestResults
+          dotnet test test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.WebApi.Tests.trx" --results-directory TestResults
+          dotnet test test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Shared.Tests.trx" --results-directory TestResults
+          dotnet test test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Web.Shared.Tests.trx" --results-directory TestResults
+          dotnet test test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj --configuration Debug --collect:"XPlat Code Coverage" --logger "trx;LogFileName=BookShelves.Maui.Data.Tests.trx" --results-directory TestResults
+
+      - name: Upload validation test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: BookShelves-validation-test-results-${{ github.run_id }}
+          path: TestResults/**/*.trx
+          if-no-files-found: warn
+
+      - name: Upload validation coverage results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: BookShelves-validation-coverage-${{ github.run_id }}
+          path: TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn
+
+      - name: Publish validation summary
+        if: always()
+        run: |
+          echo "### Validation test artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- TRX files: $(find TestResults -name '*.trx' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage files: $(find TestResults -name 'coverage.cobertura.xml' | wc -l)" >> $GITHUB_STEP_SUMMARY
+
 
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (Linux Matrix Runner)
@@ -804,7 +836,7 @@ jobs:
 
       - name: Install Windows Workloads
         shell: pwsh
-        run: dotnet workload install maui-windows
+        run: dotnet workload install maui-windows -v minimal
         working-directory: ${{env.MAUI_PROJPATH}}
 
       - name: Decrypt PFX File
@@ -830,7 +862,6 @@ jobs:
             -c ${{env.RELEASE_CONFIGURATION}} `
             -o ${{ env.MAUI_WINDOWS_PUBLISH_PATH }} `
             --self-contained false `
-            -v normal `
             -p:RuntimeIdentifierOverride=win10-x64 `
             -p:InvariantGlobalization=true `
             -p:GenerateTestArtifacts=false `

@@ -43,6 +43,9 @@ This document gives a quick orientation to the solution and project responsibili
 | Project | Intent | Notes |
 | --- | --- | --- |
 | `test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj` | API test coverage | xUnit tests for Web API behavior and contracts. |
+| `test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj` | Shared library test coverage | xUnit tests for shared models and services in `BookShelves.Shared`. |
+| `test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj` | Web shared library test coverage | xUnit tests for web-shared DTO and view-model mapping behavior. |
+| `test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj` | MAUI data test coverage | xUnit tests for MAUI data mapping and local unit-of-work persistence behavior. |
 
 ## Target Framework Summary
 
@@ -61,6 +64,9 @@ This document gives a quick orientation to the solution and project responsibili
 - MAUI local data and sync behavior: `src/BookShelves.Maui.Data`
 - EF Core migration changes: `src/BookShelves.Maui.MigrationHost`
 - API test coverage: `test/BookShelves.WebApi.Tests`
+- Shared library test coverage: `test/BookShelves.Shared.Tests`
+- Web shared library test coverage: `test/BookShelves.Web.Shared.Tests`
+- MAUI data test coverage: `test/BookShelves.Maui.Data.Tests`
 
 ## Practical Navigation Tips
 

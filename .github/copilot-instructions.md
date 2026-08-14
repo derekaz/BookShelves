@@ -1,12 +1,10 @@
 # GitHub Copilot Development Environment Instructions
 
-This document provides repository-specific guidance for BookShelves.
-Use it together with the solution docs in `docs/`.
+This document provides repository-specific guidance for BookShelves. Use it together with the solution docs in `docs/`.
 
 ## Repository Overview
 
-BookShelves is a cross-platform book library application with shared Blazor UI, a .NET MAUI host, a web host, a Blazor WebAssembly client, and a Web API.
-The solution targets .NET 10 and .NET 9 where required.
+BookShelves is a cross-platform book library application with shared Blazor UI, a .NET MAUI host, a web host, a Blazor WebAssembly client, and a Web API. The solution targets .NET 10 and .NET 9 where required.
 
 ## Source of Truth
 
@@ -15,6 +13,7 @@ The solution targets .NET 10 and .NET 9 where required.
 - `docs/Build-Test-Run.md` - restore, build, test, run, format, and migration commands
 - `docs/Docker-and-Networking.md` - Docker and nginx routing notes
 - `docs/Versioning-and-Release.md` - versioning and release-flow notes
+- `docs/Testing-Strategy.md` - solution-wide testing baseline and quality gates
 - `docs/Developer-and-AI-Guidance.md` - solution-level contributor guidance
 
 ## Current Project Structure
@@ -28,6 +27,9 @@ The solution targets .NET 10 and .NET 9 where required.
 - `src/BookShelves.Web.Shared/` - web-oriented shared code
 - `src/BookShelves.WebApi/` - ASP.NET Core Web API
 - `test/BookShelves.WebApi.Tests/` - API test coverage
+- `test/BookShelves.Shared.Tests/` - shared library test coverage
+- `test/BookShelves.Web.Shared.Tests/` - web shared library test coverage
+- `test/BookShelves.Maui.Data.Tests/` - MAUI data test coverage
 
 ## Development Workflow
 
@@ -35,6 +37,7 @@ The solution targets .NET 10 and .NET 9 where required.
 - Prefer existing patterns, shared libraries, and current solution structure.
 - Build and test the affected area before finalizing changes.
 - Update the relevant docs in `docs/` when behavior, workflow, or architecture changes.
+- Defer branch protection required-check changes until test coverage reaches a reasonable level after completing test improvements.
 
 ### Restore and Build
 
@@ -48,6 +51,9 @@ dotnet build "BookShelves (Maui, Web and WebApi).slnx"
 ```powershell
 dotnet test "BookShelves (Maui, Web and WebApi).slnx"
 dotnet test test/BookShelves.WebApi.Tests/BookShelves.WebApi.Tests.csproj
+dotnet test test/BookShelves.Shared.Tests/BookShelves.Shared.Tests.csproj
+dotnet test test/BookShelves.Web.Shared.Tests/BookShelves.Web.Shared.Tests.csproj
+dotnet test test/BookShelves.Maui.Data.Tests/BookShelves.Maui.Data.Tests.csproj
 ```
 
 ### Format
@@ -73,10 +79,12 @@ For the MAUI app, logging should avoid `SpecialFolder.Desktop` and use `Document
 - Avoid speculative refactors not required by the request.
 - Do not modify generated or CI-owned artifacts unless explicitly required.
 - Keep instructions and assumptions explicit in PR descriptions.
+- Add a regression test for each production bug fix when practical.
+- Reuse test helpers/utilities for repeated setup patterns before introducing new fixtures.
+- Follow `docs/Testing-Strategy.md` ownership mapping when deciding which test project should cover a change.
 - Use `docs/README.md` as the entry point for solution-level documentation.
 - Prefer splitting broad notes into topic-specific docs when a subject becomes stable.
 
 ## Web and API Docker Setup
 
-The web/API Docker setup uses nginx as a front door for `/` and `/api` only.
-It does not do application-level proxying beyond those paths.
+The web/API Docker setup uses nginx as a front door for `/` and `/api` only. It does not do application-level proxying beyond those paths.
