@@ -56,16 +56,22 @@
 
     private static string GetDisplayName(ClaimsPrincipal user)
     {
-        var name = user.Identity?.Name;
-        if (!string.IsNullOrWhiteSpace(name) && !name.Contains("@", StringComparison.Ordinal))
-        {
-            return name;
-        }
-
         var givenName = user.FindFirst("given_name")?.Value;
         if (!string.IsNullOrWhiteSpace(givenName))
         {
             return givenName;
+        }
+
+        givenName = user.FindFirst(ClaimTypes.GivenName)?.Value;
+        if (!string.IsNullOrWhiteSpace(givenName))
+        {
+            return givenName;
+        }
+
+        var name = user.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(name) && !name.Contains("@", StringComparison.Ordinal))
+        {
+            return name;
         }
 
         return !string.IsNullOrWhiteSpace(name) ? name : "User";
