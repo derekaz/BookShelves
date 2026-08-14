@@ -15,7 +15,7 @@ public sealed class RazorProgramExtensionsTests
         var returned = services.AddRazorClassLibraryServices();
 
         Assert.Same(services, returned);
-        var descriptor = Assert.Single(services.Where(x => x.ServiceType == typeof(IPageSyncCoordinator)));
+        var descriptor = Assert.Single(services, x => x.ServiceType == typeof(IPageSyncCoordinator));
         Assert.Equal(typeof(PageSyncCoordinator), descriptor.ImplementationType);
         Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
     }
@@ -29,7 +29,7 @@ public sealed class RazorProgramExtensionsTests
         var returned = services.AddRazorClassLibraryServices(configuration);
 
         Assert.Same(services, returned);
-        var descriptor = Assert.Single(services.Where(x => x.ServiceType == typeof(IPageSyncCoordinator)));
+        var descriptor = Assert.Single(services, x => x.ServiceType == typeof(IPageSyncCoordinator));
         Assert.Equal(typeof(PageSyncCoordinator), descriptor.ImplementationType);
         Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
     }
