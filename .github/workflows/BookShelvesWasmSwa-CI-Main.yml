@@ -48,6 +48,11 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v4.7.0
         with:
@@ -56,11 +61,6 @@ jobs:
       - name: Determine Version
         id: version_step # step id used as a reference for output values
         uses: gittools/actions/gitversion/execute@v4.7.0
-
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: '9.0.x'
 
       #- name: Get preview URL
       #  id: static_web_app_preview_url
