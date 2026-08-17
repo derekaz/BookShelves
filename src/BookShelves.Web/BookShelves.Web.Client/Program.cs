@@ -24,7 +24,6 @@ builder.Services.AddScoped<IAuthenticationUIProvider, AuthenticationUIProviderSe
 builder.Services.AddScoped<IFormFactor, FormFactorService>();
 builder.Services.AddScoped<IVersionService, VersionService>();
 builder.Services.AddScoped<IDocumentsFolderAccessService, DocumentsFolderAccessService>();
-// builder.Services.AddScoped<IBooksSyncService, BooksSyncService>();
 
 builder.Services.AddScoped<ISyncDataService, SyncDataService>();
 builder.Services.AddScoped<ISyncProgressService, SyncProgressService>();
@@ -34,8 +33,6 @@ builder.Services.AddHttpClient<IWeatherForecasterService, WeatherForecasterServi
 {
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
-
-// builder.Services.AddScoped<IBookFactory, ClientBookFactory>();
 
 builder.Services.AddTransient<BlazorAuthorizationHandler>();
 
