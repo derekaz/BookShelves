@@ -55,7 +55,7 @@ branches:
   release:
     mode: ContinuousDelivery
     label: beta
-    increment: Patch
+    increment: None
     # pre-release-number-calculation: Run-To-End
     prevent-increment:
       of-merged-branch: false
