@@ -27,11 +27,11 @@ public class BlazorAuthorizationHandler : DelegatingHandler
             var absoluteChallengeUrl = _navigation.ToAbsoluteUri($"/MicrosoftIdentity/Account/Challenge?returnUrl={returnUrl}").ToString();
 
 
-            _navigation.NavigateTo($"account/login?returnUrl={returnUrl}", forceLoad: true);
+            //_navigation.NavigateTo($"account/login?returnUrl={returnUrl}", forceLoad: true);
             //_navigation.NavigateTo($"MicrosoftIdentity/Account/SignIn?returnUrl={returnUrl}", forceLoad: true);
             //_navigation.NavigateTo($"MicrosoftIdentity/Account/Challenge?returnUrl={returnUrl}", forceLoad: true);
             // forceLoad: true explicitly forces a complete browser reload to the server
-            //_navigation.NavigateTo(absoluteChallengeUrl, forceLoad: true);
+            _navigation.NavigateTo(absoluteChallengeUrl, forceLoad: true);
         }
 
         return response;

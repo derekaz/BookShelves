@@ -1,4 +1,4 @@
-﻿@page "/authentication/logout"
+﻿@* @page "/authentication/logout"
 @using BookShelves.Shared.Services.ServiceInterfaces
 @inject NavigationManager navigationManager
 @inject IExternalAuthenticationStateProvider AuthStateProvider
@@ -10,4 +10,4 @@
         AuthStateProvider.LogoutAsync().Wait();
         navigationManager.NavigateTo("/");
     }
-}
+} *@

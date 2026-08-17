@@ -8,7 +8,6 @@ using BookShelves.Web.Handlers;
 using BookShelves.Web.Services;
 using BookShelves.Web.Services.Server;
 using BookShelves.Web.Shared.Data;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -154,26 +153,26 @@ app.MapRazorComponents<WebApp>()
 app.MapControllers();
 app.MapRazorPages();
 
-app.MapGet("/account/login", (string returnUrl, HttpContext context) =>
-{
-    // Challenge tells the OIDC/Entra middleware to start the browser redirect safely
-    return Results.Challenge(
-        properties: new AuthenticationProperties { RedirectUri = returnUrl },
-        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
-    );
-});
+//app.MapGet("/account/login", (string returnUrl, HttpContext context) =>
+//{
+//    // Challenge tells the OIDC/Entra middleware to start the browser redirect safely
+//    return Results.Challenge(
+//        properties: new AuthenticationProperties { RedirectUri = returnUrl },
+//        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
+//    );
+//});
 
-app.MapGet("/MicrosoftIdentity/Account/Challenge", (string? returnUrl, HttpContext context) =>
-{
-    // Fall back to the root if no returnUrl was successfully passed
-    var redirectUri = !string.IsNullOrEmpty(returnUrl) ? returnUrl : "/";
+//app.MapGet("/MicrosoftIdentity/Account/Challenge", (string? returnUrl, HttpContext context) =>
+//{
+//    // Fall back to the root if no returnUrl was successfully passed
+//    var redirectUri = !string.IsNullOrEmpty(returnUrl) ? returnUrl : "/";
 
-    // Trigger a true OpenID Connect challenge to Entra ID
-    return Results.Challenge(
-        properties: new AuthenticationProperties { RedirectUri = redirectUri },
-        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
-    );
-});
+//    // Trigger a true OpenID Connect challenge to Entra ID
+//    return Results.Challenge(
+//        properties: new AuthenticationProperties { RedirectUri = redirectUri },
+//        authenticationSchemes: [OpenIdConnectDefaults.AuthenticationScheme]
+//    );
+//});
 
 app.MapGet("/weatherforecast", ([FromServices] IWeatherForecasterService WeatherForecaster) =>
 {
