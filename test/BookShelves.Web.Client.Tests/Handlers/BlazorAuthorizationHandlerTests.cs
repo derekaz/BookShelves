@@ -16,8 +16,14 @@ public sealed class BlazorAuthorizationHandlerTests
         _ = await sut.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://bookshelves.test/books"), CancellationToken.None);
 
         Assert.NotNull(navigation.LastUri);
-        Assert.Contains("account/login?returnUrl=", navigation.LastUri!, StringComparison.Ordinal);
+        Assert.Contains("/MicrosoftIdentity/Account/Challenge?returnUrl=", navigation.LastUri!, StringComparison.Ordinal);
+        Assert.Contains("returnUrl=", navigation.LastUri!, StringComparison.Ordinal);
         Assert.True(navigation.LastForceLoad);
+
+        var expectedBase = "https://bookshelves.test/";
+        Assert.StartsWith(expectedBase, navigation.LastUri!, StringComparison.Ordinal);
+
+        Assert.DoesNotContain("account/login?returnUrl=", navigation.LastUri!, StringComparison.Ordinal);
     }
 
     [Fact]
