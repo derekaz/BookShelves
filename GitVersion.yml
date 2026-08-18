@@ -42,7 +42,9 @@ branches:
     label: alpha
     increment: Patch
     prevent-increment:
-      of-merged-branch: false
+      of-merged-branch: true
+      when-branch-merged: true
+      when-current-commit-tagged: true
     track-merge-target: false
     track-merge-message: false
     regex: "^master$|^main$"
@@ -55,12 +57,12 @@ branches:
   release:
     mode: ContinuousDelivery
     label: beta
-    increment: Patch
+    increment: None
     # pre-release-number-calculation: Run-To-End
     prevent-increment:
+      when-current-commit-tagged: true
       of-merged-branch: false
       when-branch-merged: false
-      when-current-commit-tagged: true
     track-merge-target: false
     track-merge-message: true
     regex: "^releases?[\\/-](?<BranchName>.+)"
