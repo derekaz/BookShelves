@@ -81,6 +81,9 @@ jobs:
       WindowsBuildNumber: ${{ steps.compute_per_version.outputs.windowsBuildNumber }}
       EnvironmentName: ${{ steps.compute_environment.outputs.environmentName }}
       IsValidReleaseTag: ${{ steps.validate_release_tag.outputs.isValidReleaseTag }}
+      PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}
+      WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}
+      PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}
 
     defaults:
       run:
@@ -288,6 +291,9 @@ jobs:
           
           echo "INFORMATIONAL_VERSION: ${GitVersion_SemVer}+${sha}" >> $GITHUB_STEP_SUMMARY
           echo "ARTIFACT_VERSION: ${GitVersion_SemVer}-${GitVersion_ShortSha}" >> $GITHUB_STEP_SUMMARY
+          echo "GitVersion_PreReleaseTag: ${GitVersion_PreReleaseTag}" >> $GITHUB_STEP_SUMMARY
+          echo "GitVersion_PreReleaseNumber: ${GitVersion_PreReleaseNumber}" >> $GITHUB_STEP_SUMMARY
+          echo "GitVersion_WeightedPreReleaseNumber: ${GitVersion_WeightedPreReleaseNumber}" >> $GITHUB_STEP_SUMMARY
 
           echo "App Version: ${{ steps.compute_version_identifier.outputs.artifactVersion }}" >> $GITHUB_STEP_SUMMARY
           echo "iOS/Mac buildNumber: ${{ steps.compute_per_version.outputs.appleBuildNumber }}" >> $GITHUB_STEP_SUMMARY
