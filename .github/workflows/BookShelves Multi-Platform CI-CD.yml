@@ -377,10 +377,15 @@ jobs:
     name: Publish Containers to Private Registry
     needs: validate
     if: |
-      startsWith(github.ref_name, 'release/') ||
-      startsWith(github.ref_name, 'Release/') ||
-      github.ref_name == 'main' ||
-      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
+      github.event_name == 'push' &&
+        (github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'release/') ||
+          startsWith(github.ref_name, 'Release/')) ||
+      (github.event_name == 'pull_request' && 
+        github.ref_name == 'main' && 
+        !startsWith(github.head_ref, 'feature/')) ||
+      (github.ref_type == 'tag' && 
+        needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: ubuntu-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     steps:
@@ -459,10 +464,15 @@ jobs:
     name: Build iOS & MacCatalyst
     needs: validate
     if: |
-      startsWith(github.ref_name, 'release/') ||
-      startsWith(github.ref_name, 'Release/') ||
-      github.ref_name == 'main' ||
-      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
+      github.event_name == 'push' &&
+        (github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'release/') ||
+          startsWith(github.ref_name, 'Release/')) ||
+      (github.event_name == 'pull_request' && 
+        github.ref_name == 'main' && 
+        !startsWith(github.head_ref, 'feature/')) ||
+      (github.ref_type == 'tag' && 
+        needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: macos-26
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
@@ -837,10 +847,15 @@ jobs:
     name: Build Windows App
     needs: validate
     if: |
-      startsWith(github.ref_name, 'release/') ||
-      startsWith(github.ref_name, 'Release/') ||
-      github.ref_name == 'main' ||
-      (github.ref_type == 'tag' && needs.validate.outputs.IsValidReleaseTag == 'true')
+      github.event_name == 'push' &&
+        (github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'release/') ||
+          startsWith(github.ref_name, 'Release/')) ||
+      (github.event_name == 'pull_request' && 
+        github.ref_name == 'main' && 
+        !startsWith(github.head_ref, 'feature/')) ||
+      (github.ref_type == 'tag' && 
+        needs.validate.outputs.IsValidReleaseTag == 'true')
     runs-on: windows-latest
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 45

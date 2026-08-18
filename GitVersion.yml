@@ -60,9 +60,9 @@ branches:
     increment: None
     # pre-release-number-calculation: Run-To-End
     prevent-increment:
-      of-merged-branch: true
-      when-branch-merged: true
       when-current-commit-tagged: true
+      of-merged-branch: false
+      when-branch-merged: false
     track-merge-target: false
     track-merge-message: true
     regex: "^releases?[\\/-](?<BranchName>.+)"
@@ -80,7 +80,6 @@ branches:
     increment: Inherit
     prevent-increment:
       when-current-commit-tagged: false
-      when-branch-merged: true
     track-merge-message: true
     regex: "^features?[\\/-](?<BranchName>.+)"
     source-branches:
