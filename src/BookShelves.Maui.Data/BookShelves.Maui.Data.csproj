@@ -28,15 +28,15 @@
 			SQLitePCLRaw.bundle_e_sqlite3 whose module initialiser fires before Main()
 			and crashes the iOS app when e_sqlite3 native library is not in the bundle.
 		-->
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.10">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.4" />
+		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.5" />
 		<!-- Force SQLitePCLRaw to the 3.x line to avoid transitive NU1903 from CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. -->
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.4" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.10" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
 	</ItemGroup>
 
 	<ItemGroup>
