@@ -3,7 +3,7 @@ name: BookShelves Flaky Test Monitor
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '0 7 * * 1,4'
 
 concurrency:
   group: bookshelves-flaky-tests-${{ github.ref }}
