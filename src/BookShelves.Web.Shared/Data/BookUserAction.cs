@@ -1,5 +1,4 @@
 using BookShelves.Shared.Presentation.ViewModels;
-using Newtonsoft.Json;
 
 namespace BookShelves.Web.Shared.Data;
 
@@ -15,7 +14,6 @@ public class BookUserAction : DatasyncDto
 
     public DateTimeOffset? EndTimeUtc { get; set; }
 
-    [JsonProperty(TypeNameHandling = TypeNameHandling.Auto)]
     public BookUserActionMetadata? Details { get; set; }
 
     public BookUserActionViewModel ToBookUserActionViewModel()

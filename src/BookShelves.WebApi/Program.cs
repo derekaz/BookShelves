@@ -1,4 +1,5 @@
 using BookShelves.WebApi.AuthorsDataAccess;
+using BookShelves.WebApi.BookUserActionsDataAccess;
 using BookShelves.WebApi.BooksDataAccess;
 using BookShelves.WebApi.Data;
 using CommunityToolkit.Datasync.Server;
@@ -104,10 +105,12 @@ CosmosClient cosmosClient = new CosmosClient(connectionString,
     });
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton(cosmosClient);
 builder.Services.AddSingleton<ICosmosTableOptions<Author>>(new CosmosSharedTableOptions<Author>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
 builder.Services.AddSingleton<ICosmosTableOptions<Book>>(new CosmosSharedTableOptions<Book>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
+builder.Services.AddSingleton<ICosmosTableOptions<BookUserAction>>(new CosmosSharedTableOptions<BookUserAction>("azmoore-westus2-db1", "azmoore-bookshelvessync-westus2-dbc1"));
 
 builder.Services.AddSingleton<IRepository<Author>>(sp =>
     new CachedCosmosRepository<Author>(
@@ -121,6 +124,13 @@ builder.Services.AddSingleton<IRepository<Book>>(sp =>
         ActivatorUtilities.CreateInstance<CosmosTableRepository<Book>>(sp),
         sp.GetRequiredService<IMemoryCache>(),
         sp.GetRequiredService<ILogger<CachedCosmosRepository<Book>>>()
+    ));
+
+builder.Services.AddSingleton<IRepository<BookUserAction>>(sp =>
+    new CachedCosmosRepository<BookUserAction>(
+        ActivatorUtilities.CreateInstance<CosmosTableRepository<BookUserAction>>(sp),
+        sp.GetRequiredService<IMemoryCache>(),
+        sp.GetRequiredService<ILogger<CachedCosmosRepository<BookUserAction>>>()
     ));
 //builder.Services.AddTransient(x =>
 //{

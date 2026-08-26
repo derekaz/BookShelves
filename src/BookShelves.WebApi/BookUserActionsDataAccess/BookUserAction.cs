@@ -1,6 +1,5 @@
 using BookShelves.Shared.Presentation.ViewModels;
 using CommunityToolkit.Datasync.Server.CosmosDb;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookShelves.WebApi.BookUserActionsDataAccess;
@@ -22,7 +21,6 @@ public class BookUserAction : CosmosTableData<BookUserAction>, IValidatableObjec
     [Required]
     public DateTimeOffset? EndTimeUtc { get; set; }
 
-    [JsonProperty(TypeNameHandling = TypeNameHandling.Auto)]
     public BookUserActionMetadata? Details { get; set; }
 
     public static BookUserAction Create(string bookId, string userId, string actionType, DateTimeOffset startTimeUtc, DateTimeOffset endTimeUtc, BookUserActionMetadata details)

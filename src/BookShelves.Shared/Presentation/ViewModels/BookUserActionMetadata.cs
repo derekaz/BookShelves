@@ -1,5 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace BookShelves.Shared.Presentation.ViewModels;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+[JsonDerivedType(typeof(BookUserActionToBeReadMetadata), typeDiscriminator: BookUserActionTypes.ToBeRead)]
+[JsonDerivedType(typeof(BookUserActionPagesReadMetadata), typeDiscriminator: BookUserActionTypes.PagesRead)]
+[JsonDerivedType(typeof(BookUserActionFinishedMetadata), typeDiscriminator: BookUserActionTypes.Finished)]
 public class BookUserActionMetadata
 {
     public string? Notes { get; set; }
