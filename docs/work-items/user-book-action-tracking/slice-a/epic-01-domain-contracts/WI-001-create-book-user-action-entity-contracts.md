@@ -7,7 +7,7 @@ Epic 1 — Domain + Contracts
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Create the core user-book action entity/DTO/view-model contracts, aligned to existing Datasync conventions.
@@ -16,14 +16,19 @@ Create the core user-book action entity/DTO/view-model contracts, aligned to exi
 - Add `BookUserAction` server model in `src/BookShelves.WebApi`.
 - Add shared DTO in `src/BookShelves.Web.Shared/Data`.
 - Add UI/service view model in `src/BookShelves.Shared/Presentation/ViewModels`.
-- Include fields:
+- Include hard fields:
   - `Id`
   - `BookId`
   - `UserId`
   - `ActionType`
-  - `OccurredAtUtc`
-  - optional `PagesRead`, `Notes`
-  - Datasync metadata fields already used in project (`UpdatedAt`, `Version`, `Deleted`, etc.).
+  - `StartTimeUtc`
+  - `EndTimeUtc`
+- Include a subtype-friendly `Details` payload for record-specific metadata.
+- Add metadata subtypes for the supported action types, such as:
+  - `BookUserActionToBeReadMetadata`
+  - `BookUserActionPagesReadMetadata`
+  - `BookUserActionFinishedMetadata`
+- Preserve Datasync metadata fields already used in project (`UpdatedAt`, `Version`, `Deleted`, etc.).
 
 ## Out of Scope
 - Blazor UI changes.

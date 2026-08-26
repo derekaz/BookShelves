@@ -78,6 +78,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IWeatherForecasterService, WeatherForecasterService>();
 builder.Services.AddScoped<IBooksDataService, BooksDataService>();
 builder.Services.AddScoped<IAuthorsDataService, AuthorsDataService>();
+builder.Services.AddScoped<IBookUserActionsDataService, BookUserActionsDataService>();
 
 builder.Services.AddScoped<IFormFactor, FormFactorService>();
 builder.Services.AddScoped<IVersionService, VersionService>();
@@ -90,6 +91,7 @@ builder.Services.AddScoped<IPageSyncCoordinator, PageSyncCoordinator>();
 builder.Services.AddScoped<BearerTokenHandler>();
 builder.Services.AddScoped<AuthorsDatasyncClientFactory>();
 builder.Services.AddScoped<BooksDatasyncClientFactory>();
+builder.Services.AddScoped<BookUserActionsDatasyncClientFactory>();
 
 builder.Services.AddControllersWithViews()
     .AddMicrosoftIdentityUI();
@@ -250,6 +252,20 @@ app.MapPut("/booksdata/{id}", async ([FromServices] IBooksDataService BooksDataS
     }
 }).RequireAuthorization();
 
+app.MapPut("/bookuseractionsdata/{id}", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, string id, BookUserActionViewModel action) =>
+{
+    try
+    {
+        action.Id = id;
+        var result = await BookUserActionsDataService.UpdateBookUserActionAsync(action);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
 app.MapGet("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDataService, HttpContext context) =>
 {
     try
@@ -257,6 +273,32 @@ app.MapGet("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsData
         var authors = await AuthorsDataService.GetAuthorsAsync();
         var xlatAuthors = authors.Select(a => Author.FromAuthorItemViewModel(a));
         return Results.Ok(xlatAuthors);
+    }
+    catch (MicrosoftIdentityWebChallengeUserException)
+    {
+        return Results.Unauthorized();
+    }
+    catch (MsalUiRequiredException)
+    {
+        return Results.Unauthorized();
+    }
+    catch (Exception ex)
+    {
+        if (ex.InnerException?.Message.Contains("MsalUiRequiredException") == true)
+        {
+            return Results.Unauthorized();
+        }
+        return Results.InternalServerError();
+    }
+}).RequireAuthorization();
+
+app.MapGet("/bookuseractionsdata", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, HttpContext context) =>
+{
+    try
+    {
+        var actions = await BookUserActionsDataService.GetBookUserActionsAsync();
+        var xlatActions = actions.Select(a => BookUserAction.FromBookUserActionViewModel(a));
+        return Results.Ok(xlatActions);
     }
     catch (MicrosoftIdentityWebChallengeUserException)
     {
@@ -290,6 +332,19 @@ app.MapPost("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDat
     }
 }).RequireAuthorization();
 
+app.MapPost("/bookuseractionsdata", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, BookUserActionViewModel action) =>
+{
+    try
+    {
+        var result = await BookUserActionsDataService.CreateBookUserActionAsync(action);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
 // DELETE endpoint to delete an author via the server-side IAuthorDataService implementation
 app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorsDataService AuthorsDataService, string id) =>
 {
@@ -297,6 +352,20 @@ app.MapDelete("/authorsdata/{id}", async ([FromServices] IAuthorsDataService Aut
     {
         var author = new AuthorViewModel { Id = id };
         var result = await AuthorsDataService.DeleteAuthorAsync(author);
+        return result ? Results.Ok() : Results.StatusCode(500);
+    }
+    catch (Exception)
+    {
+        return Results.StatusCode(500);
+    }
+}).RequireAuthorization();
+
+app.MapDelete("/bookuseractionsdata/{id}", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, string id) =>
+{
+    try
+    {
+        var action = new BookUserActionViewModel { Id = id };
+        var result = await BookUserActionsDataService.DeleteBookUserActionAsync(action);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
     catch (Exception)

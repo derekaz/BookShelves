@@ -19,6 +19,7 @@ Add integration tests validating user isolation and admin override behavior for 
   - authenticated non-admin cannot access other users’ records
   - admin can access cross-user records
   - create/update attempts with mismatched user ownership are rejected or normalized per design
+  - payload validation for `StartTimeUtc`, `EndTimeUtc`, `ActionType`, and typed `Details` subtypes behaves as documented in Epic 1
 - Follow existing `BooksControllerTests`, `AuthorsControllerTests`, and auth test patterns.
 
 ## Out of Scope

@@ -42,6 +42,7 @@ BookShelves is a cross-platform book library application with shared Blazor UI, 
 - For current testing strategy work, skip creating a separate dedicated PR validation workflow for now.
 - Pause additional Web.Client-focused test expansion for now.
 - Manage planning/work items in local markdown files within the `docs/` folder instead of GitHub issue tracking for now.
+- Build and run tests locally as needed during task execution.  You don't need to ask every time...go ahead.
 
 ### User-Book Action Tracking
 

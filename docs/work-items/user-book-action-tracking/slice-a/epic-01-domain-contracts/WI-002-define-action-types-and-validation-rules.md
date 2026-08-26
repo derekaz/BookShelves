@@ -7,7 +7,7 @@ Epic 1 — Domain + Contracts
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Define allowed action types and enforce validation rules consistently across API contracts and processing.
@@ -17,8 +17,10 @@ Define allowed action types and enforce validation rules consistently across API
 - Define input rules:
   - `BookId` required.
   - `ActionType` required and must be supported.
-  - `OccurredAtUtc` must be set (server may normalize/overwrite).
-  - `PagesRead` required for page-progress actions and must be non-negative.
+  - `StartTimeUtc` and `EndTimeUtc` must be set (server may normalize/overwrite to UTC).
+  - `EndTimeUtc` must not be earlier than `StartTimeUtc`.
+  - `Details` is required and must match the record subtype for the action type.
+  - `PagesRead` must be non-negative for page-progress records.
 - Ensure model validation integrates with current API validation behavior.
 
 ## Out of Scope

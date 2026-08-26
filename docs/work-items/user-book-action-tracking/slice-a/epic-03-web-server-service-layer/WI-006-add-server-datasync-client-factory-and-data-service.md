@@ -20,6 +20,7 @@ Add server-side service plumbing so Web can interact with `BookUserActions` via 
   - base URL resolution
   - datasync endpoint composition
   - error handling/logging
+- Ensure the client/service flow is ready to send and receive the updated parent/details contract fields (`StartTimeUtc`, `EndTimeUtc`, `ActionType`, and typed `Details` payloads such as `BookUserActionPagesReadMetadata`).
 
 ## Out of Scope
 - Blazor page updates.
