@@ -2,25 +2,51 @@
 
 This folder contains solution-level guidance for contributors and AI-assisted work.
 
-## Start Here
+## 🏛️ Governance and Standards
 
-- `Developer-and-AI-Guidance.md` - contribution guardrails and AI-friendly workflow notes
-- `Solution-Structure.md` - solution map and project intent
-- `Build-Test-Run.md` - local restore, build, test, run, and formatting commands
+**Start here for repository constitution and laws:**
 
-## Topic-Specific Notes
+- **`development-process/README.md`** — Governance index and philosophy (read this first!)
+  - `branching-and-pr-strategy.md` — Git workflow and PR process
+  - `code-standards-and-conventions.md` — Coding standards and architectural patterns
+  - `definition-of-done.md` — Quality gates for features and bug fixes
+  - `testing-standards.md` — Test best practices and test organization
+  - `release-process.md` — How features move to production
+  - `QUICK-REFERENCE.md` — One-page cheat sheet (bookmark this!)
+- **`architecture/adr-index.md`** — Architecture Decision Records (why we designed things this way)
 
-- `Docker-and-Networking.md` - local Docker workflow and nginx routing notes
-- `Versioning-and-Release.md` - build metadata and release-flow reminders
-- `Testing-Strategy.md` - solution-wide testing baseline, risk map, quality gates, and test ownership map
-- `CI-Test-Artifacts.md` - how to find, interpret, and use TRX and coverage artifacts from CI runs
-- `MudBlazor-Migration-Plan.md` - phased plan for moving the shared MAUI/Web UI to MudBlazor
+## Essential Reading
 
-## Supporting Notes
+**For all contributors:**
 
-- `Notes.md` - historical scratchpad and reference links; treat as non-authoritative
+- `Developer-and-AI-Guidance.md` — Contribution guardrails and AI-friendly workflow
+- `Solution-Structure.md` — Solution map and project ownership
+- `Testing-Strategy.md` — Testing baseline, risk map, quality gates, and test ownership map
+
+## Operations and Setup
+
+**For local development:**
+
+- `Build-Test-Run.md` — Restore, build, test, run, and formatting commands
+- `Docker-and-Networking.md` — Local Docker workflow and nginx routing
+
+**For releases and CI:**
+
+- `Versioning-and-Release.md` — Build metadata and version control strategy
+- `CI-Test-Artifacts.md` — How to access and use TRX and coverage artifacts from CI runs
+- `.github/RELEASE_PROCESS.md` — Workflow triggers, environment mapping, and publish process
+
+## Projects and Plans
+
+**Long-term initiatives:**
+
+- `MudBlazor-Migration-Plan.md` — Phased plan for moving shared MAUI/Web UI to MudBlazor
+- `work-items/` — Work item tracking and epics (see subdirectory index)
+
+## Historical and Supporting Notes
+
+- `Notes.md` — Historical scratchpad and reference links (non-authoritative; check formal docs first)
 
 ## Related Repository Guidance
 
-- `.github/copilot-instructions.md` - repository-wide Copilot instructions and conventions
-- `.github/RELEASE_PROCESS.md` - workflow trigger, environment mapping, and publish process details
+- `.github/copilot-instructions.md` — Repository-wide Copilot instructions and conventions
