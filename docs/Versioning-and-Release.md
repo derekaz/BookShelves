@@ -1,7 +1,8 @@
 # Versioning and Release Notes
 
-This document records the repository's build metadata and release-flow reminders.
-It is intended as a working reference for developers and automation.
+This document records the repository's build metadata and version control strategy. It is a reference for build outputs and CI configuration.
+
+**Related document**: See `docs/development-process/release-process.md` for the complete release workflow, from planning through production deployment.
 
 ## Versioning Sources
 

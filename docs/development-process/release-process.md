@@ -2,6 +2,8 @@
 
 This document outlines how features move from development to production in the BookShelves repository.
 
+**Related document**: See `docs/Versioning-and-Release.md` for build metadata, version sources, and CI configuration details.
+
 ---
 
 ## Overview

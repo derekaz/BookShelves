@@ -1,6 +1,8 @@
 # Testing Strategy
 
-This document defines the solution-wide testing baseline and phased strategy for growing test coverage.
+This document defines the solution-wide testing baseline, coverage goals, ownership map, and phased strategy for growing test coverage.
+
+**Related document**: See `docs/development-process/testing-standards.md` for testing patterns, code examples, and best practices.
 
 ## Baseline Snapshot (Phase 1 + Phase 2)
 

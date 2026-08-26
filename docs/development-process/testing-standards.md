@@ -8,10 +8,12 @@ This document formalizes testing standards and best practices for the BookShelve
 
 Testing in BookShelves follows these principles:
 
-- **Ownership**: Each layer has a dedicated test project (see `Testing-Strategy.md`)
+- **Ownership**: Each layer has a dedicated test project (see `Testing-Strategy.md` for ownership map)
 - **Quality**: All tests pass before merge; flaky tests are fixed or quarantined
-- **Coverage**: Test coverage aligns with risk and layer importance
+- **Coverage**: Test coverage aligns with risk and layer importance (see `Testing-Strategy.md` for risk map)
 - **Clarity**: Tests are readable and follow consistent naming and structure
+
+**Related document**: See `docs/Testing-Strategy.md` for testing baseline, coverage gaps, risk map, and project ownership.
 
 ---
 
