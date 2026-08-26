@@ -35,11 +35,18 @@ BookShelves is a cross-platform book library application with shared Blazor UI, 
 
 - Keep changes minimal and focused on the requested scope.
 - Prefer existing patterns, shared libraries, and current solution structure.
+- Follow existing online-offline data processes and keep new features aligned with current familiar sync/data flow patterns in this repository.
 - Build and test the affected area before finalizing changes.
 - Update the relevant docs in `docs/` when behavior, workflow, or architecture changes.
 - Defer branch protection required-check changes until test coverage reaches a reasonable level after completing test improvements.
 - For current testing strategy work, skip creating a separate dedicated PR validation workflow for now.
-- Pause additional Web.Client-focused test expansion for now and shift effort elsewhere.
+- Pause additional Web.Client-focused test expansion for now.
+- Manage planning/work items in local markdown files within the `docs/` folder instead of GitHub issue tracking for now.
+
+### User-Book Action Tracking
+
+- For user-book action tracking, enforce per-user data isolation: non-admins can only view/update their own related data; admins may access broader data.
+- Books/authors remain global shared entities.
 
 ### Restore and Build
 
