@@ -7,7 +7,7 @@ Epic 4 — Blazor UI
 P1
 
 ## Status
-Pending
+Completed
 
 ## Goal
 Add per-row action buttons to the Books index page (`/books`) that allow authenticated users to record book actions directly from the book list, using the dialogs from WI-014.

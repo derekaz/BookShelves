@@ -78,7 +78,8 @@ public class BookUserActionsAccessControlProvider : AccessControlProvider<BookUs
 
         if (entity is null)
         {
-            return new ValueTask<bool>(false);
+            // Query filtering is handled by GetDataView(); Create arrives with no entity yet.
+            return new ValueTask<bool>(operation is TableOperation.Query or TableOperation.Create);
         }
 
         switch (operation)

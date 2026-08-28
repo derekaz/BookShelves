@@ -7,7 +7,7 @@ Epic 4 — Blazor UI
 P1
 
 ## Status
-Pending
+Completed
 
 ## Goal
 Add MudBlazor dialog components in `src/BookShelves.Shared` for each supported book action type, enabling authenticated users to record actions against a specific book.

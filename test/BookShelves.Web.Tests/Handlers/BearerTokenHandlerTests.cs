@@ -64,7 +64,7 @@ public sealed class BearerTokenHandlerTests
     private sealed class TestableBearerTokenHandler(
         ITokenAcquisition tokenService,
         ILogger<BookShelves.Web.Handlers.BearerTokenHandler> logger)
-        : BookShelves.Web.Handlers.BearerTokenHandler(tokenService, logger)
+        : BookShelves.Web.Handlers.BearerTokenHandler(tokenService, new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build(), logger)
     {
         public Task<HttpResponseMessage> InvokeAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             => SendAsync(request, cancellationToken);

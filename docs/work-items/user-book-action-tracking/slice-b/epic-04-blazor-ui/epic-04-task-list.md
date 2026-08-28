@@ -7,11 +7,11 @@ Deliver authenticated user-facing Blazor UI for recording and viewing personal b
 
 | ID | Title | Status |
 |----|-------|--------|
-| WI-013 | Add My Books page and nav entry for authenticated users | Pending |
-| WI-014 | Add book action capture dialogs (To-Be-Read, Pages Read, Finished) | Pending |
-| WI-015 | Add book action history display on My Books page | Pending |
-| WI-016 | Wire action buttons into Books index for authenticated users | Pending |
-| WI-017 | Add Shared UI component and interaction tests | Pending |
+| WI-013 | Add My Books page and nav entry for authenticated users | Completed |
+| WI-014 | Add book action capture dialogs (To-Be-Read, Pages Read, Finished) | Completed |
+| WI-015 | Add book action history display on My Books page | Completed |
+| WI-016 | Wire action buttons into Books index for authenticated users | Completed |
+| WI-017 | Add Shared UI component and interaction tests | Completed |
 
 ## Constraints
 - All components target `src/BookShelves.Shared` (shared across Web and MAUI hosts).

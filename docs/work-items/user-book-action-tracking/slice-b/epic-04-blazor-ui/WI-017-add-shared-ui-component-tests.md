@@ -7,7 +7,7 @@ Epic 6 — Tests (UI)
 P1
 
 ## Status
-Pending
+Completed
 
 ## Goal
 Add test coverage for the new Blazor UI components in `src/BookShelves.Shared` introduced in Slice B.

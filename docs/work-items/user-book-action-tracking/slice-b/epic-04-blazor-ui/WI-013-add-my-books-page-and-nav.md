@@ -7,7 +7,7 @@ Epic 4 — Blazor UI
 P1
 
 ## Status
-Pending
+Completed
 
 ## Goal
 Create a user-facing "My Books" page at `/my-books` for authenticated users to see their book action history, and add a nav link visible only to authenticated users.

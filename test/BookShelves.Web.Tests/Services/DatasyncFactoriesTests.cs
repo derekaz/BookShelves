@@ -13,7 +13,7 @@ public sealed class DatasyncFactoriesTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         var tokenService = new Mock<ITokenAcquisition>(MockBehavior.Loose);
         var bearerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, bearerLogger);
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, bearerLogger);
         var logger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.AuthorsDatasyncClientFactory>();
 
         Assert.Throws<InvalidOperationException>(() => new BookShelves.Web.Services.AuthorsDatasyncClientFactory(configuration, handler, logger));
@@ -25,7 +25,7 @@ public sealed class DatasyncFactoriesTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         var tokenService = new Mock<ITokenAcquisition>(MockBehavior.Loose);
         var bearerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, bearerLogger);
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, bearerLogger);
         var logger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BooksDatasyncClientFactory>();
 
         Assert.Throws<InvalidOperationException>(() => new BookShelves.Web.Services.BooksDatasyncClientFactory(configuration, handler, logger));
@@ -37,7 +37,7 @@ public sealed class DatasyncFactoriesTests
         var configuration = CreateConfiguration("https://api.example.test/books");
         var tokenService = new Mock<ITokenAcquisition>(MockBehavior.Loose);
         var bearerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, bearerLogger);
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, bearerLogger);
         var logger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.AuthorsDatasyncClientFactory>();
 
         var sut = new BookShelves.Web.Services.AuthorsDatasyncClientFactory(configuration, handler, logger);
@@ -54,7 +54,7 @@ public sealed class DatasyncFactoriesTests
         var configuration = CreateConfiguration("https://api.example.test/books/");
         var tokenService = new Mock<ITokenAcquisition>(MockBehavior.Loose);
         var bearerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, bearerLogger);
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, bearerLogger);
         var logger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BooksDatasyncClientFactory>();
 
         var sut = new BookShelves.Web.Services.BooksDatasyncClientFactory(configuration, handler, logger);

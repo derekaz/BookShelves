@@ -14,19 +14,20 @@
             <MudNavLink Href="/profile" Icon="@Icons.Material.Filled.Person">User Profile</MudNavLink>
             <MudNavLink Href="/counter" Icon="@Icons.Material.Filled.Add">Counter</MudNavLink>
 
+            <AuthorizeView Roles="Administrator">
+                <MudNavLink Href="/books" Icon="@Icons.Material.Filled.MenuBook">Books</MudNavLink>
+                <MudNavLink Href="/authors" Icon="@Icons.Material.Filled.People">Authors</MudNavLink>
+            </AuthorizeView>
+
             <AuthorizeView Policy="Authenticated">
                 <MudNavLink Href="/weather" Icon="@Icons.Material.Filled.List">Weather</MudNavLink>
+                <MudNavLink Href="/my-books" Icon="@Icons.Material.Filled.Bookmarks">My Books</MudNavLink>
             </AuthorizeView>
 
             <MudNavLink Href="/testpage2" Icon="@Icons.Material.Filled.Science">TestPage2</MudNavLink>
 
             <AuthorizeView Policy="AdminAccess">
                 <MudNavLink Href="/admin" Icon="@Icons.Material.Filled.AdminPanelSettings">Admin</MudNavLink>
-            </AuthorizeView>
-
-            <AuthorizeView Roles="Administrator">
-                <MudNavLink Href="/books" Icon="@Icons.Material.Filled.MenuBook">Books</MudNavLink>
-                <MudNavLink Href="/authors" Icon="@Icons.Material.Filled.People">Authors</MudNavLink>
             </AuthorizeView>
 
             <MudNavLink Href="https://learn.microsoft.com/aspnet/core/" Target="_blank" Icon="@Icons.Material.Filled.Info">About</MudNavLink>

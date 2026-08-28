@@ -1,0 +1,68 @@
+@inject IBookUserActionsDataService BookUserActionsDataService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>Mark as Finished</TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudNumericField T="int?" Label="Rating (1–5)" @bind-Value="rating" Variant="Variant.Outlined" Min="1" Max="5" />
+            <MudTextField Label="Notes" @bind-Value="notes" Variant="Variant.Outlined" Lines="2" />
+            <MudDatePicker @bind-Date="finishedDate" Label="Finished Date" Placeholder="Select a date" Editable="true" DateFormat="MM/dd/yyyy" Variant="Variant.Outlined" Clearable="true" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync" Disabled="isSubmitting">
+            @(isSubmitting ? "Saving..." : "Save")
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string BookId { get; set; } = string.Empty;
+
+    [Parameter]
+    public string UserId { get; set; } = string.Empty;
+
+    protected int? rating;
+    private string? notes;
+    private DateTime? finishedDate;
+    private bool isSubmitting;
+
+    protected async Task SubmitAsync()
+    {
+        isSubmitting = true;
+        try
+        {
+            var endUtc = finishedDate.HasValue
+                ? (DateTimeOffset?)new DateTimeOffset(finishedDate.Value, TimeSpan.Zero)
+                : DateTimeOffset.UtcNow;
+
+            var action = BookUserActionViewModel.CreateFinished(BookId, UserId, endTimeUtc: endUtc, rating: rating, notes: notes);
+
+            if (await BookUserActionsDataService.CreateBookUserActionAsync(action))
+            {
+                Snackbar.Add("Marked as finished!", Severity.Success);
+                MudDialog?.Close(DialogResult.Ok("Marked as finished."));
+            }
+            else
+            {
+                Snackbar.Add("Unable to save action.", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while saving.", Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    protected void Cancel() => MudDialog?.Cancel();
+}

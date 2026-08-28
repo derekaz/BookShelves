@@ -7,7 +7,7 @@ Epic 4 — Blazor UI
 P1
 
 ## Status
-Pending
+Completed
 
 ## Goal
 Populate the My Books page (`/my-books`) with the authenticated user's book action history, grouped or sorted by book, with key action metadata visible in the list.
