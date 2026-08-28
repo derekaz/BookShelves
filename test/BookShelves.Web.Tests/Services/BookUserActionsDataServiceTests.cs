@@ -64,6 +64,20 @@ public sealed class BookUserActionsDataServiceTests
         Assert.Equal("https://api.example.test/books/tables/", client.BaseAddress?.ToString());
     }
 
+    [Fact]
+    public void CreateFactory_WhenBooksApiBaseUrlMissing_ThrowsInvalidOperationException()
+    {
+        var tokenService = CreateTokenServiceThatThrows(new MsalUiRequiredException("mock_code", "mock ui required"));
+        var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, handlerLogger);
+        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BookUserActionsDatasyncClientFactory>();
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+
+        var ex = Assert.Throws<InvalidOperationException>(() => new BookShelves.Web.Services.BookUserActionsDatasyncClientFactory(configuration, handler, factoryLogger));
+
+        Assert.Contains("Missing BooksApi:BaseUrl", ex.Message);
+    }
+
     private static BookShelves.Web.Services.Server.BookUserActionsDataService CreateService(Mock<ITokenAcquisition> tokenService)
     {
         var factory = CreateFactory(tokenService);

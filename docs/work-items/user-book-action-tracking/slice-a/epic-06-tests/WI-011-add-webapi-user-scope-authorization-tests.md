@@ -7,7 +7,7 @@ Epic 6 — Tests
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Add integration tests validating user isolation and admin override behavior for `BookUserActions` table operations.

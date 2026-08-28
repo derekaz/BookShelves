@@ -7,7 +7,7 @@ Epic 3 — Web Server Service Layer
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Add server-side service plumbing so Web can interact with `BookUserActions` via the same Datasync client model used for books/authors.

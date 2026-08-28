@@ -1,3 +1,4 @@
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using CommunityToolkit.Datasync.Server;
 using System.Linq.Expressions;
 using System.Security.Claims;
@@ -19,8 +20,7 @@ public class BookUserActionsAccessControlProvider : AccessControlProvider<BookUs
 
     private bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
 
-    private bool IsAdmin
-        => IsAuthenticated && (User?.IsInRole("Administrator") == true || User?.IsInRole("administrators") == true);
+    private bool IsAdmin => AuthorizationPolicies.IsAdminUser(User);
 
     private string? GetUserId()
     {

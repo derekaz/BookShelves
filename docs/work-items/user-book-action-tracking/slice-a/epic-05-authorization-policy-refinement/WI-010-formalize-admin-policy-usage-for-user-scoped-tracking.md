@@ -7,7 +7,7 @@ Epic 5 — Authorization Policy Refinement
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Ensure admin/non-admin behavior is explicit and consistent for user-book tracking without changing global books/authors access behavior.

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
+using BookShelves.Shared.Services.AuthorizationPolicies;
 using Microsoft.Identity.Web;
 using System.Reflection;
 using System.Text.Json;
@@ -57,14 +58,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddRequiredScopeAuthorization();
 builder.Services.AddRequiredScopeOrAppPermissionAuthorization();
-//builder.Services.AddAuthorization(options =>
-//{
-//    // Add centralized app policies (AdminAccess, Authenticated)
-//    options.AddAppAuthorizationPolicies();
-
-//    // Add API-specific default policy if needed
-//    options.FallbackPolicy = options.DefaultPolicy;
-//});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddAppAuthorizationPolicies();
+});
 
 // Add CORS if needed for Web client
 //builder.Services.AddCors(options =>

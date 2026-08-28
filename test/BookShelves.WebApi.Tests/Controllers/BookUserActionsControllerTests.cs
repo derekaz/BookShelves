@@ -160,6 +160,49 @@ public sealed class BookUserActionsControllerTests : IClassFixture<BookUserActio
         Assert.Equal("someone-else", stored!.UserId);
     }
 
+    [Fact]
+    public async Task Put_BookUserAction_WithNonAdminToken_AndMismatchedUserId_IsRejected()
+    {
+        factory.ResetRepositoryState();
+
+        using var adminClient = factory.CreateClient();
+        adminClient.UseTestBearerToken();
+        adminClient.UseTestRoles("Administrator");
+
+        using var userClient = factory.CreateClient();
+        userClient.UseTestBearerToken();
+
+        var start = DateTimeOffset.UtcNow;
+        var seeded = BookUserActionEntity.CreateToBeRead(
+            "book-3",
+            "someone-else",
+            start,
+            start.AddMinutes(1),
+            new BookUserActionToBeReadMetadata { Notes = "seed" });
+        seeded.Id = "action-3";
+
+        await CreateActionAsync(adminClient, seeded);
+
+        var updateAttempt = BookUserActionEntity.CreatePagesRead(
+            "book-3",
+            "someone-else",
+            start,
+            start.AddMinutes(2),
+            new BookUserActionPagesReadMetadata { Notes = "attempt", PagesRead = 17 });
+        updateAttempt.Id = "action-3";
+
+        using var updateResponse = await userClient.PutAsJsonAsync("/tables/BookUserActions/action-3", updateAttempt);
+        using var verifyResponse = await adminClient.GetAsync("/tables/BookUserActions/action-3");
+        var stored = await verifyResponse.Content.ReadFromJsonAsync<BookUserActionEntity>();
+
+        Assert.True(updateResponse.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Forbidden);
+        Assert.Equal(HttpStatusCode.OK, verifyResponse.StatusCode);
+        Assert.NotNull(stored);
+        Assert.Equal("someone-else", stored!.UserId);
+        var details = Assert.IsType<BookUserActionToBeReadMetadata>(stored.Details);
+        Assert.Equal("seed", details.Notes);
+    }
+
     private static async Task CreateActionAsync(HttpClient client, BookUserActionEntity action)
     {
         using var response = await client.PostAsJsonAsync("/tables/BookUserActions", action);

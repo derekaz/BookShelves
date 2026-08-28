@@ -7,7 +7,7 @@ Epic 3 — Web Server Service Layer
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Expose web server endpoints for user-book actions, consistent with existing `/booksdata` and `/authorsdata` patterns.
