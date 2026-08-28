@@ -2,6 +2,8 @@
 
 This folder contains implementation work items for **User Book Action Tracking (Web/API First)**, scoped to **Slice A (MVP, P0)** only.
 
+Parent roadmap: [`../README.md`](../README.md)
+
 ## Scope Included
 - Epic 1 — Domain + Contracts
 - Epic 2 — WebApi Datasync Table + Security
