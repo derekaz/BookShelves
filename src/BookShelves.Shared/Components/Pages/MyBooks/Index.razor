@@ -1,0 +1,148 @@
+@page "/my-books"
+@using System.Security.Claims
+@attribute [Authorize(Policy = AuthorizationPolicies.Authenticated)]
+@inject IBookUserActionsDataService DataService
+@inject IBooksDataService BooksDataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ILogger<Index> Logger
+
+<MudPaper Class="pa-4" Elevation="1">
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h4">My Books</MudText>
+        </MudStack>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <MudAlert Severity="Severity.Info" Dense="true" Variant="Variant.Outlined">@message</MudAlert>
+        }
+
+        @if (isLoading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else
+        {
+            <MudTable Items="actions" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="500px" Breakpoint="Breakpoint.Sm" Class="subtle-sort-table" Filter="new Func<BookUserActionViewModel, bool>(FilterFunc)">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6" Class="text-nowrap">Action History</MudText>
+                    <MudSpacer />
+                    <MudTextField @bind-Value="searchString"
+                                  Placeholder="Search actions..."
+                                  Variant="Variant.Filled"
+                                  Margin="Margin.Dense"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium"
+                                  Class="mt-0"
+                                  Style="max-width: 300px;"
+                                  Immediate="true"
+                                  Clearable="true" />
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<BookUserActionViewModel, object?>(x => x.BookId)">Book</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<BookUserActionViewModel, object?>(x => x.ActionType)">Action</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<BookUserActionViewModel, object?>(x => x.StartTimeUtc)">Date</MudTableSortLabel></MudTh>
+                    <MudTh>Details</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Book">@GetBookDisplayName(context.BookId)</MudTd>
+                    <MudTd DataLabel="Action">@FormatActionType(context.ActionType)</MudTd>
+                    <MudTd DataLabel="Date">@FormatDate(context)</MudTd>
+                    <MudTd DataLabel="Details">@FormatDetails(context)</MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudStack AlignItems="AlignItems.Center" Class="pa-6" Spacing="2">
+                        <MudIcon Icon="@Icons.Material.Filled.Bookmarks" Size="Size.Large" Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6" Align="Align.Center">No book actions recorded yet</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">
+                            Use the Books page to start tracking your reading.
+                        </MudText>
+                    </MudStack>
+                </NoRecordsContent>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        }
+    </MudStack>
+</MudPaper>
+
+@code {
+    protected IEnumerable<BookUserActionViewModel> actions = [];
+    protected string message = string.Empty;
+    protected string searchString = string.Empty;
+    private readonly Dictionary<string, string> bookTitlesById = new(StringComparer.OrdinalIgnoreCase);
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            _ = authState.User;
+
+            actions = await DataService.GetBookUserActionsAsync();
+
+            var books = await BooksDataService.GetBooksAsync();
+            foreach (var book in books)
+            {
+                if (!string.IsNullOrWhiteSpace(book.Id) && !string.IsNullOrWhiteSpace(book.Title))
+                {
+                    bookTitlesById[book.Id] = book.Title;
+                }
+            }
+        }
+        catch (Microsoft.Identity.Client.MsalUiRequiredException) { /* Identity interceptors */ }
+        catch (NavigationException) { /* Router interceptors */ }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "MyBooks.Index:OnInitializedAsync-Exception");
+            message = "Unable to load your book actions. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected bool FilterFunc(BookUserActionViewModel action)
+    {
+        if (string.IsNullOrWhiteSpace(searchString)) return true;
+        var q = searchString;
+        return (action.BookId?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (action.ActionType?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
+    protected static string FormatActionType(string? actionType) => actionType switch
+    {
+        BookUserActionTypes.ToBeRead => "To Be Read",
+        BookUserActionTypes.PagesRead => "Pages Read",
+        BookUserActionTypes.Finished => "Finished",
+        _ => actionType ?? string.Empty
+    };
+
+    protected static string FormatDate(BookUserActionViewModel action)
+    {
+        var date = action.StartTimeUtc ?? action.EndTimeUtc;
+        return date.HasValue ? date.Value.ToString("yyyy-MM-dd") : string.Empty;
+    }
+
+    protected static string FormatDetails(BookUserActionViewModel action) => action.Details switch
+    {
+        BookUserActionPagesReadMetadata pagesRead => $"{pagesRead.PagesRead} pages{(string.IsNullOrWhiteSpace(pagesRead.Notes) ? string.Empty : $" — {pagesRead.Notes}")}",
+        BookUserActionFinishedMetadata finished => $"{(finished.Rating.HasValue ? $"Rating: {finished.Rating}/5" : string.Empty)}{(string.IsNullOrWhiteSpace(finished.Notes) ? string.Empty : $" — {finished.Notes}")}".Trim(' ', '—'),
+        BookUserActionToBeReadMetadata tbr => $"{(tbr.RemindAtUtc.HasValue ? $"Remind: {tbr.RemindAtUtc.Value:yyyy-MM-dd}" : string.Empty)}{(string.IsNullOrWhiteSpace(tbr.Notes) ? string.Empty : $" — {tbr.Notes}")}".Trim(' ', '—'),
+        _ => string.Empty
+    };
+
+    private string GetBookDisplayName(string? bookId)
+    {
+        if (string.IsNullOrWhiteSpace(bookId))
+        {
+            return string.Empty;
+        }
+
+        return bookTitlesById.TryGetValue(bookId, out var title) ? title : bookId;
+    }
+}

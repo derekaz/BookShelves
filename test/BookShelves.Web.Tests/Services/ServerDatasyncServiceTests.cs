@@ -148,12 +148,12 @@ public sealed class ServerDatasyncServiceTests
     private static BookShelves.Web.Services.AuthorsDatasyncClientFactory CreateAuthorsFactory(Mock<ITokenAcquisition> tokenService)
     {
         var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, handlerLogger);
-        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.AuthorsDatasyncClientFactory>();
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["BooksApi:BaseUrl"] = "https://api.example.test/books"
         }).Build();
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, handlerLogger);
+        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.AuthorsDatasyncClientFactory>();
 
         return new BookShelves.Web.Services.AuthorsDatasyncClientFactory(configuration, handler, factoryLogger);
     }
@@ -161,12 +161,12 @@ public sealed class ServerDatasyncServiceTests
     private static BookShelves.Web.Services.BooksDatasyncClientFactory CreateBooksFactory(Mock<ITokenAcquisition> tokenService)
     {
         var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, handlerLogger);
-        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BooksDatasyncClientFactory>();
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["BooksApi:BaseUrl"] = "https://api.example.test/books"
         }).Build();
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, handlerLogger);
+        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BooksDatasyncClientFactory>();
 
         return new BookShelves.Web.Services.BooksDatasyncClientFactory(configuration, handler, factoryLogger);
     }

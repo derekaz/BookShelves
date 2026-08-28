@@ -41,6 +41,26 @@ public sealed class BookUserActionsAccessControlProviderTests
     }
 
     [Fact]
+    public async Task IsAuthorizedAsync_WhenNonAdminQueriesWithNullEntity_Allows()
+    {
+        var provider = CreateProvider("user-a");
+
+        var allowed = await provider.IsAuthorizedAsync(TableOperation.Query, null);
+
+        Assert.True(allowed);
+    }
+
+    [Fact]
+    public async Task IsAuthorizedAsync_WhenNonAdminCreatesWithNullEntity_Allows()
+    {
+        var provider = CreateProvider("user-a");
+
+        var allowed = await provider.IsAuthorizedAsync(TableOperation.Create, null);
+
+        Assert.True(allowed);
+    }
+
+    [Fact]
     public async Task IsAuthorizedAsync_WhenNonAdminCreates_RecordIsNormalizedToCurrentUser()
     {
         var provider = CreateProvider("user-a");
