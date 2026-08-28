@@ -7,7 +7,7 @@ Epic 3 — Web Server Service Layer
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Expose web server endpoints for user-book actions, consistent with existing `/booksdata` and `/authorsdata` patterns.
@@ -19,6 +19,7 @@ Expose web server endpoints for user-book actions, consistent with existing `/bo
   - optional `PUT/DELETE` for MVP completeness
 - Require authorization on all endpoints.
 - Use new `BookUserActionsDataService` for endpoint operations.
+- Keep endpoint models aligned with the action-record contract that includes `StartTimeUtc`, `EndTimeUtc`, `ActionType`, and record-specific metadata fields.
 
 ## Out of Scope
 - UI rendering behavior.

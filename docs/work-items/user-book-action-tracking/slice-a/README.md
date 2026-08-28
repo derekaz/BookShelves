@@ -2,6 +2,8 @@
 
 This folder contains implementation work items for **User Book Action Tracking (Web/API First)**, scoped to **Slice A (MVP, P0)** only.
 
+Parent roadmap: [`../README.md`](../README.md)
+
 ## Scope Included
 - Epic 1 — Domain + Contracts
 - Epic 2 — WebApi Datasync Table + Security
@@ -15,6 +17,7 @@ This folder contains implementation work items for **User Book Action Tracking (
 ## Work Item Index
 
 ### Epic 1 — Domain + Contracts
+- [Epic 1 Task List](./epic-01-domain-contracts/epic-01-task-list.md)
 - [WI-001 - Create BookUserAction entity contracts](./epic-01-domain-contracts/WI-001-create-book-user-action-entity-contracts.md)
 - [WI-002 - Define action types and validation rules](./epic-01-domain-contracts/WI-002-define-action-types-and-validation-rules.md)
 

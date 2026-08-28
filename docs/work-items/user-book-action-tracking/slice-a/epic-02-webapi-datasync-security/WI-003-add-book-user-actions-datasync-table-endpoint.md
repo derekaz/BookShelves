@@ -10,13 +10,14 @@ P0
 Not Started
 
 ## Goal
-Expose user-book actions through a Datasync table controller matching existing table endpoint patterns.
+Expose user-book actions through a Datasync table controller matching existing table endpoint patterns and the updated parent/details action-record contract.
 
 ## Scope
 - Add `BookUserActionsController : TableController<BookUserAction>` in `src/BookShelves.WebApi/Controllers`.
 - Use route pattern: `/tables/BookUserActions`.
 - Configure controller options/logging consistent with `BooksController` and `AuthorsController`.
 - Require authenticated access.
+- Keep the controller aligned with the `StartTimeUtc`, `EndTimeUtc`, `ActionType`, and typed `Details` payload defined in WI-001/WI-002.
 
 ## Out of Scope
 - Non-table convenience endpoints.

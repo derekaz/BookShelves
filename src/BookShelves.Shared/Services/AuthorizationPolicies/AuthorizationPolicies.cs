@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BookShelves.Shared.Services.AuthorizationPolicies;
 
@@ -18,6 +19,11 @@ public static class AuthorizationPolicies
     public const string Authenticated = "Authenticated";
 
     /// <summary>
+    /// Role names that confer admin access.
+    /// </summary>
+    public static readonly string[] AdminRoles = ["Administrator", "administrators"];
+
+    /// <summary>
     /// Adds application-specific authorization policies to the AuthorizationOptions.
     /// This method should be called from both Web and MAUI startup configurations
     /// to ensure consistent policy definitions across all projects.
@@ -29,7 +35,7 @@ public static class AuthorizationPolicies
         options.AddPolicy(AdminAccess, policy =>
         {
             policy.RequireAuthenticatedUser();
-            policy.RequireRole("Administrator", "administrators");
+            policy.RequireRole(AdminRoles);
 
             // Alternative: Use claims instead of roles
             // policy.RequireClaim("role", "Admin");
@@ -45,5 +51,10 @@ public static class AuthorizationPolicies
         // Add additional policies as needed:
         // options.AddPolicy("UserAccess", policy => policy.RequireRole("User", "Admin"));
         // options.AddPolicy("ApiAccess", policy => policy.RequireClaim("scope", "api.access"));
+    }
+
+    public static bool IsAdminUser(ClaimsPrincipal? user)
+    {
+        return user?.Identity?.IsAuthenticated == true && AdminRoles.Any(user.IsInRole);
     }
 }

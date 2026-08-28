@@ -17,6 +17,7 @@ Register `BookUserAction` persistence in WebApi using the existing Cosmos databa
   - register `ICosmosTableOptions<BookUserAction>`
   - register `IRepository<BookUserAction>` via `CachedCosmosRepository<BookUserAction>` wrapping the Cosmos table repository.
 - Align serializer/settings usage with existing entity registrations.
+- Ensure persistence supports the updated action-record fields (`StartTimeUtc`, `EndTimeUtc`, `ActionType`, and typed `Details` payloads).
 
 ## Out of Scope
 - New Cosmos container provisioning.

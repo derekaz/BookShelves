@@ -26,13 +26,26 @@ internal sealed class TestAuthHandler(
             ? providedScopes.ToString()
             : string.Empty;
 
+        var userId = Request.Headers.TryGetValue("X-Test-UserId", out var providedUserId)
+            ? providedUserId.ToString()
+            : "integration-test-user";
+
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, "integration-test-user"),
-            new(ClaimTypes.Name, "integration-test-user"),
+            new(ClaimTypes.NameIdentifier, userId),
+            new(ClaimTypes.Name, userId),
             new("scp", scopes),
             new("http://schemas.microsoft.com/identity/claims/scope", scopes)
         };
+
+        if (Request.Headers.TryGetValue("X-Test-Roles", out var providedRoles))
+        {
+            foreach (var role in providedRoles.ToString().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+                claims.Add(new Claim("role", role));
+            }
+        }
 
         var identity = new ClaimsIdentity(claims, SchemeName);
         var principal = new ClaimsPrincipal(identity);

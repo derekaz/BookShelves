@@ -7,7 +7,7 @@ Epic 6 — Tests
 P0
 
 ## Status
-Not Started
+Completed
 
 ## Goal
 Add test coverage for new Web server-side datasync factory, data service, and endpoint wiring for user-book actions.
@@ -17,6 +17,7 @@ Add test coverage for new Web server-side datasync factory, data service, and en
   - `BookUserActionsDatasyncClientFactory` base URL and endpoint composition behavior
   - `BookUserActionsDataService` token/error handling parity with existing services
   - `/bookuseractionsdata` endpoint auth behavior and basic execution flow
+  - parent/details serialization and deserialization for action-specific metadata subtypes
 - Reuse patterns from existing datasync factory and server service tests.
 
 ## Out of Scope
