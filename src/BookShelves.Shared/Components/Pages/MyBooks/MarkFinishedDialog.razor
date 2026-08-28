@@ -41,8 +41,9 @@
             var endUtc = finishedDate.HasValue
                 ? (DateTimeOffset?)new DateTimeOffset(finishedDate.Value, TimeSpan.Zero)
                 : DateTimeOffset.UtcNow;
+            var startUtc = endUtc;
 
-            var action = BookUserActionViewModel.CreateFinished(BookId, UserId, endTimeUtc: endUtc, rating: rating, notes: notes);
+            var action = BookUserActionViewModel.CreateFinished(BookId, UserId, startTimeUtc: startUtc, endTimeUtc: endUtc, rating: rating, notes: notes);
 
             if (await BookUserActionsDataService.CreateBookUserActionAsync(action))
             {

@@ -13,7 +13,7 @@
     ]
   },
   {
-    "Name": "Web and WebApi",
+    "Name": "Aspire (Web and Api)",
     "Projects": [
       {
         "Path": "src\\BookShelves.Web\\BookShelves.Web\\BookShelves.Web.csproj",
@@ -21,6 +21,10 @@
       },
       {
         "Path": "src\\BookShelves.WebApi\\BookShelves.WebApi.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\BookShelves.AppHost\\BookShelves.AppHost.csproj",
         "Action": "Start"
       }
     ]

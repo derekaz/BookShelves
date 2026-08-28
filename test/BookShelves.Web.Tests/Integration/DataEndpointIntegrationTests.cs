@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
+using BookShelves.Shared.Presentation.ViewModels;
 using BookShelves.Web.Tests.WebHost;
 
 namespace BookShelves.Web.Tests.Integration;
@@ -134,6 +136,41 @@ public sealed class DataEndpointIntegrationTests(AuthenticatedWebAppFactory fact
         Assert.True(first.TryGetProperty("bookId", out var bookId) || first.TryGetProperty("BookId", out bookId),
             "Response item should contain a bookId property");
         Assert.False(string.IsNullOrWhiteSpace(bookId.GetString()), "bookId should not be empty");
+    }
+
+    [Fact]
+    public async Task BookUserActionsData_PostToBeRead_WithValidPayload_ReturnsOk()
+    {
+        using var client = CreateAuthenticatedClient();
+
+        var now = DateTimeOffset.UtcNow;
+        var payload = BookUserActionViewModel.CreateToBeRead(
+            bookId: "book-1",
+            userId: "web-integration-test-user",
+            startTimeUtc: now,
+            endTimeUtc: now.AddMinutes(5),
+            notes: "queue this");
+
+        using var response = await client.PostAsJsonAsync("/bookuseractionsdata", payload);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task BookUserActionsData_PostToBeRead_MissingEndTime_ReturnsOk()
+    {
+        using var client = CreateAuthenticatedClient();
+
+        var payload = BookUserActionViewModel.CreateToBeRead(
+            bookId: "book-1",
+            userId: "web-integration-test-user",
+            startTimeUtc: DateTimeOffset.UtcNow,
+            endTimeUtc: null,
+            notes: "missing end time");
+
+        using var response = await client.PostAsJsonAsync("/bookuseractionsdata", payload);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     // -------------------------------------------------------------------------

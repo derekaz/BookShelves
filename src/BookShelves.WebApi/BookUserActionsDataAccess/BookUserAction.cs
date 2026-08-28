@@ -18,7 +18,6 @@ public class BookUserAction : CosmosTableData<BookUserAction>, IValidatableObjec
     [Required]
     public DateTimeOffset? StartTimeUtc { get; set; }
 
-    [Required]
     public DateTimeOffset? EndTimeUtc { get; set; }
 
     public BookUserActionMetadata? Details { get; set; }

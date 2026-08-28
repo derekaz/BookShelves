@@ -159,6 +159,8 @@ public sealed class BookUserActionDialogTests
         Assert.Equal("book-3", submitted!.BookId);
         Assert.Equal("user-3", submitted.UserId);
         Assert.Equal(BookUserActionTypes.Finished, submitted.ActionType);
+        Assert.NotNull(submitted.StartTimeUtc);
+        Assert.NotNull(submitted.EndTimeUtc);
         Assert.IsType<BookUserActionFinishedMetadata>(submitted.Details);
         Assert.Equal(4, ((BookUserActionFinishedMetadata)submitted.Details!).Rating);
         Assert.NotNull(result);
@@ -183,7 +185,9 @@ public sealed class BookUserActionDialogTests
 
         service.Verify(x => x.CreateBookUserActionAsync(It.IsAny<BookUserActionViewModel>()), Times.Once);
         Assert.NotNull(submitted);
-        Assert.Null(((BookUserActionFinishedMetadata)submitted!.Details!).Rating);
+        Assert.NotNull(submitted!.StartTimeUtc);
+        Assert.NotNull(submitted.EndTimeUtc);
+        Assert.Null(((BookUserActionFinishedMetadata)submitted.Details!).Rating);
     }
 
     [Fact]

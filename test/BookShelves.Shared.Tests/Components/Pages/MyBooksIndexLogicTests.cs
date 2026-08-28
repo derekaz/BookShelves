@@ -4,6 +4,7 @@ using BookShelves.Shared.Presentation.ViewModels;
 using Moq;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 using MyBooksIndex = BookShelves.Shared.Components.Pages.MyBooks.Index;
 
 namespace BookShelves.Shared.Tests.Components.Pages;
@@ -135,6 +136,27 @@ public sealed class MyBooksIndexLogicTests
     }
 
     [Fact]
+    public void GetBookDisplayName_ReturnsTitle_WhenBookIdIsKnown()
+    {
+        var sut = new TestMyBooksIndex();
+        sut.SetBookTitle("book-1", "Clean Code");
+
+        var value = sut.InvokeGetBookDisplayName("book-1");
+
+        Assert.Equal("Clean Code", value);
+    }
+
+    [Fact]
+    public void GetBookDisplayName_ReturnsId_WhenBookIdNotMapped()
+    {
+        var sut = new TestMyBooksIndex();
+
+        var value = sut.InvokeGetBookDisplayName("book-9");
+
+        Assert.Equal("book-9", value);
+    }
+
+    [Fact]
     public async Task OnInitializedAsync_LoadsActions_WhenServiceSucceeds()
     {
         var actions = new[]
@@ -187,6 +209,7 @@ public sealed class MyBooksIndexLogicTests
             ILogger<MyBooksIndex> logger)
         {
             SetNonPublicProperty(this, "DataService", service);
+            SetNonPublicProperty(this, "BooksDataService", Mock.Of<IBooksDataService>());
             SetNonPublicProperty(this, "AuthenticationStateProvider", authProvider);
             SetNonPublicProperty(this, "Logger", logger);
         }
@@ -206,6 +229,28 @@ public sealed class MyBooksIndexLogicTests
         public string InvokeFormatDate(BookUserActionViewModel action) => FormatDate(action);
 
         public string InvokeFormatDetails(BookUserActionViewModel action) => FormatDetails(action);
+
+        public string InvokeGetBookDisplayName(string? bookId)
+        {
+            var method = typeof(MyBooksIndex).GetMethod("GetBookDisplayName", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (method is null)
+            {
+                throw new InvalidOperationException("GetBookDisplayName method was not found.");
+            }
+
+            return (string)(method.Invoke(this, [bookId]) ?? string.Empty);
+        }
+
+        public void SetBookTitle(string id, string title)
+        {
+            var field = typeof(MyBooksIndex).GetField("bookTitlesById", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (field?.GetValue(this) is not Dictionary<string, string> map)
+            {
+                throw new InvalidOperationException("bookTitlesById field was not found.");
+            }
+
+            map[id] = title;
+        }
     }
 
     private static void SetNonPublicProperty(object instance, string propertyName, object value)

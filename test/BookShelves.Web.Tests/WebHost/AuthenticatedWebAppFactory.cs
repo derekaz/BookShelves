@@ -157,7 +157,18 @@ public sealed class AuthenticatedWebAppFactory : WebApplicationFactory<Program>
                 }
             ]);
 
-        public Task<bool> CreateBookUserActionAsync(BookUserActionViewModel action) => Task.FromResult(true);
+        public Task<bool> CreateBookUserActionAsync(BookUserActionViewModel action)
+        {
+            var isValid = action is not null
+                && !string.IsNullOrWhiteSpace(action.BookId)
+                && !string.IsNullOrWhiteSpace(action.UserId)
+                && !string.IsNullOrWhiteSpace(action.ActionType)
+                && action.StartTimeUtc.HasValue
+                && action.Details is not null;
+
+            return Task.FromResult(isValid);
+        }
+
         public Task<bool> UpdateBookUserActionAsync(BookUserActionViewModel action) => Task.FromResult(true);
         public Task<bool> DeleteBookUserActionAsync(BookUserActionViewModel action) => Task.FromResult(true);
     }

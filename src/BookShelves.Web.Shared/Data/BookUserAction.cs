@@ -34,17 +34,19 @@ public class BookUserAction : DatasyncDto
 
     public static BookUserAction FromBookUserActionViewModel(BookUserActionViewModel action)
     {
+        var hasExistingId = !string.IsNullOrWhiteSpace(action.Id);
+
         return new BookUserAction
         {
-            Id = action.Id ?? string.Empty,
+            Id = hasExistingId ? action.Id : null,
             BookId = action.BookId,
             UserId = action.UserId,
             ActionType = action.ActionType,
             StartTimeUtc = action.StartTimeUtc,
             EndTimeUtc = action.EndTimeUtc,
             Details = action.Details,
-            UpdatedAt = action.LastUpdateTime,
-            Version = action.Version
+            UpdatedAt = hasExistingId ? action.LastUpdateTime : null,
+            Version = hasExistingId ? action.Version : null
         };
     }
 

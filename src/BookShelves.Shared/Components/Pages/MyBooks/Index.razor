@@ -2,6 +2,7 @@
 @using System.Security.Claims
 @attribute [Authorize(Policy = AuthorizationPolicies.Authenticated)]
 @inject IBookUserActionsDataService DataService
+@inject IBooksDataService BooksDataService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ILogger<Index> Logger
 
@@ -45,7 +46,7 @@
                     <MudTh>Details</MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Book">@context.BookId</MudTd>
+                    <MudTd DataLabel="Book">@GetBookDisplayName(context.BookId)</MudTd>
                     <MudTd DataLabel="Action">@FormatActionType(context.ActionType)</MudTd>
                     <MudTd DataLabel="Date">@FormatDate(context)</MudTd>
                     <MudTd DataLabel="Details">@FormatDetails(context)</MudTd>
@@ -71,6 +72,7 @@
     protected IEnumerable<BookUserActionViewModel> actions = [];
     protected string message = string.Empty;
     protected string searchString = string.Empty;
+    private readonly Dictionary<string, string> bookTitlesById = new(StringComparer.OrdinalIgnoreCase);
     private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
@@ -81,6 +83,15 @@
             _ = authState.User;
 
             actions = await DataService.GetBookUserActionsAsync();
+
+            var books = await BooksDataService.GetBooksAsync();
+            foreach (var book in books)
+            {
+                if (!string.IsNullOrWhiteSpace(book.Id) && !string.IsNullOrWhiteSpace(book.Title))
+                {
+                    bookTitlesById[book.Id] = book.Title;
+                }
+            }
         }
         catch (Microsoft.Identity.Client.MsalUiRequiredException) { /* Identity interceptors */ }
         catch (NavigationException) { /* Router interceptors */ }
@@ -124,4 +135,14 @@
         BookUserActionToBeReadMetadata tbr => $"{(tbr.RemindAtUtc.HasValue ? $"Remind: {tbr.RemindAtUtc.Value:yyyy-MM-dd}" : string.Empty)}{(string.IsNullOrWhiteSpace(tbr.Notes) ? string.Empty : $" — {tbr.Notes}")}".Trim(' ', '—'),
         _ => string.Empty
     };
+
+    private string GetBookDisplayName(string? bookId)
+    {
+        if (string.IsNullOrWhiteSpace(bookId))
+        {
+            return string.Empty;
+        }
+
+        return bookTitlesById.TryGetValue(bookId, out var title) ? title : bookId;
+    }
 }
