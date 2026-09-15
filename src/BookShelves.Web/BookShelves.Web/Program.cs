@@ -332,15 +332,16 @@ app.MapPost("/authorsdata", async ([FromServices] IAuthorsDataService AuthorsDat
     }
 }).RequireAuthorization();
 
-app.MapPost("/bookuseractionsdata", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, BookUserActionViewModel action) =>
+app.MapPost("/bookuseractionsdata", async ([FromServices] IBookUserActionsDataService BookUserActionsDataService, [FromServices] ILogger<Program> logger, BookUserActionViewModel action) =>
 {
     try
     {
         var result = await BookUserActionsDataService.CreateBookUserActionAsync(action);
         return result ? Results.Ok() : Results.StatusCode(500);
     }
-    catch (Exception)
+    catch (Exception ex)
     {
+        logger.LogError(ex, "Failed to create book user action for BookId={BookId}, UserId={UserId}, ActionType={ActionType}", action.BookId, action.UserId, action.ActionType);
         return Results.StatusCode(500);
     }
 }).RequireAuthorization();

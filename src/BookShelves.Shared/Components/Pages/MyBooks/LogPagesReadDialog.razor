@@ -1,0 +1,70 @@
+@inject IBookUserActionsDataService BookUserActionsDataService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>Log Pages Read</TitleContent>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudNumericField T="int" Label="Pages Read" @bind-Value="pagesRead" Variant="Variant.Outlined" Min="1" Required="true" />
+            <MudTextField Label="Notes" @bind-Value="notes" Variant="Variant.Outlined" Lines="2" />
+            <MudDatePicker @bind-Date="startDate" Label="Start Date" Placeholder="Select a date" Editable="true" DateFormat="MM/dd/yyyy" Variant="Variant.Outlined" Clearable="true" />
+            <MudDatePicker @bind-Date="endDate" Label="End Date" Placeholder="Select a date" Editable="true" DateFormat="MM/dd/yyyy" Variant="Variant.Outlined" Clearable="true" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync" Disabled="@(isSubmitting || pagesRead < 1)">
+            @(isSubmitting ? "Saving..." : "Save")
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    protected IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string BookId { get; set; } = string.Empty;
+
+    [Parameter]
+    public string UserId { get; set; } = string.Empty;
+
+    protected int pagesRead = 1;
+    private string? notes;
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private bool isSubmitting;
+
+    protected async Task SubmitAsync()
+    {
+        if (pagesRead < 1) return;
+
+        isSubmitting = true;
+        try
+        {
+            var startUtc = startDate.HasValue ? (DateTimeOffset?)new DateTimeOffset(startDate.Value, TimeSpan.Zero) : null;
+            var endUtc = endDate.HasValue ? (DateTimeOffset?)new DateTimeOffset(endDate.Value, TimeSpan.Zero) : null;
+            var action = BookUserActionViewModel.CreatePagesRead(BookId, UserId, pagesRead, startTimeUtc: startUtc, endTimeUtc: endUtc, notes: notes);
+
+            if (await BookUserActionsDataService.CreateBookUserActionAsync(action))
+            {
+                Snackbar.Add($"Logged {pagesRead} pages.", Severity.Success);
+                MudDialog?.Close(DialogResult.Ok($"Logged {pagesRead} pages."));
+            }
+            else
+            {
+                Snackbar.Add("Unable to save action.", Severity.Error);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while saving.", Severity.Error);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    protected void Cancel() => MudDialog?.Cancel();
+}

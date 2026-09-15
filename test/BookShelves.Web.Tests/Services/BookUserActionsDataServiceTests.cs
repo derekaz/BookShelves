@@ -68,10 +68,10 @@ public sealed class BookUserActionsDataServiceTests
     public void CreateFactory_WhenBooksApiBaseUrlMissing_ThrowsInvalidOperationException()
     {
         var tokenService = CreateTokenServiceThatThrows(new MsalUiRequiredException("mock_code", "mock ui required"));
-        var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, handlerLogger);
-        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BookUserActionsDatasyncClientFactory>();
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, handlerLogger);
+        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BookUserActionsDatasyncClientFactory>();
 
         var ex = Assert.Throws<InvalidOperationException>(() => new BookShelves.Web.Services.BookUserActionsDatasyncClientFactory(configuration, handler, factoryLogger));
 
@@ -88,12 +88,12 @@ public sealed class BookUserActionsDataServiceTests
     private static BookShelves.Web.Services.BookUserActionsDatasyncClientFactory CreateFactory(Mock<ITokenAcquisition> tokenService)
     {
         var handlerLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Handlers.BearerTokenHandler>();
-        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, handlerLogger);
-        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BookUserActionsDatasyncClientFactory>();
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["BooksApi:BaseUrl"] = "https://api.example.test/books"
         }).Build();
+        var handler = new BookShelves.Web.Handlers.BearerTokenHandler(tokenService.Object, configuration, handlerLogger);
+        var factoryLogger = LoggerFactory.Create(_ => { }).CreateLogger<BookShelves.Web.Services.BookUserActionsDatasyncClientFactory>();
 
         return new BookShelves.Web.Services.BookUserActionsDatasyncClientFactory(configuration, handler, factoryLogger);
     }

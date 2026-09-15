@@ -26,6 +26,9 @@ internal sealed class BookUserActionsDataService : IBookUserActionsDataService
         ArgumentNullException.ThrowIfNull(action);
 
         var newAction = BookUserAction.FromBookUserActionViewModel(action);
+        newAction.Id = null;
+        newAction.UpdatedAt = null;
+        newAction.Version = null;
 
         try
         {

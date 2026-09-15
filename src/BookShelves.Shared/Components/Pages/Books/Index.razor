@@ -1,7 +1,9 @@
 ﻿@page "/books"
+@using System.Security.Claims
 @inherits DataViewPageBase<BookViewModel>
 @inject IBooksDataService DataService
-@attribute [Authorize(Roles = "Administrator")]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Policy = AuthorizationPolicies.Authenticated)]
 
 <MudPaper Class="pa-4" Elevation="1">
     <MudStack Spacing="3">
@@ -71,27 +73,29 @@
                         }
                     </MudHidden>
 
-                    @* --- ADD ACTION BUTTON --- *@
+                    @* --- ADD ACTION BUTTON (Admin only) --- *@
                     @* Stays pinned safely on the far right edge of the control bar header line *@
-                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
-                        @* Desktop: Full button with text *@
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                                   StartIcon="@Icons.Material.Filled.Add"
-                                   OnClick="AddAsync"
-                                   aria-label="Add New Book"
-                                   Class="text-nowrap">
-                            Add
-                        </MudButton>
-                    </MudHidden>
-                    <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
-                        @* Mobile: Perfect square icon button *@
-                        <MudIconButton Variant="Variant.Filled"
+                    <AuthorizeView Roles="Administrator">
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="false">
+                            @* Desktop: Full button with text *@
+                            <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
-                                       Icon="@Icons.Material.Filled.Add"
+                                       StartIcon="@Icons.Material.Filled.Add"
                                        OnClick="AddAsync"
-                                       aria-label="Add New Book" />
-                    </MudHidden>
+                                       aria-label="Add New Book"
+                                       Class="text-nowrap">
+                                Add
+                            </MudButton>
+                        </MudHidden>
+                        <MudHidden Breakpoint="Breakpoint.Xs" Invert="true">
+                            @* Mobile: Perfect square icon button *@
+                            <MudIconButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           Icon="@Icons.Material.Filled.Add"
+                                           OnClick="AddAsync"
+                                           aria-label="Add New Book" />
+                        </MudHidden>
+                    </AuthorizeView>
                 </MudStack>
             </ToolBarContent>
             <HeaderContent>
@@ -101,28 +105,51 @@
                 <MudTh>Description</MudTh>
                 <MudTh><MudTableSortLabel SortBy="new Func<BookViewModel, object?>(x => x.LastUpdateTime)">Last Update</MudTableSortLabel></MudTh>
                 <MudTh Style="text-align: right">Actions</MudTh>
+                <MudTh Style="text-align: right">My Actions</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Title">@context.Title</MudTd>
-                <MudTd DataLabel="Author">@context.Author?.Name</MudTd>
-                <MudTd DataLabel="Publish Date">@context.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
-                <MudTd DataLabel="Description">@context.Description</MudTd>
-                <MudTd DataLabel="Last Update">@context.LastUpdateTime</MudTd>
+                @{ var book = context; }
+                <MudTd DataLabel="Title">@book.Title</MudTd>
+                <MudTd DataLabel="Author">@book.Author?.Name</MudTd>
+                <MudTd DataLabel="Publish Date">@book.PublishDate?.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd DataLabel="Description">@book.Description</MudTd>
+                <MudTd DataLabel="Last Update">@book.LastUpdateTime</MudTd>
                 <MudTd DataLabel="Actions" Style="text-align: right; white-space: nowrap;">
+                    <AuthorizeView Roles="Administrator" Context="authCtx">
+                        <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
+                            @* Edit Icon Button *@
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           aria-label="Edit"
+                                           OnClick="@(() => EditAsync(book))" />
+
+                            @* Delete Icon Button *@
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           aria-label="Delete"
+                                           OnClick="@(() => DeleteAsync(book))" />
+                        </MudStack>
+                    </AuthorizeView>
+                </MudTd>
+                <MudTd DataLabel="My Actions" Style="text-align: right; white-space: nowrap;">
                     <MudStack Row="true" Spacing="1" Justify="Justify.FlexEnd">
-                        @* Edit Icon Button *@
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                        <MudIconButton Icon="@Icons.Material.Filled.Bookmarks"
                                        Color="Color.Primary"
                                        Size="Size.Small"
-                                       aria-label="Edit"
-                                       OnClick="@(() => EditAsync(context))" />
-
-                        @* Delete Icon Button *@
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                       Color="Color.Error"
+                                       aria-label="Add to To-Be-Read"
+                                       OnClick="@(() => AddToBeReadAsync(book))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.MenuBook"
+                                       Color="Color.Secondary"
                                        Size="Size.Small"
-                                       aria-label="Delete"
-                                       OnClick="@(() => DeleteAsync(context))" />
+                                       aria-label="Log Pages Read"
+                                       OnClick="@(() => LogPagesReadAsync(book))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle"
+                                       Color="Color.Success"
+                                       Size="Size.Small"
+                                       aria-label="Mark as Finished"
+                                       OnClick="@(() => MarkFinishedAsync(book))" />
                     </MudStack>
                 </MudTd>
             </RowTemplate>
@@ -232,6 +259,59 @@
         {
             message = "Delete canceled";
         }
+    }
+
+    private async Task AddToBeReadAsync(BookViewModel book)
+    {
+        var userId = await GetCurrentUserIdAsync();
+        var parameters = new DialogParameters<AddToBeReadDialog>
+        {
+            { x => x.BookId, book.Id ?? string.Empty },
+            { x => x.UserId, userId }
+        };
+        var dialog = await DialogService.ShowAsync<AddToBeReadDialog>("Add to To-Be-Read", parameters, dialogOptions);
+        var result = await dialog.Result;
+        if (result is { Canceled: false })
+            message = result.Data?.ToString() ?? string.Empty;
+    }
+
+    private async Task LogPagesReadAsync(BookViewModel book)
+    {
+        var userId = await GetCurrentUserIdAsync();
+        var parameters = new DialogParameters<LogPagesReadDialog>
+        {
+            { x => x.BookId, book.Id ?? string.Empty },
+            { x => x.UserId, userId }
+        };
+        var dialog = await DialogService.ShowAsync<LogPagesReadDialog>("Log Pages Read", parameters, dialogOptions);
+        var result = await dialog.Result;
+        if (result is { Canceled: false })
+            message = result.Data?.ToString() ?? string.Empty;
+    }
+
+    private async Task MarkFinishedAsync(BookViewModel book)
+    {
+        var userId = await GetCurrentUserIdAsync();
+        var parameters = new DialogParameters<MarkFinishedDialog>
+        {
+            { x => x.BookId, book.Id ?? string.Empty },
+            { x => x.UserId, userId }
+        };
+        var dialog = await DialogService.ShowAsync<MarkFinishedDialog>("Mark as Finished", parameters, dialogOptions);
+        var result = await dialog.Result;
+        if (result is { Canceled: false })
+            message = result.Data?.ToString() ?? string.Empty;
+    }
+
+    private async Task<string> GetCurrentUserIdAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("oid")?.Value
+            ?? user.FindFirst("sub")?.Value
+            ?? user.Identity?.Name
+            ?? string.Empty;
     }
 
     private BookViewModel CloneBook(BookViewModel b) => new()

@@ -90,6 +90,25 @@ public sealed class BookUserActionTests
     }
 
     [Fact]
+    public void FromBookUserActionViewModel_WhenIdMissing_SetsNullCreateMetadata()
+    {
+        var viewModel = BookUserActionViewModel.CreateToBeRead(
+            "book-10",
+            "user-10",
+            DateTimeOffset.UtcNow,
+            null,
+            notes: "new item");
+        viewModel.LastUpdateTime = DateTimeOffset.UtcNow;
+        viewModel.Version = "etag-should-not-be-sent-for-create";
+
+        var action = BookUserAction.FromBookUserActionViewModel(viewModel);
+
+        Assert.Null(action.Id);
+        Assert.Null(action.UpdatedAt);
+        Assert.Null(action.Version);
+    }
+
+    [Fact]
     public void DetailsFactory_CreateFinished_MapsNotesAndRating()
     {
         var details = BookUserActionDetailsFactory.CreateFinished(4, "wrapped up");

@@ -46,6 +46,11 @@ builder.Services.AddHttpClient<IAuthorsDataService, AuthorsDataService>(httpClie
     httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 }).AddHttpMessageHandler<BlazorAuthorizationHandler>();
 
+builder.Services.AddHttpClient<IBookUserActionsDataService, BookUserActionsDataService>(httpClient =>
+{
+    httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+}).AddHttpMessageHandler<BlazorAuthorizationHandler>();
+
 var app = builder.Build();
 
 await app.RunAsync();

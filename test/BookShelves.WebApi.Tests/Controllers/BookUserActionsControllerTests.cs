@@ -161,6 +161,48 @@ public sealed class BookUserActionsControllerTests : IClassFixture<BookUserActio
     }
 
     [Fact]
+    public async Task Post_BookUserAction_ToBeRead_WithValidDetails_ReturnsCreated()
+    {
+        factory.ResetRepositoryState();
+        using var client = factory.CreateClient();
+        client.UseTestBearerToken();
+
+        var now = DateTimeOffset.UtcNow;
+        var action = BookUserActionEntity.CreateToBeRead(
+            "book-to-read",
+            "someone-else",
+            now,
+            now.AddMinutes(5),
+            new BookUserActionToBeReadMetadata { Notes = "queue" });
+
+        using var response = await client.PostAsJsonAsync("/tables/BookUserActions", action);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_BookUserAction_ToBeRead_WithMissingEndTime_ReturnsCreated()
+    {
+        factory.ResetRepositoryState();
+        using var client = factory.CreateClient();
+        client.UseTestBearerToken();
+
+        var action = new BookUserActionEntity
+        {
+            BookId = "book-to-read",
+            UserId = "someone-else",
+            ActionType = BookUserActionTypes.ToBeRead,
+            StartTimeUtc = DateTimeOffset.UtcNow,
+            EndTimeUtc = null,
+            Details = new BookUserActionToBeReadMetadata { Notes = "optional end time" }
+        };
+
+        using var response = await client.PostAsJsonAsync("/tables/BookUserActions", action);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Put_BookUserAction_WithNonAdminToken_AndMismatchedUserId_IsRejected()
     {
         factory.ResetRepositoryState();

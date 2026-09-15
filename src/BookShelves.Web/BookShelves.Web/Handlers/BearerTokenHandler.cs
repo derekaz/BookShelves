@@ -4,23 +4,23 @@ namespace BookShelves.Web.Handlers;
 
 public class BearerTokenHandler : DelegatingHandler
 {
-    private readonly ITokenAcquisition _tokenService; // Inject your token acquisition service here
+    private readonly ITokenAcquisition _tokenService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<BearerTokenHandler> _logger;
 
-    public BearerTokenHandler(ITokenAcquisition tokenService, ILogger<BearerTokenHandler> logger)
+    public BearerTokenHandler(ITokenAcquisition tokenService, IConfiguration configuration, ILogger<BearerTokenHandler> logger)
     {
         _tokenService = tokenService;
+        _configuration = configuration;
         _logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        // Acquire the token (adapt this to your specific token service/logic)
-        string[] scopes = ["api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.ReadWrite"];
+        var scopes = _configuration.GetSection("BooksApi:Scopes").Get<string[]>()
+            ?? ["api://a98249d2-b51b-41d6-9c2a-5dadf7cf276f/Books.ReadWrite"];
 
         var token = await _tokenService.GetAccessTokenForUserAsync(scopes);
-
-        // var token = await _tokenService.GetAccessTokenAsync();
 
         if (!string.IsNullOrWhiteSpace(token))
         {
