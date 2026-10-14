@@ -564,7 +564,7 @@ jobs:
       #     p12-password: ${{secrets.IOS_DIST_CERTIFICATES_P12_PASSWORD}}
 
       - name: Download Apple Provisioning Profiles
-        uses: Apple-Actions/download-provisioning-profiles@v6
+        uses: Apple-Actions/download-provisioning-profiles@v7
         with:
           bundle-id: ${{env.MAUI_IOS_MAC_BUNDLE_ID}}
           issuer-id: ${{secrets.APPLE_APPSTORE_ISSUER_ID}}
