@@ -41,6 +41,7 @@
 
 		<!-- 3. Dynamic Asset Shared Management -->
 		<StaticWebAssetsEnabled>true</StaticWebAssetsEnabled>
+		<UsingNETSdkWorkloadSet>true</UsingNETSdkWorkloadSet>
 	</PropertyGroup>
 
 	<PropertyGroup>
