@@ -397,7 +397,17 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-
+      
+      - name: Debug registry auth inputs
+        run: |
+          echo "REGISTRY=${REGISTRY}"
+          echo "USERNAME length: ${#USERNAME}"
+          echo "PASSWORD length: ${#PASSWORD}"
+        env:
+          REGISTRY: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+          USERNAME: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+          PASSWORD: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+      
       - name: Log in to Private Registry
         uses: docker/login-action@v4
         with:
