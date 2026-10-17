@@ -476,7 +476,7 @@ jobs:
         !startsWith(github.head_ref, 'feature/')) ||
       (github.ref_type == 'tag' && 
         needs.validate.outputs.IsValidReleaseTag == 'true')
-    runs-on: macos-27
+    runs-on: macos-26
     environment: ${{ needs.validate.outputs.EnvironmentName }}
     timeout-minutes: 60
     defaults:
