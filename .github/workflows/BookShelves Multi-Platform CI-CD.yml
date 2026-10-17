@@ -592,8 +592,9 @@ jobs:
 
       - name: Install Apple Workloads
         shell: bash
-        run: dotnet workload install maui-ios maui-maccatalyst --version ${{env.DOTNET_WORKLOAD_VERSION}}
+        run: dotnet workload install maui-ios maui-maccatalyst
         working-directory: ${{env.MAUI_PROJPATH}}
+        # --version ${{env.DOTNET_WORKLOAD_VERSION}}
 
       - name: Verify Dotnet SDKs
         shell: pwsh
