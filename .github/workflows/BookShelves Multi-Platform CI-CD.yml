@@ -405,12 +405,13 @@ jobs:
           RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
           CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
           echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
+          echo "Parsed Domain: ${CLEANED_URL}"
 
       # 2. FIX: Configure Docker Buildx to inject the Cloudflare headers natively
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
         with:
-          buildkitd-config: |
+          buildkitd-config-inline: |
             [registry."${{ steps.clean_url.outputs.REGISTRY_DOMAIN }}"]
               http-headers = [
                 { name = "CF-Access-Client-Id", values = ["${{ secrets.CF_CLIENT_ID }}"] },
