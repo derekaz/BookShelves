@@ -398,30 +398,59 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
       
-      - name: Debug registry auth inputs
+      # 1. FIX: Set up Docker Buildx BEFORE logging in so it catches credentials
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+    
+      # 2. FIX: Separated step with an ID so we can reuse the cleaned registry domain
+      - name: Parse and Clean Registry Domain
+        id: clean_url
         run: |
           RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
-          # Strip https://, http://, and any trailing paths
           CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
           echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
 
-          echo "REGISTRY=${REGISTRY}"
+          echo "Parsed Domain: ${CLEANED_URL}"
           echo "USERNAME length: ${#USERNAME}"
           echo "PASSWORD length: ${#PASSWORD}"
         env:
-          REGISTRY: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
           USERNAME: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
           PASSWORD: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+    
+
+
+      # - name: Debug registry auth inputs
+      #   run: |
+      #     RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
+      #     # Strip https://, http://, and any trailing paths
+      #     CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
+      #     echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
+
+      #     echo "REGISTRY=${REGISTRY}"
+      #     echo "USERNAME length: ${USERNAME}"
+      #     echo "PASSWORD length: ${PASSWORD}"
+      #   env:
+      #     REGISTRY: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+      #     USERNAME: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+      #     PASSWORD: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
       
+      # 3. FIX: Uses the cleaned domain output for authentication
       - name: Log in to Private Registry
         uses: docker/login-action@v4
         with:
-          registry: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+          registry: ${{ steps.clean_url.outputs.REGISTRY_DOMAIN }}
           username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
           password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+      # - name: Log in to Private Registry
+      #   uses: docker/login-action@v4
+      #   with:
+      #     registry: ${{ secrets.NAS_DOCKER_REGISTRY_URL }}
+      #     username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+      #     password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v4
 
       # --- WEB APPLICATION PROJECT ---
       - name: Build and Push Web App Docker Image
