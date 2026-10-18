@@ -400,6 +400,11 @@ jobs:
       
       - name: Debug registry auth inputs
         run: |
+          RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
+          # Strip https://, http://, and any trailing paths
+          CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
+          echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
+
           echo "REGISTRY=${REGISTRY}"
           echo "USERNAME length: ${#USERNAME}"
           echo "PASSWORD length: ${#PASSWORD}"
