@@ -423,9 +423,11 @@ jobs:
         with:
           registry: ${{ steps.clean_url.outputs.REGISTRY_DOMAIN }}
           username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
-          password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}      # 1. FIX: Set up Docker Buildx BEFORE logging in so it catches credentials
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+          password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}      
+
+      # 1. FIX: Set up Docker Buildx BEFORE logging in so it catches credentials
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v4
     
       # 2. FIX: Separated step with an ID so we can reuse the cleaned registry domain
       # - name: Parse and Clean Registry Domain
