@@ -414,7 +414,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          insecure: true
 
       # --- WEB APPLICATION PROJECT ---
       - name: Build and Push Web App Docker Image
