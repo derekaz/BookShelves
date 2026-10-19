@@ -372,12 +372,160 @@ jobs:
           echo "- TRX files: $(find TestResults -name '*.trx' | wc -l)" >> $GITHUB_STEP_SUMMARY
           echo "- Coverage files: $(find TestResults -name 'coverage.cobertura.xml' | wc -l)" >> $GITHUB_STEP_SUMMARY
 
+  # =================================================================
+  # STAGE 2: CONTAINER DEPLOYMENTS (100% Free Public GHCR Cloud)
+  # =================================================================
+  publish-docker:
+    name: Publish Containers to GHCR
+    needs: validate
+    if: |
+      github.event_name == 'push' &&
+        (github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'release/') ||
+          startsWith(github.ref_name, 'Release/')) ||
+      (github.event_name == 'pull_request' && 
+        github.ref_name == 'main' && 
+        !startsWith(github.head_ref, 'feature/')) ||
+      (github.ref_type == 'tag' && 
+        needs.validate.outputs.IsValidReleaseTag == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # Required to allow the workflow to attach images to your repository
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+    
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- WEB APPLICATION PROJECT ---
+      - name: Build and Push Web App Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEB_PROJPATH}}/Dockerfile 
+          push: true
+          build-args: |
+            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+          tags: |
+            ghcr.io/${{ github.repository }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
+            ghcr.io/${{ github.repository }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('ghcr.io/{0}/bookshelves-web:latest', github.repository) || '' }}
+          cache-from: type=gha,scope=docker-web
+          cache-to: type=gha,mode=max,scope=docker-web
+
+      # --- WEB API PROJECT ---
+      - name: Build and Push Web API Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEBAPI_PROJPATH}}/Dockerfile 
+          push: true
+          build-args: |
+            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+            RUN_ID=${{ github.run_id }}
+            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+          tags: |
+            ghcr.io/${{ github.repository }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
+            ghcr.io/${{ github.repository }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('ghcr.io/{0}/bookshelves-webapi:latest', github.repository) || '' }}
+          cache-from: type=gha,scope=docker-webapi
+          cache-to: type=gha,mode=max,scope=docker-webapi
+
 
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (Local QNAP NAS Runner Array)
   # =================================================================
-  publish-docker:
-    name: Publish Containers to Private Registry
+  publish-docker-local:
+    name: Publish Containers to Private Registry (local QNAP NAS)
+    needs: validate
+    if: |
+      github.event_name == 'push' &&
+        (github.ref_name == 'main' || 
+          startsWith(github.ref_name, 'release/') ||
+          startsWith(github.ref_name, 'Release/')) ||
+      (github.event_name == 'pull_request' && 
+        github.ref_name == 'main' && 
+        !startsWith(github.head_ref, 'feature/')) ||
+      (github.ref_type == 'tag' && 
+        needs.validate.outputs.IsValidReleaseTag == 'true')
+    runs-on: self-hosted
+    environment: ${{ needs.validate.outputs.EnvironmentName }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+    
+      - name: Log in to Local Private Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}
+          username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+
+      # --- WEB APPLICATION PROJECT ---
+      - name: Build and Push Web App Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEB_PROJPATH}}/Dockerfile 
+          push: true
+          tags: |
+            ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
+            ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.LOCAL_NAS_DOCKER_REGISTRY_URL   ) || '' }}
+          cache-from: type=gha,scope=docker-web
+          cache-to: type=gha,mode=max,scope=docker-web
+
+      # --- WEB API PROJECT ---
+      - name: Build and Push Web API Docker Image
+        uses: docker/build-push-action@v7
+        with:
+          context: ${{ github.workspace }}/src
+          file: ${{env.WEBAPI_PROJPATH}}/Dockerfile 
+          push: true
+          tags: |
+            ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
+            ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.LOCAL_NAS_DOCKER_REGISTRY_URL   ) || '' }}
+          cache-from: type=gha,scope=docker-webapi
+          cache-to: type=gha,mode=max,scope=docker-webapi
+
+
+  # =================================================================
+  # STAGE 2: CONTAINER DEPLOYMENTS (Local QNAP NAS Runner Array)
+  # =================================================================
+  publish-docker-old:
+    name: Publish Containers to Private Registry (GHA Runner)
     needs: validate
     if: |
       github.event_name == 'push' &&
