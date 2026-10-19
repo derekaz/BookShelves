@@ -499,6 +499,7 @@ jobs:
           registry: ${{ secrets.LOCAL_NAS_DOCKER_REGISTRY_URL }}
           username: ${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}
           password: ${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}
+          insecure: true
 
       # --- WEB APPLICATION PROJECT ---
       - name: Build and Push Web App Docker Image
