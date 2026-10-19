@@ -397,6 +397,13 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: Prepare Lowercase Image Path
+        id: image_path
+        run: |
+          RAW_REPO="${{ github.repository }}"
+          LOWER_REPO=$(echo "$RAW_REPO" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_BASE=ghcr.io/${LOWER_REPO}" >> $GITHUB_OUTPUT
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -426,9 +433,9 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ghcr.io/${{ github.repository }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
-            ghcr.io/${{ github.repository }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('ghcr.io/{0}/bookshelves-web:latest', github.repository) || '' }}
+            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
+            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
           cache-from: type=gha,scope=docker-web
           cache-to: type=gha,mode=max,scope=docker-web
 
@@ -450,9 +457,9 @@ jobs:
             GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
             GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
           tags: |
-            ghcr.io/${{ github.repository }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
-            ghcr.io/${{ github.repository }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('ghcr.io/{0}/bookshelves-webapi:latest', github.repository) || '' }}
+            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
+            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
           cache-from: type=gha,scope=docker-webapi
           cache-to: type=gha,mode=max,scope=docker-webapi
 
