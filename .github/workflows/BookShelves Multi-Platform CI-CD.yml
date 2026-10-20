@@ -496,6 +496,7 @@ jobs:
           version: v0.15.1
           driver-opts: |
             image=moby/buildkit:v0.15.2
+            network=docker-registry_docker-backend-net
 
       - name: Log in to Local Private Registry
         uses: docker/login-action@v4
