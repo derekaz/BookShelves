@@ -18,7 +18,7 @@ on:
       - synchronize
   # release:
   #   types: [published]
-
+  
 concurrency:
   group: bookshelves-ci-cd-${{github.ref}}
   cancel-in-progress: true
