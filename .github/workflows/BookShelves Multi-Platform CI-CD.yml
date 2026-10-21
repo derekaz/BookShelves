@@ -375,94 +375,94 @@ jobs:
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (100% Free Public GHCR Cloud)
   # =================================================================
-  publish-docker:
-    name: Publish Containers to GHCR
-    needs: validate
-    if: |
-      github.event_name == 'push' &&
-        (github.ref_name == 'main' || 
-          startsWith(github.ref_name, 'release/') ||
-          startsWith(github.ref_name, 'Release/')) ||
-      (github.event_name == 'pull_request' && 
-        github.ref_name == 'main' && 
-        !startsWith(github.head_ref, 'feature/')) ||
-      (github.ref_type == 'tag' && 
-        needs.validate.outputs.IsValidReleaseTag == 'true')
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write # Required to allow the workflow to attach images to your repository
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
+  # publish-docker:
+  #   name: Publish Containers to GHCR
+  #   needs: validate
+  #   if: |
+  #     github.event_name == 'push' &&
+  #       (github.ref_name == 'main' || 
+  #         startsWith(github.ref_name, 'release/') ||
+  #         startsWith(github.ref_name, 'Release/')) ||
+  #     (github.event_name == 'pull_request' && 
+  #       github.ref_name == 'main' && 
+  #       !startsWith(github.head_ref, 'feature/')) ||
+  #     (github.ref_type == 'tag' && 
+  #       needs.validate.outputs.IsValidReleaseTag == 'true')
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     packages: write # Required to allow the workflow to attach images to your repository
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v7
+  #       with:
+  #         ref: ${{ github.sha }}
+  #         fetch-depth: 0
 
-      - name: Prepare Lowercase Image Path
-        id: image_path
-        run: |
-          RAW_REPO="${{ github.repository }}"
-          LOWER_REPO=$(echo "$RAW_REPO" | tr '[:upper:]' '[:lower:]')
-          echo "IMAGE_BASE=ghcr.io/${LOWER_REPO}" >> $GITHUB_OUTPUT
+  #     - name: Prepare Lowercase Image Path
+  #       id: image_path
+  #       run: |
+  #         RAW_REPO="${{ github.repository }}"
+  #         LOWER_REPO=$(echo "$RAW_REPO" | tr '[:upper:]' '[:lower:]')
+  #         echo "IMAGE_BASE=ghcr.io/${LOWER_REPO}" >> $GITHUB_OUTPUT
       
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v4
     
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v4
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- WEB APPLICATION PROJECT ---
-      - name: Build and Push Web App Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: ${{ github.workspace }}/src
-          file: ${{env.WEB_PROJPATH}}/Dockerfile 
-          push: true
-          build-args: |
-            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
-            RUN_ID=${{ github.run_id }}
-            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
-            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
-            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
-            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
-            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
-            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
-          tags: |
-            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
-            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
-          cache-from: type=gha,scope=docker-web
-          cache-to: type=gha,mode=max,scope=docker-web
+  #     # --- WEB APPLICATION PROJECT ---
+  #     - name: Build and Push Web App Docker Image
+  #       uses: docker/build-push-action@v7
+  #       with:
+  #         context: ${{ github.workspace }}/src
+  #         file: ${{env.WEB_PROJPATH}}/Dockerfile 
+  #         push: true
+  #         build-args: |
+  #           APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+  #           RUN_ID=${{ github.run_id }}
+  #           GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+  #           GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+  #           GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+  #           GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+  #           GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+  #           GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+  #           GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+  #         tags: |
+  #           ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
+  #           ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+  #           ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
+  #         cache-from: type=gha,scope=docker-web
+  #         cache-to: type=gha,mode=max,scope=docker-web
 
 
-      # --- WEB API PROJECT ---
-      - name: Build and Push Web API Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: ${{ github.workspace }}/src
-          file: ${{env.WEBAPI_PROJPATH}}/Dockerfile 
-          push: true
-          build-args: |
-            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
-            RUN_ID=${{ github.run_id }}
-            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
-            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
-            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
-            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
-            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
-            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
-          tags: |
-            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
-            ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
-          cache-from: type=gha,scope=docker-webapi
-          cache-to: type=gha,mode=max,scope=docker-webapi
+      # # --- WEB API PROJECT ---
+      # - name: Build and Push Web API Docker Image
+      #   uses: docker/build-push-action@v7
+      #   with:
+      #     context: ${{ github.workspace }}/src
+      #     file: ${{env.WEBAPI_PROJPATH}}/Dockerfile 
+      #     push: true
+      #     build-args: |
+      #       APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+      #       RUN_ID=${{ github.run_id }}
+      #       GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+      #       GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+      #       GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+      #       GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+      #       GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+      #       GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+      #       GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+      #     tags: |
+      #       ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
+      #       ${{ steps.image_path.outputs.IMAGE_BASE }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+      #       ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', steps.image_path.outputs.IMAGE_BASE) || '' }}
+      #     cache-from: type=gha,scope=docker-webapi
+      #     cache-to: type=gha,mode=max,scope=docker-webapi
 
 
   # =================================================================
@@ -531,53 +531,53 @@ jobs:
   # =================================================================
   # STAGE 2: CONTAINER DEPLOYMENTS (Linux Matrix Runner)
   # =================================================================
-  publish-docker-old:
-    name: Publish Containers to Private Registry (GHA Runner)
-    needs: validate
-    if: |
-      github.event_name == 'push' &&
-        (github.ref_name == 'main' || 
-          startsWith(github.ref_name, 'release/') ||
-          startsWith(github.ref_name, 'Release/')) ||
-      (github.event_name == 'pull_request' && 
-        github.ref_name == 'main' && 
-        !startsWith(github.head_ref, 'feature/')) ||
-      (github.ref_type == 'tag' && 
-        needs.validate.outputs.IsValidReleaseTag == 'true')
-    runs-on: ubuntu-latest
-    environment: ${{ needs.validate.outputs.EnvironmentName }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
+  # publish-docker-old:
+  #   name: Publish Containers to Private Registry (GHA Runner)
+  #   needs: validate
+  #   if: |
+  #     github.event_name == 'push' &&
+  #       (github.ref_name == 'main' || 
+  #         startsWith(github.ref_name, 'release/') ||
+  #         startsWith(github.ref_name, 'Release/')) ||
+  #     (github.event_name == 'pull_request' && 
+  #       github.ref_name == 'main' && 
+  #       !startsWith(github.head_ref, 'feature/')) ||
+  #     (github.ref_type == 'tag' && 
+  #       needs.validate.outputs.IsValidReleaseTag == 'true')
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ needs.validate.outputs.EnvironmentName }}
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v7
+  #       with:
+  #         ref: ${{ github.sha }}
+  #         fetch-depth: 0
       
-      # 1. Clear domain extraction step
-      - name: Parse and Clean Registry Domain
-        id: clean_url
-        run: |
-          RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
-          CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
-          echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
-          echo "Parsed Domain: ${CLEANED_URL}"
+  #     # 1. Clear domain extraction step
+  #     - name: Parse and Clean Registry Domain
+  #       id: clean_url
+  #       run: |
+  #         RAW_URL="${{ secrets.NAS_DOCKER_REGISTRY_URL }}"
+  #         CLEANED_URL=$(echo "$RAW_URL" | sed -e 's/https\:\/\///g' -e 's/http\:\/\///g' -e 's/\/.*//g')
+  #         echo "REGISTRY_DOMAIN=${CLEANED_URL}" >> $GITHUB_OUTPUT
+  #         echo "Parsed Domain: ${CLEANED_URL}"
 
-          # Dynamically create the Base64 string for QNAP Registry Auth
-          AUTH_STRING=$(echo -n "${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}:${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}" | base64 | tr -d '\n')
-          echo "::add-mask::$AUTH_STRING"
-          echo "REGISTRY_AUTH=${AUTH_STRING}" >> $GITHUB_OUTPUT
+  #         # Dynamically create the Base64 string for QNAP Registry Auth
+  #         AUTH_STRING=$(echo -n "${{ secrets.NAS_DOCKER_REGISTRY_USERNAME }}:${{ secrets.NAS_DOCKER_REGISTRY_PASSWORD }}" | base64 | tr -d '\n')
+  #         echo "::add-mask::$AUTH_STRING"
+  #         echo "REGISTRY_AUTH=${AUTH_STRING}" >> $GITHUB_OUTPUT
 
       # 2. FIX: Configure Docker Buildx to inject the Cloudflare headers natively
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-        with:
-          buildkitd-config-inline: |
-            [registry."${{ steps.clean_url.outputs.REGISTRY_DOMAIN }}"]
-              http-headers = [
-                { name = "CF-Access-Client-Id", values = ["${{ secrets.CF_CLIENT_ID }}"] },
-                { name = "CF-Access-Client-Secret", values = ["${{ secrets.CF_CLIENT_SECRET }}"] },
-                { name = "Authorization", values = ["Basic ${{ steps.clean_url.outputs.REGISTRY_AUTH }}"] }
-              ]
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v4
+      #   with:
+      #     buildkitd-config-inline: |
+      #       [registry."${{ steps.clean_url.outputs.REGISTRY_DOMAIN }}"]
+      #         http-headers = [
+      #           { name = "CF-Access-Client-Id", values = ["${{ secrets.CF_CLIENT_ID }}"] },
+      #           { name = "CF-Access-Client-Secret", values = ["${{ secrets.CF_CLIENT_SECRET }}"] },
+      #           { name = "Authorization", values = ["Basic ${{ steps.clean_url.outputs.REGISTRY_AUTH }}"] }
+      #         ]
 
       # 3. Log in to Private Registry
       # - name: Log in to Private Registry
@@ -642,56 +642,56 @@ jobs:
       #   uses: docker/setup-buildx-action@v4
 
       # --- WEB APPLICATION PROJECT ---
-      - name: Build and Push Web App Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: ${{ github.workspace }}/src
-          file: ${{env.WEB_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
-          push: true
+      # - name: Build and Push Web App Docker Image
+      #   uses: docker/build-push-action@v7
+      #   with:
+      #     context: ${{ github.workspace }}/src
+      #     file: ${{env.WEB_PROJPATH}}/Dockerfile
+      #     push: true
           # no-cache: true
-          build-args: |
-            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
-            RUN_ID=${{ github.run_id }}
-            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
-            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
-            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
-            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
-            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
-            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
-          tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+          # build-args: |
+          #   APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+          #   RUN_ID=${{ github.run_id }}
+          #   GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+          #   GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+          #   GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+          #   GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+          #   GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+          #   GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+          #   GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+          # tags: |
+          #   ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.ArtifactVersion }}
+          #   ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-web:${{ needs.validate.outputs.EnvironmentName }}
+          #   ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-web:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
           # 2. Added GHA caching for Web App
-          cache-from: type=gha,scope=docker-web
-          cache-to: type=gha,mode=max,scope=docker-web
+          # cache-from: type=gha,scope=docker-web
+          # cache-to: type=gha,mode=max,scope=docker-web
 
       # --- WEB API PROJECT ---
-      - name: Build and Push Web API Docker Image
-        uses: docker/build-push-action@v7
-        with:
-          context: ${{ github.workspace }}/src
-          file: ${{env.WEBAPI_PROJPATH}}/Dockerfile # Path to your Web App Dockerfile
-          push: true
+      # - name: Build and Push Web API Docker Image
+      #   uses: docker/build-push-action@v7
+      #   with:
+      #     context: ${{ github.workspace }}/src
+      #     file: ${{env.WEBAPI_PROJPATH}}/Dockerfile
+      #     push: true
           # no-cache: true
-          build-args: |
-            APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
-            RUN_ID=${{ github.run_id }}
-            GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
-            GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
-            GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
-            GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
-            GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
-            GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
-            GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
-          tags: |
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
-            ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
-            ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
+          # build-args: |
+          #   APP_VERSION=${{ needs.validate.outputs.MajorMinorPatch }}
+          #   RUN_ID=${{ github.run_id }}
+          #   GitVersion_AssemblySemFileVer=${{ needs.validate.outputs.AssemblySemFileVer }}
+          #   GitVersion_AssemblySemVer=${{ needs.validate.outputs.AssemblySemVer }}
+          #   GitVersion_CommitsSinceVersionSource=${{ needs.validate.outputs.CommitsSinceVersionSource }}
+          #   GitVersion_FullSemVer=${{ needs.validate.outputs.FullSemVer }}
+          #   GitVersion_InformationalVersion=${{ needs.validate.outputs.InformationalVersion }}
+          #   GitVersion_MajorMinorPatch=${{ needs.validate.outputs.MajorMinorPatch }}
+          #   GitVersion_SemVer=${{ needs.validate.outputs.SemVer }}
+          # tags: |
+          #   ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.ArtifactVersion }}
+          #   ${{ secrets.NAS_DOCKER_REGISTRY_URL }}/bookshelves-webapi:${{ needs.validate.outputs.EnvironmentName }}
+          #   ${{ !contains(needs.validate.outputs.SemVer, '-') && format('{0}/bookshelves-webapi:latest', secrets.NAS_DOCKER_REGISTRY_URL) || '' }}
           # 2. Added GHA caching for Web API
-          cache-from: type=gha,scope=docker-webapi
-          cache-to: type=gha,mode=max,scope=docker-webapi
+          # cache-from: type=gha,scope=docker-webapi
+          # cache-to: type=gha,mode=max,scope=docker-webapi
 
   # =================================================================
   # STAGE 3: APPLE PUBLISH (iOS .ipa & MacCatalyst .pkg on Mac)
