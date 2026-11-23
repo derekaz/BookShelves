@@ -115,13 +115,13 @@ jobs:
             **/NuGet.config
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.7.0
+        uses: gittools/actions/gitversion/setup@v5.0.0
         with:
           versionSpec: '6.8.x'
 
       - name: Execute GitVersion Calculations
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v4.7.0
+        uses: gittools/actions/gitversion/execute@v5.0.0
         with:
           verbosity: Diagnostic
           targetPath: ${{ github.workspace }}
