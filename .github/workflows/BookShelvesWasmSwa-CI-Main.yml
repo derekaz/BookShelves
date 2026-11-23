@@ -59,13 +59,13 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v4.7.0
+        uses: gittools/actions/gitversion/setup@v5.0.0
         with:
           versionSpec: '6.8.x'
 
       - name: Determine Version
         id: version_step # step id used as a reference for output values
-        uses: gittools/actions/gitversion/execute@v4.7.0
+        uses: gittools/actions/gitversion/execute@v5.0.0
 
       #- name: Get preview URL
       #  id: static_web_app_preview_url
